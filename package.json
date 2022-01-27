@@ -1,0 +1,11 @@
+{
+  "name": "peostri-lms",
+  "version": "1.0.0",
+  "description": "Logistical framework",
+  "scripts": {
+    "install": "npm install ./backend || npm install ./frontend",
+    "backend": "cd backend && npm run sweep",
+    "frontend": "cd frontent && npm run build && npm run start"
+  },
+  "license": "ISC"
+}

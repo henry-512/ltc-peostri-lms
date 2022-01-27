@@ -1,0 +1,33 @@
+{
+  "name": "peostri-backend",
+  "version": "1.0.0",
+  "description": "Logistical framework",
+  "main": "./build/index.js",
+  "scripts": {
+    "start": "node build/index.js",
+    "build": "npx tsc --build",
+    "clean": "npx tsc --build --clean",
+    "env": "cp .env build",
+    "wipe": "rm -r build/*",
+    "sweep": "npm run wipe || npm run env && npm run build  && npm run start"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/dotenv": "^8.2.0",
+    "@types/koa": "^2.13.4",
+    "@types/koa__cors": "^3.1.1",
+    "@types/koa__router": "^8.0.11",
+    "koa-logger": "^3.2.1",
+    "typescript": "^4.5.5"
+  },
+  "dependencies": {
+    "@koa/cors": "^3.1.0",
+    "@koa/router": "^10.1.1",
+    "arangojs": "^7.6.1",
+    "dotenv": "^14.3.0",
+    "koa": "^2.13.4",
+    "koa-body": "^4.2.0",
+    "koa-userauth": "^2.1.0"
+  }
+}
