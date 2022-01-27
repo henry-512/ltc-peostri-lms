@@ -4,12 +4,12 @@
   "description": "Logistical framework",
   "main": "./build/index.js",
   "scripts": {
-    "start": "node build/index.js",
+    "start": "node ./build/index.js",
+    "prebuild": "mkdir ./build; cp ./.env ./build/.env && mkdir ./src/lms; cp ../lms/types.tsx ./src/lms/types.ts",
     "build": "npx tsc --build",
     "clean": "npx tsc --build --clean",
-    "env": "mkdir build || cp .env build",
-    "wipe": "rm -r build/*",
-    "sweep": "npm run wipe || npm run env && npm run build  && npm run start"
+    "wipe": "rm -r ./build/*",
+    "sweep": "npm run wipe; npm run build && npm run start"
   },
   "author": "",
   "license": "ISC",
