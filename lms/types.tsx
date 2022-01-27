@@ -5,11 +5,10 @@ export interface LoginInformation {
 
 export type Status = "IN_PROGRESS" | "COMLETED" | "ARCHIVED" | "AWAITING";
 
-// _key needs to be optional for database queries
-// See backend/src/api/v1/projects.ts: .post('/',...) for more
+// All are optional
 interface IArangoIndexes {
-     _id: string;
-     _rev: string;
+     _id?: string;
+     _rev?: string;
      _key?: string;
 }
 

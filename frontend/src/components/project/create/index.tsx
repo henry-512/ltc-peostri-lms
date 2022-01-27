@@ -64,13 +64,13 @@ export default function ProjectCreate(props: any) {
                                         </Grid>
                                    </Grid>
                                    <Grid container xs={12}>
-                                        
+
                                    </Grid>
                               </Grid>
                          </Grid>
                     </Step>
 
-                    <Step title={translate('project.create.steps.modules')} optional={true} >
+                    <Step title={translate('project.create.steps.modules')} >
                          <DateInput label={translate('project.create.fields.end')} source="end" />
                     </Step>
                </Stepper>
