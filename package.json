@@ -3,9 +3,14 @@
   "version": "1.0.0",
   "description": "Logistical framework",
   "scripts": {
-    "install": "npm install ./backend || npm install ./frontend",
+    "install": "npm run install-back && npm run install-front",
+    "install-back": "cd backend && npm install && cd ..",
+    "install-front": "cd frontend && npm install && cd ..",
     "backend": "cd backend && npm run sweep",
-    "frontend": "cd frontent && npm run build && npm run start"
+    "frontend": "cd frontend && npm run build && npm run start"
   },
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "peostri-backend": "file:backend"
+  }
 }

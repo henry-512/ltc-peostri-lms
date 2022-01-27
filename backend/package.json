@@ -7,7 +7,7 @@
     "start": "node build/index.js",
     "build": "npx tsc --build",
     "clean": "npx tsc --build --clean",
-    "env": "cp .env build",
+    "env": "mkdir build || cp .env build",
     "wipe": "rm -r build/*",
     "sweep": "npm run wipe || npm run env && npm run build  && npm run start"
   },
