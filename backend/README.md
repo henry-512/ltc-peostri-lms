@@ -1,6 +1,5 @@
 # PEO STRI Logistics Management Software (Backend)
 
-***NOT (fully) IMPLEMENTED YET***
 
 Execution requires a ```.env``` file in the ```./build``` directory, with the following fields. This is used to connect to the database and what port to listen on.
 
@@ -16,17 +15,7 @@ DB_PASS = "password"
 
 Listens on port API_PORT
 
-## api
-
-### versions
-
-- 1.0
-  initial commit
-
-### commands
-
 ```api/version/projects```
-  
 
 # todo
 
@@ -44,8 +33,6 @@ Listens on port API_PORT
 # others
 
 - 409 error on POST?
-- Refactor clientside
-- IDs for everything
 
 # trash
 
