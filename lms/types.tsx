@@ -8,8 +8,8 @@ export type Status = "IN_PROGRESS" | "COMLETED" | "ARCHIVED" | "AWAITING";
 // _key needs to be optional for database queries
 // See backend/src/api/v1/projects.ts: .post('/',...) for more
 interface IArangoIndexes {
-     _id: string;
-     _rev: string;
+     _id?: string;
+     _rev?: string;
      _key?: string;
 }
 
@@ -17,6 +17,8 @@ export interface IUser extends IArangoIndexes {
      firstName: string;
      lastName: string;
      avatar: null | string;
+
+     id?: string;
 }
 
 export interface IComment extends IArangoIndexes {

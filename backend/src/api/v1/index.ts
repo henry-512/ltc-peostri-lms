@@ -1,6 +1,7 @@
 import Router from '@koa/router'
 
 import { projects } from './projects'
+import { users } from './users'
 
 export function routerBuilder(version: string) {
 	const router = new Router({
@@ -9,6 +10,7 @@ export function routerBuilder(version: string) {
 
 	router
 		.use(projects().routes())
+		.use(users().routes())
 
 	return router
 }
