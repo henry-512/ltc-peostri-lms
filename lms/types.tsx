@@ -1,17 +1,9 @@
-import { ReduxState } from "react-admin";
-
 export interface LoginInformation {
      username: string,
      password: string
 }
 
-export type ThemeName = 'light' | 'dark';
-
 export type Status = "IN_PROGRESS" | "COMLETED" | "ARCHIVED" | "AWAITING";
-
-export interface AppState extends ReduxState {
-     theme: ThemeName;
-}
 
 export interface IUser {
      firstName: string;
