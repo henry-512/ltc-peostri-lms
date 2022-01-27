@@ -5,55 +5,62 @@ export interface LoginInformation {
 
 export type Status = "IN_PROGRESS" | "COMLETED" | "ARCHIVED" | "AWAITING";
 
-export interface IUser {
+interface IArangoIndexes {
+     _id: string;
+     _rev: string;
+     _key: string;
+}
+
+export interface IUser extends IArangoIndexes {
      firstName: string;
      lastName: string;
      avatar: null | string;
 }
 
-export interface IComment {
+export interface IComment extends IArangoIndexes {
      content: string;
      author: string | IUser;
      created: Date;
      updated: Date;
 }
 
-export interface ITask {
+export interface ITask extends IArangoIndexes {
      title: string;
      status: Status;
      assigned?: string | IUser | Array<IUser> | Array<string> | null; //TODO: Should this be a rank instead of a user??
      comments: Array<IComment>;
 }
 
-export interface ITaskReview extends ITask {
+export interface ITaskReview extends ITask, IArangoIndexes {
      type: "DOCUMENT_REVIEW";
 }
 
-export interface ITaskUpload extends ITask {
+export interface ITaskUpload extends ITask, IArangoIndexes {
      type: "DOCUMENT_UPLOAD";
 }
 
-export interface IModule {
+export interface IModule extends IArangoIndexes {
      title: string;
      tasks: Array<ITask>;
 }
 
-export interface IProject {
+export interface IProject extends IArangoIndexes {
      title: string;
-     created: Date;
-     updated: Date;
-     startDate: Date;
-     endDate: Date;
+     createdAt: Date;
+     updatedAt: Date;
+     start: Date;
+     end: Date;
      status: Status;
-     comments: Array<IComment>;
-     modules: Array<IModule>;
+     comments: Array<string> | Array<IComment>;
+     modules: Array<string> | Array<IModule>;
+     users: Array<string> | Array<IUser>;
 }
 
-export interface IModuleTemplate extends IModule {
+export interface IModuleTemplate extends IModule, IArangoIndexes {
      description: string;
 }
 
-export interface IProjectTemplate {
+export interface IProjectTemplate extends IArangoIndexes {
      title: string;
      description: string;
      created: Date;
