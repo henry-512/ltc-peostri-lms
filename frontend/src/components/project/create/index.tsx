@@ -2,6 +2,7 @@ import { Grid, makeStyles, Typography } from "@material-ui/core";
 import { BooleanInput, Create, DateInput,  TextInput, useTranslate } from "react-admin";
 import { Step } from "./Step";
 import Stepper from "./Stepper";
+import UserSelector from "./UserSelector";
 
 const useStyles = makeStyles(theme => ({
      root: {},
@@ -64,7 +65,7 @@ export default function ProjectCreate(props: any) {
                                         </Grid>
                                    </Grid>
                                    <Grid container xs={12}>
-
+                                        <UserSelector />
                                    </Grid>
                               </Grid>
                          </Grid>
