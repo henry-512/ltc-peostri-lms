@@ -22,8 +22,9 @@ export interface IUser extends IArangoIndexes {
 export interface IComment extends IArangoIndexes {
      content: string;
      author: string | IUser;
-     created: Date;
-     updated: Date;
+     created: string | Date;
+     updated: string | Date;
+     parent?: string | ITask | IModule | IProject;
 }
 
 export interface ITask extends IArangoIndexes {
@@ -31,6 +32,7 @@ export interface ITask extends IArangoIndexes {
      status: Status;
      assigned?: string | IUser | Array<IUser> | Array<string> | null; //TODO: Should this be a rank instead of a user??
      comments: Array<IComment>;
+     parent?: string | IModule;
 }
 
 export interface ITaskReview extends ITask, IArangoIndexes {
@@ -44,6 +46,7 @@ export interface ITaskUpload extends ITask, IArangoIndexes {
 export interface IModule extends IArangoIndexes {
      title: string;
      tasks: Array<ITask>;
+     project?: string | IProject;
 }
 
 export interface IProject extends IArangoIndexes {
