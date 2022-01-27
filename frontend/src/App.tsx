@@ -8,7 +8,7 @@ import polyglotI18nProvider from 'ra-i18n-polyglot';
 import englishMessages from 'ra-language-english';
 import domainMessages from './util/language';
 
-const API_URL = process.env.API_URL || "";
+const API_URL = process.env.REACT_APP_API_URL || "";
 
 const messages: any = {
      en: {...englishMessages, ...domainMessages.en}
