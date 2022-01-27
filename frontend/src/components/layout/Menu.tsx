@@ -64,14 +64,6 @@ const Menu = ({ dense = false }: MenuProps) => {
                          leftIcon={<TemplateIcon />}
                     />
                </SubMenu>
-               <MenuItemLink
-                    to={{
-                         pathname: '/reviews',
-                         state: { _scrollToTop: true },
-                    }}
-                    primaryText="Item"
-                    dense={dense}
-               />
           </div>
      );
 };
