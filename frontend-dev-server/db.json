@@ -1,0 +1,36 @@
+{
+  "projects": [
+    {
+      "title": "sdsd",
+      "createdAt": "2022-01-11",
+      "id": 1
+    },
+    {
+      "title": "Some Title",
+      "end": "2022-01-19",
+      "id": 2
+    },
+    {
+      "title": "Somererrere",
+      "end": "2022-01-29",
+      "id": 3
+    },
+    {
+      "id": 4
+    }
+  ],
+  "users": [
+    {
+      "id": "1",
+      "name": "Braden",
+      "email": "braden@lms.com",
+      "rank": "1"
+    }
+  ],
+  "groups": [
+    {
+      "id": "1",
+      "name": "Supreme Leader"
+    }
+  ]
+}
