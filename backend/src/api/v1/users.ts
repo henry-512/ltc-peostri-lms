@@ -31,7 +31,8 @@ export function users() {
 
                 // Required by simple REST data provider
                 // https://github.com/marmelab/react-admin/blob/master/packages/ra-data-simple-rest/README.md
-                ctx.set('Content-Range', all.length.toString())
+                // TODO: update the ranges
+                ctx.set('Content-Range', `users 0-${all.length-1}/${all.length}`)
                 ctx.set('Access-Control-Expose-Headers', 'Content-Range')
             } catch (err) {
                 console.log(err)
@@ -55,6 +56,9 @@ export function users() {
 
                     ctx.status = 200
                     ctx.body = user
+                    // TODO: update the ranges
+                    ctx.set('Content-Range', `users 0-0/1`)
+                    ctx.set('Access-Control-Expose-Headers', 'Content-Range')
                 } else {
                     ctx.status = 404
                     ctx.body = `User [${ctx.params.id}] dne.`

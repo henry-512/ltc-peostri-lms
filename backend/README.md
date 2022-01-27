@@ -1,5 +1,26 @@
 # PEO STRI Logistics Management Software (Backend)
 
+# build info
+
+# Install
+
+```
+npm install
+```
+
+## Unix
+
+```
+npm run build
+npm run start
+```
+
+## Windows
+
+```
+npm run winbuild
+npm run start
+```
 
 Execution requires a ```.env``` file in the ```./build``` directory, with the following fields. This is used to connect to the database and what port to listen on.
 
@@ -22,13 +43,14 @@ Listens on port API_PORT
 - ~~*real* configs~~
 - ~~switch to typescript eventually maybe~~
 - real aql parsing
-  - return { api-key: d.db-key, ... } vs ts mapping ?
+  - ~~return { api-key: d.db-key, ... } vs ts mapping ?~~
   - date format cant be converted in aql
     - date type?
   - comments / modules
   - getall limits/sort
 - DB error catching
 - Cache collections?
+- Fix Content-Range headers
 
 # others
 
