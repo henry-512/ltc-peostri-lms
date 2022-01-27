@@ -160,3 +160,6 @@ dist
 
 # vscode workspace
 workspace.code-workspace
+
+# backend lms directory
+/backend/src/lms/types.ts

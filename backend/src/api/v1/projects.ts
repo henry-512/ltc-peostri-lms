@@ -1,4 +1,3 @@
-import Application from 'koa'
 import Router from '@koa/router'
 import koaBody from 'koa-body'
 import { aql } from 'arangojs'
@@ -57,9 +56,10 @@ export function projects() {
                     // Copy ._key to .id
                     doc.id = doc._key
 
-                    // delete doc._key
-                    // delete doc._id
-                    // delete doc._rev
+                    // Dont send db stuff to client
+                    delete doc._key
+                    delete doc._id
+                    delete doc._rev
 
                     ctx.status = 200
                     ctx.body = doc
@@ -98,8 +98,6 @@ export function projects() {
                         users: body.users || [],
                         _key: body.id, // either use passed id or undefined
                                        // to let arango pick one
-                        _id: '',
-                        _rev: ''
                     }
                     
                     await col.save(proj)
@@ -133,9 +131,9 @@ export function projects() {
                         modules: body.modules || doc.modules || [],
                         users: body.users || doc.users || [],
                         // maybe hack
-                        _id: doc._id || '',
-                        _rev: doc._rev || '',
-                        _key: body.id || ctx.params.id || doc._key || ''
+                        _id: doc._id,
+                        _rev: doc._rev,
+                        _key: ctx.params.id || body.id || doc._key || ''
                     }
 
                     await col.update(ctx.params.id, proj)

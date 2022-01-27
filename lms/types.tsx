@@ -16,6 +16,8 @@ export interface IUser extends IArangoIndexes {
      firstName: string;
      lastName: string;
      avatar: null | string;
+
+     id?: string;
 }
 
 export interface IComment extends IArangoIndexes {
