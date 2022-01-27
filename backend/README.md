@@ -5,7 +5,7 @@ Execution requires a ```.env``` file in the ```./build``` directory, with the fo
 
 ```bash
 API_PORT = "port"
-DB_URL = "https://url.com"
+DB_URL = "http://url.com"
 DB_NAME = "dbname"
 DB_USER = "username"
 DB_PASS = "password"
@@ -65,4 +65,11 @@ https://medium.com/@ogamba.co/how-to-create-a-web-app-with-react-koa-webpack-and
 
   JSON.stringify
   import { config } from './config'
+
+  const cursor = await db.query(aql`
+    let d = document('projects/'${ctx.params.id})
+    let c = (for dc in d.comments return document(dc))
+    let m = (for dm in d.modules return document(dm))
+    let u = (for du in d.users return document(du))
+  `)
 ```
