@@ -9,7 +9,11 @@
     "build": "npx tsc --build",
     "clean": "npx tsc --build --clean",
     "wipe": "rm -r ./build/*",
-    "sweep": "npm run wipe; npm run build && npm run start"
+    "sweep": "npm run wipe; npm run build && npm run start",
+    "prewinbuild": "./winprebuild.bat",
+    "winbuild": "npx tsc --build",
+    "winsweep": "npm run winwipe; npm run build && npm run start",
+    "winwipe": "./winwipe.bat"
   },
   "author": "",
   "license": "ISC",
