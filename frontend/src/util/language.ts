@@ -27,6 +27,11 @@ export default {
                          title: "Title",
                          start: "Start Date",
                          end: "End Date"
+                    },
+                    layout: {
+                         general: "Project Information",
+                         assign: "Assign Members to Project",
+                         auto_assign: "Auto Assign to Tasks by Rank"
                     }
                }
           }

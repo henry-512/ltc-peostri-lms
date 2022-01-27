@@ -4,7 +4,7 @@ import { useTranslate } from 'react-admin';
 const Logo = (props: any) => {
     const translate = useTranslate();
     return (
-        <img src="/logo.png" height="36px" />
+        <img src="/logo.png" height="32px" />
     );
 };
 
