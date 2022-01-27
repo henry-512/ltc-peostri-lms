@@ -1,4 +1,4 @@
-import { Step, StepLabel, Stepper, Typography } from "@material-ui/core";
+import { makeStyles, Step, StepLabel, Stepper, Typography } from "@material-ui/core";
 import React from "react";
 import { StepSettings } from "./Step";
 
@@ -17,10 +17,16 @@ type StepProps = {
      completed: boolean
 }
 
-export default function StepHeader(props: StepHeaderProps) {
+const useStyles = makeStyles(theme => ({
+     root: {
+          flexGrow: 1
+     }
+}));
 
+export default function StepHeader(props: StepHeaderProps) {
+     const classes = useStyles();
      return (
-          <Stepper activeStep={props.active} {...props}>
+          <Stepper activeStep={props.active} {...props} className={classes.root}>
                {(React.Children.map(props.children, (element, index) => {
                     if (!React.isValidElement(element)) return;
                     const labelProps: LabelProps = {} as LabelProps;
