@@ -23,8 +23,8 @@ export interface IUser extends IArangoIndexes {
 export interface IComment extends IArangoIndexes {
      content: string;
      author: string | IUser;
-     created: string | Date;
-     updated: string | Date;
+     createdAt?: string | Date;
+     updatedAt?: string | Date;
      parent?: string | ITask | IModule | IProject;
 }
 
@@ -52,8 +52,8 @@ export interface IModule extends IArangoIndexes {
 
 export interface IProject extends IArangoIndexes {
      title: string;
-     createdAt: Date;
-     updatedAt: Date;
+     createdAt?: Date;
+     updatedAt?: Date;
      start: Date;
      end: Date;
      status: Status;
@@ -71,7 +71,7 @@ export interface IModuleTemplate extends IModule, IArangoIndexes {
 export interface IProjectTemplate extends IArangoIndexes {
      title: string;
      description: string;
-     created: Date;
-     updated: Date;
+     createdAt?: Date;
+     updatedAt?: Date;
      modules: Array<IModule>;
 }
