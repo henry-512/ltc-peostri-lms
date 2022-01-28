@@ -5,6 +5,16 @@ import { aql } from 'arangojs'
 import { db } from '../../database'
 import { IProject } from '../../lms/types'
 
+// function getFullProject(project: IProject) {
+//     for (mod in project.modules) {
+//         if (mod typeof 'string') {
+            
+//         }
+//         var mod = i as IModule
+
+//     }
+// }
+
 export function projects() {
     const router = new Router({
         prefix: '/projects'
@@ -72,6 +82,7 @@ export function projects() {
                     ctx.status = 404
                     ctx.body = `Project [${ctx.params.id}] dne.`
                 }
+
                 // TODO: update the ranges
                 ctx.set('Content-Range', `projects 0-0/1`)
                 ctx.set('Access-Control-Expose-Headers', 'Content-Range')
@@ -96,8 +107,8 @@ export function projects() {
                     // best to let arango generate the key.
                     var proj: IProject = {
                         title: body.title || 'New Project',
-                        createdAt: body.createdAt || new Date(),
-                        updatedAt: body.updatedAt || new Date(),
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
                         start: body.start || new Date(),
                         end: body.end || new Date(),
                         status: body.status || 'IN_PROGRESS',
@@ -130,8 +141,8 @@ export function projects() {
 
                     var proj: IProject = {
                         title: body.title || doc.title || 'New Project',
-                        createdAt: body.createdAt || doc.createdAt || new Date(),
-                        updatedAt: body.updatedAt || doc.updatedAt || new Date(),
+                        createdAt: doc.createdAt || new Date(),
+                        updatedAt: new Date(),
                         start: body.start || doc.start || new Date(),
                         end: body.end || doc.end || new Date(),
                         status: body.status || doc.status || 'IN_PROGRESS',
@@ -139,9 +150,9 @@ export function projects() {
                         modules: body.modules || doc.modules || [],
                         users: body.users || doc.users || [],
                         // maybe hack
-                        _id: doc._id,
-                        _rev: doc._rev,
-                        _key: ctx.params.id || body.id || doc._key || ''
+                        // _id: doc._id,
+                        // _rev: doc._rev,
+                        // _key: ctx.params.id || body.id || doc._key || ''
                     }
 
                     await col.update(ctx.params.id, proj)
