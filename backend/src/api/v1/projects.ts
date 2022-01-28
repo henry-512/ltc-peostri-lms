@@ -23,11 +23,14 @@ export function projects() {
                     return {
                         id: d._key, // internal id -> api id
                         title: d.title,
-                        //createdAt: d.createdAt,
-                        //updatedAt: d.updatedAt,
-                        //start: d.start,
-                        //end: d.end,
-                        status: d.status
+                        createdAt: d.createdAt,
+                        updatedAt: d.updatedAt,
+                        start: d.start,
+                        end: d.end,
+                        status: d.status,
+                        comments: d.comments,
+                        modules: d.modules,
+                        users: d.users
                     }
                 `)
 
