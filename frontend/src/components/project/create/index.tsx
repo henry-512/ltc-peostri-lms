@@ -1,13 +1,15 @@
 import { Grid, makeStyles, Typography } from "@material-ui/core";
-import { BooleanInput, Create, DateInput,  TextInput, useTranslate } from "react-admin";
+import { AutocompleteArrayInput, BooleanInput, Create, DateInput,  ReferenceArrayInput,  TextInput, useTranslate } from "react-admin";
 import { Step } from "./Step";
 import Stepper from "./Stepper";
-import UserSelector from "./UserSelector";
 
 const useStyles = makeStyles(theme => ({
      root: {},
      content: {
           marginTop: theme.spacing(1)
+     },
+     suggestionsContainer: {
+          width: '100%'
      }
 }));
 
@@ -31,6 +33,7 @@ export default function ProjectCreate(props: any) {
                                                   source="title" 
                                                   required
                                                   fullWidth
+                                                  helperText=" "
                                              />
                                         </Grid>
                                         <Grid item xs={3}>
@@ -39,6 +42,7 @@ export default function ProjectCreate(props: any) {
                                                   source="startDate"
                                                   required
                                                   fullWidth
+                                                  helperText=" "
                                              />
                                         </Grid>
                                         <Grid item xs={3}>
@@ -47,12 +51,13 @@ export default function ProjectCreate(props: any) {
                                                   source="endDate" 
                                                   required
                                                   fullWidth
+                                                  helperText=" "
                                              />
                                         </Grid>
                                    </Grid>
                               </Grid>
                               <Grid item xs={12}>
-                                   <Grid container xs={12}>
+                                   <Grid container>
                                         <Grid item xs={6}>
                                              <Typography variant="h6">
                                                   {translate('project.create.layout.assign')}
@@ -60,12 +65,25 @@ export default function ProjectCreate(props: any) {
                                         </Grid>
                                         <Grid item xs={6}>
                                              <Grid container xs={12} justifyContent="flex-end">
-                                                  <BooleanInput label="project.create.layout.auto_assign" source="auto_assign"/>
+                                                  <BooleanInput label="project.create.layout.auto_assign" source="auto_assign" helperText=" " />
                                              </Grid>
                                         </Grid>
                                    </Grid>
-                                   <Grid container xs={12}>
-                                        <UserSelector />
+                                   <Grid container>
+                                        <ReferenceArrayInput
+                                             label="project.create.fields.member"
+                                             reference="users"
+                                             source="users"
+                                             fullWidth
+                                        >
+                                             <AutocompleteArrayInput
+                                                  optionText={choice => `${choice.firstName} ${choice.lastName}`}
+                                                  optionValue="_id"
+                                                  helperText=" "
+                                                  fullWidth
+                                                  className={classes.suggestionsContainer}
+                                             />
+                                        </ReferenceArrayInput>
                                    </Grid>
                               </Grid>
                          </Grid>

@@ -29,6 +29,7 @@ const App = () => {
                disableTelemetry
           >
                <Resource name='projects' list={ProjectList} create={ProjectCreate} />
+               <Resource name="users" />
           </Admin>
      );
 }

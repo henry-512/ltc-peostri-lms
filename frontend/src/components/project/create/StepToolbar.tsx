@@ -14,7 +14,7 @@ export interface StepToolbarProps extends ToolbarProps {
 export default function StepToolbar(props: StepToolbarProps) {
      const translate = useTranslate();
      return (
-          <Toolbar {...props} >
+          <Toolbar>
                <Button
                     color="inherit"
                     disabled={props.active === 0}

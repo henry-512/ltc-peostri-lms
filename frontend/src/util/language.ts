@@ -26,7 +26,8 @@ export default {
                     fields: {
                          title: "Title",
                          start: "Start Date",
-                         end: "End Date"
+                         end: "End Date",
+                         member: "Assign Members"
                     },
                     layout: {
                          general: "Project Information",
