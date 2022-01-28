@@ -5,7 +5,7 @@
   "main": "./build/index.js",
   "scripts": {
     "start": "node ./build/index.js",
-    "prebuild": "mkdir ./build; cp ./.env ./build/.env && mkdir ./src/lms; cp ../lms/types.tsx ./src/lms/types.ts",
+    "prebuild": "mkdir ./build; cp ./.env ./build/.env && mkdir ./src/lms; cp ../lms/types.ts ./src/lms/types.ts",
     "build": "npx tsc --build",
     "clean": "npx tsc --build --clean",
     "wipe": "rm -r ./build/*",
