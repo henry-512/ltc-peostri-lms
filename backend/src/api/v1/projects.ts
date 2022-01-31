@@ -76,8 +76,6 @@ export function projects() {
         // get one
         .get('/:id', async ctx => {
             try  {
-                var ProjectDB = db.collection('projects')
-
                 if (await ProjectDB.documentExists(ctx.params.id)) {
                     var doc = await getProject(ctx.params.id, true)
 
@@ -107,7 +105,6 @@ export function projects() {
         // Create
         .post('/', koaBody(), async ctx => {
             try {
-                var ProjectDB = db.collection('projects')
                 var body = ctx.request.body
 
                 if ('id' in body && await ProjectDB.documentExists(body.id)) {
@@ -144,8 +141,6 @@ export function projects() {
         // Create/update
         .put('/:id', koaBody(), async ctx => {
             try {
-                var ProjectDB = db.collection('projects')
-
                 if (await ProjectDB.documentExists(ctx.params.id)) {
                     var body = ctx.request.body
 
@@ -180,8 +175,6 @@ export function projects() {
         // Delete
         .delete('/:id', async ctx => {
             try {
-                var ProjectDB = db.collection('projects')
-
                 if (await ProjectDB.documentExists(ctx.params.id)) {
                     await ProjectDB.remove(ctx.params.id)
                     ctx.status = 200
