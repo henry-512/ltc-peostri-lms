@@ -4,16 +4,29 @@ import { aql } from 'arangojs'
 
 import { db } from '../../database'
 import { IProject } from '../../lms/types'
+import { getComment } from './comments'
+import { getModule } from './modules'
+import { getUser } from './users'
 
-// function getFullProject(project: IProject) {
-//     for (mod in project.modules) {
-//         if (mod typeof 'string') {
-            
-//         }
-//         var mod = i as IModule
+var ProjectDB = db.collection('projects')
 
-//     }
-// }
+export async function getProject(id: string, cascade?: boolean) {
+    var project = await ProjectDB.document(id) as IProject
+
+    // mod.id = mod._key
+
+    delete project._key
+    delete project._id
+    delete project._rev
+
+    if (cascade) {
+        project.comments = await Promise.all(project.comments.map(async c => await getComment(c as string, cascade)))
+        project.modules = await Promise.all(project.modules.map(async m => await getModule(m as string, cascade)))
+        project.users = await Promise.all(project.users.map(async u => await getUser(u as string, cascade)))
+    }
+
+    return project
+}
 
 export function projects() {
     const router = new Router({
@@ -63,10 +76,10 @@ export function projects() {
         // get one
         .get('/:id', async ctx => {
             try  {
-                var col = db.collection('projects')
+                var ProjectDB = db.collection('projects')
 
-                if (await col.documentExists(ctx.params.id)) {
-                    var doc = await col.document(ctx.params.id) as IProject
+                if (await ProjectDB.documentExists(ctx.params.id)) {
+                    var doc = await getProject(ctx.params.id, true)
 
                     // Copy ._key to .id
                     doc.id = doc._key
@@ -94,17 +107,16 @@ export function projects() {
         // Create
         .post('/', koaBody(), async ctx => {
             try {
-                var col = db.collection('projects')
+                var ProjectDB = db.collection('projects')
                 var body = ctx.request.body
 
-                if ('id' in body && await col.documentExists(body.id)) {
+                if ('id' in body && await ProjectDB.documentExists(body.id)) {
                     ctx.status = 409
                     ctx.body = `Document [${body.id}] already exists`
                 } else {
+                    // TODO: create docs
+
                     // Sanitize
-                    // _key would need to be set here, but arango
-                    // won't accept '' as a valid key and its (probably)
-                    // best to let arango generate the key.
                     var proj: IProject = {
                         title: body.title || 'New Project',
                         createdAt: new Date(),
@@ -119,7 +131,7 @@ export function projects() {
                                        // to let arango pick one
                     }
                     
-                    await col.save(proj)
+                    await ProjectDB.save(proj)
                     ctx.status = 201
                     ctx.body = `Document created`
                     console.log(proj)
@@ -132,12 +144,12 @@ export function projects() {
         // Create/update
         .put('/:id', koaBody(), async ctx => {
             try {
-                var col = db.collection('projects')
+                var ProjectDB = db.collection('projects')
 
-                if (await col.documentExists(ctx.params.id)) {
+                if (await ProjectDB.documentExists(ctx.params.id)) {
                     var body = ctx.request.body
 
-                    var doc = await col.document(ctx.params.id)
+                    var doc = await ProjectDB.document(ctx.params.id)
 
                     var proj: IProject = {
                         title: body.title || doc.title || 'New Project',
@@ -148,23 +160,15 @@ export function projects() {
                         status: body.status || doc.status || 'IN_PROGRESS',
                         comments: body.comments || doc.comments || [],
                         modules: body.modules || doc.modules || [],
-                        users: body.users || doc.users || [],
-                        // maybe hack
-                        // _id: doc._id,
-                        // _rev: doc._rev,
-                        // _key: ctx.params.id || body.id || doc._key || ''
+                        users: body.users || doc.users || []
                     }
 
-                    await col.update(ctx.params.id, proj)
+                    await ProjectDB.update(ctx.params.id, proj)
 
                     ctx.status = 200
                     ctx.body = `Document updated`
                     console.log(proj)
                 } else {
-                    // await col.save(ctx.params.id, ctx.request.body)
-                    // ctx.status = 201
-                    // ctx.body = `Document created`
-
                     ctx.status = 409
                     ctx.body = `Document [${ctx.params.id}] dne`
                 }
@@ -176,10 +180,10 @@ export function projects() {
         // Delete
         .delete('/:id', async ctx => {
             try {
-                var col = db.collection('projects')
+                var ProjectDB = db.collection('projects')
 
-                if (await col.documentExists(ctx.params.id)) {
-                    await col.remove(ctx.params.id)
+                if (await ProjectDB.documentExists(ctx.params.id)) {
+                    await ProjectDB.remove(ctx.params.id)
                     ctx.status = 200
                     ctx.body = `Document deleted`
                 } else {

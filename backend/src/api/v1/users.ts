@@ -5,6 +5,20 @@ import { aql } from 'arangojs'
 import { db } from '../../database'
 import { IUser } from '../../lms/types'
 
+var UserDB = db.collection('users')
+
+export async function getUser(id: string, cascade?: boolean) {
+    var user = await UserDB.document(id) as IUser
+
+    user.id = user._key
+
+    delete user._key
+    delete user._id
+    delete user._rev
+
+    return user
+}
+
 export function users() {
     const router = new Router({
         prefix: '/users'
@@ -44,15 +58,7 @@ export function users() {
                 var col = db.collection('projects')
 
                 if (await col.documentExists(ctx.params.id)) {
-                    var user = await col.document(ctx.params.id) as IUser
-
-                    // Copy ._key to .id
-                    user.id = user._key
-
-                    // Dont send db stuff to client
-                    delete user._key
-                    delete user._id
-                    delete user._rev
+                    var user = await getUser(ctx.params.id)
 
                     ctx.status = 200
                     ctx.body = user

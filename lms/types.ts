@@ -6,7 +6,7 @@ export interface LoginInformation {
 export type Status = "IN_PROGRESS" | "COMLETED" | "ARCHIVED" | "AWAITING";
 
 // All are optional
-interface IArangoIndexes {
+export interface IArangoIndexes {
      _id?: string;
      _rev?: string;
      _key?: string;
@@ -31,8 +31,8 @@ export interface IComment extends IArangoIndexes {
 export interface ITask extends IArangoIndexes {
      title: string;
      status: Status;
-     assigned?: string | IUser | Array<IUser> | Array<string> | null; //TODO: Should this be a rank instead of a user??
-     comments: Array<IComment>;
+     assigned?: Array<string> | Array<IUser>;
+     comments: Array<string> | Array<IComment>;
      parent?: string | IModule;
 }
 
@@ -48,6 +48,7 @@ export interface IModule extends IArangoIndexes {
      title: string;
      tasks: Array<ITask>;
      project?: string | IProject;
+     comments: Array<string> | Array<IComment>;
 }
 
 export interface IProject extends IArangoIndexes {
