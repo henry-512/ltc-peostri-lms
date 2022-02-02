@@ -78,7 +78,7 @@ const useStyles = makeStyles(theme => ({
           }),
      },
      open: {
-          width: 200,
+          width: 200
      },
      closed: {
           width: 55,
