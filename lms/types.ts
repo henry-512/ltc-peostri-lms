@@ -46,7 +46,7 @@ export interface ITaskUpload extends ITask, IArangoIndexes {
 
 export interface IModule extends IArangoIndexes {
      title: string;
-     tasks: Array<ITask>;
+     tasks: Array<string> | Array<ITask>;
      project?: string | IProject;
      comments: Array<string> | Array<IComment>;
 }

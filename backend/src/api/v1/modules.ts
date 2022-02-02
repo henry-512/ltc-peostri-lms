@@ -10,6 +10,12 @@ var ModuleDB = db.collection('modules')
  * TODO: input conversion
  */
 export async function uploadModule(mod: IModule) {
+	//delete mod.project
+
+	
+
+	mod.tasks = await Promise.all(mod.tasks )
+
 	return await ModuleDB.save(mod) as IArangoIndexes
 }
 

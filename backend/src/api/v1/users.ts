@@ -7,6 +7,10 @@ import { IUser } from '../../lms/types'
 
 var UserDB = db.collection('users')
 
+export async function uploadUser(usr: IUser) {
+    
+}
+
 export async function getUser(id: string, cascade?: boolean) {
     var user = await UserDB.document(id) as IUser
 
