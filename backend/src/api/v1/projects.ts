@@ -10,6 +10,45 @@ import { getUser } from './users'
 
 var ProjectDB = db.collection('projects')
 
+export async function uploadProject(pro: IProject) {
+    pro.createdAt = new Date()
+    pro.updatedAt = new Date()
+
+    pro.comments = await Promise.all(pro.comments.map(async com => {
+        if (typeof com !== 'string') {
+            return await uploadComment(com)
+        } else if (commentExists(com as string)) {
+            return com as string
+        } else {
+            throw new ReferenceError(`Comment ${com} dne`)
+        }
+    }))
+
+    pro.modules = await Promise.all(pro.modules.map(async mod => {
+        if (typeof mod !== 'string') {
+            return await uploadModule(mod)
+        } else if (moduleExists(mod as string)) {
+            return mod as string
+        } else {
+            throw new ReferenceError(`Module ${mod} dne`)
+        }
+    }))
+
+    pro.users = await Promise.all(pro.users.map(async usr => {
+        if (typeof usr !== 'string') {
+            return await uploadModule(usr)
+        } else if (moduleExists(usr as string)) {
+            return usr as string
+        } else {
+            throw new ReferenceError(`User ${usr} dne`)
+        }
+    }))
+
+    delete pro.id
+
+    return await ProjectDB.save(pro) as IArangoIndexes
+}
+
 export async function getProject(id: string, cascade?: boolean) {
     var project = await ProjectDB.document(id) as IProject
 
