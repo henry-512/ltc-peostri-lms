@@ -32,16 +32,16 @@ const ConfigurationMenu = forwardRef<any, any>((props, ref) => {
     );
 });
 
-const CustomUserMenu = (props: any) => (
+const ActiveUserMenu = (props: any) => (
     <UserMenu {...props}>
-        <ConfigurationMenu />
+        
     </UserMenu>
 );
 
 const CustomAppBar = (props: any) => {
     const classes = useStyles();
     return (
-        <AppBar {...props} elevation={1} userMenu={<CustomUserMenu />}>
+        <AppBar {...props} elevation={1} userMenu={<UserMenu />}>
             <Typography
                 variant="h6"
                 color="inherit"

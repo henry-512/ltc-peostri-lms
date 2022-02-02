@@ -21,18 +21,24 @@ export default {
                     title: "Create a Project",
                     steps: {
                          general: "General Information",
-                         modules: "Module Selection"
+                         modules: "Module Selection",
+                         review: "Review"
                     },
                     fields: {
                          title: "Title",
                          start: "Start Date",
                          end: "End Date",
-                         member: "Assign Members"
+                         member: "Assign Members",
+                         module_title: "Module Title",
+                         task_title: "Task Title"
                     },
                     layout: {
                          general: "Project Information",
                          assign: "Assign Members to Project",
-                         auto_assign: "Auto Assign to Tasks by Rank"
+                         auto_assign: "Auto Assign to Tasks by Rank",
+                         add_modules: "Add Modules to Project",
+                         module: "Modules",
+                         task: "Tasks"
                     }
                }
           }
