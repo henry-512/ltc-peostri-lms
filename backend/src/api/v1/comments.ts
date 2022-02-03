@@ -140,7 +140,7 @@ export function commentRoute() {
 			try  {
 				if (await CommentCol.documentExists(ctx.params.id)) {
 					ctx.status = 200
-					ctx.body = await getComment(ctx.params.id)
+					ctx.body = await getComment(ctx.params.id, true)
 					ctx.set('Content-Range', `modules 0-0/1`)
 					ctx.set('Access-Control-Expose-Headers', 'Content-Range')
 				} else {

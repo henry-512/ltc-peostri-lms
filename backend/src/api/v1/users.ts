@@ -5,10 +5,15 @@ import { aql } from 'arangojs'
 import { db } from '../../database'
 import { IArangoIndexes, IUser } from '../../lms/types'
 import { generateDBKey } from '../../util'
+import { getUserGroup } from './usergroups'
 
 const UserCol = db.collection('users')
 
 export async function uploadUser(key: string, usr: IUser) {
+    if (typeof usr.usergroup !== 'string') {
+        throw new ReferenceError(`${usr.usergroup} is invalid`)
+    }
+
     delete usr.id
     usr._key = key
 
@@ -17,6 +22,10 @@ export async function uploadUser(key: string, usr: IUser) {
 
 export async function getUser(id: string, cascade?: boolean) {
     var user = await UserCol.document(id) as IUser
+
+    if (cascade) {
+        user.usergroup = await getUserGroup(user.usergroup as string, cascade)
+    }
 
     user.id = user._key
 
@@ -71,7 +80,9 @@ export function userRoute() {
                         RETURN {
                             id: u._key,
                             firstName: u.firstName,
-                            lastName: u.lastName
+                            lastName: u.lastName,
+                            avatar: u.avatar,
+                            usergroup: u.usergroup
                         }`,
                     bindVars: {
                         offset: offset,
@@ -97,7 +108,7 @@ export function userRoute() {
             try  {
                 if (await existsUser(ctx.params.id)) {
                     ctx.status = 200
-                    ctx.body = await getUser(ctx.params.id)
+                    ctx.body = await getUser(ctx.params.id, true)
                     ctx.set('Content-Range', `users 0-0/1`)
                     ctx.set('Access-Control-Expose-Headers', 'Content-Range')
                 } else {

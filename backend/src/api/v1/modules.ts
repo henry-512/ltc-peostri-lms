@@ -134,7 +134,7 @@ export function moduleRoute() {
 			try  {
 				if (await ModuleCol.documentExists(ctx.params.id)) {
 					ctx.status = 200
-					ctx.body = await getModule(ctx.params.id)
+					ctx.body = await getModule(ctx.params.id, true)
 					ctx.set('Content-Range', `modules 0-0/1`)
 					ctx.set('Access-Control-Expose-Headers', 'Content-Range')
 				} else {
