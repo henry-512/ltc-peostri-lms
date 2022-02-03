@@ -33,7 +33,7 @@ export interface ITask extends IArangoIndexes {
      status: Status;
      assigned?: Array<string> | Array<IUser>;
      comments: Array<string> | Array<IComment>;
-     parent?: string | IModule;
+     module?: string | IModule;
 }
 
 export interface ITaskReview extends ITask, IArangoIndexes {
@@ -46,7 +46,7 @@ export interface ITaskUpload extends ITask, IArangoIndexes {
 
 export interface IModule extends IArangoIndexes {
      title: string;
-     tasks: Array<ITask>;
+     tasks: Array<string> | Array<ITask>;
      project?: string | IProject;
      comments: Array<string> | Array<IComment>;
 }
@@ -75,4 +75,10 @@ export interface IProjectTemplate extends IArangoIndexes {
      createdAt?: Date;
      updatedAt?: Date;
      modules: Array<IModule>;
+}
+
+export interface IGetListQuery {
+     filter: Array<string>,
+     range: Array<number>,
+     sort: Array<string>
 }

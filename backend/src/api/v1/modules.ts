@@ -1,26 +1,42 @@
+import { generateDBKey } from '../../util'
 import { db } from '../../database'
-import { IArangoIndexes, IModule } from '../../lms/types'
-import { getComment } from './comments'
-import { getTask } from './tasks'
+import { IArangoIndexes, IModule, IComment } from '../../lms/types'
+import { getComment, uploadAllComments } from './comments'
+import { getTask, uploadTask } from './tasks'
 
-var ModuleDB = db.collection('modules')
+const ModuleCol = db.collection('modules')
 
 /**
- * Adds a passed module to the database, and returns its ID.
- * TODO: input conversion
+ * Adds a passed module to the database
  */
-export async function uploadModule(mod: IModule) {
-	//delete mod.project
+export async function uploadModule(key: string, mod: IModule, parent: string) {
+	// Convert from key to id
+	const modId = 'modules/'.concat(key)
 
-	
+	mod.tasks = await Promise.all(mod.tasks.map(async tsk => {
+        var nk = generateDBKey()
+        if (typeof tsk !== 'string') {
+            await uploadTask(nk, tsk, modId)
+        } else {
+            throw new ReferenceError(`Task ${tsk} not valid`)
+        }
+        return 'tasks/'.concat(nk)
+    }))
 
-	mod.tasks = await Promise.all(mod.tasks )
+	if (!mod.comments) {
+        mod.comments = []
+    } else if (mod.comments.length !== 0) {
+        let comAr = await uploadAllComments(mod.comments as IComment[], modId)
+        mod.comments = comAr.map(v => v._key as string)
+    }
 
-	return await ModuleDB.save(mod) as IArangoIndexes
+	console.log(`Module added: ${mod}`)
+
+	return ModuleCol.save(mod) as IArangoIndexes
 }
 
 export async function getModule(id: string, cascade?: boolean) {
-	var mod = await ModuleDB.document(id) as IModule
+	var mod = await ModuleCol.document(id) as IModule
 
 	// mod.id = mod._key
 

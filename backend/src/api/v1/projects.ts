@@ -2,45 +2,55 @@ import Router from '@koa/router'
 import koaBody from 'koa-body'
 import { aql } from 'arangojs'
 
+import { generateDBKey } from '../../util'
 import { db } from '../../database'
-import { IProject } from '../../lms/types'
-import { getComment, uploadComment } from './comments'
+import { IProject, IComment, IArangoIndexes } from '../../lms/types'
+import { getComment, uploadAllComments } from './comments'
 import { getModule, uploadModule } from './modules'
 import { getUser, uploadUser } from './users'
 
 var ProjectDB = db.collection('projects')
 
-export async function uploadProject(pro: IProject) {
-    pro.createdAt = new Date()
-    pro.updatedAt = new Date()
+export async function uploadProject(key: string, pro: IProject) {
+    // Convert from key to id
+    const proId = 'projects/'.concat(key)
 
-    pro.comments = await Promise.all(pro.comments.map(async com => {
-        if (typeof com !== 'string') {
-            return await uploadComment(com)
-        } else {
-            throw new ReferenceError(`Comment ${com} not valid`)
-        }
-    }))
+    if (!pro.comments) {
+        pro.comments = []
+    } else if (pro.comments.length !== 0) {
+        let comAr = await uploadAllComments(pro.comments as IComment[], proId)
+        pro.comments = comAr.map(v => v._key as string)
+    }
 
     pro.modules = await Promise.all(pro.modules.map(async mod => {
+        var nk = generateDBKey()
         if (typeof mod !== 'string') {
-            return await uploadModule(mod)
+            await uploadModule(nk, mod, proId)
         } else {
             throw new ReferenceError(`Module ${mod} not valid`)
         }
+        return 'modules/'.concat(nk)
     }))
 
-    pro.users = await Promise.all(pro.users.map(async usr => {
-        if (typeof usr !== 'string') {
-            return await uploadModule(usr)
-        } else {
-            throw new ReferenceError(`User ${usr} not valid`)
-        }
-    }))
+    // pro.users = await Promise.all(pro.users.map(async usr => {
+    //     var nk = generateDBKey()
+    //     if (typeof usr !== 'string') {
+    //         await uploadUser(nk, usr, proId)
+    //     } else {
+    //         throw new ReferenceError(`User ${usr} not valid`)
+    //     }
+    //     return 'users/'.concat(nk)
+    // }))
+
+    pro.createdAt = new Date()
+    pro.updatedAt = new Date()
 
     delete pro.id
+    pro._key = key
 
-    return await ProjectDB.save(pro) as IArangoIndexes
+    console.log(`Project added: ${pro}`)
+
+    return ProjectDB.save(pro) as IArangoIndexes
 }
 
 export async function getProject(id: string, cascade?: boolean) {
@@ -69,26 +79,60 @@ export function projects() {
     router
         // get list
         .get('/', async ctx => {
-            console.log(JSON.stringify(ctx.request.query))
+            console.log(`project get req ${JSON.stringify(ctx.request.query)}`)
 
             try {
-                // TODO: Better aql queries
-                const cursor = await db.query(aql`
-                    for d in projects
-                    sort d._key
-                    return {
-                        id: d._key, // internal id -> api id
-                        title: d.title,
-                        createdAt: d.createdAt,
-                        updatedAt: d.updatedAt,
-                        start: d.start,
-                        end: d.end,
-                        status: d.status,
-                        comments: d.comments,
-                        modules: d.modules,
-                        users: d.users
+                let q = ctx.request.query
+
+                let sort = '_key'
+                let sortDir = 'ASC'
+                let offset = 0
+                let count = 10
+
+                if (q.sort && q.sort.length == 2) {
+                    switch (q.sort[0]) {
+                        case 'id': sort = '_key'; break
+                        case 'createdAt':
+                        case 'updatedAt':
+                        case 'start':
+                        case 'end':
+                        case 'status':
+                            sort = q.sort[0]
+                            break
+                        default:
+                            sort = '_key'
                     }
-                `)
+                    sortDir = q.sort[1] === 'DESC' ? 'DESC' : 'ASC'
+                }
+
+                if (q.range && q.range.length == 2) {
+                    offset = parseInt(q.range[0])
+                    count = Math.min(parseInt(q.range[1]), 50)
+                }
+
+                // TODO: Better aql queries
+                const cursor = await db.query({
+                    query: `
+                        FOR d in projects
+                        SORT d.${sort} ${sortDir}
+                        LIMIT @offset, @count
+                        RETURN {
+                            id: d._key,
+                            title: d.title,
+                            createdAt: d.createdAt,
+                            updatedAt: d.updatedAt,
+                            start: d.start,
+                            end: d.end,
+                            status: d.status,
+                            comments: d.comments,
+                            modules: d.modules,
+                            users: d.users
+                        }`,
+                    bindVars: {
+                        offset: offset,
+                        count: count
+                    }
+                })
 
                 var all = await cursor.all() as IProject[]
 
@@ -144,34 +188,17 @@ export function projects() {
                     ctx.status = 409
                     ctx.body = `Document [${body.id}] already exists`
                 } else {
-                    // TODO: create docs
+                    await uploadProject(generateDBKey(), ctx.body)
 
-                    // Sanitize
-                    var proj: IProject = {
-                        title: body.title || 'New Project',
-                        createdAt: new Date(),
-                        updatedAt: new Date(),
-                        start: body.start || new Date(),
-                        end: body.end || new Date(),
-                        status: body.status || 'IN_PROGRESS',
-                        comments: body.comments || [],
-                        modules: body.modules || [],
-                        users: body.users || [],
-                        _key: body.id, // either use passed id or undefined
-                                       // to let arango pick one
-                    }
-                    
-                    await ProjectDB.save(proj)
                     ctx.status = 201
                     ctx.body = `Document created`
-                    console.log(proj)
                 }
             } catch(err) {
                 console.log(err)
                 ctx.status = 500
             }
         })
-        // Create/update
+        // update
         .put('/:id', koaBody(), async ctx => {
             try {
                 if (await ProjectDB.documentExists(ctx.params.id)) {

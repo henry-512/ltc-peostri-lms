@@ -46,11 +46,15 @@ Listens on port API_PORT
   - ~~return { api-key: d.db-key, ... } vs ts mapping ?~~
   - date format cant be converted in aql
     - date type?
-  - comments / modules
+  - ~~comments / modules~~
   - getall limits/sort
 - DB error catching
-- Cache collections?
+- ~~Cache collections?~~
 - Fix Content-Range headers
+- Key cross-referencing on creation
+- Multithread db upload?
+- saveAll instead of seperate Save calls?
+- DB request as query not document(...) calls?
 
 # others
 
@@ -89,7 +93,7 @@ https://medium.com/@ogamba.co/how-to-create-a-web-app-with-react-koa-webpack-and
   import { config } from './config'
 
   const cursor = await db.query(aql`
-    let d = document('projects/'${ctx.params.id})
+    let d = document(projects/${ctx.params.id})
     let c = (for dc in d.comments return document(dc))
     let m = (for dm in d.modules return document(dm))
     let u = (for du in d.users return document(du))
