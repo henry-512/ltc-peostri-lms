@@ -66,7 +66,7 @@ export function userGroupRoute() {
                         SORT u.${sort} ${sortDir}
                         LIMIT @offset, @count
                         RETURN {
-                            _id: u._key,
+                            id: u._key,
                             name: u.name,
                             permissions: u.permissions
                         }`,
@@ -79,9 +79,7 @@ export function userGroupRoute() {
                 var all = await cursor.all() as IUserGroup[]
 
                 ctx.status = 200
-                ctx.body = { 
-                     data: [...all]             
-               }
+                ctx.body = all
 
                 // Required by simple REST data provider
                 // https://github.com/marmelab/react-admin/blob/master/packages/ra-data-simple-rest/README.md
