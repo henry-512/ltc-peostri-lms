@@ -30,15 +30,16 @@ export default {
                          end: "End Date",
                          member: "Assign Members",
                          module_title: "Module Title",
-                         task_title: "Task Title"
+                         module_status: "Module Status",
+                         task_title: "Task Title",
+                         task_type: "Task Type"
                     },
                     layout: {
                          general: "Project Information",
                          assign: "Assign Members to Project",
                          auto_assign: "Auto Assign to Tasks by Rank",
                          add_modules: "Add Modules to Project",
-                         module: "Modules",
-                         task: "Tasks"
+                         add_tasks: "Add Tasks to the Module"
                     }
                }
           }
