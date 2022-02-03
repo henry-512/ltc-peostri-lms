@@ -1,7 +1,10 @@
 import Router from '@koa/router'
 
-import { projects } from './projects'
-import { users } from './users'
+import { commentRoute } from './comments'
+import { moduleRoute } from './modules'
+import { projectRoute } from './projects'
+import { taskRoute } from './tasks'
+import { userRoute } from './users'
 
 export function routerBuilder(version: string) {
 	const router = new Router({
@@ -9,8 +12,11 @@ export function routerBuilder(version: string) {
 	})
 
 	router
-		.use(projects().routes())
-		.use(users().routes())
+		.use(projectRoute().routes())
+		.use(userRoute().routes())
+		.use(moduleRoute().routes())
+		.use(taskRoute().routes())
+		.use(commentRoute().routes())
 
 	return router
 }
