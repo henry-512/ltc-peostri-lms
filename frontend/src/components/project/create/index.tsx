@@ -14,21 +14,26 @@ const useStyles = makeStyles(theme => ({
      },
      taskBox: {
           font: 'inherit'
-     }
-}));
-
-const moduleFormStyles = makeStyles(theme => ({
-     RaSimpleFormIterator: {
-          form: {
-               display: 'flex'
-          }
+     },
+     fieldTitle: {
+          borderBottom: '2px solid ' + theme.palette.primary.main,
+          paddingBottom: '.25rem',
+          lineHeight: '1'
+     },
+     moduleForm: {
+          border: '1px solid',
+          borderRadius: '1rem 1rem 0 0',
+          padding: '1rem 1.5rem',
+          borderColor: '#e0e0e3'
+     },
+     taskForm: {
+          marginTop: '1rem'
      }
 }));
 
 export default function ProjectCreate(props: any) {
      const translate = useTranslate();
      const classes = useStyles();
-     const moduleStyle = moduleFormStyles();
 
      return (
           <Create title={translate('project.create.title')} {...props}>
@@ -38,7 +43,7 @@ export default function ProjectCreate(props: any) {
                               <Grid item xs={12}>
                                    <Grid container>
                                         <Grid item xs={6} className={classes.usersTitle}>
-                                             <Typography variant="h6">
+                                             <Typography variant="h6" className={classes.fieldTitle}>
                                                   {translate('project.create.layout.general')}
                                              </Typography>
                                         </Grid>
@@ -76,7 +81,7 @@ export default function ProjectCreate(props: any) {
                               <Grid item xs={12} className={classes.content}>
                                    <Grid container>
                                         <Grid item xs={6} className={classes.usersTitle}>
-                                             <Typography variant="h6">
+                                             <Typography variant="h6" className={classes.fieldTitle}>
                                                   {translate('project.create.layout.assign')}
                                              </Typography>
                                         </Grid>
@@ -91,7 +96,6 @@ export default function ProjectCreate(props: any) {
                                              label="project.create.fields.member"
                                              reference="users"
                                              source="users"
-                                             fullWidth
                                         >
                                              <AutocompleteArrayInput
                                                   optionText={choice => `${choice.firstName} ${choice.lastName}`}
@@ -107,10 +111,10 @@ export default function ProjectCreate(props: any) {
 
                     <Step title={translate('project.create.steps.modules')} className={classes.content} >
                          <Grid container spacing={0} className={classes.content}>
-                              <Grid item xs={12}>
+                              <Grid item xs={12} className={classes.moduleForm}>
                                    <Grid container>
                                         <Grid item xs={6} className={classes.usersTitle}>
-                                             <Typography variant="h6">
+                                             <Typography variant="h6" className={classes.fieldTitle}>
                                                   {translate('project.create.layout.add_modules')}
                                              </Typography>
                                         </Grid>
@@ -119,14 +123,35 @@ export default function ProjectCreate(props: any) {
                                         <Grid item xs={12}>
                                              <ArrayInput source="modules" label="project.create.layout.module">
                                                   <SimpleFormIterator>
-                                                       <TextInput source="title" label="project.create.fields.module_title" />
+                                                       <FormDataConsumer>
+                                                            {({ 
+                                                                 formData, // The whole form data
+                                                                 scopedFormData, // The data for this item of the ArrayInput
+                                                                 getSource, // A function to get the valid source inside an ArrayInput
+                                                                 ...rest 
+                                                            }) => {
+                                                                           return (
+                                                                 <Grid container spacing={2}>
+                                                                      <Grid item xs={5}>
+                                                                           <TextInput source={getSource?.('title') || ""} label="project.create.fields.module_title" fullWidth/>
+                                                                      </Grid>
 
-                                                       <SelectInput source="status" choices={[
-                                                            { id: 'AWAITING', name: 'AWAITING' },
-                                                            { id: 'IN_PROGRESS', name: 'IN PROGRESS' },
-                                                            { id: 'COMPLETED', name: 'COMPLETED' },
-                                                            { id: 'ARCHIVED', name: 'ARCHIVED' }
-                                                       ]} disabled initialValue="AWAITING" label="project.create.fields.module_title" />
+                                                                      <Grid item xs={3}></Grid>
+                                                                      
+                                                                      <Grid item xs={3}>
+                                                                           <SelectInput source={getSource?.('status') || ""} choices={[
+                                                                                { id: 'AWAITING', name: 'AWAITING' },
+                                                                                { id: 'IN_PROGRESS', name: 'IN PROGRESS' },
+                                                                                { id: 'COMPLETED', name: 'COMPLETED' },
+                                                                                { id: 'ARCHIVED', name: 'ARCHIVED' }
+                                                                           ]} disabled initialValue="AWAITING" label="project.create.fields.module_title" fullWidth/>
+                                                                      </Grid>
+
+                                                                      <Grid item xs={1}></Grid>
+                                                                 </Grid>
+                                                                 )
+                                                            }}
+                                                       </FormDataConsumer>
                                                        
                                                        <FormDataConsumer>
                                                             {({ 
@@ -137,7 +162,7 @@ export default function ProjectCreate(props: any) {
                                                             }) => {
                                                                  return (
                                                                       <ArrayInput source={getSource?.('tasks') || ""} label="project.create.layout.task">
-                                                                           <SimpleFormIterator>
+                                                                           <SimpleFormIterator className={classes.taskForm}>
                                                                                 <TextInput source="title" label="project.create.fields.task_title" />
                                                                            </SimpleFormIterator>
                                                                       </ArrayInput>
