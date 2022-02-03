@@ -6,10 +6,10 @@ import { generateDBKey } from '../../util'
 import { db } from '../../database'
 import { IProject, IComment, IArangoIndexes } from '../../lms/types'
 import { getComment, uploadAllComments } from './comments'
-import { getModule, uploadModule } from './modules'
+import { getModule, uploadModule, existsModule } from './modules'
 import { getUser, uploadUser } from './users'
 
-var ProjectDB = db.collection('projects')
+var ProjectCol = db.collection('projects')
 
 export async function uploadProject(key: string, pro: IProject) {
     // Convert from key to id
@@ -22,14 +22,16 @@ export async function uploadProject(key: string, pro: IProject) {
         pro.comments = comAr.map(v => v._key as string)
     }
 
-    pro.modules = await Promise.all(pro.modules.map(async mod => {
-        var nk = generateDBKey()
+    pro.modules = await Promise.all(pro.modules.map(async mod => { 
         if (typeof mod !== 'string') {
+            var nk = generateDBKey()
             await uploadModule(nk, mod, proId)
+            return 'modules/'.concat(nk)
+        } else if (typeof mod === 'string' && await existsModule(mod)) {
+            return 'modules'.concat(mod)
         } else {
             throw new ReferenceError(`Module ${mod} not valid`)
         }
-        return 'modules/'.concat(nk)
     }))
 
     // pro.users = await Promise.all(pro.users.map(async usr => {
@@ -50,11 +52,11 @@ export async function uploadProject(key: string, pro: IProject) {
 
     console.log(`Project added: ${pro}`)
 
-    return ProjectDB.save(pro) as IArangoIndexes
+    return ProjectCol.save(pro) as IArangoIndexes
 }
 
 export async function getProject(id: string, cascade?: boolean) {
-    var project = await ProjectDB.document(id) as IProject
+    var project = await ProjectCol.document(id) as IProject
 
     // mod.id = mod._key
 
@@ -71,7 +73,9 @@ export async function getProject(id: string, cascade?: boolean) {
     return project
 }
 
-export function projects() {
+export async function existsProject(id: string) { return ProjectCol.documentExists(id) }
+
+export function projectRoute() {
     const router = new Router({
         prefix: '/projects'
     })
@@ -110,7 +114,6 @@ export function projects() {
                     count = Math.min(parseInt(q.range[1]), 50)
                 }
 
-                // TODO: Better aql queries
                 const cursor = await db.query({
                     query: `
                         FOR d in projects
@@ -141,8 +144,6 @@ export function projects() {
 
                 // Required by simple REST data provider
                 // https://github.com/marmelab/react-admin/blob/master/packages/ra-data-simple-rest/README.md
-                
-                // TODO: update the ranges
                 ctx.set('Content-Range', `projects 0-${all.length-1}/${all.length}`)
                 ctx.set('Access-Control-Expose-Headers', 'Content-Range')
             } catch (err) {
@@ -153,25 +154,14 @@ export function projects() {
         // get one
         .get('/:id', async ctx => {
             try  {
-                if (await ProjectDB.documentExists(ctx.params.id)) {
-                    var doc = await getProject(ctx.params.id, true)
-
-                    // Copy ._key to .id
-                    doc.id = doc._key
-
-                    // Dont send db stuff to client
-                    delete doc._key
-                    delete doc._id
-                    delete doc._rev
-
+                if (await existsProject(ctx.params.id)) {
                     ctx.status = 200
-                    ctx.body = doc
+                    ctx.body = await getProject(ctx.params.id, true)
                 } else {
                     ctx.status = 404
                     ctx.body = `Project [${ctx.params.id}] dne.`
                 }
 
-                // TODO: update the ranges
                 ctx.set('Content-Range', `projects 0-0/1`)
                 ctx.set('Access-Control-Expose-Headers', 'Content-Range')
             } catch (err) {
@@ -184,14 +174,14 @@ export function projects() {
             try {
                 var body = ctx.request.body
 
-                if ('id' in body && await ProjectDB.documentExists(body.id)) {
+                if (!body.id || await existsProject(body.id)) {
                     ctx.status = 409
                     ctx.body = `Document [${body.id}] already exists`
                 } else {
                     await uploadProject(generateDBKey(), ctx.body)
 
                     ctx.status = 201
-                    ctx.body = `Document created`
+                    ctx.body = 'Project created'
                 }
             } catch(err) {
                 console.log(err)
@@ -201,10 +191,10 @@ export function projects() {
         // update
         .put('/:id', koaBody(), async ctx => {
             try {
-                if (await ProjectDB.documentExists(ctx.params.id)) {
+                if (await existsProject(ctx.params.id)) {
                     var body = ctx.request.body
 
-                    var doc = await ProjectDB.document(ctx.params.id)
+                    var doc = await ProjectCol.document(ctx.params.id)
 
                     var proj: IProject = {
                         title: body.title || doc.title || 'New Project',
@@ -218,7 +208,7 @@ export function projects() {
                         users: body.users || doc.users || []
                     }
 
-                    await ProjectDB.update(ctx.params.id, proj)
+                    await ProjectCol.update(ctx.params.id, proj)
 
                     ctx.status = 200
                     ctx.body = `Document updated`
@@ -235,8 +225,8 @@ export function projects() {
         // Delete
         .delete('/:id', async ctx => {
             try {
-                if (await ProjectDB.documentExists(ctx.params.id)) {
-                    await ProjectDB.remove(ctx.params.id)
+                if (await existsProject(ctx.params.id)) {
+                    await ProjectCol.remove(ctx.params.id)
                     ctx.status = 200
                     ctx.body = `Document deleted`
                 } else {

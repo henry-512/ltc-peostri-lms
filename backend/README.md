@@ -36,25 +36,58 @@ DB_PASS = "password"
 
 Listens on port API_PORT
 
-```api/version/projects```
+```
+'/api/v1/projects HEAD,GET',
+'/api/v1/projects/:id HEAD,GET',
+'/api/v1/projects POST',
+'/api/v1/projects/:id PUT',
+'/api/v1/projects/:id DELETE',
+
+'/api/v1/users HEAD,GET',
+'/api/v1/users/:id HEAD,GET',
+'/api/v1/users POST',
+
+'/api/v1/modules HEAD,GET',
+'/api/v1/modules/:id HEAD,GET',
+'/api/v1/modules POST',
+
+'/api/v1/tasks HEAD,GET',
+'/api/v1/tasks/:id HEAD,GET',
+'/api/v1/tasks POST',
+
+'/api/v1/comments HEAD,GET',
+'/api/v1/comments/:id HEAD,GET',
+'/api/v1/comments POST'
+```
 
 # todo
 
-- ~~*real* configs~~
-- ~~switch to typescript eventually maybe~~
+- Cascade project delete
 - real aql parsing
   - ~~return { api-key: d.db-key, ... } vs ts mapping ?~~
   - date format cant be converted in aql
-    - date type?
+    - ~~date type?~~
+    - Verifiy it works
   - ~~comments / modules~~
-  - getall limits/sort
-- DB error catching
+  - ~~getall limits/sort~~
+- uploadAllComments modify to accept string references
+
+## done
+
+- ~~*real* configs~~
+- ~~switch to typescript eventually maybe~~
+- ~~DB error catching~~
 - ~~Cache collections?~~
-- Fix Content-Range headers
-- Key cross-referencing on creation
+- ~~Fix Content-Range headers~~
+- ~~Key cross-referencing on creation~~
+
+## low
+
 - Multithread db upload?
 - saveAll instead of seperate Save calls?
+  - done for comments
 - DB request as query not document(...) calls?
+- Prevent DB upload on error?
 
 # others
 
@@ -73,20 +106,25 @@ https://medium.com/@ogamba.co/how-to-create-a-web-app-with-react-koa-webpack-and
 
 # ts
 ```typescript
-  .get('/', ctx => {
+  .get('/', async ctx => {
     console.log('Get all');
+    ctx.request.query
   })
-  .get('/:id', ctx => {
+  .get('/:id', async ctx => {
     console.log('Get with id');
+    ctx.params.id
   })
-  .post('/', koaBody(), ctx => {
+  .post('/', async koaBody(), ctx => {
     console.log('Create new');
+    ctx.request.body
   })
-  .put('/:id', ctx => {
+  .put('/:id', async koaBody(), ctx => {
     console.log("Update with id or create one if dne");
+    // ???
   })
-  .delete('/:id', ctx => {
+  .delete('/:id', async ctx => {
     console.log('Delete with id');
+    ctx.params.id
   });
 
   JSON.stringify

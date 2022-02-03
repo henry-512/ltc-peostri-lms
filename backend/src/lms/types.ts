@@ -26,6 +26,8 @@ export interface IComment extends IArangoIndexes {
      createdAt?: string | Date;
      updatedAt?: string | Date;
      parent?: string | ITask | IModule | IProject;
+
+     id?: string;
 }
 
 export interface ITask extends IArangoIndexes {
@@ -34,6 +36,8 @@ export interface ITask extends IArangoIndexes {
      assigned?: Array<string> | Array<IUser>;
      comments: Array<string> | Array<IComment>;
      module?: string | IModule;
+
+     id?: string;
 }
 
 export interface ITaskReview extends ITask, IArangoIndexes {
@@ -47,8 +51,10 @@ export interface ITaskUpload extends ITask, IArangoIndexes {
 export interface IModule extends IArangoIndexes {
      title: string;
      tasks: Array<string> | Array<ITask>;
-     project?: string | IProject;
      comments: Array<string> | Array<IComment>;
+     project?: string | IProject;
+
+     id?: string;
 }
 
 export interface IProject extends IArangoIndexes {
