@@ -79,6 +79,11 @@ export const lightTheme = {
                     borderLeft: '3px solid #4f3cc9',
                },
           },
+          RaSimpleFormIterator: {
+               indexContainer: {
+                    display: 'none'
+               }
+          },
           MuiPaper: {
                elevation1: {
                     boxShadow: 'none',

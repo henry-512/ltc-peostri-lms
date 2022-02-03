@@ -22,6 +22,7 @@ export default {
                     steps: {
                          general: "General Information",
                          modules: "Module Selection",
+                         order: "Module Order",
                          review: "Review"
                     },
                     fields: {
@@ -32,14 +33,16 @@ export default {
                          module_title: "Module Title",
                          module_status: "Module Status",
                          task_title: "Task Title",
-                         task_type: "Task Type"
+                         task_type: "Task Type",
+                         task_status: "Task Status",
+                         usergroup: "User Group"
                     },
                     layout: {
                          general: "Project Information",
                          assign: "Assign Members to Project",
                          auto_assign: "Auto Assign to Tasks by Rank",
-                         add_modules: "Add Modules to Project",
-                         add_tasks: "Add Tasks to the Module"
+                         add_modules: "Add Modules",
+                         add_tasks: "Add Tasks"
                     }
                }
           }

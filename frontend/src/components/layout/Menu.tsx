@@ -13,8 +13,8 @@ import {
 import SubMenu from './SubMenu';
 import { AppState } from 'src/util/types';
 import SettingsIcon from '@material-ui/icons/Settings';
-import { ProjectIcon } from '../project';
-import { TemplateIcon } from '../template';
+import { ProjectIcon } from '../../pages/project';
+import { TemplateIcon } from '../../pages/template';
 
 type MenuName = 'menuAdmin';
 
