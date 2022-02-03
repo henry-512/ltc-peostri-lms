@@ -4,6 +4,7 @@ import { commentRoute } from './comments'
 import { moduleRoute } from './modules'
 import { projectRoute } from './projects'
 import { taskRoute } from './tasks'
+import { userGroupRoute } from './usergroups'
 import { userRoute } from './users'
 
 export function routerBuilder(version: string) {
@@ -17,6 +18,7 @@ export function routerBuilder(version: string) {
 		.use(moduleRoute().routes())
 		.use(taskRoute().routes())
 		.use(commentRoute().routes())
+		.use(userGroupRoute().routes())
 
 	return router
 }

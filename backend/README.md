@@ -58,6 +58,10 @@ Listens on port API_PORT
 '/api/v1/comments HEAD,GET',
 '/api/v1/comments/:id HEAD,GET',
 '/api/v1/comments POST'
+
+'/api/v1/usergroups HEAD,GET',
+'/api/v1/usergroups/:id HEAD,GET',
+'/api/v1/usergroups POST'
 ```
 
 # todo

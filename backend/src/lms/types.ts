@@ -16,6 +16,7 @@ export interface IUser extends IArangoIndexes {
      firstName: string;
      lastName: string;
      avatar: null | string;
+     usergroup: string | IUserGroup;
 
      id?: string;
 }
@@ -68,6 +69,17 @@ export interface IProject extends IArangoIndexes {
      modules: Array<string> | Array<IModule>;
      users: Array<string> | Array<IUser>;
      // Required for api. Alias for _key, dne in database
+     id?: string;
+}
+
+export interface IUserGroup extends IArangoIndexes {
+     name: string;
+     permissions: {
+          perm1: boolean,
+          perm2: boolean,
+          perm3: boolean
+     };
+     
      id?: string;
 }
 
