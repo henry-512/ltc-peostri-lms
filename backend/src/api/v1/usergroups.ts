@@ -66,7 +66,7 @@ export function userGroupRoute() {
                         SORT u.${sort} ${sortDir}
                         LIMIT @offset, @count
                         RETURN {
-                            id: u._key,
+                            _id: u._key,
                             name: u.name,
                             permissions: u.permissions
                         }`,
