@@ -79,7 +79,9 @@ export function userGroupRoute() {
                 var all = await cursor.all() as IUserGroup[]
 
                 ctx.status = 200
-                ctx.body = all
+                ctx.body = { 
+                     data: [...all]             
+               }
 
                 // Required by simple REST data provider
                 // https://github.com/marmelab/react-admin/blob/master/packages/ra-data-simple-rest/README.md
