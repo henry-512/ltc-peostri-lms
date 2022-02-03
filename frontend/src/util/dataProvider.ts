@@ -51,9 +51,12 @@ export default (
           const rangeStart = (page - 1) * perPage;
           const rangeEnd = page * perPage - 1;
 
+          // Stringify on the sort/range fields destroys the
+          // parsability of the query
+          // "sort":"[\"id\",\"ASC\"]" is not exactly ideal
           const query = {
-               sort: JSON.stringify([field, order]),
-               range: JSON.stringify([rangeStart, rangeEnd]),
+               sort: [field, order],
+               range: [rangeStart, rangeEnd],
                filter: JSON.stringify(params.filter),
           };
           const url = `${apiUrl}/${resource}?${stringify(query)}`;

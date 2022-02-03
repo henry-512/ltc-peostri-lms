@@ -3,9 +3,16 @@ import koaBody from 'koa-body'
 import { aql } from 'arangojs'
 
 import { db } from '../../database'
-import { IUser } from '../../lms/types'
+import { IArangoIndexes, IUser } from '../../lms/types'
 
 var UserDB = db.collection('users')
+
+export async function uploadUser(key: string, usr: IUser) {
+    usr._key = key
+    delete usr.id
+
+    return UserDB.save(usr) as IArangoIndexes
+}
 
 export async function getUser(id: string, cascade?: boolean) {
     var user = await UserDB.document(id) as IUser
