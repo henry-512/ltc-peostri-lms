@@ -10,8 +10,8 @@ import { getUserGroup, getUserGroupSimple } from './usergroups'
 const UserCol = db.collection('users')
 
 export async function uploadUser(key: string, usr: IUser) {
-    if (typeof usr.usergroup !== 'string') {
-        throw new ReferenceError(`${usr.usergroup} is invalid`)
+    if (typeof usr.userGroup !== 'string') {
+        throw new ReferenceError(`${usr.userGroup} is invalid`)
     }
 
     delete usr.id
@@ -24,7 +24,7 @@ export async function getUser(id: string, cascade?: boolean) {
     var user = await UserCol.document(id) as IUser
 
     if (cascade) {
-        user.usergroup = await getUserGroup(user.usergroup as string, cascade)
+        user.userGroup = await getUserGroup(user.userGroup as string, cascade)
     }
 
     user.id = user._key
@@ -57,8 +57,8 @@ export function userRoute() {
                 if (q.sort && q.sort.length == 2) {
                     switch (q.sort[0]) {
                         case 'id': sort = '_key'; break
-                        case 'firstname':
-                        case 'lastname':
+                        case 'firstName':
+                        case 'lastName':
                             sort = q.sort[0]
                             break
                         default:
@@ -78,7 +78,7 @@ export function userRoute() {
                         SORT u.${sort} ${sortDir}
                         LIMIT @offset, @count
 
-                        LET ug = (RETURN DOCUMENT(u.usergroup))
+                        LET ug = (RETURN DOCUMENT(u.userGroup))
                         LET ug2 = (RETURN {id: ug[0]._key, name: ug[0].name})
 
                         RETURN {
@@ -86,7 +86,7 @@ export function userRoute() {
                             firstName: u.firstName,
                             lastName: u.lastName,
                             avatar: u.avatar,
-                            usergroup: ug2
+                            usergroup: ug2[0]
                         }`,
                     bindVars: {
                         offset: offset,

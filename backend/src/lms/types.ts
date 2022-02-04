@@ -16,7 +16,7 @@ export interface IUser extends IArangoIndexes {
      firstName: string;
      lastName: string;
      avatar: null | string;
-     usergroup: string | IUserGroup;
+     userGroup: string | IUserGroup;
 
      id?: string;
 }

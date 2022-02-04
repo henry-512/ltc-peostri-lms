@@ -19,15 +19,15 @@ export class ApiRoute<Type extends IArangoIndexes> {
     getAllQueryFields: GeneratedAqlQuery
     
     private buildQuery() {
-        let q = ''
+        let q = aql`id:d._key,`
 
-        this.fields.forEach(s => {
-            q = q.concat(', ', s, ': d.', s)
+        this.fields.forEach((s, i) => {
+            q = aql`${q}${s}:d.${s},`
         })
 
-        return aql`${q.substring(2)}`
+        return q
     }
-// {"query":"FOR d in @value0 SORT d._key ASC LIMIT @value1, @value2 RETURN {@value3}","bindVars":{"value0":"users","value1":0,"value2":10,"value3":"firstName:d.firstName,lastName:d.lastName,avatar:d.avatar,usergroup:d.usergroup"}}
+
     constructor(
         name:string,
         dname:string,
@@ -41,7 +41,7 @@ export class ApiRoute<Type extends IArangoIndexes> {
         this.getAllQueryFields = this.buildQuery()
     }
 
-    async getAll(ctx:ParameterizedContext) {
+    protected async getAll(ctx: ParameterizedContext) {
         try {
             let q = ctx.request.query
 
@@ -62,31 +62,13 @@ export class ApiRoute<Type extends IArangoIndexes> {
                 count = Math.min(parseInt(q.range[1]), 50)
             }
 
-            // const cursor = await db.query({
-            //     query: aql`
-            //         FOR u in users
-            //         SORT u.${sort} ${sortDir}
-            //         LIMIT @offset, @count
-            //         RETURN {
-            //             id: u._key,
-            //             firstName: u.firstName,
-            //             lastName: u.lastName,
-            //             avatar: u.avatar,
-            //             usergroup: u.usergroup
-            //         }`,
-            //     bindVars: {
-            //         offset: offset,
-            //         count: count
-            //     }
-            // })
+            let query = aql`
+                FOR d in ${this.collection}
+                    SORT d.${sort} ${sortDir}
+                    LIMIT ${offset}, ${count}
+                    RETURN {${this.getAllQueryFields}}`
 
-            //const v = aql`id: d._key`
-            const v = this.getAllQueryFields
-
-            let xxx = aql`FOR d in ${this.collection} SORT d.${sort} ${sortDir} LIMIT ${offset}, ${count} RETURN {${v}}`
-            console.log(JSON.stringify(xxx))
-
-            const cursor = await db.query(xxx)
+            const cursor = await db.query(query)
 
             var all = await cursor.all() as Type[]
 
@@ -103,8 +85,35 @@ export class ApiRoute<Type extends IArangoIndexes> {
         }
     }
 
+    protected async getId(ctx: ParameterizedContext) {
+        try  {
+            if (await this.collection.documentExists(ctx.params.id)) {
+                ctx.status = 200
+
+                let query = aql`
+                    LET d = (RETURN DOCUMENT(${this.name}, ${ctx.params.id}))
+                    RETURN {${this.getAllQueryFields}}
+                `
+
+                const cursor = await db.query(query)
+
+                ctx.body = await cursor.next()
+                // ctx.body = await this.getFromId(ctx.params.id, true)
+                ctx.set('Content-Range', `modules 0-0/1`)
+                ctx.set('Access-Control-Expose-Headers', 'Content-Range')
+            } else {
+                ctx.status = 404
+                ctx.body = `User [${ctx.params.id}] dne.`
+            }
+        } catch (err) {
+            console.log(err)
+            ctx.status = 500
+        }
+    }
+
     makeRouter() {
         return new Router({prefix:this.name})
             .get('/', this.getAll.bind(this))
+            .get('/:id', this.getId.bind(this))
     }
 }
