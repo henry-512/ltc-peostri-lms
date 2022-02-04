@@ -4,7 +4,7 @@ import { db } from "../../database"
 import { IArangoIndexes, IUserGroup } from "../../lms/types"
 import { generateDBKey } from "../../util"
 
-const UserGroupCol = db.collection('usergroups')
+const UserGroupCol = db.collection('userGroups')
 
 export async function uploadUserGroup(key: string, usr: IUserGroup) {
     delete usr.id
@@ -43,7 +43,7 @@ export async function existsUserGroup(id: string) { return UserGroupCol.document
 
 export function userGroupRoute() {
     const router = new Router({
-        prefix: 'usergroups'
+        prefix: 'userGroups'
     })
 
     router
@@ -75,7 +75,7 @@ export function userGroupRoute() {
 
                 const cursor = await db.query({
                     query: `
-                        FOR u in usergroups
+                        FOR u in userGroups
                         SORT u.${sort} ${sortDir}
                         LIMIT @offset, @count
                         RETURN {
@@ -96,7 +96,7 @@ export function userGroupRoute() {
 
                 // Required by simple REST data provider
                 // https://github.com/marmelab/react-admin/blob/master/packages/ra-data-simple-rest/README.md
-                ctx.set('Content-Range', `usergroups 0-${all.length-1}/${all.length}`)
+                ctx.set('Content-Range', `userGroups 0-${all.length-1}/${all.length}`)
                 ctx.set('Access-Control-Expose-Headers', 'Content-Range')
             } catch (err) {
                 console.log(err)
@@ -108,7 +108,7 @@ export function userGroupRoute() {
 				if (await UserGroupCol.documentExists(ctx.params.id)) {
 					ctx.status = 200
 					ctx.body = await getUserGroup(ctx.params.id)
-					ctx.set('Content-Range', `modules 0-0/1`)
+					ctx.set('Content-Range', `userGroups 0-0/1`)
 					ctx.set('Access-Control-Expose-Headers', 'Content-Range')
 				} else {
 					ctx.status = 404
