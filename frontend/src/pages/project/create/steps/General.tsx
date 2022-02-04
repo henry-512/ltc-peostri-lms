@@ -46,7 +46,7 @@ return (
                          </Grid>
                     </Grid>
                     <Grid item xs={12} className={props.classes.content}>
-                         <Grid container>
+                         <Grid container className={props.classes.alignCenter}>
                               <Grid item xs={6} className={props.classes.usersTitle}>
                                    <Typography variant="h6" className={props.classes.fieldTitle}>
                                         {translate('project.create.layout.assign')}
@@ -54,7 +54,7 @@ return (
                               </Grid>
                               <Grid item xs={6}>
                                    <Grid container xs={12} justifyContent="flex-end">
-                                        <BooleanInput label="project.create.layout.auto_assign" source="auto_assign" helperText=" " />
+                                        <BooleanInput label="project.create.layout.auto_assign" source="auto_assign" helperText=" " options={{ size: "small" }}/>
                                    </Grid>
                               </Grid>
                          </Grid>

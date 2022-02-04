@@ -37,8 +37,15 @@ const useStyles = makeStyles(theme => ({
           lineHeight: '1',
           color: theme.palette.text.primary,
           whiteSpace: 'nowrap'
+     },
+     taskFieldWrapper: {
+          alignItems: 'center'
+     },
+     modulesArrayInput: {
+          marginTop: '10px'
      }
 }));
+
 
 const Modules = (props: any) => {
 const translate = useTranslate();
@@ -64,7 +71,7 @@ return (
                          </Grid>
                          <Grid container spacing={2}>
                               <Grid item xs={12}>
-                                   <ArrayInput source="modules" label={false} fullWidth>
+                                   <ArrayInput source="modules" label={false} fullWidth className={classes.modulesArrayInput}>
                                         <SimpleFormIterator className={classes.modulesForm} disableReordering getItemLabel={(index) => ``} removeButton={<RemoveButton />}>
                                              <FormDataConsumer>
                                                   {({ 
@@ -121,7 +128,16 @@ return (
                                                                                           ...rest 
                                                                                      } = props;
                                                                                      return (
-                                                                                          <Grid container spacing={4}>
+                                                                                          <Grid container spacing={4} className={classes.taskFieldWrapper}>
+                                                                                               <Grid item xs={5}>
+                                                                                                    <TextInput 
+                                                                                                         source={getSource?.('title') || ""} 
+                                                                                                         label="project.create.fields.task_title"
+                                                                                                         fullWidth
+                                                                                                         helperText=" "
+                                                                                                         required
+                                                                                                    />
+                                                                                               </Grid>
                                                                                                <Grid item xs={4}>
                                                                                                     <SelectInput 
                                                                                                          source={getSource?.('type') || ""} 
@@ -140,19 +156,12 @@ return (
                                                                                                     var [ mSplit, tSplit ] = (id || '').split('.');
                                                                                                     var [ mName, mID ] = mSplit.replace(']', '').split('[')
                                                                                                     var [ tName, tID ] = tSplit.replace(']', '').split('[')
-                                                                                                    console.log(id);
+
+                                                                                                    if (typeof formData[mName][mID] == 'undefined') return (<></>)
+
                                                                                                     if (typeof formData[mName][mID][tName][tID] != 'undefined') {
                                                                                                          return (
                                                                                                               <>
-                                                                                                                   <Grid item xs={5}>
-                                                                                                                        <TextInput 
-                                                                                                                             source={getSource?.('title') || ""} 
-                                                                                                                             label="project.create.fields.task_title"
-                                                                                                                             fullWidth
-                                                                                                                             helperText=" "
-                                                                                                                             required
-                                                                                                                        />
-                                                                                                                   </Grid>
                                                                                                                    <Grid item xs={3}>
                                                                                                                         <SelectInput 
                                                                                                                              source={getSource?.('status') || ""} 
@@ -174,11 +183,11 @@ return (
                                                                                                                         <ReferenceInput 
                                                                                                                              label="project.create.fields.usergroup"
                                                                                                                              reference="usergroups"
-                                                                                                                             source="users"
+                                                                                                                             source={getSource?.('usergroup') || ""}
                                                                                                                         >
                                                                                                                              <SelectInput
-                                                                                                                                  optionText={choice => `${choice.firstName} ${choice.lastName}`}
-                                                                                                                                  optionValue="_id"
+                                                                                                                                  optionText={choice => `${choice.name}`}
+                                                                                                                                  optionValue="id"
                                                                                                                                   helperText=" "
                                                                                                                                   fullWidth
                                                                                                                              />
@@ -189,7 +198,7 @@ return (
                                                                                                                         <ReferenceArrayInput
                                                                                                                              label="project.create.fields.member"
                                                                                                                              reference="users"
-                                                                                                                             source="users"
+                                                                                                                             source={getSource?.('users') || ""}
                                                                                                                         >
                                                                                                                              <AutocompleteArrayInput
                                                                                                                                   optionText={choice => `${choice.firstName} ${choice.lastName}`}

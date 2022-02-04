@@ -1,5 +1,5 @@
-import { Box, Grid, makeStyles, Typography } from "@material-ui/core";
-import { ArrayInput, AutocompleteArrayInput, BooleanInput, Create, DateInput,  FormDataConsumer,  ReferenceArrayInput,  SelectInput,  SimpleForm,  SimpleFormIterator,  TextInput, useTranslate } from "react-admin";
+import { makeStyles } from "@material-ui/core";
+import { Create, useTranslate } from "react-admin";
 import Stepper from "../../../components/stepper/Stepper";
 import General from "./steps/General";
 import Modules from "./steps/Modules";
@@ -22,19 +22,26 @@ const useStyles = makeStyles(theme => ({
           borderBottom: '2px solid ' + theme.palette.primary.main,
           paddingBottom: '.25rem',
           lineHeight: '1',
-          color: theme.palette.text.primary
+          color: theme.palette.text.primary,
+          marginBottom: '.25rem'
+     },
+     alignCenter: {
+          alignItems: 'center'
      }
 }));
 
 export default function ProjectCreate(props: any) {
      const translate = useTranslate();
      const classes = useStyles();
+     const search = new URLSearchParams(props.location.search);
+
+     console.log(typeof search.get('template'));
 
      return (
           <Create title={translate('project.create.title')} {...props}>
                <Stepper>
 
-                    <General classes={classes} title={translate('project.create.steps.general')} style={{ width: "100%" }} {...props}/>
+                    <General classes={classes} title={translate('project.create.steps.general')} style={{ width: "100%" }} isTemplate={(typeof search.get('template') == 'string')} {...props}/>
 
                     <Modules classes={classes} title={translate('project.create.steps.modules')} className={classes.content} {...props}/>
 
