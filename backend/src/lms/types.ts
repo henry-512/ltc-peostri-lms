@@ -10,6 +10,8 @@ export interface IArangoIndexes {
      _id?: string;
      _rev?: string;
      _key?: string;
+
+     id?: string;
 }
 
 export interface IUser extends IArangoIndexes {
@@ -17,8 +19,6 @@ export interface IUser extends IArangoIndexes {
      lastName: string;
      avatar: null | string;
      userGroup: string | IUserGroup;
-
-     id?: string;
 }
 
 export interface IComment extends IArangoIndexes {
@@ -27,8 +27,6 @@ export interface IComment extends IArangoIndexes {
      createdAt?: string | Date;
      updatedAt?: string | Date;
      parent?: string | ITask | IModule | IProject;
-
-     id?: string;
 }
 
 export interface ITask extends IArangoIndexes {
@@ -37,8 +35,6 @@ export interface ITask extends IArangoIndexes {
      assigned?: Array<string> | Array<IUser>;
      comments: Array<string> | Array<IComment>;
      module?: string | IModule;
-
-     id?: string;
 }
 
 export interface ITaskReview extends ITask, IArangoIndexes {
@@ -54,8 +50,6 @@ export interface IModule extends IArangoIndexes {
      tasks: Array<string> | Array<ITask>;
      comments: Array<string> | Array<IComment>;
      project?: string | IProject;
-
-     id?: string;
 }
 
 export interface IProject extends IArangoIndexes {
@@ -68,8 +62,6 @@ export interface IProject extends IArangoIndexes {
      comments: Array<string> | Array<IComment>;
      modules: Array<string> | Array<IModule>;
      users: Array<string> | Array<IUser>;
-     // Required for api. Alias for _key, dne in database
-     id?: string;
 }
 
 export interface IUserGroup extends IArangoIndexes {
@@ -79,8 +71,6 @@ export interface IUserGroup extends IArangoIndexes {
           perm2: boolean,
           perm3: boolean
      };
-     
-     id?: string;
 }
 
 export interface IModuleTemplate extends IModule, IArangoIndexes {

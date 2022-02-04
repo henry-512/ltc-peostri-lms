@@ -37,31 +37,36 @@ DB_PASS = "password"
 Listens on port API_PORT
 
 ```
-'/api/v1/projects HEAD,GET',
-'/api/v1/projects/:id HEAD,GET',
-'/api/v1/projects POST',
-'/api/v1/projects/:id PUT',
-'/api/v1/projects/:id DELETE',
-
 '/api/v1/users HEAD,GET',
 '/api/v1/users/:id HEAD,GET',
 '/api/v1/users POST',
+'/api/v1/users DELETE',
+
+'/api/v1/userGroups HEAD,GET',
+'/api/v1/userGroups/:id HEAD,GET',
+'/api/v1/userGroups POST',
+'/api/v1/userGroups DELETE',
 
 '/api/v1/modules HEAD,GET',
 '/api/v1/modules/:id HEAD,GET',
 '/api/v1/modules POST',
+'/api/v1/modules DELETE',
 
 '/api/v1/tasks HEAD,GET',
 '/api/v1/tasks/:id HEAD,GET',
 '/api/v1/tasks POST',
+'/api/v1/tasks DELETE',
 
 '/api/v1/comments HEAD,GET',
 '/api/v1/comments/:id HEAD,GET',
-'/api/v1/comments POST'
+'/api/v1/comments POST',
+'/api/v1/comments DELETE',
 
-'/api/v1/usergroups HEAD,GET',
-'/api/v1/usergroups/:id HEAD,GET',
-'/api/v1/usergroups POST'
+'/api/v1/projects HEAD,GET',
+'/api/v1/projects/:id HEAD,GET',
+'/api/v1/projects POST',
+'/api/v1/projects DELETE',
+'/api/v1/projects/:id PUT'
 ```
 
 # todo
@@ -90,7 +95,8 @@ Listens on port API_PORT
 - Multithread db upload?
 - saveAll instead of seperate Save calls?
   - done for comments
-- DB request as query not document(...) calls?
+- ~~DB request as query not document(...) calls?~~
+  - not viable
 - Prevent DB upload on error?
 
 # others
