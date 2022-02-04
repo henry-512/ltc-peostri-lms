@@ -25,12 +25,25 @@ export async function getUserGroup(id: string, cascade?: boolean) {
     return group
 }
 
+export async function getUserGroupSimple(id: string, cascade?: boolean) {
+    var group = await UserGroupCol.document(id) as IUserGroup
+
+    group.id = group._key
+
+    delete group._key
+    delete group._id
+    delete group._rev
+    delete group.permissions
+
+    return group
+}
+
 export async function existsUserGroup(id: string) { return UserGroupCol.documentExists(id) }
 
 
 export function userGroupRoute() {
     const router = new Router({
-        prefix: '/usergroups'
+        prefix: 'usergroups'
     })
 
     router

@@ -69,7 +69,7 @@ export async function existsComment(id: string) { return CommentCol.documentExis
 
 export function commentRoute() {
     const router = new Router({
-        prefix: '/comments'
+        prefix: 'comments'
     })
 
 	router
