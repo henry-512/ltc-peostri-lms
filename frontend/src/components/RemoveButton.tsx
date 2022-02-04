@@ -3,8 +3,13 @@ import CloseIcon from '@material-ui/icons/RemoveCircleOutline';
 import { Button, ButtonProps } from 'react-admin';
 
 const useStyles = makeStyles(theme => ({
-     root: {
+     button: {
           minWidth: '0px',
+          width: 'auto',
+          margin: '.75rem -.25rem .75rem 1.25rem',
+          padding: '.25rem'
+     },
+     label: {
           width: 'auto'
      }
 }))
@@ -12,7 +17,7 @@ const useStyles = makeStyles(theme => ({
 export const RemoveButton = (props: Omit<ButtonProps, 'onClick'>) => {
      const classes = useStyles();
      return (
-          <Button label="" {...props} className={classes.root}>
+          <Button label="" {...props} classes={classes}>
                <CloseIcon />
           </Button>
      );
