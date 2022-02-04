@@ -5,7 +5,7 @@ import { aql } from 'arangojs'
 import { db } from '../../database'
 import { IArangoIndexes, IUser } from '../../lms/types'
 import { generateDBKey } from '../../util'
-import { getUserGroup } from './usergroups'
+import { getUserGroup, getUserGroupSimple } from './usergroups'
 
 const UserCol = db.collection('users')
 
@@ -41,7 +41,7 @@ export async function existsUser(id: string) { return UserCol.documentExists(id)
 
 export function userRoute() {
     const router = new Router({
-        prefix: '/users'
+        prefix: 'users'
     })
 
     router
@@ -77,12 +77,16 @@ export function userRoute() {
                         FOR u in users
                         SORT u.${sort} ${sortDir}
                         LIMIT @offset, @count
+
+                        LET ug = (RETURN DOCUMENT(u.usergroup))
+                        LET ug2 = (RETURN {id: ug[0]._key, name: ug[0].name})
+
                         RETURN {
                             id: u._key,
                             firstName: u.firstName,
                             lastName: u.lastName,
                             avatar: u.avatar,
-                            usergroup: u.usergroup
+                            usergroup: ug2
                         }`,
                     bindVars: {
                         offset: offset,

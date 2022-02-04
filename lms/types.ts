@@ -74,7 +74,7 @@ export interface IProject extends IArangoIndexes {
 
 export interface IUserGroup extends IArangoIndexes {
      name: string;
-     permissions: {
+     permissions?: {
           perm1: boolean,
           perm2: boolean,
           perm3: boolean

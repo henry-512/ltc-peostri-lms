@@ -68,7 +68,7 @@ export async function existsModule(id: string) { return ModuleCol.documentExists
 
 export function moduleRoute() {
     const router = new Router({
-        prefix: '/modules'
+        prefix: 'modules'
     })
 
 	router

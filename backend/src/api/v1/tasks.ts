@@ -52,7 +52,7 @@ export async function existsTask(id: string) { return TaskCol.documentExists(id)
 
 export function taskRoute() {
     const router = new Router({
-        prefix: '/tasks'
+        prefix: 'tasks'
     })
 
 	router
