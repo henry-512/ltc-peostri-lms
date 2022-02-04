@@ -77,7 +77,7 @@ export async function existsProject(id: string) { return ProjectCol.documentExis
 
 export function projectRoute() {
     const router = new Router({
-        prefix: '/projects'
+        prefix: 'projects'
     })
 
     router
