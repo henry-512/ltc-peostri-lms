@@ -60,6 +60,7 @@ export interface IModule extends IArangoIndexes {
      comments: Array<string> | Array<IComment>;
      project?: string | IProject;
      status: Status | "WAIVED";
+     steps: Map<string, Array<string>>;
 
      id?: string;
 }
