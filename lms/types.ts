@@ -28,8 +28,6 @@ export interface IComment extends IArangoIndexes {
      createdAt?: string | Date;
      updatedAt?: string | Date;
      parent?: string | IModule | IProject;
-
-     id?: string;
 }
 
 export interface ITask extends IArangoIndexes {
@@ -38,8 +36,6 @@ export interface ITask extends IArangoIndexes {
      assigned?: Array<string> | Array<IUser>;
      module?: string | IModule;
      type?: TaskTypes;
-
-     id?: string;
 }
 
 export interface ITaskReview extends ITask {
@@ -75,9 +71,6 @@ export interface IProject extends IArangoIndexes {
      comments: Array<string> | Array<IComment>;
      modules: Array<string> | Array<IModule>;
      users: Array<string> | Array<IUser>;
-
-     // Required for api. Alias for _key, dne in database
-     id?: string;
 }
 
 export interface IUserGroup extends IArangoIndexes {
@@ -88,6 +81,10 @@ export interface IUserGroup extends IArangoIndexes {
           perm3: boolean
      };
 }
+
+// export interface IFileMetadata extends IArangoIndexes {
+
+// }
 
 export interface IModuleTemplate extends IModule, IArangoIndexes {
      description: string;
