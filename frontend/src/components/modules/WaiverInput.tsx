@@ -1,0 +1,71 @@
+import { useCallback } from "react";
+import { BooleanInput } from "react-admin";
+import { useForm } from "react-final-form";
+import { ITaskWaiver, ITaskWaiverReview } from "../../../../lms/types";
+
+const WaiverInput = (props: any): JSX.Element => {
+     const form = useForm();
+
+     const createWaiverTasks = (): [waiveTask: ITaskWaiver, waiveApproval: ITaskWaiverReview] => {
+          const waiveTask: ITaskWaiver =  {
+               title: "Module Waiver",
+               status: "IN_PROGRESS",
+               type: "MODULE_WAIVER"
+          }
+          const waiveApproval: ITaskWaiverReview = {
+               title: "Module Waiver Approval",
+               status: "IN_PROGRESS",
+               type: "MODULE_WAIVER_APPROVAL"
+          }
+
+          return [waiveTask, waiveApproval];
+     }
+
+     const createWaiverSteps = () => {
+          return {
+               step_one: [0],
+               step_two: [1]
+          }
+     }
+
+     const makeWaiveSteps = (sourceString: string) => {
+          const moduleInfo = sourceString.split('.')[0].split('[');
+          const module = moduleInfo[0];
+          const moduleNumber = moduleInfo[1].replace(']', '');
+
+          form.change(`${module}[${moduleNumber}].tasks`, {
+               title: "Module Waiver",
+               status: "IN_PROGRESS",
+               type: "MODULE_WAIVER"
+          });
+          setTimeout(() => {
+               form.change(`${module}[${moduleNumber}].tasks`, {
+                    title: "Module Waiver Approval",
+                    status: "IN_PROGRESS",
+                    type: "MODULE_WAIVER_APPROVAL"
+               });
+          }, 1000)
+          form.change(`${module}[${moduleNumber}].steps`, createWaiverSteps());
+     }
+
+     const formChange = (value: any) => {
+          if (!value) return;
+
+          makeWaiveSteps(props.source);
+     }
+
+     const handleChange = useCallback(
+          (value: any) => {
+               formChange(value);
+          },
+          [formChange]
+     );
+
+     return (
+          <>
+               <BooleanInput label="project.create.layout.waive_module" source="waive_module" helperText=" " defaultValue={false} onChange={handleChange} {...props}/>
+          </>
+     )
+}
+
+export default WaiverInput;

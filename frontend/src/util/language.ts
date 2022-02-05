@@ -42,7 +42,8 @@ export default {
                          assign: "Assign Members to Project",
                          auto_assign: "Auto Assign to Tasks by Rank",
                          add_modules: "Add Modules",
-                         add_tasks: "Add Tasks"
+                         add_tasks: "Add Tasks",
+                         waive_module: "Waive Module"
                     }
                }
           }

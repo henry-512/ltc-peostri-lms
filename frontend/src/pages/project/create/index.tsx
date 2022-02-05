@@ -35,8 +35,6 @@ export default function ProjectCreate(props: any) {
      const classes = useStyles();
      const search = new URLSearchParams(props.location.search);
 
-     console.log(typeof search.get('template'));
-
      return (
           <Create title={translate('project.create.title')} {...props}>
                <Stepper>
