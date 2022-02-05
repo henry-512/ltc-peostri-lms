@@ -11,6 +11,8 @@ export interface IArangoIndexes {
      _id?: string;
      _rev?: string;
      _key?: string;
+
+     id?: string;
 }
 
 export interface IUser extends IArangoIndexes {
@@ -18,8 +20,6 @@ export interface IUser extends IArangoIndexes {
      lastName: string;
      avatar: null | string;
      userGroup: string | IUserGroup;
-
-     id?: string;
 }
 
 export interface IComment extends IArangoIndexes {
@@ -86,8 +86,6 @@ export interface IUserGroup extends IArangoIndexes {
           perm2: boolean,
           perm3: boolean
      };
-     
-     id?: string;
 }
 
 export interface IModuleTemplate extends IModule, IArangoIndexes {
