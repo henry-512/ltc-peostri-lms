@@ -50,6 +50,10 @@ export interface ITaskWaive extends ITask {
 
 }
 
+export interface ITaskWaiveReview extends ITask {
+
+}
+
 export interface IModule extends IArangoIndexes {
      title: string;
      tasks: Array<string> | Array<ITask>;
