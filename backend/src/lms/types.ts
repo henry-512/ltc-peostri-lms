@@ -4,7 +4,10 @@ export interface LoginInformation {
 }
 
 export type Status = "IN_PROGRESS" | "COMLETED" | "ARCHIVED" | "AWAITING";
-export type TaskTypes = "DOCUMENT_REVIEW" | "DOCUMENT_APPROVAL" | "MODULE_WAIVER" | "MODULE_WAIVER_APPROVAL"
+export type TaskTypes = "DOCUMENT_UPLOAD" | "DOCUMENT_REVIEW" | "MODULE_WAIVER" | "MODULE_WAIVER_APPROVAL"
+export type TaskOrder = {
+     [step: string]: string
+}
 
 // All are optional
 export interface IArangoIndexes {
@@ -28,8 +31,6 @@ export interface IComment extends IArangoIndexes {
      createdAt?: string | Date;
      updatedAt?: string | Date;
      parent?: string | IModule | IProject;
-
-     id?: string;
 }
 
 export interface ITask extends IArangoIndexes {
@@ -38,20 +39,22 @@ export interface ITask extends IArangoIndexes {
      assigned?: Array<string> | Array<IUser>;
      module?: string | IModule;
      type?: TaskTypes;
-
-     id?: string;
 }
 
 export interface ITaskReview extends ITask {
-     
+     type: "DOCUMENT_REVIEW";
 }
 
 export interface ITaskUpload extends ITask {
-     
+     type: "DOCUMENT_UPLOAD";
 }
 
-export interface ITaskWaive extends ITask {
+export interface ITaskWaiver extends ITask {
+     type: "MODULE_WAIVER";
+}
 
+export interface ITaskWaiverReview extends ITask {
+     type: "MODULE_WAIVER_APPROVAL";
 }
 
 export interface IModule extends IArangoIndexes {
@@ -60,6 +63,7 @@ export interface IModule extends IArangoIndexes {
      comments: Array<string> | Array<IComment>;
      project?: string | IProject;
      status: Status | "WAIVED";
+     steps: TaskOrder;
 
      id?: string;
 }
@@ -74,18 +78,25 @@ export interface IProject extends IArangoIndexes {
      comments: Array<string> | Array<IComment>;
      modules: Array<string> | Array<IModule>;
      users: Array<string> | Array<IUser>;
-
-     // Required for api. Alias for _key, dne in database
-     id?: string;
 }
 
 export interface IUserGroup extends IArangoIndexes {
      name: string;
      permissions?: {
-          perm1: boolean,
-          perm2: boolean,
-          perm3: boolean
+          perm1: boolean;
+          perm2: boolean;
+          perm3: boolean;
      };
+}
+
+export interface IFileMetadata extends IArangoIndexes {
+     name: string;
+     author: string | IUser;
+     createdAt: Date;
+     location: {
+          name: string;
+          revision: string;
+     }
 }
 
 export interface IModuleTemplate extends IModule, IArangoIndexes {
@@ -101,7 +112,7 @@ export interface IProjectTemplate extends IArangoIndexes {
 }
 
 export interface IGetListQuery {
-     filter: Array<string>,
-     range: Array<number>,
-     sort: Array<string>
+     filter: Array<string>;
+     range: Array<number>;
+     sort: Array<string>;
 }

@@ -64,8 +64,6 @@ export interface IModule extends IArangoIndexes {
      project?: string | IProject;
      status: Status | "WAIVED";
      steps: TaskOrder;
-
-     id?: string;
 }
 
 export interface IProject extends IArangoIndexes {
