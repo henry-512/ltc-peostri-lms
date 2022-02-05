@@ -137,16 +137,6 @@ async function task(self: IRouterArgs, key: string, data: IArangoIndexes, par?:s
 	data._key = key
 
 	let task = <ITask>data
-
-	// Convert from key to id
-	const taskId = 'tasks/'.concat(key)
-
-	if (!task.comments) {
-        task.comments = []
-    } else if (task.comments.length !== 0) {
-        let comAr = await comment(task.comments as IComment[], taskId)
-        task.comments = comAr.map(v => v._key as string)
-    }
 	
 	task.module = par
 
@@ -158,11 +148,10 @@ async function task(self: IRouterArgs, key: string, data: IArangoIndexes, par?:s
 const TaskArgs: IRouterArgs = {
 	name: 'tasks',
 	dname: 'Task',
-	all: ['title', 'status', 'assigned', 'comments', 'module'],
-	gaFields: ['title', 'status', 'assigned', 'comments', 'module'],
+	all: ['title', 'status', 'assigned', 'module', 'type'],
+	gaFields: ['title', 'status', 'assigned', 'module', 'type'],
 	cascade: [
-		{key:'assigned',class:UserArgs},
-		{key:'comments',class:CommentArgs},
+		{key:'assigned',class:UserArgs}
 	],
 	upload:task,
 }

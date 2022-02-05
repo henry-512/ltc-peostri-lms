@@ -4,6 +4,7 @@ export interface LoginInformation {
 }
 
 export type Status = "IN_PROGRESS" | "COMLETED" | "ARCHIVED" | "AWAITING";
+export type TaskTypes = "DOCUMENT_REVIEW" | "DOCUMENT_APPROVAL" | "MODULE_WAIVER" | "MODULE_WAIVER_APPROVAL"
 
 // All are optional
 export interface IArangoIndexes {
@@ -26,23 +27,31 @@ export interface IComment extends IArangoIndexes {
      author: string | IUser;
      createdAt?: string | Date;
      updatedAt?: string | Date;
-     parent?: string | ITask | IModule | IProject;
+     parent?: string | IModule | IProject;
+
+     id?: string;
 }
 
 export interface ITask extends IArangoIndexes {
      title: string;
      status: Status;
      assigned?: Array<string> | Array<IUser>;
-     comments: Array<string> | Array<IComment>;
      module?: string | IModule;
+     type?: TaskTypes;
+
+     id?: string;
 }
 
-export interface ITaskReview extends ITask, IArangoIndexes {
-     type: "DOCUMENT_REVIEW";
+export interface ITaskReview extends ITask {
+     
 }
 
-export interface ITaskUpload extends ITask, IArangoIndexes {
-     type: "DOCUMENT_UPLOAD";
+export interface ITaskUpload extends ITask {
+     
+}
+
+export interface ITaskWaive extends ITask {
+
 }
 
 export interface IModule extends IArangoIndexes {
@@ -50,6 +59,9 @@ export interface IModule extends IArangoIndexes {
      tasks: Array<string> | Array<ITask>;
      comments: Array<string> | Array<IComment>;
      project?: string | IProject;
+     status: Status | "WAIVED";
+
+     id?: string;
 }
 
 export interface IProject extends IArangoIndexes {
@@ -62,6 +74,9 @@ export interface IProject extends IArangoIndexes {
      comments: Array<string> | Array<IComment>;
      modules: Array<string> | Array<IModule>;
      users: Array<string> | Array<IUser>;
+
+     // Required for api. Alias for _key, dne in database
+     id?: string;
 }
 
 export interface IUserGroup extends IArangoIndexes {
