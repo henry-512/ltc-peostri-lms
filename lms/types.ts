@@ -5,6 +5,9 @@ export interface LoginInformation {
 
 export type Status = "IN_PROGRESS" | "COMLETED" | "ARCHIVED" | "AWAITING";
 export type TaskTypes = "DOCUMENT_REVIEW" | "DOCUMENT_APPROVAL" | "MODULE_WAIVER" | "MODULE_WAIVER_APPROVAL"
+export type TaskOrder = {
+     [step: string]: string
+}
 
 // All are optional
 export interface IArangoIndexes {
@@ -60,7 +63,7 @@ export interface IModule extends IArangoIndexes {
      comments: Array<string> | Array<IComment>;
      project?: string | IProject;
      status: Status | "WAIVED";
-     steps: Map<string, Array<string>>;
+     steps: TaskOrder;
 
      id?: string;
 }
