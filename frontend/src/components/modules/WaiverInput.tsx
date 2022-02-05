@@ -14,7 +14,7 @@ const WaiverInput = (props: any): JSX.Element => {
           }
           const waiveApproval: ITaskWaiverReview = {
                title: "Module Waiver Approval",
-               status: "IN_PROGRESS",
+               status: "AWAITING",
                type: "MODULE_WAIVER_APPROVAL"
           }
 
@@ -33,25 +33,30 @@ const WaiverInput = (props: any): JSX.Element => {
           const module = moduleInfo[0];
           const moduleNumber = moduleInfo[1].replace(']', '');
 
-          form.change(`${module}[${moduleNumber}].tasks`, {
-               title: "Module Waiver",
-               status: "IN_PROGRESS",
-               type: "MODULE_WAIVER"
-          });
+          form.change(`${module}[${moduleNumber}].waived`, true)
+          form.change(`${module}[${moduleNumber}].tasks`, [createWaiverTasks()[0]]);
           setTimeout(() => {
-               form.change(`${module}[${moduleNumber}].tasks`, {
-                    title: "Module Waiver Approval",
-                    status: "IN_PROGRESS",
-                    type: "MODULE_WAIVER_APPROVAL"
-               });
-          }, 1000)
+               form.change(`${module}[${moduleNumber}].tasks`, createWaiverTasks());
+          }, 200)
           form.change(`${module}[${moduleNumber}].steps`, createWaiverSteps());
      }
 
-     const formChange = (value: any) => {
-          if (!value) return;
+     const removeWaiveSteps = (sourceString: string) => {
+          const moduleInfo = sourceString.split('.')[0].split('[');
+          const module = moduleInfo[0];
+          const moduleNumber = moduleInfo[1].replace(']', '');
 
-          makeWaiveSteps(props.source);
+          form.change(`${module}[${moduleNumber}].waived`, false)
+          form.change(`${module}[${moduleNumber}].tasks`, []);
+          form.change(`${module}[${moduleNumber}].steps`, []);
+     }
+
+     const formChange = (value: any) => {
+          if (!value) {
+               removeWaiveSteps(props.source);
+          } else {
+               makeWaiveSteps(props.source);
+          }
      }
 
      const handleChange = useCallback(

@@ -47,6 +47,8 @@ const Create = (props: any) => {
                                                                  { id: 'WAIVED', name: 'WAIVED'},
                                                                  { id: 'ARCHIVED', name: 'ARCHIVED' }
                                                             ]} 
+                                                            optionText={choice => `${choice.name}`}
+                                                            optionValue="id"
                                                             disabled 
                                                             initialValue="AWAITING" 
                                                             label="project.create.fields.module_status" 
@@ -78,6 +80,19 @@ const Create = (props: any) => {
                                                                       id,
                                                                       ...rest 
                                                                  } = props;
+
+                                                                 var [ mSplit, tSplit ] = (id || '').split('.');
+                                                                 var [ mName, mID ] = mSplit.replace(']', '').split('[');
+                                                                 var [ tName, tID ] = tSplit.replace(']', '').split('[');
+                                                                 let disableFields = false;
+
+                                                                 if (typeof formData[mName][mID][tName][tID] != 'undefined') {
+                                                                      if (typeof formData[mName][mID][tName][tID].type != 'undefined') {
+                                                                           if (formData[mName][mID][tName][tID].type == 'MODULE_WAIVER' || formData[mName][mID][tName][tID].type == 'MODULE_WAIVER_APPROVAL') {
+                                                                                disableFields = true 
+                                                                           }
+                                                                      }
+                                                                 }
                                                                  return (
                                                                       <Grid container spacing={4} className={classes.taskFieldWrapper}>
                                                                            <Grid item xs={5}>
@@ -87,26 +102,29 @@ const Create = (props: any) => {
                                                                                      fullWidth
                                                                                      helperText=" "
                                                                                      required
+                                                                                     disabled={disableFields}
                                                                                 />
                                                                            </Grid>
                                                                            <Grid item xs={4}>
                                                                                 <SelectInput 
                                                                                      source={getSource?.('type') || ""} 
                                                                                      choices={[
-                                                                                          { id: 'DOCUMENT_UPLOAD', name: 'Upload Document' },
-                                                                                          { id: 'DOCUMENT_REVIEW', name: 'Review Document' },                                                                                               
+                                                                                          { id: 'DOCUMENT_UPLOAD', name: 'Upload' },
+                                                                                          { id: 'DOCUMENT_REVIEW', name: 'Review' },                                                                                               
+                                                                                          { id: 'MODULE_WAIVER', name: 'Waiver', not_available: true },                                                                                               
+                                                                                          { id: 'MODULE_WAIVER_APPROVAL', name: 'Waiver Approval', not_available: true },                                                                                               
                                                                                      ]}  
+                                                                                     optionText={choice => `${choice.name}`}
+                                                                                     optionValue="id"
                                                                                      label="project.create.fields.task_type" 
                                                                                      fullWidth
                                                                                      helperText=" "
                                                                                      required
+                                                                                     disableValue="not_available"
+                                                                                     disabled={disableFields}
                                                                                 />
                                                                            </Grid>                                                                                               
                                                                            {(() => {
-                                                                                var [ mSplit, tSplit ] = (id || '').split('.');
-                                                                                var [ mName, mID ] = mSplit.replace(']', '').split('[');
-                                                                                var [ tName, tID ] = tSplit.replace(']', '').split('[');
-
                                                                                 if (typeof formData[mName][mID] == 'undefined') return (<></>)
 
                                                                                 if (typeof formData[mName][mID][tName][tID] != 'undefined') {
@@ -121,6 +139,8 @@ const Create = (props: any) => {
                                                                                                               { id: 'COMPLETED', name: 'COMPLETED' },
                                                                                                               { id: 'ARCHIVED', name: 'ARCHIVED' }
                                                                                                          ]} 
+                                                                                                         optionText={choice => `${choice.name}`}
+                                                                                                         optionValue="id"
                                                                                                          disabled 
                                                                                                          initialValue={(formData[mName][mID][tName][tID]['type'] != 'MODULE_COMPLETE') ? "AWAITING" : 'COMPLETED'} 
                                                                                                          label="project.create.fields.task_status" 
