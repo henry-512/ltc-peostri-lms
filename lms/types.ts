@@ -64,8 +64,6 @@ export interface IModule extends IArangoIndexes {
      project?: string | IProject;
      status: Status | "WAIVED";
      steps: TaskOrder;
-
-     id?: string;
 }
 
 export interface IProject extends IArangoIndexes {
@@ -83,15 +81,21 @@ export interface IProject extends IArangoIndexes {
 export interface IUserGroup extends IArangoIndexes {
      name: string;
      permissions?: {
-          perm1: boolean,
-          perm2: boolean,
-          perm3: boolean
+          perm1: boolean;
+          perm2: boolean;
+          perm3: boolean;
      };
 }
 
-// export interface IFileMetadata extends IArangoIndexes {
-
-// }
+export interface IFileMetadata extends IArangoIndexes {
+     name: string;
+     author: string | IUser;
+     createdAt: Date;
+     location: {
+          name: string;
+          revision: string;
+     }
+}
 
 export interface IModuleTemplate extends IModule, IArangoIndexes {
      description: string;
@@ -106,7 +110,7 @@ export interface IProjectTemplate extends IArangoIndexes {
 }
 
 export interface IGetListQuery {
-     filter: Array<string>,
-     range: Array<number>,
-     sort: Array<string>
+     filter: Array<string>;
+     range: Array<number>;
+     sort: Array<string>;
 }

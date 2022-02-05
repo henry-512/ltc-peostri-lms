@@ -3,7 +3,7 @@ import { aql, GeneratedAqlQuery } from 'arangojs/aql'
 import { DocumentCollection } from 'arangojs/collection'
 import koaBody from 'koa-body'
 import { db } from '../../database'
-import { IArangoIndexes, IComment, IModule, IProject, ITask, IUser, IUserGroup } from '../../lms/types'
+import { IArangoIndexes, IComment, IFileMetadata, IModule, IProject, ITask, IUser, IUserGroup } from '../../lms/types'
 import { generateDBKey } from '../../util'
 
 import { ApiRoute } from './route'
@@ -260,6 +260,19 @@ const ProjectArgs: IRouterArgs = {
 	upload:project,
 }
 
+const FileMetadataArgs: IRouterArgs = {
+	name: 'fileMetadata',
+	dname: 'File Metadata',
+	all: ['name', 'author', 'createdAt', 'location'],
+	gaFields: ['name', 'author', 'createdAt', 'location'],
+	upload: function (self: IRouterArgs, key: string, data: IArangoIndexes, par?: string): Promise<IArangoIndexes> {
+		throw new Error('Function not implemented.')
+	},
+	cascade: [
+		{key:'author',class:UserArgs}
+	]
+}
+
 export function routerBuilder(version: string) {
 	return new Router({prefix: `${version}/`})
 	.use(new ApiRoute<IUser>(UserArgs).makeRouter().routes())
@@ -267,6 +280,7 @@ export function routerBuilder(version: string) {
 	.use(new ApiRoute<IModule>(ModuleArgs).makeRouter().routes())
 	.use(new ApiRoute<ITask>(TaskArgs).makeRouter().routes())
 	.use(new ApiRoute<IComment>(CommentArgs).makeRouter().routes())
+	.use(new ApiRoute<IFileMetadata>(FileMetadataArgs).makeRouter().routes())
 	.use(new ApiRoute<IProject>(ProjectArgs).makeRouter()
 		.put('/:id', koaBody(), async ctx => {
             try {
