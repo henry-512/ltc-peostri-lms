@@ -4,7 +4,7 @@ export interface LoginInformation {
 }
 
 export type Status = "IN_PROGRESS" | "COMLETED" | "ARCHIVED" | "AWAITING";
-export type TaskTypes = "DOCUMENT_REVIEW" | "DOCUMENT_APPROVAL" | "MODULE_WAIVER" | "MODULE_WAIVER_APPROVAL"
+export type TaskTypes = "DOCUMENT_UPLOAD" | "DOCUMENT_REVIEW" | "MODULE_WAIVER" | "MODULE_WAIVER_APPROVAL"
 export type TaskOrder = {
      [step: string]: string
 }
@@ -42,19 +42,19 @@ export interface ITask extends IArangoIndexes {
 }
 
 export interface ITaskReview extends ITask {
-     
+     type: "DOCUMENT_REVIEW";
 }
 
 export interface ITaskUpload extends ITask {
-     
+     type: "DOCUMENT_UPLOAD";
 }
 
-export interface ITaskWaive extends ITask {
-
+export interface ITaskWaiver extends ITask {
+     type: "MODULE_WAIVER";
 }
 
-export interface ITaskWaiveReview extends ITask {
-
+export interface ITaskWaiverReview extends ITask {
+     type: "MODULE_WAIVER_APPROVAL";
 }
 
 export interface IModule extends IArangoIndexes {
