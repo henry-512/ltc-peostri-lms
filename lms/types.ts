@@ -59,6 +59,7 @@ export interface IModule extends IArangoIndexes {
      tasks: Array<string> | Array<ITask>;
      comments: Array<string> | Array<IComment>;
      project?: string | IProject;
+     status: Status | "WAIVED";
 
      id?: string;
 }
@@ -73,7 +74,7 @@ export interface IProject extends IArangoIndexes {
      comments: Array<string> | Array<IComment>;
      modules: Array<string> | Array<IModule>;
      users: Array<string> | Array<IUser>;
-     
+
      // Required for api. Alias for _key, dne in database
      id?: string;
 }
