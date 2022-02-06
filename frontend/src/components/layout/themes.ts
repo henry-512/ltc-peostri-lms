@@ -84,6 +84,18 @@ export const lightTheme = {
                     display: 'none'
                }
           },
+          RaFileInput: {
+               dropZone: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                    border: '2px solid rgba(0, 0, 0, 0.04)',
+                    boxSizing: 'border-box',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                         borderColor: '#4f3cc9',
+                         transition: 'all 0.2s ease',
+                    }
+               }
+          },
           MuiPaper: {
                elevation1: {
                     boxShadow: 'none',

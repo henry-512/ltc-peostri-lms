@@ -30,7 +30,7 @@ const App = () => {
           >
                <Resource name='projects' list={ProjectList} create={ProjectCreate} />
                <Resource name="users" />
-               <Resource name="usergroups" />
+               <Resource name="userGroups" />
           </Admin>
      );
 }
