@@ -19,6 +19,7 @@ class UserRoute extends ApiRoute<IUser> {
         )
     }
     // Override
+    // Dereferences the usergroup ID and name
     override getAllQuery(
         collection: DocumentCollection,
 		sort: GeneratedAqlQuery,

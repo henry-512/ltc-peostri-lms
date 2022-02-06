@@ -1,6 +1,4 @@
-import koaBody from "koa-body";
-import { IArangoIndexes, IComment, IModule, IProject } from "../../lms/types";
-import { generateDBKey } from "../../util";
+import { IProject } from "../../lms/types";
 import { CommentRouteInstance } from "./comments";
 import { ModuleRouteInstance } from "./module";
 import { ApiRoute } from "./route";

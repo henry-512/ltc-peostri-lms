@@ -1,5 +1,4 @@
-import { IArangoIndexes, IComment, IModule, ITask } from "../../lms/types";
-import { generateDBKey } from "../../util";
+import { IModule } from "../../lms/types";
 import { CommentRouteInstance } from "./comments";
 import { ApiRoute } from "./route";
 import { TaskRouteInstance } from "./tasks";

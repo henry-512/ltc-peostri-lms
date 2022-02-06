@@ -6,7 +6,7 @@ import koaBody from "koa-body"
 
 import { db } from "../../database"
 import { IArangoIndexes, ICreateUpdate } from "../../lms/types"
-import { generateDBKey } from "../../util"
+import { generateBase64UUID } from "../../lms/util"
 
 function appendQuery(q:GeneratedAqlQuery, fields: string[]) {
     fields.forEach((s, i) => {
@@ -177,7 +177,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     foreignKeys.push(fdoc)
                 // Objects are fully-formed documents
                 } else if (typeof fdoc === 'object') {
-                    let childKey = generateDBKey()
+                    let childKey = generateBase64UUID()
                     if (fField.class.parentKey) {
                         // Ok this one's pretty nasty, but it kinda has to
                         // be like this.
@@ -304,7 +304,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     ctx.status = 409
                     ctx.body = `${this.dname} [${body.id}] already exists`
                 } else {
-                    let newKey = generateDBKey()
+                    let newKey = generateBase64UUID()
                     let doc = body as Type
                     await this.create(newKey, doc)
     
