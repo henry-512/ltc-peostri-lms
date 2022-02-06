@@ -35,7 +35,8 @@ export default {
                          task_title: "Task Title",
                          task_type: "Task Type",
                          task_status: "Task Status",
-                         usergroup: "User Group"
+                         usergroup: "User Group",
+                         waiver_file: "Drop a File Here, or Click Here to Browse Files"
                     },
                     layout: {
                          general: "Project Information",
@@ -43,7 +44,8 @@ export default {
                          auto_assign: "Auto Assign to Tasks by Rank",
                          add_modules: "Add Modules",
                          add_tasks: "Add Tasks",
-                         waive_module: "Waive Module"
+                         waive_module: "Waive Module",
+                         waive_help: "Attach a File or Comment to Waive this Module"
                     }
                }
           }

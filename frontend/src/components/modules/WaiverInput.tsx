@@ -6,19 +6,19 @@ import { ITaskWaiver, ITaskWaiverReview } from "../../../../lms/types";
 const WaiverInput = (props: any): JSX.Element => {
      const form = useForm();
 
-     const createWaiverTasks = (): [waiveTask: ITaskWaiver, waiveApproval: ITaskWaiverReview] => {
-          const waiveTask: ITaskWaiver =  {
+     const createWaiverTasks = (): [waiveApproval: ITaskWaiverReview] => {
+          /*const waiveTask: ITaskWaiver =  {
                title: "Module Waiver",
                status: "IN_PROGRESS",
                type: "MODULE_WAIVER"
-          }
+          }*/
           const waiveApproval: ITaskWaiverReview = {
                title: "Module Waiver Approval",
                status: "AWAITING",
                type: "MODULE_WAIVER_APPROVAL"
           }
 
-          return [waiveTask, waiveApproval];
+          return [waiveApproval];
      }
 
      const createWaiverSteps = () => {
@@ -33,11 +33,8 @@ const WaiverInput = (props: any): JSX.Element => {
           const module = moduleInfo[0];
           const moduleNumber = moduleInfo[1].replace(']', '');
 
-          form.change(`${module}[${moduleNumber}].waived`, true)
-          form.change(`${module}[${moduleNumber}].tasks`, [createWaiverTasks()[0]]);
-          setTimeout(() => {
-               form.change(`${module}[${moduleNumber}].tasks`, createWaiverTasks());
-          }, 200)
+          form.change(`${module}[${moduleNumber}].waived`, true);
+          form.change(`${module}[${moduleNumber}].tasks`, createWaiverTasks());
           form.change(`${module}[${moduleNumber}].steps`, createWaiverSteps());
      }
 
