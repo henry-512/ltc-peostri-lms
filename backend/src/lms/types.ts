@@ -18,6 +18,12 @@ export interface IArangoIndexes {
      id?: string;
 }
 
+// DB elements with create/update timestamps
+export interface ICreateUpdate {
+     createdAt?: string | Date;
+     updatedAt?: string | Date;
+}
+
 export interface IUser extends IArangoIndexes {
      firstName: string;
      lastName: string;
@@ -25,11 +31,9 @@ export interface IUser extends IArangoIndexes {
      userGroup: string | IUserGroup;
 }
 
-export interface IComment extends IArangoIndexes {
+export interface IComment extends IArangoIndexes, ICreateUpdate {
      content: string;
      author: string | IUser;
-     createdAt?: string | Date;
-     updatedAt?: string | Date;
      parent?: string | IModule | IProject;
 }
 
@@ -66,10 +70,8 @@ export interface IModule extends IArangoIndexes {
      steps: TaskOrder;
 }
 
-export interface IProject extends IArangoIndexes {
+export interface IProject extends IArangoIndexes, ICreateUpdate {
      title: string;
-     createdAt?: Date;
-     updatedAt?: Date;
      start: Date;
      end: Date;
      status: Status;
@@ -87,10 +89,9 @@ export interface IUserGroup extends IArangoIndexes {
      };
 }
 
-export interface IFileMetadata extends IArangoIndexes {
+export interface IFileMetadata extends IArangoIndexes, ICreateUpdate {
      name: string;
      author: string | IUser;
-     createdAt: Date;
      location: {
           name: string;
           revision: string;
@@ -101,11 +102,9 @@ export interface IModuleTemplate extends IModule, IArangoIndexes {
      description: string;
 }
 
-export interface IProjectTemplate extends IArangoIndexes {
+export interface IProjectTemplate extends IArangoIndexes, ICreateUpdate {
      title: string;
      description: string;
-     createdAt?: Date;
-     updatedAt?: Date;
      modules: Array<IModule>;
 }
 

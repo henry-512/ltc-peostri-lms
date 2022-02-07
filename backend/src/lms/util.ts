@@ -1,13 +1,16 @@
+// @ts-ignore
+// Libraries don't exist in the root directory,
+// so this doesn't work properly
 import { v4, parse } from 'uuid';
 
 // RFC4648 Chapter 5 standard: URL/file-safe base64 encoding lookup string
 const b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'
 
 /**
- * Generates a v4 UUID (randomly generated), converted
- * into a 21-character long "b64" format ([A-Z][a-z][0-9]-_)
+ * Generates a v4 (randomly generated) UUID, converted
+ * into a 21-character long "base64" format ([A-Z][a-z][0-9]-_)
  */
-export function generateDBKey() {
+export function generateBase64UUID(): string {
     // Generate UUID v4
     // bytes is a 16 length byte array
     const bytes = parse(v4())
