@@ -1,4 +1,4 @@
-import { Grid, Typography, makeStyles } from "@material-ui/core";
+import { Grid, Typography, makeStyles, Hidden } from "@material-ui/core";
 import { ArrayInput, FileField, FileInput, FormDataConsumer, ReferenceArrayInput, ReferenceInput, SelectInput, SimpleFormIterator, TextInput, useTranslate } from "react-admin";
 import { AutoAssignArrayInput } from ".";
 import { RemoveButton } from "../RemoveButton";
@@ -6,6 +6,7 @@ import TaskLabel from "./TaskLabel";
 import WaiverInput from "./WaiverInput";
 import RichTextInput from 'ra-input-rich-text';
 import classNames from "classnames";
+import {useEffect, useState} from 'react';
 
 const BORDER_COLOR = '#e0e0e3';
 
@@ -58,6 +59,18 @@ const useStyles = makeStyles(theme => ({
      }
 }))
 
+const IDField = ({source}: {source: string}) => {
+     const [id, setID] = useState("");
+     useEffect(()=>{
+          setID();
+     }, [])
+     return (
+          <Hidden xlDown implementation="css">
+               <TextInput source={source} disabled defaultValue={id} initialValue={id}/>
+          </Hidden>
+     )
+}
+
 const Create = (props: any) => {
      const classes = useStyles();
      const translate = useTranslate();
@@ -76,6 +89,7 @@ const Create = (props: any) => {
                                    const moduleInfo = (getSource?.('') || "").split('.')[0].split('[');
                                    const module = moduleInfo[0];
                                    const moduleNumber = moduleInfo[1].replace(']', '');
+                              
                                    let showFileUpload = false;
 
                                    if (typeof formData[module][moduleNumber] != 'undefined' && formData[module][moduleNumber].waived != 'undefined') {
@@ -86,6 +100,7 @@ const Create = (props: any) => {
                                    return (
                                         <>
                                              <Grid container spacing={2}>
+                                                  <IDField source={getSource?.('id') || ""}/>
                                                   <Grid item xs={5}>
                                                        <TextInput 
                                                             source={getSource?.('title') || ""} 
@@ -177,6 +192,7 @@ const Create = (props: any) => {
                                                                  }
                                                                  return (
                                                                       <Grid container spacing={4} className={classes.taskFieldWrapper}>
+                                                                           <IDField source={getSource?.('id') || ""}/>
                                                                            <Grid item xs={5}>
                                                                                 <TextInput 
                                                                                      source={getSource?.('title') || ""} 
@@ -207,58 +223,53 @@ const Create = (props: any) => {
                                                                                 />
                                                                            </Grid>                                                                                               
                                                                            {(() => {
-                                                                                if (typeof formData[mName][mID] == 'undefined') return (<></>)
-                                                                                if (typeof formData[mName][mID][tName] == 'undefined') return (<></>)
+                                                                                return (
+                                                                                     <>
+                                                                                          <Grid item xs={3}>
+                                                                                               <SelectInput 
+                                                                                                    source={getSource?.('status') || ""} 
+                                                                                                    choices={[
+                                                                                                         { id: 'AWAITING', name: 'AWAITING' },
+                                                                                                         { id: 'IN_PROGRESS', name: 'IN PROGRESS' },
+                                                                                                         { id: 'COMPLETED', name: 'COMPLETED' },
+                                                                                                         { id: 'ARCHIVED', name: 'ARCHIVED' }
+                                                                                                    ]} 
+                                                                                                    optionText={choice => `${choice.name}`}
+                                                                                                    optionValue="id"
+                                                                                                    disabled 
+                                                                                                    initialValue="AWAITING"
+                                                                                                    label="project.create.fields.task_status" 
+                                                                                                    fullWidth
+                                                                                                    helperText=" "
+                                                                                               />
+                                                                                          </Grid>
 
-                                                                                if (typeof formData[mName][mID][tName][tID] != 'undefined') {
-                                                                                     return (
-                                                                                          <>
-                                                                                               <Grid item xs={3}>
-                                                                                                    <SelectInput 
-                                                                                                         source={getSource?.('status') || ""} 
-                                                                                                         choices={[
-                                                                                                              { id: 'AWAITING', name: 'AWAITING' },
-                                                                                                              { id: 'IN_PROGRESS', name: 'IN PROGRESS' },
-                                                                                                              { id: 'COMPLETED', name: 'COMPLETED' },
-                                                                                                              { id: 'ARCHIVED', name: 'ARCHIVED' }
-                                                                                                         ]} 
+                                                                                          <Grid item xs={3} style={{marginTop: '-32px'}}>
+                                                                                               <ReferenceInput 
+                                                                                                    label="project.create.fields.usergroup"
+                                                                                                    reference="userGroups"
+                                                                                                    source={getSource?.('userGroup') || ""}
+                                                                                               >
+                                                                                                    <SelectInput
                                                                                                          optionText={choice => `${choice.name}`}
                                                                                                          optionValue="id"
-                                                                                                         disabled 
-                                                                                                         initialValue="AWAITING"
-                                                                                                         label="project.create.fields.task_status" 
-                                                                                                         fullWidth
                                                                                                          helperText=" "
+                                                                                                         fullWidth
                                                                                                     />
-                                                                                               </Grid>
+                                                                                               </ReferenceInput>
+                                                                                          </Grid>
 
-                                                                                               <Grid item xs={3} style={{marginTop: '-32px'}}>
-                                                                                                    <ReferenceInput 
-                                                                                                         label="project.create.fields.usergroup"
-                                                                                                         reference="userGroups"
-                                                                                                         source={getSource?.('userGroup') || ""}
-                                                                                                    >
-                                                                                                         <SelectInput
-                                                                                                              optionText={choice => `${choice.name}`}
-                                                                                                              optionValue="id"
-                                                                                                              helperText=" "
-                                                                                                              fullWidth
-                                                                                                         />
-                                                                                                    </ReferenceInput>
-                                                                                               </Grid>
-
-                                                                                               <Grid item xs={9} style={{marginTop: '-32px'}}>
-                                                                                                    <ReferenceArrayInput
-                                                                                                         label="project.create.fields.member"
-                                                                                                         reference="users"
-                                                                                                         source={getSource?.('users') || ""}
-                                                                                                    >
-                                                                                                         <AutoAssignArrayInput mName={mName} mID={mID} tName={tName} tID={tID} />
-                                                                                                    </ReferenceArrayInput>
-                                                                                               </Grid>
-                                                                                          </>
-                                                                                     )
-                                                                                } else { return (<></>) }
+                                                                                          <Grid item xs={9} style={{marginTop: '-32px'}}>
+                                                                                               <ReferenceArrayInput
+                                                                                                    label="project.create.fields.member"
+                                                                                                    reference="users"
+                                                                                                    source={getSource?.('users') || ""}
+                                                                                               >
+                                                                                                    <AutoAssignArrayInput mName={mName} mID={mID} tName={tName} tID={tID} />
+                                                                                               </ReferenceArrayInput>
+                                                                                          </Grid>
+                                                                                     </>
+                                                                                )
                                                                            })()}
                                                                       </Grid>
                                                                  )

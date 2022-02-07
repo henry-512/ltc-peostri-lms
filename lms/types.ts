@@ -59,7 +59,7 @@ export interface ITaskWaiverReview extends ITask {
 
 export interface IModule extends IArangoIndexes {
      title: string;
-     tasks: Array<string> | Array<ITask>;
+     tasks: Array<ITask>;
      comments: Array<string> | Array<IComment>;
      project?: string | IProject;
      status: Status | "WAIVED";

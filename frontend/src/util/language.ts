@@ -1,4 +1,4 @@
-export default {
+const domainMessages = {
      en: {
           layout: {
                appbar: {
@@ -51,3 +51,5 @@ export default {
           }
      }
 }
+
+export default domainMessages;
