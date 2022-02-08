@@ -9,6 +9,7 @@ const app = new Koa()
 
 apiRouter()
     .then(router => {
+        // Output all router paths
         console.log(router.stack.map(i => `${i.path} ${i.methods}`))
 
         app

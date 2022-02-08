@@ -1,4 +1,6 @@
 // @ts-ignore
+// Libraries don't exist in the root directory,
+// so this doesn't work properly
 import { v4, parse } from 'uuid';
 
 // RFC4648 Chapter 5 standard: URL/file-safe base64 encoding lookup string
@@ -36,4 +38,29 @@ export function generateBase64UUID(): string {
     key = key.concat(b64.charAt(bytes[16] & 63), b64.charAt(bytes[16] >> 6))
 
     return key
+}
+
+// Collection names are alphabetic character names
+// DB keys are url/filename-safe base64, alphanumeric with - and _
+const idRegex = new RegExp('^([a-z]|[A-Z])+\/([0-9]|[a-z]|[A-Z]|-|_)+$')
+const keyRegex = new RegExp('^([0-9]|[a-z]|[A-Z]|-|_)+$')
+
+/**
+ * Returns true if the passed string looks like a database id.
+ * DOES NOT CHECK IF STR IS VALID REFERENCE.
+ * @param str A string
+ * @return True if str looks like [name/key]
+ */
+export function isDBId(str: string): boolean {
+    return idRegex.test(str)
+}
+
+/**
+ * Returns true if the passed string looks like a database key.
+ * DOES NOT CHECK IF STR IS VALID REFERENCE.
+ * @param str A string
+ * @return True if str looks like [key]
+ */
+export function isDBKey(str: string): boolean {
+    return keyRegex.test(str)
 }

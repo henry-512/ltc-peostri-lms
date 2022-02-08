@@ -3,7 +3,7 @@ export interface LoginInformation {
      password: string
 }
 
-export type Status = "IN_PROGRESS" | "COMLETED" | "ARCHIVED" | "AWAITING";
+export type Status = "IN_PROGRESS" | "COMPLETED" | "ARCHIVED" | "AWAITING";
 export type TaskTypes = "DOCUMENT_UPLOAD" | "DOCUMENT_REVIEW" | "MODULE_WAIVER" | "MODULE_WAIVER_APPROVAL"
 export type TaskOrder = {
      [step: string]: string

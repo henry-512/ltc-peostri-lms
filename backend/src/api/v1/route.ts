@@ -2,24 +2,44 @@ import Router from "@koa/router"
 import { aql } from "arangojs"
 import { GeneratedAqlQuery } from "arangojs/aql"
 import { DocumentCollection } from "arangojs/collection"
+import { ArrayCursor } from "arangojs/cursor"
 import koaBody from "koa-body"
 
 import { db } from "../../database"
 import { IArangoIndexes, ICreateUpdate } from "../../lms/types"
-import { generateBase64UUID } from "../../lms/util"
+import { generateBase64UUID, isDBId } from "../../lms/util"
 
-function appendQuery(q:GeneratedAqlQuery, fields: string[]) {
+/**
+ * Makes an AQL query representing a return field of the form
+ * [key1:z.key1,key2:z.key2, ...]
+ * and appends it to the passed AQL query.
+ * @param q The AQL query to append to
+ * @param fields An array of string keys
+ * @return A new AQL query
+ */
+function appendReturnFields(q:GeneratedAqlQuery, fields: string[]) {
     fields.forEach((s, i) => {
         q = aql`${q}${s}:z.${s},`
     })
     return q
 }
 
-const instances: {[name:string]: ApiRoute<IArangoIndexes>} = {}
-export function getApiInstanceFromId(id: string) {
+/**
+ * Returns the ApiRoute instance corresponding to a database id
+ * @param id A db id of the form [name/id]
+ * @returns The corresponding ApiRoute
+ */
+export function getApiInstanceFromId(id: string): ApiRoute<IArangoIndexes> {
     return instances[id.split('/')[0]]
 }
+const instances: {[name:string]: ApiRoute<IArangoIndexes>} = {}
 
+/**
+ * Route class that manages DB calls and http requests from the client
+ * @abstract @class
+ * @classdesc Wrapper for DB functions
+ * @param Type DB interface representing the data returned by its DB calls
+ */
 export abstract class ApiRoute<Type extends IArangoIndexes> {
     static ASC = aql`ASC`
     static DESC = aql`DESC` 
@@ -27,6 +47,15 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     protected collection: DocumentCollection<Type>
     protected getAllQueryFields: GeneratedAqlQuery
 
+    /**
+     * @param name Database name
+     * @param dname Display name, returned from requests and logs
+     * @param visibleFields All fields associated with the db type that are visible to normal situations. Used to determine what fields are in the object.
+     * @param hasDate True if Type has a createdAt and updatedAt field
+     * @param foreignFields Array of fields that are foreign keys. Key refers to the field key in Type, class refers to the ApiRoute that matches the DB field
+     * @param parentKey If Type stores its parent type, local refers to the key in Type and foreign is the key in the referenced type
+     * 
+     */
     constructor(
         protected name: string,
         protected dname: string,
@@ -43,7 +72,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         protected noDerefFields: string[]
     ) {
         this.collection = db.collection(this.name)
-        this.getAllQueryFields = appendQuery(aql`id:z._key,`, this.visibleFields)
+        this.getAllQueryFields = appendReturnFields(aql`id:z._key,`, this.visibleFields)
         instances[name] = this
     }
 
@@ -62,11 +91,21 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         return this.collection.documentExists(id)
     }
 
-    protected async getAll(q: any) {
+    /**
+     * Retrieves a query from the server, following the passed parameters.
+     * @param q An object with query fields.
+     *  - sort [id, ASC/DESC]
+     *  - range [offset, count]
+     * @return A cursor representing all db objects that fit the query 
+     */
+    protected async query(q: any): Promise<ArrayCursor<Type>> {
         let sort = aql`_key`
         let sortDir = ApiRoute.ASC
         let offset = 0
         let count = 10
+
+        // TODO: implement filtering
+        // q.filter
 
         if (q.sort && q.sort.length == 2) {
             if (this.visibleFields.includes(q.sort[0])) {
@@ -90,7 +129,13 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         return db.query(query)
     }
 
-    public async getFromDB(key: string, dereference: true) {
+    /**
+     * Gets the document with the passed key from the database
+     * @param key A (valid) db key for the document
+     * @param dereference If true, dereference all foreign keys in this and all other documents
+     * @return A Type representing a document with key, with .id set and ._* removed
+     */
+    public async getFromDB(key: string, dereference: boolean) {
         let doc = await this.collection.document(key) as Type
     
         doc.id = doc._key
@@ -99,6 +144,19 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         delete doc._rev
     
         if (dereference) {
+            /**
+             * Local function to dereference the passed id corresponding to
+             * the passed route.
+             */
+            async function deref(k:string, r:ApiRoute<IArangoIndexes>) {
+                if (isDBId(k)) {
+                    return r.getFromDB(<string><unknown>k, true)
+                } else {
+                    throw new TypeError(`Foreign key [${k}] is not a valid id. Did you forget the collection name? (name/key)`)
+                }
+            }
+
+            // Loop over the foreign keys
             for (let c of this.foreignFields) {
                 if (!(c.key in doc)) {
                     throw new TypeError(`${c.key} should exist in ${doc}, but does not`)
@@ -113,13 +171,11 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         
                 // Dereference string id
                 if (typeof foreignKey === 'string') {
-                    doc[key] = <foreignInterface>await c.class.getFromDB(<string><unknown>foreignKey, true)
+                    doc[key] = <foreignInterface>await deref(foreignKey, c.class)
                 // Dereference array of string ids
-                } else if (typeof foreignKey === 'object') {
-                    doc[key] = <foreignInterface><unknown>await Promise.all(
-                        (<string[]><unknown>foreignKey)
-                        .map(async (k:string) => c.class.getFromDB(k, true))
-                        )
+                } else if (Array.isArray(foreignKey)) {
+                    // For each foreignKey in the array, retrieve it from the database; then store the documents (as an array) back in doc[key]
+                    doc[key] = <foreignInterface><unknown>await Promise.all((<string[]>foreignKey).map(async (k:string) => deref(k, c.class)))
                 } else {
                     throw new TypeError(`${foreignKey} is not a foreign key string or array`)
                 }
@@ -172,7 +228,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 if (typeof fdoc === 'string') {
                     // Check if foreign key reference is valid
                     if (!fField.class.exists(fdoc)) {
-                        throw new TypeError(`Foreign key ${fdoc} invalid`)
+                        throw new TypeError(`Foreign key [${fdoc}] invalid`)
+                    } else if (!isDBId(fdoc)) {
+                        throw new TypeError(`Foreign key [${key}] is not a valid id. Did you forget the collection name?`)
                     }
                     foreignKeys.push(fdoc)
                 // Objects are fully-formed documents
@@ -190,9 +248,11 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                         // so we need to nastyconvert from string to
                         // string-but-typescript-knows-it-is-valid-at-
                         // runtime.
-                        let localKey = fField.class.parentKey.local
-                        fdoc[localKey as keyof typeof fdoc]
-                        = <Type[keyof Type][keyof Type[keyof Type]]><unknown>id
+                        // type string = string
+                        type stringType = Type[keyof Type][keyof Type[keyof Type]]
+                        // let localKey:string = fField.class.parentKey.local
+                        let localKey = fField.class.parentKey.local as keyof typeof fdoc
+                        fdoc[localKey] = <stringType><unknown>id
                     }
 
                     foreignKeys.push(`${fField.class.name}/${childKey}`)
@@ -243,6 +303,11 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // We dont need to update all elements, .update does that
         // automatically for us :)
 
+        // TODO: update parent
+        if (this.parentKey) {
+            //if ()
+        }
+
         // Update the date if necessary
         if (this.hasDate) {
             (<ICreateUpdate>doc).updatedAt = new Date()
@@ -266,8 +331,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     makeRouter() { return new Router({prefix:this.name})
         .get('/', async (ctx) => {
             try {
-                const cursor = await this.getAll(ctx.request.query)
-                let all = await cursor.all() as Type[]
+                const cursor = await this.query(ctx.request.query)
+                let all = await cursor.all()
 
                 ctx.status = 200
                 ctx.body = all

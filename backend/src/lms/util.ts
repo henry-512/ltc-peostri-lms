@@ -39,3 +39,28 @@ export function generateBase64UUID(): string {
 
     return key
 }
+
+// Collection names are alphabetic character names
+// DB keys are url/filename-safe base64, alphanumeric with - and _
+const idRegex = new RegExp('^([a-z]|[A-Z])+\/([0-9]|[a-z]|[A-Z]|-|_)+$')
+const keyRegex = new RegExp('^([0-9]|[a-z]|[A-Z]|-|_)+$')
+
+/**
+ * Returns true if the passed string looks like a database id.
+ * DOES NOT CHECK IF STR IS VALID.
+ * @param str A string
+ * @return True if str looks like [name/key]
+ */
+export function isDBId(str: string): boolean {
+    return idRegex.test(str)
+}
+
+/**
+ * Returns true if the passed string looks like a database key.
+ * DOES NOT CHECK IF STR IS VALID.
+ * @param str A string
+ * @return True if str looks like [key]
+ */
+export function isDBKey(str: string): boolean {
+    return keyRegex.test(str)
+}
