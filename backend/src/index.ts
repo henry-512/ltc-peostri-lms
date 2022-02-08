@@ -5,7 +5,7 @@ import cors from '@koa/cors'
 import { config } from './config'
 import { apiRouter } from './router'
 
-const app = new Koa()
+const app = require('koa-qs')(new Koa())
 
 apiRouter()
     .then(router => {

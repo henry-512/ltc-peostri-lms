@@ -32,9 +32,82 @@ DB_USER = "username"
 DB_PASS = "password"
 ```
 
-# tech
+# API
 
-Listens on port API_PORT
+The server requires requests to be sent to `api/[version]/[collection]`. These
+API calls have the same arguments and returns for each collection.
+
+Collections:
+- users
+- userGroups
+- tasks
+- modules
+- projects
+- comments
+
+## Requests
+
+### `GET: collection?query`
+
+Queries the collection and returns an array of documents.
+
+#### Valid query fields
+
+```json
+"sort": [ id-to-sort: string, ["ASC" | "DESC"] ]
+"range": [ [offset: number], [limit: number] ]
+```
+
+#### Return
+
+Returns an array of `[collection]` objects, as specified by the query with `id` set to the database key.
+Does not dereference foreign keys in the objects, except for `users` (which dereferences the `name` and `id` of `userGroup`).
+
+```json
+[
+  {
+    "id": [id: database-key],
+    "someForeignKey": [id: database-key],
+    ... (typeof ICollection extends IArangoIndexes)
+  },
+  ...
+]
+```
+
+#### Examples
+
+| Call | Response
+|-|-
+| `users?range=0&range=1` | Get the first doc of `users`
+| `users?range=10&range=20` | Get the second set of 10 `users`
+| `users?sort=firstName&sort=ASC` | Sort by `firstName`, ascending
+
+### `GET: collection/key`
+
+Returns a dereferenced document with the passed key.
+
+#### Return
+
+Foreign keys in the document are dereferenced into documents.
+
+```json
+{
+  "id": [id: database-key], //  same key as parameter to call
+  "someForeignKey": {
+    "id": [foreign-key: database-key],
+    ... (typeof ICollection extends IArangoIndexes)
+  },
+  ... (typeof ICollection extends IArangoIndexes)
+}
+```
+
+### `POST: collection`
+
+Takes the document in the body and uploads it to the collection. Accepts dereferenced documents, and generates IDs if required.
+
+#### Body
+
+## Full route list
 
 ```
 '/api/v1/users HEAD,GET',

@@ -5,9 +5,6 @@ export interface LoginInformation {
 
 export type Status = "IN_PROGRESS" | "COMPLETED" | "ARCHIVED" | "AWAITING";
 export type TaskTypes = "DOCUMENT_UPLOAD" | "DOCUMENT_REVIEW" | "MODULE_WAIVER" | "MODULE_WAIVER_APPROVAL"
-export type TaskOrder = {
-     [step: string]: string
-}
 
 // All are optional
 export interface IArangoIndexes {
@@ -18,6 +15,13 @@ export interface IArangoIndexes {
      id?: string;
 }
 
+
+export interface ITaskStep {
+     [id: number | string]: ITask[]
+}
+export interface IModuleStep {
+     [id: number | string]: IModule[]
+}
 // DB elements with create/update timestamps
 export interface ICreateUpdate {
      createdAt?: string | Date;
@@ -67,7 +71,7 @@ export interface IModule extends IArangoIndexes {
      comments: Array<string> | Array<IComment>;
      project?: string | IProject;
      status: Status | "WAIVED";
-     steps: TaskOrder;
+     steps: ITaskStep;
 }
 
 export interface IProject extends IArangoIndexes, ICreateUpdate {
@@ -76,7 +80,7 @@ export interface IProject extends IArangoIndexes, ICreateUpdate {
      end: Date;
      status: Status;
      comments: Array<string> | Array<IComment>;
-     modules: Array<string> | Array<IModule>;
+     modules: IModuleStep;
      users: Array<string> | Array<IUser>;
 }
 
