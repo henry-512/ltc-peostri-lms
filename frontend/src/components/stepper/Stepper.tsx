@@ -1,5 +1,5 @@
 import React from "react";
-import { DateInput, SimpleForm } from "react-admin"
+import { SimpleForm } from "react-admin"
 import StepHeader from "./StepHeader";
 import StepToolbar from "./StepToolbar"
 

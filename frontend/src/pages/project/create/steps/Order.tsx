@@ -1,5 +1,6 @@
 import { Step } from "../../../../components/stepper/Step";
 import { FormDataConsumer, useTranslate } from "react-admin";
+import { OrderContent } from "src/components/orders";
 
 const Order = (props: any) => {
 const translate = useTranslate();
@@ -13,11 +14,10 @@ return (
                          getSource,
                          ...rest 
                     }: any) => {
-                         console.log(formData);
                          return (
-                              <div>
-
-                              </div>
+                              <>
+                                   <OrderContent formData={formData} getSource={getSource} />
+                              </>
                          )
                     }}
                </FormDataConsumer>

@@ -1,4 +1,4 @@
-export default {
+const domainMessages = {
      en: {
           layout: {
                appbar: {
@@ -45,9 +45,13 @@ export default {
                          add_modules: "Add Modules",
                          add_tasks: "Add Tasks",
                          waive_module: "Waive Module",
-                         waive_help: "Attach a File or Comment to Waive this Module"
+                         waive_help: "Attach a File or Comment to Waive this Module",
+                         order_modules: "Order Modules",
+                         order_help: "Drag and Drop the Modules and Tasks in Order"
                     }
                }
           }
      }
 }
+
+export default domainMessages;
