@@ -2,6 +2,8 @@ import { Box, ButtonClassKey, makeStyles, Typography } from '@material-ui/core';
 import { ClassNameMap } from '@material-ui/core/styles/withStyles';
 import { RemoveCircleOutline } from '@material-ui/icons';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
+import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
+import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import { MouseEventHandler, useState } from 'react';
 import { Button, useTranslate } from 'react-admin';
 import { DragDropContext, Droppable, OnDragEndResponder } from 'react-beautiful-dnd';
@@ -28,14 +30,16 @@ const useStyles = makeStyles(theme => ({
      droppable: {
           flex: 1,
           display: 'flex',
-          flexDirection: 'column',
           borderRadius: 5,
           padding: 5,
           height: '100%',
           minHeight: '50px',
+          width: '100%',
           background: '#f5f5f5',
+          transition: 'all .3s ease',
           '&.isDraggingOver': {
-              backgroundColor: '#dadadf',
+              backgroundColor: '#e0e0e3',
+              transition: 'all .3s ease',
           },
      },
      toolbar: {
@@ -66,8 +70,24 @@ const useStyles = makeStyles(theme => ({
      },
      moduleDropper: {
           
+     },
+     stepMover: {
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
      }
 }))
+
+const useMoveButtonStyles = makeStyles(theme => ({
+     button: {
+          minWidth: '0px',
+          width: 'auto',
+          padding: '.25rem'
+     },
+     label: {
+          width: 'auto'
+     }
+}));
 
 const setUpSteps = (modules: IModule[]): IModuleStep => {
      let steps = {} as IModuleStep;
@@ -107,6 +127,17 @@ const OrderContent = (props: any) => {
           });
      }
 
+     const alterStepLocation = (oldIndex: number | string, newIndex: number | string) => {
+          let oldValue = steps[oldIndex];
+          let newValue = steps[newIndex];
+
+          setSteps({
+               ...steps,
+               [oldIndex]: newValue,
+               [newIndex]: oldValue
+          });
+     }
+
      const AddStepButton = ({label, onClick}: {label: string | undefined, onClick: MouseEventHandler | undefined}) => (
           <Button label={label} onClick={onClick} color="primary" variant="contained">
                <AddCircleOutlineIcon />
@@ -118,6 +149,47 @@ const OrderContent = (props: any) => {
                <RemoveCircleOutline />
           </Button>
      )
+     
+     const moveButtonStyles = useMoveButtonStyles();
+     const MoveStepUp = ({label, onClick, disabled}: {label: string, onClick: any, disabled: boolean}) => (
+          <Button label={label} onClick={onClick} classes={moveButtonStyles} disabled={disabled}>
+               <ArrowUpwardIcon />
+          </Button>
+     )
+     const MoveStepDown = ({label, onClick, disabled}: {label: string, onClick: any, disabled: boolean}) => (
+          <Button label={label} onClick={onClick} classes={moveButtonStyles} disabled={disabled}>
+               <ArrowDownwardIcon />
+          </Button>
+     )
+
+     const StepMover = ({up, down, topEdge, botEdge}: {up: any, down: any, topEdge: boolean, botEdge: boolean}) => (
+          <div className={classes.stepMover}>
+               <MoveStepDown label="" onClick={down} disabled={(botEdge ? true : false)}/>
+               <MoveStepUp label="" onClick={up}  disabled={(topEdge ? true : false)}/>
+          </div>
+     )
+
+     const switchModuleList = (sourceID: string, sourceIndex: number, destinationID: string, destinationIndex: number) => {
+          let cachedSteps = steps;
+          cachedSteps[destinationID].splice(destinationIndex, 0, cachedSteps[sourceID][sourceIndex]);
+          cachedSteps[sourceID].splice(sourceIndex, 1);
+          setSteps({
+               ...cachedSteps
+          })
+     }
+
+     const alterModuleLocation = (sourceID: string, sourceIndex: number, destinationIndex: number) => {
+          let cachedSteps = steps;
+          let oldValue = cachedSteps[sourceID][sourceIndex];
+          let newValue = cachedSteps[sourceID][destinationIndex];
+
+          cachedSteps[sourceID][sourceIndex] = newValue;
+          cachedSteps[sourceID][destinationIndex] = oldValue;
+
+          setSteps({
+               ...cachedSteps
+          });
+     }
 
      const onDragEnd: OnDragEndResponder = async result => {
           const { destination, source, draggableId } = result;
@@ -133,7 +205,15 @@ const OrderContent = (props: any) => {
                return;
           }
 
-          if (source.droppableId !== destination.droppableId) return;
+          if (destination.droppableId === source.droppableId) {
+               alterModuleLocation(source.droppableId, source.index, destination.index);
+               return;
+          }
+
+          if (destination.droppableId !== source.droppableId) {
+               switchModuleList(source.droppableId, source.index, destination.droppableId, destination.index);
+               return;
+          }
      }
      
      return (
@@ -155,19 +235,20 @@ const OrderContent = (props: any) => {
                                    </Box>
                               </div>
                               
-                              {Object.keys(steps).map((stepKey, i) => (
-                                   <Box display="flex" alignItems="center" className={classes.stepWrapper}>
-                                        <Box padding={4}>
+                              {Object.keys(steps).sort().map((stepKey, i) => (
+                                   <Box display="flex" alignItems="center" className={classes.stepWrapper} key={"stepbox" + stepKey}>
+                                        <Box padding={4} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
                                              <Typography variant="subtitle1">
                                                   {"Step " + (i + 1)}
                                              </Typography>
+                                             <StepMover botEdge={parseInt(stepKey) === (Object.keys(steps).length-1)} topEdge={parseInt(stepKey) === 0} up={() => alterStepLocation(parseInt(stepKey), parseInt(stepKey) - 1)} down={() => alterStepLocation(parseInt(stepKey), parseInt(stepKey) + 1)} />
                                         </Box>
-                                        <Droppable droppableId={`step-${stepKey}`}>
+                                        <Droppable droppableId={stepKey}  direction="horizontal">
                                              {(droppableProvided, snapshot) => (
                                                   <div ref={droppableProvided.innerRef}
                                                        {...droppableProvided.droppableProps}
                                                        className={
-                                                            classes.droppable + (snapshot.isDraggingOver ? 'isDraggingOver' : '')
+                                                            classes.droppable + (snapshot.isDraggingOver ? ' isDraggingOver' : '')
                                                        }
                                                   >
                                                        {steps[stepKey].map((module: IModule, index: number) => (

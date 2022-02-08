@@ -29,7 +29,7 @@ const classes = useStyles();
 
 return (
      <>
-          <Draggable draggableId={module.id || ""} index={index}>
+          <Draggable draggableId={module.id || ""} index={index} key={module.id || ""}>
                {(provided, snapshot) => (
                     <div
                          className={classes.root}
