@@ -7,8 +7,15 @@ import WaiverInput from "./WaiverInput";
 import RichTextInput from 'ra-input-rich-text';
 import classNames from "classnames";
 import {useEffect, useState} from 'react';
+import { generateBase64UUID } from '../../util/uuidProvider';
 
 const BORDER_COLOR = '#e0e0e3';
+
+const something = {
+     "0": {
+          something: "hello world"
+     }
+}
 
 const useStyles = makeStyles(theme => ({
      modulesForm: {
@@ -16,7 +23,8 @@ const useStyles = makeStyles(theme => ({
      },
      taskFormWrapper: {
           border: '1px solid ' + BORDER_COLOR,
-          borderRadius: '1rem 1rem 0 0',
+          borderTopRightRadius: 5,
+          borderTopLeftRadius: 5,
           padding: '1rem 1.5rem',
           width: '100%',
           maxWidth: '100%',
@@ -62,7 +70,7 @@ const useStyles = makeStyles(theme => ({
 const IDField = ({source}: {source: string}) => {
      const [id, setID] = useState("");
      useEffect(()=>{
-          setID();
+          setID(generateBase64UUID());
      }, [])
      return (
           <Hidden xlDown implementation="css">
@@ -74,7 +82,7 @@ const IDField = ({source}: {source: string}) => {
 const Create = (props: any) => {
      const classes = useStyles();
      const translate = useTranslate();
-
+     
      return (
           <>
                <ArrayInput source="modules" label={false} fullWidth className={classes.modulesArrayInput}>

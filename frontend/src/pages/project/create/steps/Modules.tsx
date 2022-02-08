@@ -11,7 +11,8 @@ const BORDER_COLOR = '#e0e0e3';
 const useStyles = makeStyles(theme => ({
      moduleForm: {
           border: '1px solid ' + BORDER_COLOR,
-          borderRadius: '1rem 1rem 0 0',
+          borderTopRightRadius: 5,
+          borderTopLeftRadius: 5,
           padding: '1rem 1.5rem'
      }
 }));
