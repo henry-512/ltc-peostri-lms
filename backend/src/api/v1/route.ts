@@ -54,6 +54,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      * @param hasDate True if Type has a createdAt and updatedAt field
      * @param foreignFields Array of fields that are foreign keys. Key refers to the field key in Type, class refers to the ApiRoute that matches the DB field
      * @param parentKey If Type stores its parent type, local refers to the key in Type and foreign is the key in the referenced type
+     * @param step If Type has a Step reference object, this is the name of its local key. This key should also be in foreignFields along with its class.
      * 
      */
     constructor(
@@ -69,7 +70,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             local:string
             foreign:string
         },
-        protected noDerefFields: string[]
+        private foreignStep: null | string
     ) {
         this.collection = db.collection(this.name)
         this.getAllQueryFields = appendReturnFields(aql`id:z._key,`, this.visibleFields)
@@ -185,97 +186,96 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         return doc
     }
 
+    parseDoc(
+        map: Map<DocumentCollection, IArangoIndexes[]>,
+        parent:string,
+        doc:any,
+        type:{key:string,class:ApiRoute<IArangoIndexes>}
+    ): any {
+        // String IDs are foreign key references, and should be checked
+        if (typeof doc === 'string') {
+            // Check if foreign key reference is valid
+            if (!isDBId(doc)) {
+                throw new TypeError(`Foreign key [${type.key}] is not a valid id. Did you forget the collection name?`)
+            } else if (!type.class.exists(doc)) {
+                throw new TypeError(`Foreign key [${doc}] invalid`)
+            }
+            return doc
+        // Objects are fully-formed documents
+        } else if (typeof doc === 'object') {
+            // A step array is of the form
+            // [order: string]: IArangoIndexes[]
+            // So we need to loop over the keys, then over the array
+            if (type.key === this.foreignStep) {
+                let temp:any = {}
+                for (let [stepId, stepArray] of Object.entries(doc)) {
+                    if (Array.isArray(stepArray)) {
+                        temp[stepId] = stepArray.map(
+                            t2 => this.parseDoc(map, parent, t2, type)
+                        )
+                    } else {
+                        throw new TypeError(`${stepArray} is not an array`)
+                    }
+                }
+                return temp
+            } else {
+                let childKey = generateBase64UUID()
+                if (type.class.parentKey) {
+                    // We're assigning the parent/module/project field
+                    // of documents here, so they hold references to
+                    // their parent.
+                    doc[type.class.parentKey.local] = <any>parent
+                }
+
+                type.class.addToReferenceMap(childKey, doc, map)
+
+                return `${type.class.name}/${childKey}`
+            }
+        } else {
+            throw new TypeError(`${doc} is not a foreign document or reference`)
+        }
+    }
+
     private addToReferenceMap(
-        key: string,
-        doc: Type,
+        addDocKey: string,
+        addDoc: Type,
         map: Map<DocumentCollection, IArangoIndexes[]>
     ): Map<DocumentCollection, IArangoIndexes[]> {
-        delete doc.id
-        doc._key = key
+        delete addDoc.id
+        addDoc._key = addDocKey
 
         if (this.hasDate) {
-            (<ICreateUpdate>doc).createdAt = new Date(); //??? ; ???
-            (<ICreateUpdate>doc).updatedAt = new Date()
+            (<ICreateUpdate>addDoc).createdAt = new Date(); //??? ; ???
+            (<ICreateUpdate>addDoc).updatedAt = new Date()
         }
 
         // The database id this document refers to
-        let id = `${this.name}/${key}`
+        let addDocId = `${this.name}/${addDocKey}`
 
         // Loop over the document's foreign fields
         // referencing each one
-        for (let fField of this.foreignFields) {
-            if (!(fField.key in doc)) {
-                throw new TypeError(`${fField.key} should exist in ${doc}, but does not`)
+        for (let typeForeignField of this.foreignFields) {
+            if (!(typeForeignField.key in addDoc)) {
+                throw new TypeError(`${typeForeignField.key} should exist in ${addDoc}, but does not`)
             }
 
-            // Key is the foreign key property of Type
-            // EX modules
-            let key = fField.key as keyof Type
             // An array, string, or doc representing the foreign keys
             // EX project.modules: string[], comment.parent: string
-            let foreignDoc = doc[key]
-            let isForeignDocArray = Array.isArray(foreignDoc)
-            // Converts the array or single element into an array
-            let foreignDocs:Type[keyof Type][] = Array.isArray(foreignDoc)
-                ? foreignDoc
-                : [foreignDoc]
+            let temp = addDoc[typeForeignField.key as keyof Type]
 
-            // Foreign Keys
-            let foreignKeys: string[] = []
-
-            for (let fdoc of foreignDocs) {
-                // String IDs are foreign key references, and should be checked
-                if (typeof fdoc === 'string') {
-                    // Check if foreign key reference is valid
-                    if (!fField.class.exists(fdoc)) {
-                        throw new TypeError(`Foreign key [${fdoc}] invalid`)
-                    } else if (!isDBId(fdoc)) {
-                        throw new TypeError(`Foreign key [${key}] is not a valid id. Did you forget the collection name?`)
-                    }
-                    foreignKeys.push(fdoc)
-                // Objects are fully-formed documents
-                } else if (typeof fdoc === 'object') {
-                    let childKey = generateBase64UUID()
-                    if (fField.class.parentKey) {
-                        // Ok this one's pretty nasty, but it kinda has to
-                        // be like this.
-                        // We're assigning the parent/module/project field
-                        // of documents here, so they hold references to
-                        // their parent.
-                        // These fields are only ever strings, and ID is
-                        // always a string.
-                        // However, the indexes are only known at runtime
-                        // so we need to nastyconvert from string to
-                        // string-but-typescript-knows-it-is-valid-at-
-                        // runtime.
-                        // type string = string
-                        type stringType = Type[keyof Type][keyof Type[keyof Type]]
-                        // let localKey:string = fField.class.parentKey.local
-                        let localKey = fField.class.parentKey.local as keyof typeof fdoc
-                        fdoc[localKey] = <stringType><unknown>id
-                    }
-
-                    foreignKeys.push(`${fField.class.name}/${childKey}`)
-
-                    fField.class.addToReferenceMap(childKey, fdoc, map)
-                } else {
-                    throw new TypeError(`${fdoc} is not a foreign document or reference`)
-                }
-            }
-
-            // Replace the foreign doc array with a list of foreign keys
-            if (isForeignDocArray) {
-                doc[key] = <Type[keyof Type]><unknown>foreignKeys
+            if (Array.isArray(temp)) {
+                addDoc[typeForeignField.key as keyof Type] = temp.map(loopDoc => this.parseDoc(map, addDocId, loopDoc, typeForeignField)
+                ) as any
             } else {
-                doc[key] = <Type[keyof Type]><unknown>(foreignKeys[0] || '')
+                addDoc[typeForeignField.key as keyof Type] = this.parseDoc(map, addDocId, temp, typeForeignField)
             }
         }
 
         // Add the document to the map
         if (map.has(this.collection)) {
-            map.get(this.collection)?.push(doc)
+            map.get(this.collection)?.push(addDoc)
         } else {
-            map.set(this.collection, [doc])
+            map.set(this.collection, [addDoc])
         }
 
         return map

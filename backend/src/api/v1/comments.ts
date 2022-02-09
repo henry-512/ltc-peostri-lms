@@ -13,7 +13,7 @@ class CommentRoute extends ApiRoute<IComment> {
                 {key: 'author', class: UserRouteInstance}
             ],
             {local:'parent',foreign:'comments'},
-            []
+            null
         )
     }
 }

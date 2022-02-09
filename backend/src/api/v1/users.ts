@@ -15,7 +15,7 @@ class UserRoute extends ApiRoute<IUser> {
                 {key:'userGroup', class:UserGroupRouteInstance}
             ],
             null,
-            []
+            null
         )
     }
     // Override

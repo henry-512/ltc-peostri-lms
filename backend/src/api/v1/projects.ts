@@ -17,7 +17,7 @@ class ProjectRoute extends ApiRoute<IProject> {
                 {key:'users', class:UserRouteInstance}
             ],
             null,
-            []
+            'modules'
         )
     }
 }

@@ -10,7 +10,7 @@ class UserGroupRoute extends ApiRoute<IUserGroup> {
             false,
             [],
             null,
-            []
+            null
         )
     }
 }

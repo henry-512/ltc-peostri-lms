@@ -13,7 +13,7 @@ class TaskRoute extends ApiRoute<ITask> {
                 {key:'assigned', class:UserRouteInstance}
             ],
             {local:'module',foreign:'tasks'},
-            []
+            null
         )
     }
 }

@@ -17,10 +17,10 @@ export interface IArangoIndexes {
 
 
 export interface ITaskStep {
-     [id: number | string]: ITask[]
+     [id: number | string]: ITask[] | string[]
 }
 export interface IModuleStep {
-     [id: number | string]: IModule[]
+     [id: number | string]: IModule[] | string[]
 }
 // DB elements with create/update timestamps
 export interface ICreateUpdate {
@@ -67,11 +67,10 @@ export interface ITaskWaiverReview extends ITask {
 
 export interface IModule extends IArangoIndexes {
      title: string;
-     tasks: Array<ITask>;
+     tasks: ITaskStep;
      comments: Array<string> | Array<IComment>;
      project?: string | IProject;
      status: Status | "WAIVED";
-     steps: ITaskStep;
 }
 
 export interface IProject extends IArangoIndexes, ICreateUpdate {

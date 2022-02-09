@@ -13,7 +13,7 @@ class FileMetadataRoute extends ApiRoute<IFileMetadata> {
                 {key:'author', class:UserRouteInstance}
             ],
             null,
-            []
+            null
         )
     }
 }
