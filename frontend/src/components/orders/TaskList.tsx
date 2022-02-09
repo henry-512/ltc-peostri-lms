@@ -2,7 +2,7 @@ import { Box, makeStyles, Typography } from "@material-ui/core";
 import { useTranslate } from "react-admin";
 import { DragDropContext, Droppable, OnDragEndResponder } from "react-beautiful-dnd";
 import { TaskCard } from ".";
-import { ITask } from "../../../../lms/types";
+import { ITask, ITaskStep } from "../../../../lms/types";
 
 const useStyles = makeStyles(theme => ({
      root: {
@@ -30,11 +30,7 @@ const useStyles = makeStyles(theme => ({
      },
 }))
 
-type TaskListProps = {
-     tasks: ITask[]
-}
-
-const TaskList = ({tasks}: TaskListProps) => {
+const TaskList = ({tasks}: {tasks: ITaskStep}) => {
 const translate = useTranslate();
 const classes = useStyles();
 
@@ -55,7 +51,7 @@ const onDragEnd: OnDragEndResponder = async result => {
 
 return (
      <>
-          {/**/}<DragDropContext onDragEnd={onDragEnd} >
+          <DragDropContext onDragEnd={onDragEnd} >
                <Box display="flex" flexDirection="column" width="100%">
                     <div className={classes.root}>
                          <Typography align="center" variant="subtitle1">
@@ -77,7 +73,7 @@ return (
                          </Droppable>
                     </div>
                </Box>
-          </DragDropContext>{/**/}
+          </DragDropContext>
      </>
 )}
 
