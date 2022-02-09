@@ -281,8 +281,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         return map
     }
 
-    protected async create(key: string, doc: Type) {
-         // The passed document has a parent key, so we need to
+    protected async create(key: string, doc: Type, real: boolean) {
+        // The passed document has a parent key, so we need to
         // update the parent to include this document
         if (this.parentKey && this.parentKey.local in doc) {
             // TODO
@@ -291,14 +291,20 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // Turns a fully-dereferenced document into a reference
         // document
         let map = this.addToReferenceMap(key, doc, new Map())
-        // Saves each document in the map to its respective collection
-        for (let [col, doc] of map) {
-            await col.saveAll(doc)
-            console.log(`Saved ${JSON.stringify(doc)} into ${JSON.stringify(col.name)}`)
+
+        if (real) {
+            // Saves each document in the map to its respective collection
+            for (let [col, doc] of map) {
+                await col.saveAll(doc)
+            }
+        } else {
+            for (let [col, doc] of map) {
+                console.log(`Saved ${JSON.stringify(doc)} into ${col.name}`)
+            }
         }
     }
 
-    protected async update(key: string, doc: Type) {
+    protected async update(key: string, doc: Type, real: boolean) {
         delete doc.id
         // We dont need to update all elements, .update does that
         // automatically for us :)
@@ -314,17 +320,25 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         }
 
         // Update the db
-        return this.collection.update(key, doc)
+        if (real) {
+            return this.collection.update(key, doc)
+        } else {
+            console.log(`collection ${this.name} id ${key} updated to ${doc}`)
+        }
     }
 
-    protected async delete(key: string) {
-        await this.collection.remove(key)
-
+    protected async delete(key: string, real: boolean) {
         // TODO
         // Delete children
         // Update parent
         if (this.parentKey) {
             console.log('delete from parent')
+        }
+
+        if (real) {
+            await this.collection.remove(key)
+        } else {
+            console.log(`collection ${this.name} id ${key} deleted`)
         }
     }
 
@@ -363,7 +377,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         })
         .post('/', koaBody(), async (ctx) => {
             try {
-                var body = ctx.request.body
+                let body = ctx.request.body
     
                 if (body.id && await this.exists(body.id)) {
                     ctx.status = 409
@@ -371,7 +385,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 } else {
                     let newKey = generateBase64UUID()
                     let doc = body as Type
-                    await this.create(newKey, doc)
+                    await this.create(newKey, doc, ctx.header['user-agent'] !== 'backend-testing')
     
                     ctx.status = 201
                     ctx.body = {
@@ -387,7 +401,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         .put('/:id', koaBody(), async (ctx) => {
             try {
                 if (await this.exists(ctx.params.id)) {
-                    await this.update(ctx.params.id, ctx.request.body)
+                    await this.update(ctx.params.id, ctx.request.body, ctx.header['user-agent'] !== 'backend-testing')
                     ctx.status = 200
                     ctx.body = `${this.dname} [${ctx.params.id}] updated`
                 } else {
@@ -402,7 +416,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         .delete('/', async (ctx) => {
             try {
                 if (await this.exists(ctx.params.id)) {
-                    await this.delete(ctx.params.id)
+                    await this.delete(ctx.params.id, ctx.header['user-agent'] !== 'backend-testing')
                     ctx.status = 200
                     ctx.body = `${this.dname} deleted`
                 } else {
