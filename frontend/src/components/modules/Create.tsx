@@ -108,7 +108,7 @@ const Create = (props: any) => {
                                    return (
                                         <>
                                              <Grid container spacing={2}>
-                                                  <IDField source={getSource?.('id') || ""}/>
+                                                  { /* <IDField source={getSource?.('id') || ""}/> */ }
                                                   <Grid item xs={5}>
                                                        <TextInput 
                                                             source={getSource?.('title') || ""} 
@@ -200,7 +200,7 @@ const Create = (props: any) => {
                                                                  }
                                                                  return (
                                                                       <Grid container spacing={4} className={classes.taskFieldWrapper}>
-                                                                           <IDField source={getSource?.('id') || ""}/>
+                                                                           { /* <IDField source={getSource?.('id') || ""}/> */ }
                                                                            <Grid item xs={5}>
                                                                                 <TextInput 
                                                                                      source={getSource?.('title') || ""} 
