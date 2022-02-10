@@ -1,4 +1,4 @@
-import { LoginInformation } from '../../../lms/types'
+import { LoginInformation } from 'src/util/types'
 import { AuthProvider } from "react-admin";
 
 export default {

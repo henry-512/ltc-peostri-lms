@@ -23,7 +23,7 @@ const AutoAssignArrayInput = (props: any): JSX.Element => {
           if (!formData[props.mName][props.mID][props.tName][props.tID].userGroup) return;
 
           choices.forEach((user: any, i: number) => {
-               if (user.userGroups.id != formData[props.mName][props.mID][props.tName][props.tID].userGroup) return;
+               if (user.userGroup.id != formData[props.mName][props.mID][props.tName][props.tID].userGroup) return;
                if (!formData.users.includes(user.id)) return;
                if (typeof formData[props.mName][props.mID][props.tName][props.tID].users != 'undefined' && formData[props.mName][props.mID][props.tName][props.tID].users.includes(user.id)) return;
 

@@ -4,9 +4,14 @@ import StepHeader from "./StepHeader";
 import StepToolbar from "./StepToolbar"
 
 export default function Stepper(props: any) {
+     const [backText, setBackText] = React.useState("");
      const [activeStep, setActiveStep] = React.useState(0);
      const [skipped, setSkipped] = React.useState(new Set());
      const optionalCache: number[] = [];
+
+     const resetBackText = () => {
+          setBackText("");
+     }
 
      const isStepOptional = (step: number) => {
           return optionalCache.includes(step);
@@ -21,6 +26,7 @@ export default function Stepper(props: any) {
      };
 
      const handleNext = () => {
+          resetBackText();
           let newSkipped = skipped;
           if (isStepSkipped(activeStep)) {
                newSkipped = new Set(newSkipped.values());
@@ -32,6 +38,7 @@ export default function Stepper(props: any) {
      };
 
      const handleBack = () => {
+          resetBackText();
           setActiveStep((prevActiveStep) => prevActiveStep - 1);
      };
 
@@ -42,6 +49,7 @@ export default function Stepper(props: any) {
                throw new Error("You can't skip a step that isn't optional.");
           }
 
+          resetBackText();
           setActiveStep((prevActiveStep) => prevActiveStep + 1);
           setSkipped((prevSkipped) => {
                const newSkipped = new Set(prevSkipped.values());
@@ -52,17 +60,19 @@ export default function Stepper(props: any) {
 
      const handleReset = () => {
           setActiveStep(0);
+          resetBackText();
      };
 
      return (
-          <SimpleForm toolbar={
+          <SimpleForm submitOnEnter={false} redirect="show" toolbar={
                <StepToolbar 
                     active={activeStep}
                     optional={isStepOptional(activeStep)}
                     stepCount={props.children.length}
                     handleBack={handleBack}
                     handleNext={handleNext}
-                    handleSkip={handleSkip}
+                    handleSkip={handleSkip} 
+                    backText={backText}               
                />
           } {...props}>
                <StepHeader 
@@ -71,7 +81,9 @@ export default function Stepper(props: any) {
                     setStepOptional={setStepOptional}
                     isStepSkipped={isStepSkipped}
                />
-               {props.children[activeStep]}
+               {React.cloneElement(props.children[activeStep], {
+                    setBackText: setBackText
+               })}
           </SimpleForm>
      )
 }

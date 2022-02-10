@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { BooleanInput } from "react-admin";
 import { useForm } from "react-final-form";
-import { ITaskWaiverReview } from "../../../../lms/types";
+import { ITaskWaiverReview } from "src/util/types";
 
 const WaiverInput = (props: any): JSX.Element => {
      const form = useForm();

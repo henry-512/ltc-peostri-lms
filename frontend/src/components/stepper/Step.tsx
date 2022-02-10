@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 export type StepSettings = {
      title: string
@@ -8,6 +8,10 @@ export type StepSettings = {
 }
 
 export function Step(props: any) {
+     useEffect(() => {
+          props?.setBackText?.(props?.backText || "")
+     }, []);
+     
      return (
           <>
                {React.Children.map(props.children, element => {

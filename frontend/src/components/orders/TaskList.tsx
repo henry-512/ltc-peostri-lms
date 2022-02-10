@@ -2,7 +2,7 @@ import { Box, makeStyles, Typography } from "@material-ui/core";
 import { useTranslate } from "react-admin";
 import { DragDropContext, Droppable, OnDragEndResponder } from "react-beautiful-dnd";
 import { TaskCard } from ".";
-import { ITask, ITaskStep } from "../../../../lms/types";
+import { ITask, ITaskStep } from "src/util/types";
 
 const useStyles = makeStyles(theme => ({
      root: {
@@ -51,29 +51,7 @@ const onDragEnd: OnDragEndResponder = async result => {
 
 return (
      <>
-          <DragDropContext onDragEnd={onDragEnd} >
-               <Box display="flex" flexDirection="column" width="100%">
-                    <div className={classes.root}>
-                         <Typography align="center" variant="subtitle1">
-                              Unorganized
-                         </Typography>
-                         <Droppable droppableId='tasks-unorganized' direction="horizontal">
-                              {(droppableProvided, snapshot) => (
-                                   <div ref={droppableProvided.innerRef}
-                                        {...droppableProvided.droppableProps}
-                                        className={
-                                             classes.droppable + (snapshot.isDraggingOver ? 'isDraggingOver' : '')
-                                        }
-                                   >
-                                        {tasks.map((task: ITask, index: number) => (
-                                             <TaskCard task={task} index={index}/>
-                                        ))}
-                                   </div>
-                              )}
-                         </Droppable>
-                    </div>
-               </Box>
-          </DragDropContext>
+          
      </>
 )}
 

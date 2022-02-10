@@ -4,7 +4,7 @@ import { ModuleCreate } from "src/components/modules";
 import { Step } from "src/components/stepper/Step";
 import { useForm } from 'react-final-form'
 import { useCallback } from "react";
-import { ITask, ITaskWaiver, ITaskWaiverReview } from "../../../../../../lms/types";
+import { ITask, ITaskWaiver, ITaskWaiverReview } from "src/util/types";
 
 const BORDER_COLOR = '#e0e0e3';
 

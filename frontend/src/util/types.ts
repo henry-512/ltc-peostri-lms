@@ -79,7 +79,7 @@ export interface IModule extends IArangoIndexes {
      comments: Array<string> | Array<IComment>;
      project?: string | IProject;
      status: Status | "WAIVED";
-     steps?: ITaskStep;
+     steps: ITaskStep;
 }
 
 export interface IProject extends IArangoIndexes, ICreateUpdate {
@@ -90,7 +90,7 @@ export interface IProject extends IArangoIndexes, ICreateUpdate {
      comments: Array<string> | Array<IComment>;
      modules: IModule[];
      users: Array<string> | Array<IUser>;
-     steps?: IModuleStep;
+     steps: IModuleStep;
 }
 
 export interface IUserGroup extends IArangoIndexes {

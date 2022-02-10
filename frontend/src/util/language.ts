@@ -47,7 +47,12 @@ const domainMessages = {
                          waive_module: "Waive Module",
                          waive_help: "Attach a File or Comment to Waive this Module",
                          order_modules: "Order Modules",
-                         order_help: "Drag and Drop the Modules and Tasks in Order"
+                         order_modules_help: "Drag and Drop the Modules in Order",
+                         order_tasks: "Order Tasks",
+                         order_tasks_help: "Drag and Drop the Tasks in Order"
+                    },
+                    warnings: {
+                         order_back: "(Returning to the previous page will undo all of your changes)"
                     }
                }
           }

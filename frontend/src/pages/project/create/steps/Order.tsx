@@ -6,7 +6,7 @@ const Order = (props: any) => {
 const translate = useTranslate();
 return (
      <>
-          <Step>
+          <Step backText={translate('project.create.warnings.order_back')} {...props}>
                <FormDataConsumer>
                     {({ 
                          formData,
