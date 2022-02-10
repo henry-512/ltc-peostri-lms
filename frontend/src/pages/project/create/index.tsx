@@ -52,7 +52,7 @@ export default function ProjectCreate(props: any) {
                          data.modules[modKeys[i]][j].comments.push(data.modules[Object.keys(data.modules)[i]][j].comment);
                          delete data.modules[modKeys[i]][j].comment;
                     }
-
+                    
                     delete data.modules[modKeys[i]][j].tasks;
                     data.modules[modKeys[i]][j].tasks = data.modules[modKeys[i]][j].steps;
                     delete data.modules[modKeys[i]][j].steps;

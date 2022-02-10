@@ -23,13 +23,66 @@ const setUpSteps = (modules: IModule[]): IModuleStep => {
      return steps;
 }
 
+const findModule = (formModules: IModule[], id: string | undefined): IModule | void => {
+     for (let i = 0; i < formModules.length; i++) {
+          console.log(formModules[i].id, id)
+          if (formModules[i].id == id) {
+               return formModules[i];
+               break;
+          }
+     }
+}
+
+const findTask = (formTasks: ITask[], id: string | undefined): ITask | void => {
+     for (let i = 0; i < formTasks.length; i++) {
+          if (formTasks[i].id == id) {
+               return formTasks[i];
+               break;
+          }
+     }
+}
+
+const getCurrentSteps = (formModules: IModule[], formSteps?: IModuleStep) => {
+     if (!formSteps) return setUpSteps(formModules);
+
+     console.log(formModules, formSteps);
+     
+     const moduleStepKeys = Object.keys(formSteps);
+     for (let i = 0; i < Object.keys(formSteps).length; i++) {
+          let moduleStep = formSteps[moduleStepKeys[i]]
+          for (let j = 0; j < moduleStep.length; j++) {
+               let foundModule = findModule(formModules, formSteps[moduleStepKeys[i]][j]?.id);
+               
+               if (!foundModule) {
+                    continue;
+               }
+               console.log(foundModule);
+               
+               const taskSteps = formSteps[moduleStepKeys[i]][j].steps
+               formSteps[moduleStepKeys[i]][j] = foundModule;
+               
+               let taskStepKeys = Object.keys(taskSteps)
+               for (let k = 0; k < taskStepKeys.length; k++) {
+                    for (let l = 0; l < taskSteps[taskStepKeys[k]].length; l++) {
+                         let foundTask = findTask(foundModule.tasks, taskSteps[taskStepKeys[k]][l].id);
+                         if (!foundTask) {
+                              continue;
+                         }
+                         console.log(foundTask);
+                    }
+               }
+          }
+     }
+     return formSteps;
+}
+
 const OrderContent = (props: any) => {
      const {formData, getSource} = props;
      const translate = useTranslate();
      
      return (
           <>
-               <Steps title={translate('project.create.layout.order_modules')} help={translate('project.create.layout.order_modules_help')} ogSteps={setUpSteps(formData.modules)} save="steps" changeOnAction={true}>
+               <Steps title={translate('project.create.layout.order_modules')} help={translate('project.create.layout.order_modules_help')} ogSteps={getCurrentSteps(formData.modules, formData.steps)} save="steps" changeOnAction={true}>
                     <ModuleCard />
                </Steps>
           </>

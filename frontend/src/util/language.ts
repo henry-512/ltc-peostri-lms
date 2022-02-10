@@ -55,6 +55,15 @@ const domainMessages = {
                          order_back: "(Returning to the previous page will undo all of your changes)"
                     }
                }
+          },
+          tasks: {
+               types: {
+                    document_upload: "Upload",
+                    document_review: "Review",
+                    document_approve: "Approve",
+                    module_waiver: "Waiver",
+                    module_waiver_approval: "Waiver Approval"
+               }
           }
      }
 }
