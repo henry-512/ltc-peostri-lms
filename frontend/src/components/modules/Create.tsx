@@ -8,6 +8,7 @@ import RichTextInput from 'ra-input-rich-text';
 import classNames from "classnames";
 import {useEffect, useState} from 'react';
 import { generateBase64UUID } from '../../util/uuidProvider';
+import { useForm } from "react-final-form";
 
 const BORDER_COLOR = '#e0e0e3';
 
@@ -69,8 +70,15 @@ const useStyles = makeStyles(theme => ({
 
 const IDField = ({source}: {source: string}) => {
      const [id, setID] = useState("");
+     const form = useForm();
+     const formData = form.getState().values
+
      useEffect(()=>{
-          setID(generateBase64UUID());
+          if (formData[source]) {
+               setID(formData[source].id);
+          } else {
+               setID(generateBase64UUID());
+          }
      }, [])
      return (
           <Hidden xlDown implementation="css">
@@ -108,7 +116,7 @@ const Create = (props: any) => {
                                    return (
                                         <>
                                              <Grid container spacing={2}>
-                                                  { /* <IDField source={getSource?.('id') || ""}/> */ }
+                                                  <IDField source={getSource?.('id') || ""}/>
                                                   <Grid item xs={5}>
                                                        <TextInput 
                                                             source={getSource?.('title') || ""} 
@@ -200,7 +208,7 @@ const Create = (props: any) => {
                                                                  }
                                                                  return (
                                                                       <Grid container spacing={4} className={classes.taskFieldWrapper}>
-                                                                           { /* <IDField source={getSource?.('id') || ""}/> */ }
+                                                                           <IDField source={getSource?.('id') || ""}/>
                                                                            <Grid item xs={5}>
                                                                                 <TextInput 
                                                                                      source={getSource?.('title') || ""} 
@@ -215,11 +223,11 @@ const Create = (props: any) => {
                                                                                 <SelectInput 
                                                                                      source={getSource?.('type') || ""} 
                                                                                      choices={[
-                                                                                          { id: 'DOCUMENT_UPLOAD', name: 'Upload' },
-                                                                                          { id: 'DOCUMENT_REVIEW', name: 'Review' },                                                                                              
-                                                                                          { id: 'DOCUMENT_APPROVE', name: 'Aprrove' },                                                                                              
-                                                                                          { id: 'MODULE_WAIVER', name: 'Waiver', not_available: true },                                                                                               
-                                                                                          { id: 'MODULE_WAIVER_APPROVAL', name: 'Waiver Approval', not_available: true },                                                                                               
+                                                                                          { id: 'DOCUMENT_UPLOAD', name: translate('tasks.types.document_upload') },
+                                                                                          { id: 'DOCUMENT_REVIEW', name: translate('tasks.types.document_review') },                                                                                              
+                                                                                          { id: 'DOCUMENT_APPROVE', name: translate('tasks.types.document_approve') },                                                                                              
+                                                                                          //{ id: 'MODULE_WAIVER', name: translate('tasks.types.module_waiver'), not_available: true },                                                                                               
+                                                                                          { id: 'MODULE_WAIVER_APPROVAL', name: translate('tasks.types.module_waiver_approval'), not_available: true },                                                                                               
                                                                                      ]}  
                                                                                      optionText={choice => `${choice.name}`}
                                                                                      optionValue="id"
