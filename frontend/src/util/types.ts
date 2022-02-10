@@ -65,6 +65,10 @@ export interface ITaskUpload extends ITask {
      type: "DOCUMENT_UPLOAD";
 }
 
+export interface ITaskApproval extends ITask {
+     type: "DOCUMENT_APPROVE";
+}
+
 export interface ITaskWaiver extends ITask {
      type: "MODULE_WAIVER";
 }

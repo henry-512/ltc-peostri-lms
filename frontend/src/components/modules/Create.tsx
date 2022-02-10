@@ -216,7 +216,8 @@ const Create = (props: any) => {
                                                                                      source={getSource?.('type') || ""} 
                                                                                      choices={[
                                                                                           { id: 'DOCUMENT_UPLOAD', name: 'Upload' },
-                                                                                          { id: 'DOCUMENT_REVIEW', name: 'Review' },                                                                                               
+                                                                                          { id: 'DOCUMENT_REVIEW', name: 'Review' },                                                                                              
+                                                                                          { id: 'DOCUMENT_APPROVE', name: 'Aprrove' },                                                                                              
                                                                                           { id: 'MODULE_WAIVER', name: 'Waiver', not_available: true },                                                                                               
                                                                                           { id: 'MODULE_WAIVER_APPROVAL', name: 'Waiver Approval', not_available: true },                                                                                               
                                                                                      ]}  
