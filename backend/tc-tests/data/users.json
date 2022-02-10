@@ -1,0 +1,63 @@
+// Base case
+{
+	"firstName": "John",
+	"lastName": "Doe",
+	"avatar": "",
+	"userGroup": "userGroups/yiL-WwexQtv1KN9At3DBAA"
+}
+// Fully-formed userGroup (not valid for this call)
+{
+	"firstName": "Jason",
+	"lastName": "Doe",
+	"avatar": "",
+	"userGroup": {
+		"name": "Jason's super-cool Usergroup",
+		"permissions": {
+			"perm1": true,
+			"perm2": true,
+			"perm3": true
+		}
+	}
+}
+// Missing fields
+{
+	"firstName": "Josh",
+	"userGroup": "userGroups/yiL-WwexQtv1KN9At3DBAA"
+}
+// Additional field
+{
+	"firstName": "Joshua",
+	"lastName": "Doe",
+	"avatar": "",
+	"userGroup": "userGroups/yiL-WwexQtv1KN9At3DBAA",
+	"super-cool-hackerinos": "; DROP TABLE USERS"
+}
+// Valid key, but not a userGroup
+{
+	"firstName": "Joe",
+	"lastName": "Doe",
+	"avatar": "",
+	"userGroup": "users/A-N9w6RrQcnTpJV89XgWAA"
+}
+// Empty string key
+{
+	"firstName": "Jordan",
+	"lastName": "Doe",
+	"avatar": "",
+	"userGroup": ""
+}
+// Passed ID
+{
+	"id": "id-insertion",
+	"firstName": "John",
+	"lastName": "Doe",
+	"avatar": "",
+	"userGroup": "userGroups/yiL-WwexQtv1KN9At3DBAA"
+}
+// Valid key, not an ID
+{
+	"firstName": "John",
+	"lastName": "Doe",
+	"avatar": "",
+	"userGroup": "yiL-WwexQtv1KN9At3DBAA"
+}
