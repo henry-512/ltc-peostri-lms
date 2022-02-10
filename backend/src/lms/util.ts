@@ -1,6 +1,4 @@
 // @ts-ignore
-// Libraries don't exist in the root directory,
-// so this doesn't work properly
 import { v4, parse } from 'uuid';
 
 // RFC4648 Chapter 5 standard: URL/file-safe base64 encoding lookup string
@@ -38,6 +36,17 @@ export function generateBase64UUID(): string {
     key = key.concat(b64.charAt(bytes[16] & 63), b64.charAt(bytes[16] >> 6))
 
     return key
+}
+
+/**
+ * Converts a key to an id associated with the passed ApiRoute.
+ * DOES NOT CHECK IF KEY IS A VALID KEY.
+ * @param key The key to convert
+ * @param api An ApiRoute (or some other object with a name field)
+ * @return An ID
+ */
+export function keyToId(key: string, api:{name:string}) {
+    return `${api.name}/${key}`
 }
 
 // Collection names are alphabetic character names

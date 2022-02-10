@@ -7,7 +7,7 @@ import koaBody from "koa-body"
 
 import { db } from "../../database"
 import { IArangoIndexes, ICreateUpdate } from "../../lms/types"
-import { generateBase64UUID, isDBId } from "../../lms/util"
+import { generateBase64UUID, isDBId, keyToId } from "../../lms/util"
 
 /**
  * Makes an AQL query representing a return field of the form
@@ -58,7 +58,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      * 
      */
     constructor(
-        protected name: string,
+        public name: string,
         protected dname: string,
         protected visibleFields: string[],
         protected hasDate: boolean,
@@ -196,9 +196,10 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         if (typeof doc === 'string') {
             // Check if foreign key reference is valid
             if (!isDBId(doc)) {
-                throw new TypeError(`Foreign key [${type.key}] is not a valid id. Did you forget the collection name?`)
+                // Convert from key to id
+                doc = keyToId(doc, type.class)
             } else if (!type.class.exists(doc)) {
-                throw new TypeError(`Foreign key [${doc}] invalid`)
+                throw new TypeError(`Foreign key [${doc}] does not exist`)
             }
             return doc
         // Objects are fully-formed documents
@@ -211,7 +212,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 for (let [stepId, stepArray] of Object.entries(doc)) {
                     if (Array.isArray(stepArray)) {
                         temp[stepId] = stepArray.map(
-                            t2 => this.parseDoc(map, parent, t2, type)
+                            t2 => this.parseDoc(map, parent, t2, {
+                                key: '', class:type.class
+                            })
                         )
                     } else {
                         throw new TypeError(`${stepArray} is not an array`)
@@ -298,8 +301,10 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 await col.saveAll(doc)
             }
         } else {
-            for (let [col, doc] of map) {
-                console.log(`Saved ${JSON.stringify(doc)} into ${col.name}`)
+            for (let [col, docs] of map) {
+                for (let d of docs) {
+                    console.log(`Saved ${JSON.stringify(d)} into ${col.name}`)
+                }
             }
         }
     }

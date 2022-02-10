@@ -44,7 +44,7 @@ export interface IComment extends IArangoIndexes, ICreateUpdate {
 export interface ITask extends IArangoIndexes {
      title: string;
      status: Status;
-     assigned?: Array<string> | Array<IUser>;
+     users?: Array<string> | Array<IUser>;
      module?: string | IModule;
      type?: TaskTypes;
 }
