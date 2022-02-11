@@ -6,8 +6,8 @@ import { ArrayCursor } from "arangojs/cursor"
 import koaBody from "koa-body"
 
 import { db } from "../../database"
-import { IArangoIndexes, ICreateUpdate } from "../../lms/types"
-import { generateBase64UUID, isDBId, keyToId } from "../../lms/util"
+import { IArangoIndexes, IComment, ICreateUpdate } from "../../lms/types"
+import { generateBase64UUID, generateDBID, isDBId, isDBKey, keyToId } from "../../lms/util"
 
 /**
  * Makes an AQL query representing a return field of the form
@@ -58,7 +58,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      * 
      */
     constructor(
-        public name: string,
+        protected name: string,
         protected dname: string,
         protected visibleFields: string[],
         protected hasDate: boolean,
@@ -73,7 +73,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         private foreignStep: null | string
     ) {
         this.collection = db.collection(this.name)
-        this.getAllQueryFields = appendReturnFields(aql`id:z._key,`, this.visibleFields)
+        this.getAllQueryFields = appendReturnFields(aql`id:z._id,`, this.visibleFields)
         instances[name] = this
     }
 
@@ -139,7 +139,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     public async getFromDB(key: string, dereference: boolean) {
         let doc = await this.collection.document(key) as Type
     
-        doc.id = doc._key
+        doc.id = doc._id
         delete doc._key
         delete doc._id
         delete doc._rev
@@ -186,22 +186,40 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         return doc
     }
 
-    parseDoc(
+    /**
+     * 
+     */
+    async parseDoc(
         map: Map<DocumentCollection, IArangoIndexes[]>,
         parent:string,
         doc:any,
-        type:{key:string,class:ApiRoute<IArangoIndexes>}
-    ): any {
+        type:{key:string,class:ApiRoute<IArangoIndexes>},
+        real:boolean
+    ): Promise<string> {
         // String IDs are foreign key references, and should be checked
         if (typeof doc === 'string') {
             // Check if foreign key reference is valid
-            if (!isDBId(doc)) {
+            if (await type.class.exists(doc)) {
                 // Convert from key to id
-                doc = keyToId(doc, type.class)
-            } else if (!type.class.exists(doc)) {
+                if (isDBKey(doc)) {
+                    return keyToId(doc, type.class.name)
+                }
+                return doc
+            } else {
+                if (type.class.name === 'comments') {
+                    let childId = generateDBID(type.class.name)
+                    // TODO: input validation
+                    let com: IComment = {
+                        content: doc,
+                        // TODO: Make this into user validation
+                        author: 'users/0123456789012345678900',
+                        parent: parent
+                    }
+                    await type.class.addToReferenceMap(childId, com, map, real)
+                    return childId
+                }
                 throw new TypeError(`Foreign key [${doc}] does not exist`)
             }
-            return doc
         // Objects are fully-formed documents
         } else if (typeof doc === 'object') {
             // A step array is of the form
@@ -211,10 +229,10 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 let temp:any = {}
                 for (let [stepId, stepArray] of Object.entries(doc)) {
                     if (Array.isArray(stepArray)) {
-                        temp[stepId] = stepArray.map(
+                        temp[stepId] = await Promise.all(stepArray.map(
                             t2 => this.parseDoc(map, parent, t2, {
                                 key: '', class:type.class
-                            })
+                            }, real))
                         )
                     } else {
                         throw new TypeError(`${stepArray} is not an array`)
@@ -222,7 +240,6 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 }
                 return temp
             } else {
-                let childKey = generateBase64UUID()
                 if (type.class.parentKey) {
                     // We're assigning the parent/module/project field
                     // of documents here, so they hold references to
@@ -230,20 +247,22 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     doc[type.class.parentKey.local] = <any>parent
                 }
 
-                type.class.addToReferenceMap(childKey, doc, map)
+                let childId = `${type.class.name}/${generateBase64UUID()}`
+                await type.class.addToReferenceMap(childId, doc, map, real)
 
-                return `${type.class.name}/${childKey}`
+                return childId
             }
         } else {
             throw new TypeError(`${doc} is not a foreign document or reference`)
         }
     }
 
-    private addToReferenceMap(
+    private async addToReferenceMap(
         addDocKey: string,
         addDoc: Type,
-        map: Map<DocumentCollection, IArangoIndexes[]>
-    ): Map<DocumentCollection, IArangoIndexes[]> {
+        map: Map<DocumentCollection, IArangoIndexes[]>,
+        real: boolean
+    ): Promise<Map<DocumentCollection, IArangoIndexes[]>> {
         delete addDoc.id
         addDoc._key = addDocKey
 
@@ -267,10 +286,10 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             let temp = addDoc[typeForeignField.key as keyof Type]
 
             if (Array.isArray(temp)) {
-                addDoc[typeForeignField.key as keyof Type] = temp.map(loopDoc => this.parseDoc(map, addDocId, loopDoc, typeForeignField)
-                ) as any
+                addDoc[typeForeignField.key as keyof Type] = <any>await Promise.all(temp.map(loopDoc => this.parseDoc(map, addDocId, loopDoc, typeForeignField, real)
+                ))
             } else {
-                addDoc[typeForeignField.key as keyof Type] = this.parseDoc(map, addDocId, temp, typeForeignField)
+                addDoc[typeForeignField.key as keyof Type] = <any>await this.parseDoc(map, addDocId, temp, typeForeignField, real)
             }
         }
 
@@ -293,7 +312,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
 
         // Turns a fully-dereferenced document into a reference
         // document
-        let map = this.addToReferenceMap(key, doc, new Map())
+        let map = await this.addToReferenceMap(key, doc, new Map(), real)
 
         if (real) {
             // Saves each document in the map to its respective collection
@@ -303,7 +322,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         } else {
             for (let [col, docs] of map) {
                 for (let d of docs) {
-                    console.log(`Saved ${JSON.stringify(d)} into ${col.name}`)
+                    console.log(`Saved ${col.name} | ${JSON.stringify(d)}`)
                 }
             }
         }
@@ -388,14 +407,14 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     ctx.status = 409
                     ctx.body = `${this.dname} [${body.id}] already exists`
                 } else {
-                    let newKey = generateBase64UUID()
+                    let newID = generateDBID(this.name)
                     let doc = body as Type
-                    await this.create(newKey, doc, ctx.header['user-agent'] !== 'backend-testing')
+                    await this.create(newID, doc, ctx.header['user-agent'] !== 'backend-testing')
     
                     ctx.status = 201
                     ctx.body = {
-                        id: newKey,
-                        message: `${this.dname} created with id ${newKey}`
+                        id: newID,
+                        message: `${this.dname} created with id [${newID}]`
                     }
                 }
             } catch (err) {

@@ -33,7 +33,7 @@ class UserRoute extends ApiRoute<IUser> {
             SORT z.${sort} ${sortDir}
             LIMIT ${offset}, ${count}
             LET a = (RETURN DOCUMENT(z.userGroup))[0]
-            RETURN {userGroup:(RETURN {id:a._key,name:a.name})[0],${queryFields}}`
+            RETURN {userGroup:(RETURN {id:a._id,name:a.name})[0],${queryFields}}`
     }
 }
 

@@ -38,6 +38,10 @@ export function generateBase64UUID(): string {
     return key
 }
 
+export function generateDBID(name: string) {
+    return `${name}/${generateBase64UUID()}`
+}
+
 /**
  * Converts a key to an id associated with the passed ApiRoute.
  * DOES NOT CHECK IF KEY IS A VALID KEY.
@@ -45,8 +49,21 @@ export function generateBase64UUID(): string {
  * @param api An ApiRoute (or some other object with a name field)
  * @return An ID
  */
-export function keyToId(key: string, api:{name:string}) {
-    return `${api.name}/${key}`
+export function keyToId(key: string, name:string) {
+    return `${name}/${key}`
+}
+
+/**
+ * Strips the key and collection from the passed id.
+ * @param id A valid database id
+ * @return col: The collection name, key: the key
+ */
+export function splitId(id:string) {
+    let splice = id.split('/')
+    return {
+        col: splice[0],
+        key: splice[1]
+    }
 }
 
 // Collection names are alphabetic character names
