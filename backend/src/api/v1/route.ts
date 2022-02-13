@@ -64,7 +64,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         protected hasDate: boolean,
         private foreignFields: {
             key:string
-            class:ApiRoute<IArangoIndexes>
+            class:ApiRoute<IArangoIndexes>,
+            optional:boolean
         }[],
         private parentKey: null | {
             local:string
@@ -160,25 +161,37 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             // Loop over the foreign keys
             for (let c of this.foreignFields) {
                 if (!(c.key in doc)) {
-                    throw new TypeError(`${c.key} should exist in ${doc}, but does not`)
+                    if (c.optional) {
+                        continue
+                    }
+                    throw new TypeError(`${c.key} should exist in ${JSON.stringify(doc)}, but does not`)
                 }
 
-                // The type for the foreign interface
-                type foreignInterface = Type[keyof Type]
                 // Key is the foreign key property of Type
                 let key = c.key as keyof Type
                 // An array or string representing the foreign keys
-                let foreignKey = doc[key]
+                let foreign = doc[key]
         
                 // Dereference string id
-                if (typeof foreignKey === 'string') {
-                    doc[key] = <foreignInterface>await deref(foreignKey, c.class)
+                if (typeof foreign === 'string') {
+                    doc[key] = <any>await deref(foreign, c.class)
                 // Dereference array of string ids
-                } else if (Array.isArray(foreignKey)) {
-                    // For each foreignKey in the array, retrieve it from the database; then store the documents (as an array) back in doc[key]
-                    doc[key] = <foreignInterface><unknown>await Promise.all((<string[]>foreignKey).map(async (k:string) => deref(k, c.class)))
+                } else if (Array.isArray(foreign)) {
+                    // For each foreign key in the array, retrieve it from the database; then store the documents (as an array) back in doc[key]
+                    doc[key] = <any>await Promise.all((<string[]>foreign).map(async (k:string) => deref(k, c.class)))
+                // Dereference a step array
+                } else if (key === this.foreignStep) {
+                    let temp:any = {}
+                    for (let [stepId, stepArray] of Object.entries(foreign)) {
+                        if (Array.isArray(stepArray)) {
+                            temp[stepId] = <any>await Promise.all((<string[]>stepArray).map(async (k:string) => deref(k, c.class)))
+                        } else {
+                            throw new TypeError(`${stepArray} is not an array`)
+                        }
+                    }
+                    doc[key] = <any>temp
                 } else {
-                    throw new TypeError(`${foreignKey} is not a foreign key string or array`)
+                    throw new TypeError(`${JSON.stringify(foreign)} is not a foreign key string or array`)
                 }
             }
         }
@@ -206,6 +219,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 }
                 return doc
             } else {
+                // NOTE: If this is supposed to be a comment reference
+                // but does not exist, this generates a comment with
+                // content as its id.
                 if (type.class.name === 'comments') {
                     let childId = generateDBID(type.class.name)
                     // TODO: input validation
@@ -286,10 +302,13 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             let temp = addDoc[typeForeignField.key as keyof Type]
 
             if (Array.isArray(temp)) {
-                addDoc[typeForeignField.key as keyof Type] = <any>await Promise.all(temp.map(loopDoc => this.parseDoc(map, addDocId, loopDoc, typeForeignField, real)
-                ))
+                addDoc[typeForeignField.key as keyof Type]
+                    = <any>await Promise.all(
+                        temp.map(loopDoc => this.parseDoc(map, addDocId, loopDoc, typeForeignField, real)
+                    ))
             } else {
-                addDoc[typeForeignField.key as keyof Type] = <any>await this.parseDoc(map, addDocId, temp, typeForeignField, real)
+                addDoc[typeForeignField.key as keyof Type]
+                    = <any>await this.parseDoc(map, addDocId, temp, typeForeignField, real)
             }
         }
 

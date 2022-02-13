@@ -12,7 +12,7 @@ class UserRoute extends ApiRoute<IUser> {
             ['firstName', 'lastName', 'avatar', 'userGroup'],
             false,
             [
-                {key:'userGroup', class:UserGroupRouteInstance}
+                {key:'userGroup', class:UserGroupRouteInstance,optional:false}
             ],
             null,
             null

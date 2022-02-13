@@ -11,8 +11,8 @@ class ModuleRoute extends ApiRoute<IModule> {
             ['title', 'tasks', 'comments', 'project', 'status', 'steps'],
             false,
             [
-                {key:'tasks', class:TaskRouteInstance},
-		        {key:'comments', class:CommentRouteInstance}
+                {key:'tasks', class:TaskRouteInstance,optional:false},
+		        {key:'comments', class:CommentRouteInstance,optional:true}
             ],
             {local:'project', foreign:'modules'},
             'tasks'

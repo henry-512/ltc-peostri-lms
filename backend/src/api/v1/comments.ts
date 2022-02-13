@@ -10,7 +10,7 @@ class CommentRoute extends ApiRoute<IComment> {
             ['content', 'author', 'createdAt', 'updatedAt', 'parent'],
             true,
             [
-                {key: 'author', class: UserRouteInstance}
+                {key:'author', class:UserRouteInstance, optional:false}
             ],
             {local:'parent',foreign:'comments'},
             null
