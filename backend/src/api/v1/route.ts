@@ -179,8 +179,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 } else if (Array.isArray(foreign)) {
                     // For each foreign key in the array, retrieve it from the database; then store the documents (as an array) back in doc[key]
                     doc[key] = <any>await Promise.all((<string[]>foreign).map(async (k:string) => deref(k, c.class)))
-                // Dereference a step array
-                } else if (key === this.foreignStep) {
+                // Dereference a step object
+                } else if (key === this.foreignStep && typeof foreign === 'object') {
                     let temp:any = {}
                     for (let [stepId, stepArray] of Object.entries(foreign)) {
                         if (Array.isArray(stepArray)) {
@@ -294,6 +294,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // referencing each one
         for (let typeForeignField of this.foreignFields) {
             if (!(typeForeignField.key in addDoc)) {
+                if (typeForeignField.optional) {
+                    continue
+                }
                 throw new TypeError(`${typeForeignField.key} should exist in ${addDoc}, but does not`)
             }
 
