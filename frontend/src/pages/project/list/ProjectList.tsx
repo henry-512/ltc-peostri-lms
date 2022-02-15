@@ -7,11 +7,6 @@ import ProjectEdit from '../edit';
 import ProjectListGrid from './ProjectListGrid';
 
 const ProjectList = (props: ListProps) => {
-     const history = useHistory();
-     const handleClose = useCallback(() => {
-          history.push('/projects');
-     }, [history]);
-
      return (
           <div>
                <List {...props}
