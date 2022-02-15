@@ -14,7 +14,7 @@ class ProjectRoute extends ApiRoute<IProject> {
             [
                 {key:'comments', class:CommentRouteInstance,optional:true},
                 {key:'modules', class:ModuleRouteInstance,optional:false},
-                {key:'users', class:UserRouteInstance,optional:false}
+                {key:'users', class:UserRouteInstance,optional:true}
             ],
             null,
             'modules'

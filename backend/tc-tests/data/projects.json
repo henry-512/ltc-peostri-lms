@@ -1,0 +1,74 @@
+{
+    "title":"Some New Project",
+    "startDate":"2022-02-10",
+    "endDate":"2022-02-25",
+    "users":[
+      "users/6xSuLyfUQriJtyWLlngDAA",
+      "users/507024",
+      "users/A-N9w6RrQcnTpJV89XgWAA"
+    ],
+    "modules":{
+      "0":[
+        {
+          "id":"xSr_-Q-kQ5nClUzczStOAA",
+          "status":"AWAITING",
+          "title":"Some thing here",
+          "waived":true,
+          "comments":[
+          ],
+          "tasks":{
+            "0":[
+              {
+                "title":"Module Waiver Approval",
+                "status":"AWAITING",
+                "type":"MODULE_WAIVER_APPROVAL",
+                "id":"yc0BqKqSTNoeiVqFV3nNAA",
+                "userGroup":"userGroups/792863",
+                "users":[
+                  "users/507024"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id":"3ECFukTTTNqpYskLnYeTAA",
+          "status":"AWAITING",
+          "title":"New Module",
+          "comments":[
+            
+          ],
+          "tasks":{
+            "0":[
+              {
+                "id":"fu7Y16MLRThFzXDpYcmUAA",
+                "status":"AWAITING",
+                "title":"Some new task",
+                "type":"DOCUMENT_UPLOAD",
+                "userGroup":"userGroups/yiL-WwexQtv1KN9At3DBAA",
+                "users":[
+                  "users/6xSuLyfUQriJtyWLlngDAA",
+                  "users/A-N9w6RrQcnTpJV89XgWAA"
+                ]
+              }
+            ],
+            "1":[
+              {
+                "id":"kzXmWSJEQju-rj8qAyBJAA",
+                "status":"AWAITING",
+                "title":"Some new review task",
+                "type":"DOCUMENT_REVIEW",
+                "userGroup":"userGroups/792863",
+                "users":[
+                  "users/507024"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "comments":[
+      
+    ]
+  }
