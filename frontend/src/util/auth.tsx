@@ -1,6 +1,8 @@
 import { LoginInformation } from 'src/util/types'
 import { AuthProvider } from "react-admin";
 
+// TODO: Setup Auth Provider
+
 export default {
      login: (info: LoginInformation) => {
           return Promise.resolve([info.username, info.password]);

@@ -1,7 +1,7 @@
 import { Grid, Typography, makeStyles, Hidden } from "@material-ui/core";
 import { ArrayInput, FileField, FileInput, FormDataConsumer, ReferenceArrayInput, ReferenceInput, SelectInput, SimpleFormIterator, TextInput, useTranslate } from "react-admin";
 import { AutoAssignArrayInput } from ".";
-import { RemoveButton } from "../RemoveButton";
+import { RemoveButton } from "../buttons/RemoveButton";
 import TaskLabel from "./TaskLabel";
 import WaiverInput from "./WaiverInput";
 import RichTextInput from 'ra-input-rich-text';
@@ -9,14 +9,9 @@ import classNames from "classnames";
 import {useEffect, useState} from 'react';
 import { generateBase64UUID } from '../../util/uuidProvider';
 import { useForm } from "react-final-form";
+import get from 'lodash.get'
 
 const BORDER_COLOR = '#e0e0e3';
-
-const something = {
-     "0": {
-          something: "hello world"
-     }
-}
 
 const useStyles = makeStyles(theme => ({
      modulesForm: {
@@ -74,8 +69,8 @@ const IDField = ({source}: {source: string}) => {
      const formData = form.getState().values
 
      useEffect(()=>{
-          if (formData[source]) {
-               setID(formData[source].id);
+          if (get(formData, source)) {
+               setID(get(formData, source));
           } else {
                setID(generateBase64UUID());
           }
@@ -167,7 +162,7 @@ const Create = (props: any) => {
                                                        </Typography>
                                                   </Grid>
                                                   <Grid item xs={6} style={{marginTop: '-32px'}}>
-                                                       <RichTextInput source={getSource?.('comment') || ""} toolbar={[ ['bold', 'italic', 'underline', 'link'] ]} label="" helperText=" " />
+                                                       <RichTextInput source={getSource?.('comment') || ""} toolbar={[ ['bold', 'italic', 'underline'] ]} label="" helperText=" " />
                                                   </Grid>
                                                   <Grid item xs={6} style={{marginTop: '-32px'}}>
                                                        <FileInput source={getSource?.('file') || ""} accept="application/pdf" fullWidth label="" labelSingle="project.create.fields.waiver_file" helperText=" ">

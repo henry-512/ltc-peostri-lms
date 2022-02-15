@@ -6,6 +6,7 @@ import { ModuleCard } from '.';
 import { IModule, IModuleStep, ITask, ITaskStep } from 'src/util/types';
 import Steps from '../steps';
 import { useForm } from 'react-final-form';
+import { FormatShapesSharp } from '@material-ui/icons';
 
 const setUpSteps = (modules: IModule[]): IModuleStep => {
      let steps = {} as IModuleStep;
@@ -43,9 +44,9 @@ const findTask = (formTasks: ITask[], id: string | undefined): ITask | void => {
 }
 
 const getCurrentSteps = (formModules: IModule[], formSteps?: IModuleStep) => {
-     if (!formSteps) return setUpSteps(formModules);
-
      console.log(formModules, formSteps);
+     
+     if (!formSteps) return setUpSteps(formModules);
      
      const moduleStepKeys = Object.keys(formSteps);
      for (let i = 0; i < Object.keys(formSteps).length; i++) {
@@ -56,7 +57,6 @@ const getCurrentSteps = (formModules: IModule[], formSteps?: IModuleStep) => {
                if (!foundModule) {
                     continue;
                }
-               console.log(foundModule);
                
                const taskSteps = formSteps[moduleStepKeys[i]][j].steps
                formSteps[moduleStepKeys[i]][j] = foundModule;
@@ -68,7 +68,8 @@ const getCurrentSteps = (formModules: IModule[], formSteps?: IModuleStep) => {
                          if (!foundTask) {
                               continue;
                          }
-                         console.log(foundTask);
+                         
+                         formSteps[moduleStepKeys[i]][j].steps[taskStepKeys[k]][l] = foundTask;
                     }
                }
           }

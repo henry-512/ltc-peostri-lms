@@ -18,6 +18,7 @@ const i18nProvider = polyglotI18nProvider(locale => messages[locale]);
 
 const App = () => {
      return (
+          //Setup for React Admin
           <Admin 
                title="PEO STRI LMS"
                dataProvider={dataProvider(API_URL)} 
