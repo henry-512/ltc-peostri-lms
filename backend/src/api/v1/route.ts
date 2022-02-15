@@ -280,7 +280,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         real: boolean
     ): Promise<Map<DocumentCollection, IArangoIndexes[]>> {
         delete addDoc.id
-        addDoc._key = addDocKey
+        addDoc._id = addDocKey
 
         if (this.hasDate) {
             (<ICreateUpdate>addDoc).createdAt = new Date(); //??? ; ???
@@ -338,8 +338,11 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
 
         if (real) {
             // Saves each document in the map to its respective collection
-            for (let [col, doc] of map) {
-                await col.saveAll(doc)
+            for (let [col, docs] of map) {
+                for (let doc of docs) {
+                    console.log(`Saving ${col.name} | ${JSON.stringify(doc)}`)
+                    await col.save(doc)
+                }
             }
         } else {
             for (let [col, docs] of map) {
