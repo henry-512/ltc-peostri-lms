@@ -1,6 +1,6 @@
 import { Grid, makeStyles, Typography } from "@material-ui/core";
-import { ArrayInput, AutocompleteArrayInput, BooleanInput, FormDataConsumer, ReferenceArrayInput, ReferenceInput, SelectInput, SimpleFormIterator, TextInput, useInput, useReferenceArrayInputContext, useTranslate } from "react-admin";
-import { ModuleCreate } from "src/components/modules";
+import { ArrayInput, AutocompleteArrayInput, BooleanInput, FormDataConsumer, FormGroupContextProvider, ReferenceArrayInput, ReferenceInput, SelectInput, SimpleFormIterator, TextInput, useInput, useReferenceArrayInputContext, useTranslate } from "react-admin";
+import { Modules as ModuleCreate } from "src/components/modules";
 import { Step } from "src/components/stepper/Step";
 import { useForm } from 'react-final-form'
 import { useCallback } from "react";
@@ -23,23 +23,25 @@ const classes = useStyles();
 
 return (
      <>
-          <Step>
-               <Grid container spacing={0} className={props.classes.content}>
-                    <Grid item xs={12} className={classes.moduleForm}>
-                         <Grid container>
-                              <Grid item xs={6} className={props.classes.usersTitle}>
-                                   <Typography variant="h6" className={props.classes.fieldTitle}>
-                                        {translate('project.create.layout.add_modules')}
-                                   </Typography>
+          <Step validator={props.validator} {...props}>
+               <FormGroupContextProvider name={props.validator}>
+                    <Grid container spacing={0} className={props.classes.content}>
+                         <Grid item xs={12} className={classes.moduleForm}>
+                              <Grid container>
+                                   <Grid item xs={6} className={props.classes.usersTitle}>
+                                        <Typography variant="h6" className={props.classes.fieldTitle}>
+                                             {translate('project.create.layout.add_modules')}
+                                        </Typography>
+                                   </Grid>
                               </Grid>
-                         </Grid>
-                         <Grid container spacing={2}>
-                              <Grid item xs={12}>
-                                   <ModuleCreate classes={props.classes}/>
+                              <Grid container spacing={2}>
+                                   <Grid item xs={12}>
+                                        <ModuleCreate classes={props.classes}/>
+                                   </Grid>
                               </Grid>
                          </Grid>
                     </Grid>
-               </Grid>
+               </FormGroupContextProvider>
           </Step>
      </>
 )}

@@ -9,7 +9,8 @@ export type StepSettings = {
 
 export function Step(props: any) {
      useEffect(() => {
-          props?.setBackText?.(props?.backText || "")
+          props?.setBackText?.(props?.backText || "");
+          props.setValidator?.(props.validator || "");
      }, []);
      
      return (

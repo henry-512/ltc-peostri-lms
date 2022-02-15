@@ -5,8 +5,8 @@ import { Step } from "src/components/stepper/Step"
 const General = (props: any) => {
 const translate = useTranslate();
 return (
-          <Step>
-               <FormGroupContextProvider name="general">
+          <Step validator={props.validator} {...props}>
+               <FormGroupContextProvider name={props.validator}>
                     <Grid container spacing={0} className={props.classes.content}>
                          <Grid item xs={12}>
                               <Grid container>
@@ -29,7 +29,7 @@ return (
                                    <Grid item xs={3}>
                                         <DateInput 
                                              label={translate('project.create.fields.start')} 
-                                             source="startDate"
+                                             source="start"
                                              required
                                              fullWidth
                                              helperText=" "
@@ -38,7 +38,7 @@ return (
                                    <Grid item xs={3}>
                                         <DateInput 
                                              label={translate('project.create.fields.end')} 
-                                             source="endDate" 
+                                             source="end" 
                                              required
                                              fullWidth
                                              helperText=" "

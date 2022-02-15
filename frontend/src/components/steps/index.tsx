@@ -100,7 +100,6 @@ const Steps = (props: StepsProps) => {
                return updateForm(newValue);
           }
 
-          console.log(save || "", newValue, form.getState().values)
           form.change(save || "", newValue || steps);
      }
 

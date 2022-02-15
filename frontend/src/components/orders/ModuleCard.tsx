@@ -69,7 +69,6 @@ const ModuleCard = ({steps, info, index, stepKey, subSteps}: ModuleCardProps) =>
      const updateModuleStep = (newSteps: any) => {
           steps[stepKey || 0][index || 0].steps = newSteps
           form.change(`steps`, steps);
-          console.log(form.getState().values);
      }
 
      const handleClickOpen = () => {

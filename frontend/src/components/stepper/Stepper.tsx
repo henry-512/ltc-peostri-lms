@@ -1,5 +1,5 @@
-import React from "react";
-import { SimpleForm } from "react-admin"
+import React, { useEffect } from "react";
+import { SimpleForm, useFormGroup } from "react-admin"
 import StepHeader from "./StepHeader";
 import StepToolbar from "./StepToolbar"
 
@@ -7,6 +7,7 @@ export default function Stepper(props: any) {
      const [backText, setBackText] = React.useState("");
      const [activeStep, setActiveStep] = React.useState(0);
      const [skipped, setSkipped] = React.useState(new Set());
+     const [validator, setValidator] = React.useState("");
      const optionalCache: number[] = [];
 
      const resetBackText = () => {
@@ -72,9 +73,10 @@ export default function Stepper(props: any) {
                     handleBack={handleBack}
                     handleNext={handleNext}
                     handleSkip={handleSkip} 
-                    backText={backText}               
+                    backText={backText}   
+                    validator={validator}            
                />
-          } {...props}>
+          } {...props} validation={props.validate}>
                <StepHeader 
                     active={activeStep}
                     children={props.children}
@@ -82,6 +84,7 @@ export default function Stepper(props: any) {
                     isStepSkipped={isStepSkipped}
                />
                {React.cloneElement(props.children[activeStep], {
+                    setValidator: setValidator,
                     setBackText: setBackText
                })}
           </SimpleForm>

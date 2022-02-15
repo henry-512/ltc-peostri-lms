@@ -1,12 +1,18 @@
-import Create from './Create'
+import Create from './Modules'
 import AutoAssignArrayInput from './AutoAssignArrayInput';
 import WaiverInput from './WaiverInput';
 import TaskLabel from './TaskLabel';
-const ModuleCreate = Create;
+import Modules from './Modules';
+import ModuleArrayInput from './ModuleArrayInput';
+import IDField from './IDField';
+import TaskArrayInput from './TaskArrayInput';
 
 
 export {
-     ModuleCreate,
+     Modules,
+     ModuleArrayInput,
+     TaskArrayInput,
+     IDField,
      AutoAssignArrayInput,
      WaiverInput,
      TaskLabel

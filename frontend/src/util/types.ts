@@ -95,6 +95,7 @@ export interface IProject extends IArangoIndexes, ICreateUpdate {
      modules: IModule[];
      users: Array<string> | Array<IUser>;
      steps: IModuleStep;
+     auto_assign?: boolean;
 }
 
 export interface IUserGroup extends IArangoIndexes {

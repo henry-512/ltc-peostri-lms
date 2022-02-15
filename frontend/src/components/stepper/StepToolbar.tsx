@@ -1,6 +1,6 @@
 import { Box, Typography } from "@material-ui/core"
 import { MouseEventHandler } from "react";
-import { Button, SaveButton, Toolbar, ToolbarProps, useTranslate } from "react-admin"
+import { Button, SaveButton, Toolbar, ToolbarProps, useFormGroup, useTranslate } from "react-admin"
 import { useForm } from "react-final-form";
 
 export interface StepToolbarProps extends ToolbarProps {
@@ -11,15 +11,15 @@ export interface StepToolbarProps extends ToolbarProps {
      handleBack: MouseEventHandler;
      handleSkip: MouseEventHandler;
      backText: string;
+     validator: string;
 }
 
 export default function StepToolbar(props: StepToolbarProps) {
      const translate = useTranslate();
-     const form = useForm();
+     const formGroupState = useFormGroup(props.validator);
 
      const submitForm = (e: any): Promise<Object> => {
           e.preventDefault();
-          console.log('giraffe');
 
           return Promise.resolve({});
      }
@@ -43,15 +43,16 @@ export default function StepToolbar(props: StepToolbarProps) {
                }
                <Box sx={{ flex: '1 1 auto' }} />
                {props.optional && (
-                    <Button color="inherit" onClick={props.handleSkip} 
+                    <Button color="inherit" onClick={props.handleSkip}
                     label={translate('layout.button.skip')} />
                )}
                {(props.active !== props.stepCount - 1) ?(
-                    <Button onClick={props.handleNext} label={translate('layout.button.next')} />
+                    <Button onClick={props.handleNext} label={translate('layout.button.next')} disabled={formGroupState.invalid && formGroupState.dirty ? true : false} />
                ):( 
                     <SaveButton
                          label="layout.button.create"
                          redirect="show"
+                         disabled={formGroupState.invalid && formGroupState.dirty ? true : false}
                          handleSubmit={submitForm}
                     />
                )}

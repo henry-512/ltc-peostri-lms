@@ -26,7 +26,6 @@ const setUpSteps = (modules: IModule[]): IModuleStep => {
 
 const findModule = (formModules: IModule[], id: string | undefined): IModule | void => {
      for (let i = 0; i < formModules.length; i++) {
-          console.log(formModules[i].id, id)
           if (formModules[i].id == id) {
                return formModules[i];
                break;
@@ -44,7 +43,6 @@ const findTask = (formTasks: ITask[], id: string | undefined): ITask | void => {
 }
 
 const getCurrentSteps = (formModules: IModule[], formSteps?: IModuleStep) => {
-     console.log(formModules, formSteps);
      
      if (!formSteps) return setUpSteps(formModules);
      
