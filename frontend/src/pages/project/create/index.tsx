@@ -55,7 +55,7 @@ export default function ProjectCreate(props: any) {
                     data.modules[modKeys[i]][j].comments = [];
 
                     if (data.modules[modKeys[i]][j].comment) {
-                         data.modules[modKeys[i]][j].comments.push(data.modules[Object.keys(data.modules)[i]][j].comment);
+                         data.modules[modKeys[i]][j].comments.push(data.modules[modKeys[i]][j].comment);
                          delete data.modules[modKeys[i]][j].comment;
                     }
                     
@@ -87,7 +87,7 @@ export default function ProjectCreate(props: any) {
 
                     <Order classes={classes} title={translate('project.create.steps.order')} className={classes.content} validator="order" {...props}/>
 
-                    <Review classes={classes} title={translate('project.create.steps.review')} className={classes.content} validator="" {...props}/>
+                    {/*<Review classes={classes} title={translate('project.create.steps.review')} className={classes.content} validator="" {...props}/>*/}
                     
                </Stepper>
           </Create>
