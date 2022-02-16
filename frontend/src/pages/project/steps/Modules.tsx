@@ -1,46 +1,30 @@
-import { Grid, makeStyles, Typography } from "@material-ui/core";
-import { FormGroupContextProvider, useTranslate } from "react-admin";
-import { Modules as ModuleCreate } from "src/components/modules";
-import { Step } from "src/components/stepper/Step";
-
-const BORDER_COLOR = '#e0e0e3';
-
-const useStyles = makeStyles(theme => ({
-     moduleForm: {
-          border: '1px solid ' + BORDER_COLOR,
-          borderTopRightRadius: 5,
-          borderTopLeftRadius: 5,
-          padding: '1rem 1.5rem'
-     }
-}));
+import { Step } from "../../../components/stepper/Step";
+import { FormDataConsumer, FormGroupContextProvider } from "react-admin";
+import { ModuleCreator } from "src/components/modules";
 
 const Modules = (props: any) => {
-const translate = useTranslate();
-const classes = useStyles();
 
 return (
      <>
-          <Step validator={props.validator} {...props}>
+          <Step validator={props.validator} backText="Changes are NOT saved when going back!" {...props}>
                <FormGroupContextProvider name={props.validator}>
-                    <Grid container spacing={0} className={props.classes.content}>
-                         <Grid item xs={12} className={classes.moduleForm}>
-                              <Grid container>
-                                   <Grid item xs={6} className={props.classes.usersTitle}>
-                                        <Typography variant="h6" className={props.classes.fieldTitle}>
-                                             {translate('project.create.layout.add_modules')}
-                                        </Typography>
-                                   </Grid>
-                              </Grid>
-                              <Grid container spacing={2}>
-                                   <Grid item xs={12}>
-                                        <ModuleCreate classes={props.classes}/>
-                                   </Grid>
-                              </Grid>
-                         </Grid>
-                    </Grid>
+                    <FormDataConsumer>
+                         {({ 
+                              formData,
+                              scopedFormData,
+                              getSource,
+                              ...rest 
+                         }: any) => {
+                              return (
+                                   <>
+                                        <ModuleCreator formData={formData} getSource={getSource} />
+                                   </>
+                              )
+                         }}
+                    </FormDataConsumer>
                </FormGroupContextProvider>
           </Step>
      </>
 )}
 
-export default Modules
+export default Modules;

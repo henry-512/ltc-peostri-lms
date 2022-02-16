@@ -3,7 +3,6 @@ import { Create, useTranslate } from "react-admin";
 import Stepper from "../../../components/stepper/Stepper";
 import General from "../steps/General";
 import Modules from "../steps/Modules";
-import Order from "../steps/Order";
 import validateProject from "../validation";
 
 const useStyles = makeStyles(theme => ({
@@ -83,8 +82,6 @@ export default function ProjectCreate(props: any) {
                     <General classes={classes} title={translate('project.create.steps.general')} style={{ width: "100%" }} isTemplate={(typeof search.get('template') == 'string')} validator="general" {...props}/>
 
                     <Modules classes={classes} title={translate('project.create.steps.modules')} className={classes.content} validator="modules" {...props}/>
-
-                    <Order classes={classes} title={translate('project.create.steps.order')} className={classes.content} validator="order" {...props}/>
 
                     {/*<Review classes={classes} title={translate('project.create.steps.review')} className={classes.content} validator="" {...props}/>*/}
                     

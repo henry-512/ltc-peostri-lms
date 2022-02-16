@@ -3,8 +3,6 @@ import {
      DateField,
      TextField,
      DatagridProps,
-     EditButton,
-     DeleteButton,
 } from 'react-admin';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -28,27 +26,8 @@ const useListStyles = makeStyles({
      },
 });
 
-const useButtonStyles = makeStyles(theme => ({
-     root: {
-          minWidth: '0px',
-          width: '100%',
-          padding: '.5rem',
-          textAlign: 'center'
-     },
-     button: {
-          minWidth: '0px',
-          width: '100%',
-          padding: '.5rem',
-          textAlign: 'center'
-     },
-     label: {
-          width: 'auto'
-     }
-}))
-
 const ProjectListGrid = (props: DatagridProps) => {
      const classes = useListStyles();
-     const buttonClasses = useButtonStyles();
 
      return (
           <Datagrid
