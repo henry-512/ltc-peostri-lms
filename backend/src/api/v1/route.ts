@@ -7,7 +7,7 @@ import koaBody from "koa-body"
 
 import { db } from "../../database"
 import { IArangoIndexes, IComment, ICreateUpdate } from "../../lms/types"
-import { generateBase64UUID, generateDBID, isDBId, isDBKey, keyToId } from "../../lms/util"
+import { generateBase64UUID, generateDBID, isDBId, isDBKey, keyToId, splitId } from "../../lms/util"
 
 /**
  * Makes an AQL query representing a return field of the form
