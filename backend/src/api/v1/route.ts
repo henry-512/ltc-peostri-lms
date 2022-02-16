@@ -140,7 +140,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     public async getFromDB(key: string, dereference: boolean) {
         let doc = await this.collection.document(key) as Type
     
-        doc.id = doc._id
+        doc.id = doc._key
         delete doc._key
         delete doc._id
         delete doc._rev
