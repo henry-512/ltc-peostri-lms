@@ -1,0 +1,70 @@
+projects
+,
+    "additionalProperties": false,
+    "required": [
+      "title",
+      "createdAt",
+      "updatedAt",
+      "start",
+      "end",
+      "status",
+      "comments",
+      "modules",
+      "users"
+    ]
+
+comments
+,
+    "additionalProperties": false,
+    "required": [
+      "content",
+      "author",
+      "createdAt",
+      "updatedAt",
+      "parent"
+    ]
+
+fileMetadata
+,
+    "required": [
+      "name",
+      "author",
+      "createdAt",
+      "location"
+    ]
+
+modules
+,
+    "additionalProperties": false,
+    "required": [
+      "title",
+      "tasks",
+      "project"
+    ]
+
+tasks
+,
+    "additionalProperties": false,
+    "required": [
+      "title",
+      "status",
+      "assigned",
+      "module",
+      "type"
+    ]
+
+userGroups
+,
+    "required": [
+      "name",
+      "permissions"
+    ]
+
+users
+,
+    "required": [
+      "firstName",
+      "lastName",
+      "avatar",
+      "userGroup"
+    ]

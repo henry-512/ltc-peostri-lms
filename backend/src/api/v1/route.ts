@@ -212,7 +212,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // String IDs are foreign key references, and should be checked
         if (typeof doc === 'string') {
             // Check if foreign key reference is valid
-            if (await type.class.exists(doc)) {
+            if ((isDBId(doc) || isDBKey(doc)) && await type.class.exists(doc)) {
                 // Convert from key to id
                 if (isDBKey(doc)) {
                     return keyToId(doc, type.class.name)
@@ -263,7 +263,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     doc[type.class.parentKey.local] = <any>parent
                 }
 
-                let childId = `${type.class.name}/${generateBase64UUID()}`
+                let childId = generateDBID(type.class.name)
                 await type.class.addToReferenceMap(childId, doc, map, real)
 
                 return childId
@@ -274,21 +274,21 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     }
 
     private async addToReferenceMap(
-        addDocKey: string,
+        addDocId: string,
         addDoc: Type,
         map: Map<DocumentCollection, IArangoIndexes[]>,
         real: boolean
     ): Promise<Map<DocumentCollection, IArangoIndexes[]>> {
         delete addDoc.id
-        addDoc._id = addDocKey
+        addDoc._id = addDocId
 
         if (this.hasDate) {
             (<ICreateUpdate>addDoc).createdAt = new Date(); //??? ; ???
             (<ICreateUpdate>addDoc).updatedAt = new Date()
         }
 
-        // The database id this document refers to
-        let addDocId = `${this.name}/${addDocKey}`
+        // // The database id this document refers to
+        // let addDocId = `${this.name}/${addDocKey}`
 
         // Loop over the document's foreign fields
         // referencing each one

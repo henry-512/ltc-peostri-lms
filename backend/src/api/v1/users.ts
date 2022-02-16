@@ -10,9 +10,16 @@ class UserRoute extends ApiRoute<IUser> {
             'users',
             'User',
             ['firstName', 'lastName', 'avatar', 'userGroup'],
+
+            // [
+            //     {key:'firstName',default:'',scope:'public'},
+            //     {key:'lastName',default:'',scope:'public'},
+            //     {key:'avatar',default:'',scope:'public'},
+            //     {key:'userGroup',default:'userGroup/',scope:'private'}
+            // ],
             false,
             [
-                {key:'userGroup', class:UserGroupRouteInstance,optional:false}
+                {key:'userGroup',class:UserGroupRouteInstance,optional:false}
             ],
             null,
             null

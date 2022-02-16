@@ -7,6 +7,11 @@ class UserGroupRoute extends ApiRoute<IUserGroup> {
             'userGroups',
             'User Group',
             ['name', 'permissions'],
+
+            // [
+            //     {key:'name',},
+            //     {'permissions'}
+            // ],
             false,
             [],
             null,
