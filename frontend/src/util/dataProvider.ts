@@ -39,7 +39,7 @@ type HTTPClientPromiseReturn = {
      json: any
 }
 
-export default (
+const dataProvider = (
      apiUrl: string,
      httpClient = fetchUtils.fetchJson,
      countHeader: string = 'Content-Range'
@@ -190,3 +190,5 @@ export default (
                data: responses.map(({ json }) => json.id),
           })),
 });
+
+export default dataProvider;

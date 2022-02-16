@@ -25,7 +25,7 @@ export function generateBase64UUID(): string {
             rem = (rem << 2) | (byte & 3)
             // Rightshift byte
             // Range [127,0] -> [63,0]
-            var byte = byte >> 2
+            byte = byte >> 2
             // Get "base64" character from lookup string
             key = key.concat(b64.charAt(byte))
         }
@@ -40,7 +40,7 @@ export function generateBase64UUID(): string {
 
 // Collection names are alphabetic character names
 // DB keys are url/filename-safe base64, alphanumeric with - and _
-const idRegex = new RegExp('^([a-z]|[A-Z])+\/([0-9]|[a-z]|[A-Z]|-|_)+$')
+const idRegex = new RegExp('^([a-z]|[A-Z])+([0-9]|[a-z]|[A-Z]|-|_)+$')
 const keyRegex = new RegExp('^([0-9]|[a-z]|[A-Z]|-|_)+$')
 
 /**

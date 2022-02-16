@@ -1,6 +1,6 @@
 import { Admin, Resource } from 'react-admin';
 import dataProvider from './util/dataProvider';
-import { ProjectList, ProjectCreate } from './pages/project';
+import { ProjectList, ProjectCreate, ProjectEdit } from './pages/project';
 import routes from './util/routes';
 import { Layout } from './components/layout';
 import DashboardComponent from './pages/dashboard';
@@ -29,7 +29,7 @@ const App = () => {
                i18nProvider={i18nProvider}
                disableTelemetry
           >
-               <Resource name='projects' list={ProjectList} create={ProjectCreate} />
+               <Resource name='projects' list={ProjectList} create={ProjectCreate} edit={ProjectEdit} />
                <Resource name="users" />
                <Resource name="userGroups" />
           </Admin>

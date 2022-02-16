@@ -1,12 +1,12 @@
-import { Step } from "../../../../components/stepper/Step";
-import { FormDataConsumer, FormGroupContextProvider, useTranslate } from "react-admin";
-import { OrderContent } from "src/components/orders";
+import { Step } from "../../../components/stepper/Step";
+import { FormDataConsumer, FormGroupContextProvider } from "react-admin";
+import { ModuleCreator } from "src/components/modules";
 
-const Order = (props: any) => {
-const translate = useTranslate();
+const Modules = (props: any) => {
+
 return (
      <>
-          <Step validator={props.validator} {...props}>
+          <Step validator={props.validator} backText="Changes are NOT saved when going back!" {...props}>
                <FormGroupContextProvider name={props.validator}>
                     <FormDataConsumer>
                          {({ 
@@ -17,7 +17,7 @@ return (
                          }: any) => {
                               return (
                                    <>
-                                        <OrderContent formData={formData} getSource={getSource} />
+                                        <ModuleCreator formData={formData} getSource={getSource} />
                                    </>
                               )
                          }}
@@ -27,4 +27,4 @@ return (
      </>
 )}
 
-export default Order
+export default Modules;

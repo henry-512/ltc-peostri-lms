@@ -1,6 +1,6 @@
 import ProjectCreate from './create'
 import ProjectEdit from './edit'
-import ProjectList from './list/ProjectList'
+import ProjectList from './list'
 import ListAltIcon from '@material-ui/icons/ListAlt';
 
 const ProjectIcon = ListAltIcon;

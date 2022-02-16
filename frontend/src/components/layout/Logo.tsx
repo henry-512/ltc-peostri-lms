@@ -2,9 +2,8 @@ import * as React from 'react';
 import { useTranslate } from 'react-admin';
 
 const Logo = (props: any) => {
-    const translate = useTranslate();
     return (
-        <img src="/logo.png" height="32px" />
+        <img src="/logo.png" alt="PEO STRI LOGO" height="32px" />
     );
 };
 

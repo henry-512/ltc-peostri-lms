@@ -18,6 +18,7 @@ const useStyles = makeStyles({
     },
 });
 
+/*
 const ConfigurationMenu = forwardRef<any, any>((props, ref) => {
     const translate = useTranslate();
     return (
@@ -37,6 +38,7 @@ const ActiveUserMenu = (props: any) => (
         
     </UserMenu>
 );
+*/
 
 const CustomAppBar = (props: any) => {
     const classes = useStyles();

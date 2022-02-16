@@ -1,11 +1,8 @@
 import {
-     Identifier,
      Datagrid,
      DateField,
      TextField,
      DatagridProps,
-     EditButton,
-     DeleteButton,
 } from 'react-admin';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -31,22 +28,24 @@ const useListStyles = makeStyles({
 
 const ProjectListGrid = (props: DatagridProps) => {
      const classes = useListStyles();
+
      return (
           <Datagrid
-               rowClick="edit"
                classes={{
                     headerRow: classes.headerRow,
                     headerCell: classes.headerCell,
                     rowCell: classes.rowCell,
                }}
-               optimized
+               rowClick="edit"
                {...props}
           >
                <TextField source="id" />
                <TextField source="title" />
-               <TextField source="createdAt" />
-               <EditButton basePath='/projects' />
-               <DeleteButton basePath='/projects' />
+               <DateField source="createdAt" showTime />
+               <DateField source="updatedAt" showTime />
+               <DateField source="start" />
+               <DateField source="end" />
+               <TextField source="status" />
           </Datagrid>
      );
 };

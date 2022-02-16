@@ -1,10 +1,9 @@
 import { Box, Typography, makeStyles } from "@material-ui/core";
 import React, { useEffect } from "react";
 import { useState } from "react";
-import { useTranslate } from "react-admin";
 import { DragDropContext, Droppable, OnDragEndResponder } from "react-beautiful-dnd";
 import { useForm } from "react-final-form";
-import { IModule, IModuleStep, ITask, ITaskStep } from "src/util/types";
+import { IModule } from "src/util/types";
 import AddStepButton from "./AddStepButton";
 import RemoveStepButton from "./RemoveStepButton";
 import StepMover from "./StepMover";
