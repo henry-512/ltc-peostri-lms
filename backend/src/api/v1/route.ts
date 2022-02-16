@@ -280,7 +280,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         real: boolean
     ): Promise<Map<DocumentCollection, IArangoIndexes[]>> {
         delete addDoc.id
-        addDoc._id = addDocId
+        //addDoc._id = addDocId
+        addDoc._key = splitId(addDocId).key
 
         if (this.hasDate) {
             (<ICreateUpdate>addDoc).createdAt = new Date(); //??? ; ???
