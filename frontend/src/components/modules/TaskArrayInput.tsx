@@ -1,12 +1,9 @@
-import { Grid, makeStyles, Typography } from "@material-ui/core";
-import classNames from "classnames";
+import { Grid, makeStyles } from "@material-ui/core";
 import get from "lodash.get";
-import module from "module";
-import RichTextInput from "ra-input-rich-text";
 import { useEffect, useState } from "react";
-import { ArrayInput, FileField, FileInput, FormDataConsumer, maxLength, minLength, ReferenceArrayInput, ReferenceInput, required, SelectInput, SimpleFormIterator, TextInput, useTranslate } from "react-admin";
+import { ArrayInput, FormDataConsumer, maxLength, minLength, ReferenceArrayInput, ReferenceInput, required, SelectInput, SimpleFormIterator, TextInput, useTranslate } from "react-admin";
 import { useForm } from "react-final-form";
-import { AutoAssignArrayInput, TaskLabel, WaiverInput } from ".";
+import { AutoAssignArrayInput, TaskLabel } from ".";
 import { RemoveButton } from "../buttons/RemoveButton";
 import IDField from "./IDField";
 
@@ -71,9 +68,9 @@ const TaskArrayInput = (props: any) => {
 
      const getInitialValues = () => {
           const formValues = form.getState().values;
-          let values = formValues.modules;
+          let values = get(formValues, props.source);
 
-          if (!get(formValues, props.source) || get(formValues, props.source).length <= 0) {
+          if (!values || get(formValues, props.source).length <= 0) {
                values = [{}]
           }
 

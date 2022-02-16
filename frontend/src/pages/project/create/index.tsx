@@ -1,11 +1,10 @@
 import { makeStyles } from "@material-ui/core";
 import { Create, useTranslate } from "react-admin";
 import Stepper from "../../../components/stepper/Stepper";
-import General from "./steps/General";
-import Modules from "./steps/Modules";
-import Order from "./steps/Order";
-import Review from "./steps/Review";
-import validateProjectCreation from "./validateProjectCreation";
+import General from "../steps/General";
+import Modules from "../steps/Modules";
+import Order from "../steps/Order";
+import validateProject from "../validation";
 
 const useStyles = makeStyles(theme => ({
      root: {},
@@ -79,7 +78,7 @@ export default function ProjectCreate(props: any) {
 
      return (
           <Create title={translate('project.create.title')} {...props} transform={transform}>
-               <Stepper validate={validateProjectCreation}>
+               <Stepper validate={validateProject}>
 
                     <General classes={classes} title={translate('project.create.steps.general')} style={{ width: "100%" }} isTemplate={(typeof search.get('template') == 'string')} validator="general" {...props}/>
 

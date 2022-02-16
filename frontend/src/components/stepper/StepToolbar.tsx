@@ -1,7 +1,6 @@
 import { Box, Typography } from "@material-ui/core"
 import { MouseEventHandler } from "react";
 import { Button, SaveButton, Toolbar, ToolbarProps, useFormGroup, useTranslate } from "react-admin"
-import { useForm } from "react-final-form";
 
 export interface StepToolbarProps extends ToolbarProps {
      active: number;

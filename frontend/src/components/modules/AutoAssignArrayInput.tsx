@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { AutocompleteArrayInput, useReferenceArrayInputContext } from "react-admin";
 import { useForm } from "react-final-form";
 
@@ -20,6 +21,7 @@ const AutoAssignArrayInput = (props: any): JSX.Element => {
      const autoAssign = () => {
           if (!formData.auto_assign) return;
           if (!formData.users) return;
+          if (!formData[props.mName][props.mID][props.tName][props.tID]) return;
           if (!formData[props.mName][props.mID][props.tName][props.tID].userGroup) return;
 
           choices.forEach((user: any, i: number) => {
@@ -31,7 +33,9 @@ const AutoAssignArrayInput = (props: any): JSX.Element => {
           })
      }
 
-     autoAssign();
+     useEffect(() => {
+          autoAssign();
+     });
 
      return (
           <>

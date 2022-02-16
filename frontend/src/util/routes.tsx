@@ -1,8 +1,8 @@
-// Custom Routes Template 
 // TODO: Add custom routes.
-import * as React from "react";
 import { Route } from 'react-router-dom';
-export default [
+const Routes = [
     <Route exact path="/foo"  />,
     <Route exact path="/bar" />,
 ];
+
+export default Routes

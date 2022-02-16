@@ -1,5 +1,4 @@
 import {
-     Identifier,
      Datagrid,
      DateField,
      TextField,
@@ -33,20 +32,22 @@ const ProjectListGrid = (props: DatagridProps) => {
      const classes = useListStyles();
      return (
           <Datagrid
-               rowClick="edit"
                classes={{
                     headerRow: classes.headerRow,
                     headerCell: classes.headerCell,
                     rowCell: classes.rowCell,
                }}
-               optimized
                {...props}
           >
                <TextField source="id" />
                <TextField source="title" />
-               <TextField source="createdAt" />
-               <EditButton basePath='/projects' />
-               <DeleteButton basePath='/projects' />
+               <DateField source="createdAt" showTime />
+               <DateField source="updatedAt" showTime />
+               <DateField source="start" />
+               <DateField source="end" />
+               <TextField source="status" />
+               <EditButton basePath='/' label="" />
+               <DeleteButton basePath='/' label="" />
           </Datagrid>
      );
 };

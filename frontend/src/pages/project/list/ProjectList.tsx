@@ -1,9 +1,4 @@
-import { Drawer, makeStyles } from '@material-ui/core';
-import classnames from 'classnames';
-import React, { useCallback } from 'react';
-import { List, Datagrid, TextField, EditButton, DeleteButton, ListProps } from 'react-admin';
-import { Route, RouteChildrenProps, useHistory } from 'react-router';
-import ProjectEdit from '../edit';
+import { List, ListProps } from 'react-admin';
 import ProjectListGrid from './ProjectListGrid';
 
 const ProjectList = (props: ListProps) => {

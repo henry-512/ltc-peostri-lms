@@ -1,6 +1,6 @@
 import { IProject } from "src/util/types";
 
-export default function validateProjectCreation(project: IProject) {
+export default function validateProject(project: IProject) {
      const errors: any = {};
 
      if (!project.title) {
