@@ -7,7 +7,18 @@ import koaBody from "koa-body"
 
 import { db } from "../../database"
 import { IArangoIndexes, IComment, ICreateUpdate } from "../../lms/types"
-import { generateBase64UUID, generateDBID, isDBId, isDBKey, keyToId } from "../../lms/util"
+import { generateDBID, isDBId, isDBKey, keyToId, splitId } from "../../lms/util"
+import { CommentRouteInstance } from "./comments"
+
+interface DBData {
+    type:'string' | 'boolean' | 'object' | 'fkey' | 'fkeyArray' | 'fkeyStep',
+    optional?:boolean,
+    default?:any,
+    hideGetAll?:boolean,
+    hideGetId?:boolean,
+    hideGetRef?:boolean,
+    isForeign?:boolean,
+}
 
 /**
  * Makes an AQL query representing a return field of the form
@@ -47,35 +58,63 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     protected collection: DocumentCollection<Type>
     protected getAllQueryFields: GeneratedAqlQuery
 
+    // Caches
+    private fieldEntries:[string, DBData][]
+    private foreignEntries:[string, ApiRoute<IArangoIndexes>][]
+
     /**
      * @param name Database name
      * @param dname Display name, returned from requests and logs
-     * @param visibleFields All fields associated with the db type that are visible to normal situations. Used to determine what fields are in the object.
+     * @param fields All fields associated with the db type and their relevant data
      * @param hasDate True if Type has a createdAt and updatedAt field
-     * @param foreignFields Array of fields that are foreign keys. Key refers to the field key in Type, class refers to the ApiRoute that matches the DB field
-     * @param parentKey If Type stores its parent type, local refers to the key in Type and foreign is the key in the referenced type
-     * @param step If Type has a Step reference object, this is the name of its local key. This key should also be in foreignFields along with its class.
+     * @param foreignFields Maps a local key to its foreign key and API class
      * 
      */
     constructor(
         protected name: string,
         protected dname: string,
-        protected visibleFields: string[],
-        protected hasDate: boolean,
-        private foreignFields: {
-            key:string
-            class:ApiRoute<IArangoIndexes>,
-            optional:boolean
-        }[],
-        private parentKey: null | {
-            local:string
-            foreign:string
+        protected fields: {
+            [key:string]: DBData
         },
-        private foreignStep: null | string
+        /**
+         * Create/Update timestamp
+         */
+        protected hasCUTimestamp: boolean,
+        /**
+         * These fields should exist in fields.
+         *
+         */
+        private foreignClasses: {
+            [local:string] : ApiRoute<IArangoIndexes>
+        },
+        private parentField: null | {
+            local:string, foreign:string
+        }
     ) {
+        if (this.hasCUTimestamp) {
+            fields['createdAt'] = {type:'string'}
+            fields['updatedAt'] = {type:'string'}
+        }
+
         this.collection = db.collection(this.name)
-        this.getAllQueryFields = appendReturnFields(aql`id:z._id,`, this.visibleFields)
-        instances[name] = this
+        this.fieldEntries = Object.entries(this.fields)
+        this.foreignEntries = Object.entries(this.foreignClasses)
+
+        let gaKeys:string[] = []
+        for (let [key,data] of this.fieldEntries) {
+            if (!data.hideGetAll) {
+                gaKeys = gaKeys.concat(key)
+            }
+            if (key in this.foreignClasses) {
+                data.isForeign = true
+            }
+        }
+
+        if (this.parentField) {
+            this.fields[this.parentField.local].isForeign = true
+        }
+
+        this.getAllQueryFields = appendReturnFields(aql`id:z._key,`, gaKeys)
     }
 
     protected getAllQuery(
@@ -92,6 +131,29 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     public async exists(id: string) {
         return this.collection.documentExists(id)
     }
+
+    // /**
+    //  * Converts all IDs (with collection) in the document to keys
+    //  * (without collection)
+    //  */
+    // private convertIds(doc:Type) {
+    //     if (!doc.id || !isDBId(doc.id)) {
+    //         throw new TypeError(`Id invalid ${doc}`)
+    //     }
+
+    //     for (let [key,cls] of this.foreignEntries) {
+    //         if (key in doc) {
+    //             let local = key as keyof Type
+    //             let foreign = doc[local]
+
+    //             switch (foreign) {
+
+    //             }
+    //         } else {
+    //             console.warn(`${key} dne in doc`)
+    //         }
+    //     }
+    // }
 
     /**
      * Retrieves a query from the server, following the passed parameters.
@@ -110,8 +172,11 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // q.filter
 
         if (q.sort && q.sort.length == 2) {
-            if (this.visibleFields.includes(q.sort[0])) {
-                sort = aql`${q.sort[0]}`
+            for (let [key] of this.fieldEntries) {
+                if (key === q.sort[0]) {
+                    sort = aql`${q.sort[0]}`
+                    break
+                }
             }
             sortDir = q.sort[1] === 'DESC' ? ApiRoute.DESC : ApiRoute.ASC
         }
@@ -133,185 +198,205 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
 
     /**
      * Gets the document with the passed key from the database
-     * @param key A (valid) db key for the document
+     * @param id A (valid) db id for the document
      * @param dereference If true, dereference all foreign keys in this and all other documents
      * @return A Type representing a document with key, with .id set and ._* removed
      */
-    public async getFromDB(key: string, dereference: boolean) {
-        let doc = await this.collection.document(key) as Type
+    public async getFromDB(id: string, dereference: boolean) {
+        let doc = await this.collection.document(id) as Type
     
-        doc.id = doc._id
+        doc.id = doc._key
         delete doc._key
         delete doc._id
         delete doc._rev
     
-        if (dereference) {
-            /**
-             * Local function to dereference the passed id corresponding to
-             * the passed route.
-             */
-            async function deref(k:string, r:ApiRoute<IArangoIndexes>) {
-                if (isDBId(k)) {
-                    return r.getFromDB(<string><unknown>k, true)
-                } else {
-                    throw new TypeError(`Foreign key [${k}] is not a valid id. Did you forget the collection name? (name/key)`)
-                }
-            }
-
-            // Loop over the foreign keys
-            for (let c of this.foreignFields) {
-                if (!(c.key in doc)) {
-                    if (c.optional) {
-                        continue
-                    }
-                    throw new TypeError(`${c.key} should exist in ${JSON.stringify(doc)}, but does not`)
-                }
-
-                // Key is the foreign key property of Type
-                let key = c.key as keyof Type
-                // An array or string representing the foreign keys
-                let foreign = doc[key]
-        
-                // Dereference string id
-                if (typeof foreign === 'string') {
-                    doc[key] = <any>await deref(foreign, c.class)
-                // Dereference array of string ids
-                } else if (Array.isArray(foreign)) {
-                    // For each foreign key in the array, retrieve it from the database; then store the documents (as an array) back in doc[key]
-                    doc[key] = <any>await Promise.all((<string[]>foreign).map(async (k:string) => deref(k, c.class)))
-                // Dereference a step object
-                } else if (key === this.foreignStep && typeof foreign === 'object') {
-                    let temp:any = {}
-                    for (let [stepId, stepArray] of Object.entries(foreign)) {
-                        if (Array.isArray(stepArray)) {
-                            temp[stepId] = <any>await Promise.all((<string[]>stepArray).map(async (k:string) => deref(k, c.class)))
-                        } else {
-                            throw new TypeError(`${stepArray} is not an array`)
-                        }
-                    }
-                    doc[key] = <any>temp
-                } else {
-                    throw new TypeError(`${JSON.stringify(foreign)} is not a foreign key string or array`)
-                }
+        if (!dereference) {
+            return doc
+        }
+        /**
+         * Local function to dereference the passed id corresponding to
+         * the passed route.
+         */
+        async function deref(k:string, r:ApiRoute<IArangoIndexes>) {
+            if (isDBId(k)) {
+                return <any>r.getFromDB(<string><unknown>k, true)
+            } else {
+                throw new TypeError(`Foreign key [${k}] is not a valid id. Did you forget the collection name? (name/key)`)
             }
         }
-    
+
+        // Loop over the foreign keys
+        for (let [fkey,forData] of this.foreignEntries) {
+            let data = this.fields[fkey]
+
+            if (!(fkey in doc)) {
+                if (data.optional) {
+                    console.warn(`Optional field [${fkey}] dne`)
+                    continue
+                }
+                throw new TypeError(`Field ${fkey} dne in ${JSON.stringify(doc)}`)
+            }
+
+            // key of doc pointing to 
+            let localKey = fkey as keyof Type
+            // An array or string representing the foreign keys
+            let foreign = doc[localKey]
+
+            let foreignType = data.type
+
+            switch (foreignType) {
+                // Single foreign key
+                case 'fkey':
+                    if (typeof foreign === 'string') {
+                        let cls = this.foreignClasses[localKey as string]
+                        doc[localKey] = await deref(foreign, cls)
+                        break
+                    }
+                    throw new TypeError(`${JSON.stringify(foreign)} was expected to be a string`)
+                // Foreign key array
+                case 'fkeyArray':
+                    if (Array.isArray(foreign)) {
+                        // For each foreign key in the array, retrieve it from the database; then store the documents (as an array) back in doc[key]
+                        let cls = this.foreignClasses[localKey as string]
+                        doc[localKey] = <any>await Promise.all(foreign.map(async k => deref(k, cls)))
+                        break
+                    }
+                    throw new TypeError(`${JSON.stringify(foreign)} was expected to be an array`)
+                // Foreign key step object
+                case 'fkeyStep':
+                    if (typeof foreign === 'object') {
+                        let cls = this.foreignClasses[localKey as string]
+
+                        let temp:any = {}
+                        for (let [stepId, stepArray] of Object.entries(foreign)) {
+                            if (Array.isArray(stepArray)) {
+                                temp[stepId] = <any>await Promise.all((<string[]>stepArray).map(async (k:string) => deref(k, cls)))
+                            } else {
+                                throw new TypeError(`${stepArray} is not an array`)
+                            }
+                        }
+                        doc[localKey] = <any>temp
+                        break
+                    }
+                    throw new TypeError(`${JSON.stringify(foreign)} was expected to be a step object`)
+                default:
+                    throw new TypeError(`${JSON.stringify(foreign)} not of type ${foreignType}`)
+            }
+        }
         return doc
     }
 
     /**
-     * 
+     * Adds the passed document, with its id, to the map
+     * @param addDocId The db id for the document
+     * @param addDoc The document to add to the map
+     * @param map The map to add to
      */
-    async parseDoc(
-        map: Map<DocumentCollection, IArangoIndexes[]>,
-        parent:string,
-        doc:any,
-        type:{key:string,class:ApiRoute<IArangoIndexes>},
-        real:boolean
-    ): Promise<string> {
-        // String IDs are foreign key references, and should be checked
-        if (typeof doc === 'string') {
-            // Check if foreign key reference is valid
-            if ((isDBId(doc) || isDBKey(doc)) && await type.class.exists(doc)) {
-                // Convert from key to id
-                if (isDBKey(doc)) {
-                    return keyToId(doc, type.class.name)
+    private async addToReferenceMap(
+        addDocId: string,
+        addDoc: Type,
+        map: Map<DocumentCollection, IArangoIndexes[]>
+    ): Promise<void> {
+        delete addDoc.id
+        //addDoc._id = addDocId
+        addDoc._key = splitId(addDocId).key
+
+        if (this.hasCUTimestamp) {
+            (<ICreateUpdate>addDoc).createdAt = new Date(); //??? ; ???
+            (<ICreateUpdate>addDoc).updatedAt = new Date()
+        }
+
+        async function ref(doc:any, cls:ApiRoute<IArangoIndexes>) {
+            if (typeof doc === 'string') {
+                // Check if foreign key reference is valid
+                if ((isDBId(doc) || isDBKey(doc)) && await cls.exists(doc)) {
+                    // Convert from key to id
+                    return isDBKey(doc) ? keyToId(doc, cls.name) : doc
                 }
-                return doc
-            } else {
                 // NOTE: If this is supposed to be a comment reference
-                // but does not exist, this generates a comment with
-                // content as its id.
-                if (type.class.name === 'comments') {
-                    let childId = generateDBID(type.class.name)
+                // but does not exist, this generates a comment.
+                if (cls === CommentRouteInstance) {
+                    let childId = generateDBID(cls.name)
                     // TODO: input validation
                     let com: IComment = {
                         content: doc,
                         // TODO: Make this into user validation
                         author: 'users/0123456789012345678900',
-                        parent: parent
+                        parent: addDocId
                     }
-                    await type.class.addToReferenceMap(childId, com, map, real)
+                    await cls.addToReferenceMap(childId, com, map)
                     return childId
                 }
                 throw new TypeError(`Foreign key [${doc}] does not exist`)
-            }
-        // Objects are fully-formed documents
-        } else if (typeof doc === 'object') {
-            // A step array is of the form
-            // [order: string]: IArangoIndexes[]
-            // So we need to loop over the keys, then over the array
-            if (type.key === this.foreignStep) {
-                let temp:any = {}
-                for (let [stepId, stepArray] of Object.entries(doc)) {
-                    if (Array.isArray(stepArray)) {
-                        temp[stepId] = await Promise.all(stepArray.map(
-                            t2 => this.parseDoc(map, parent, t2, {
-                                key: '', class:type.class
-                            }, real))
-                        )
-                    } else {
-                        throw new TypeError(`${stepArray} is not an array`)
-                    }
-                }
-                return temp
-            } else {
-                if (type.class.parentKey) {
+            // Objects are fully-formed documents
+            } else if (typeof doc === 'object') {
+                if (cls.parentField) {
                     // We're assigning the parent/module/project field
                     // of documents here, so they hold references to
                     // their parent.
-                    doc[type.class.parentKey.local] = <any>parent
+                    doc[cls.parentField.local] = addDocId
                 }
 
-                let childId = generateDBID(type.class.name)
-                await type.class.addToReferenceMap(childId, doc, map, real)
+                let childId = generateDBID(cls.name)
+                await cls.addToReferenceMap(childId, doc, map)
 
                 return childId
             }
-        } else {
             throw new TypeError(`${doc} is not a foreign document or reference`)
         }
-    }
 
-    private async addToReferenceMap(
-        addDocId: string,
-        addDoc: Type,
-        map: Map<DocumentCollection, IArangoIndexes[]>,
-        real: boolean
-    ): Promise<Map<DocumentCollection, IArangoIndexes[]>> {
-        delete addDoc.id
-        addDoc._id = addDocId
-
-        if (this.hasDate) {
-            (<ICreateUpdate>addDoc).createdAt = new Date(); //??? ; ???
-            (<ICreateUpdate>addDoc).updatedAt = new Date()
-        }
-
-        // // The database id this document refers to
-        // let addDocId = `${this.name}/${addDocKey}`
-
-        // Loop over the document's foreign fields
-        // referencing each one
-        for (let typeForeignField of this.foreignFields) {
-            if (!(typeForeignField.key in addDoc)) {
-                if (typeForeignField.optional) {
-                    continue
-                }
-                throw new TypeError(`${typeForeignField.key} should exist in ${addDoc}, but does not`)
+        //for (let [local,cls] of this.foreignEntries) {
+        for (let [key,data] of this.fieldEntries) {
+            if (!data.isForeign) {
+                continue
             }
 
-            // An array, string, or doc representing the foreign keys
-            // EX project.modules: string[], comment.parent: string
-            let temp = addDoc[typeForeignField.key as keyof Type]
+            if (!(key in addDoc)) {
+                if (data.optional) {
+                    console.warn(`optional key ${key} dne`)
+                }
+                throw new TypeError(`${key} dne in ${addDoc}`)
+            }
 
-            if (Array.isArray(temp)) {
-                addDoc[typeForeignField.key as keyof Type]
-                    = <any>await Promise.all(
-                        temp.map(loopDoc => this.parseDoc(map, addDocId, loopDoc, typeForeignField, real)
-                    ))
-            } else {
-                addDoc[typeForeignField.key as keyof Type]
-                    = <any>await this.parseDoc(map, addDocId, temp, typeForeignField, real)
+            // key of doc pointing to
+            let localKey = key as keyof Type
+            // A foreign key type
+            let foreign = addDoc[localKey]
+
+            switch (data.type) {
+                // Ref single doc
+                case 'fkey':
+                    if (typeof foreign === 'object') {
+                        addDoc[localKey] = <any>await ref(foreign, this.foreignClasses[key])
+                        break
+                    }
+                    throw new TypeError(`${foreign} expected to be a document`)
+                // Ref array of docs
+                case 'fkeyArray':
+                    if (Array.isArray(foreign)) {
+                        addDoc[localKey] = <any>await Promise.all(foreign.map(
+                            lpDoc => ref(lpDoc, this.foreignClasses[key])
+                        ))
+                        break
+                    }
+                    throw new TypeError(`${foreign} expected to be an array`)
+                // Ref step obj of docs
+                case 'fkeyStep':
+                    if (typeof foreign === 'object') {
+                        let temp:any = {}
+                        for (let [stepId, stepAr] of Object.entries(foreign)) {
+                            if (Array.isArray(stepAr)) {
+                                temp[stepId] = <any>await Promise.all(stepAr.map(
+                                    lpDoc => ref(lpDoc, this.foreignClasses[key])
+                                ))
+                            } else {
+                                throw new TypeError(`${stepAr} expected to be an array`)
+                            }
+                        }
+                        return temp
+                    }
+                default:
+                    throw new TypeError(`INTERNAL ERROR: ${data} has invalid type.`)
             }
         }
 
@@ -321,26 +406,26 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         } else {
             map.set(this.collection, [addDoc])
         }
-
-        return map
     }
 
-    protected async create(key: string, doc: Type, real: boolean) {
+    protected async create(id: string, doc: Type, real: boolean) {
         // The passed document has a parent key, so we need to
         // update the parent to include this document
-        if (this.parentKey && this.parentKey.local in doc) {
-            // TODO
-        }
+        // if (this.parentKey && this.parentKey.local in doc) {
+        //     // TODO
+        // }
 
         // Turns a fully-dereferenced document into a reference
         // document
-        let map = await this.addToReferenceMap(key, doc, new Map(), real)
+        let map = new Map()
+        await this.addToReferenceMap(id, doc, map)
 
         if (real) {
             // Saves each document in the map to its respective collection
             for (let [col, docs] of map) {
                 for (let doc of docs) {
                     console.log(`Saving ${col.name} | ${JSON.stringify(doc)}`)
+                    // TODO: Delete docs on failed save
                     await col.save(doc)
                 }
             }
@@ -359,12 +444,12 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // automatically for us :)
 
         // TODO: update parent
-        if (this.parentKey) {
-            //if ()
-        }
+        // if (this.parentKey) {
+        //     //if ()
+        // }
 
         // Update the date if necessary
-        if (this.hasDate) {
+        if (this.hasCUTimestamp) {
             (<ICreateUpdate>doc).updatedAt = new Date()
         }
 
@@ -380,9 +465,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // TODO
         // Delete children
         // Update parent
-        if (this.parentKey) {
-            console.log('delete from parent')
-        }
+        // if (this.parentKey) {
+        //     console.log('delete from parent')
+        // }
 
         if (real) {
             await this.collection.remove(key)

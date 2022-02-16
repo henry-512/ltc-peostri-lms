@@ -71,6 +71,7 @@ export interface IModule extends IArangoIndexes {
      comments: Array<string> | Array<IComment>;
      project?: string | IProject;
      status: Status | "WAIVED";
+     waived: boolean;
 }
 
 export interface IProject extends IArangoIndexes, ICreateUpdate {

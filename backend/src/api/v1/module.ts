@@ -8,14 +8,20 @@ class ModuleRoute extends ApiRoute<IModule> {
         super(
             'modules',
             'Module',
-            ['title', 'tasks', 'comments', 'project', 'status', 'steps'],
+            {
+                'title':{type:'string'},
+                'tasks':{type:'fkeyStep'},
+                'comments':{type:'fkeyArray',optional:true,default:{}},
+                'project':{type:'fkey'},
+                'status':{type:'string'},
+                'waived':{type:'boolean'}
+            },
             false,
-            [
-                {key:'tasks', class:TaskRouteInstance,optional:false},
-		        {key:'comments', class:CommentRouteInstance,optional:true}
-            ],
-            {local:'project', foreign:'modules'},
-            'tasks'
+            {
+                'tasks': TaskRouteInstance,
+		        'comments': CommentRouteInstance
+            },
+            {local:'project',foreign:'modules'}
         )
     }
 }

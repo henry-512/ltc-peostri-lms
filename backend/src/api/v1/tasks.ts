@@ -7,13 +7,18 @@ class TaskRoute extends ApiRoute<ITask> {
         super(
             'tasks',
             'Task',
-            ['title', 'status', 'assigned', 'module', 'type'],
+            {
+                'title':{type:'string'},
+                'status':{type:'string',default:'AWAITING'},
+                'users':{type:'fkeyArray',default:[]},
+                'module':{type:'fkey'},
+                'type':{type:'string'}
+            },
             false,
-            [
-                {key:'assigned', class:UserRouteInstance,optional:true}
-            ],
-            {local:'module',foreign:'tasks'},
-            null
+            {
+                'users': UserRouteInstance
+            },
+            {local:'module',foreign:'tasks'}
         )
     }
 }

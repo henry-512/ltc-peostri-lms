@@ -4,20 +4,29 @@ import { ModuleRouteInstance } from "./module";
 import { ApiRoute } from "./route";
 import { UserRouteInstance } from "./users";
 
+// default status AWAITING
+
 class ProjectRoute extends ApiRoute<IProject> {
     constructor() {
         super(
             'projects',
             'Project',
-            ['title', 'createdAt', 'updatedAt', 'start', 'end', 'status', 'comments', 'modules', 'users'],
+            {
+                'title':{type:'string'},
+                'start':{type:'string'},
+                'end':{type:'string'},
+                'status':{type:'string'},
+                'comments':{type:'fkeyArray'},
+                'modules':{type:'fkeyStep'},
+                'users':{type:'fkeyArray'}
+            },
             true,
-            [
-                {key:'comments', class:CommentRouteInstance,optional:true},
-                {key:'modules', class:ModuleRouteInstance,optional:false},
-                {key:'users', class:UserRouteInstance,optional:true}
-            ],
-            null,
-            'modules'
+            {
+                'comments': CommentRouteInstance,
+                'modules': ModuleRouteInstance,
+                'users': UserRouteInstance
+            },
+            null
         )
     }
 }

@@ -6,15 +6,16 @@ class UserGroupRoute extends ApiRoute<IUserGroup> {
         super(
             'userGroups',
             'User Group',
-            ['name', 'permissions'],
-
-            // [
-            //     {key:'name',},
-            //     {'permissions'}
-            // ],
+            {
+                'name':{type:'string',default:'New User Group'},
+                'permissions':{type:'object',default:{
+                    'perm1':false,
+                    'perm2':false,
+                    'perm3':false
+                },hideGetRef:true}
+            },
             false,
-            [],
-            null,
+            {},
             null
         )
     }

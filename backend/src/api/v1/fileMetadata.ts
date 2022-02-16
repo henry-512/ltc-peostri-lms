@@ -7,12 +7,15 @@ class FileMetadataRoute extends ApiRoute<IFileMetadata> {
         super(
             'fileMetadata',
             'File Metadata',
-            ['name', 'author', 'createdAt', 'location'],
+            {
+                'name':{type:'string'},
+                'author':{type:'fkey'},
+                'location':{type:'string'}
+            },
             true,
-            [
-                {key:'author', class:UserRouteInstance, optional:false}
-            ],
-            null,
+            {
+                'author': UserRouteInstance
+            },
             null
         )
     }
