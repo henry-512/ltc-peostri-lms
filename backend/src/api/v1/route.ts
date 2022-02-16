@@ -18,6 +18,8 @@ interface DBData {
     hideGetId?:boolean,
     hideGetRef?:boolean,
     isForeign?:boolean,
+    // True if this foreign object reference can be freely deleted
+    freeable?:boolean,
 }
 
 /**
@@ -41,7 +43,7 @@ function appendReturnFields(q:GeneratedAqlQuery, fields: string[]) {
  * @returns The corresponding ApiRoute
  */
 export function getApiInstanceFromId(id: string): ApiRoute<IArangoIndexes> {
-    return instances[id.split('/')[0]]
+    return instances[splitId(id).col]
 }
 const instances: {[name:string]: ApiRoute<IArangoIndexes>} = {}
 
@@ -246,9 +248,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             // An array or string representing the foreign keys
             let foreign = doc[localKey]
 
-            let foreignType = data.type
-
-            switch (foreignType) {
+            switch (data.type) {
                 // Single foreign key
                 case 'fkey':
                     if (typeof foreign === 'string') {
@@ -270,7 +270,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                         let temp:any = {}
                         for (let [stepId, stepArray] of Object.entries(foreign)) {
                             if (Array.isArray(stepArray)) {
-                                temp[stepId] = <any>await Promise.all((<string[]>stepArray).map(async (k:string) => deref(k, cls)))
+                                temp[stepId] = <any>await Promise.all(
+                                    stepArray.map(k => deref(k, cls))
+                                )
                             } else {
                                 throw new TypeError(`${stepArray} is not an array`)
                             }
@@ -350,7 +352,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             let localKey = key as keyof Type
             
             if (!(key in addDoc)) {
-                if (data.default) {
+                if (data.default !== undefined) {
                     console.warn(`Using default ${data.default} for ${key}`)
                     addDoc[localKey] = <any>data.default
                     continue
@@ -490,25 +492,102 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             console.log(`collection ${this.name} id ${key} updated to ${doc}`)
         }
     }
+    
+    private async addReference(id:string, field:string, real:boolean) {
+        throw new Error(`method not implemented lol`)
+    }
 
-    protected async delete(key: string, real: boolean) {
-        let doc = this.getUnsafe(key)
+    private async removeReference(id:string, field:string, real:boolean) {
+        throw new Error(`method not implemented lol`)
+    }
 
-        // TODO
+    /**
+     * Deletes a document and all its associated documents
+     * @param base True if this is the base call (ie the call that should
+     *  update parent fields)
+     */
+    protected async delete(key: string, real: boolean, base: boolean) {
+        if (!await this.exists(key)) {
+            console.warn(`Document with id ${key} dne, due to malformed document`)
+            return
+        }
+
+        let doc = await this.getUnsafe(key)
+
         // Delete children
-        // for (let [fkey,cls] of this.foreignEntries) {
-        //     if (!(fkey in doc) {
+        for (let [fkey,cls] of this.foreignEntries) {
+            let data = this.fields[fkey]
+            
+            if (!data.freeable) {
+                continue
+            }
 
-        //     }
-        // }
+            if (!(fkey in doc)) {
+                console.warn(`foreign key ${fkey} dne`)
+                continue
+            }
 
+            let localKey = fkey as keyof Type
+            let foreign = doc[localKey]
+
+            switch (data.type) {
+                case 'fkey':
+                    if (typeof foreign === 'string') {
+                        await cls.delete(foreign, real, false)
+                        break
+                    }
+                    throw new TypeError(`${JSON.stringify(foreign)} was expected to be a string`)
+                    
+                case 'fkeyArray':
+                    if (Array.isArray(foreign)) {
+                        await Promise.all(foreign.map(
+                            d => cls.delete(d, real, false)
+                        ))
+                        break
+                    }
+                    throw new TypeError(`${JSON.stringify(foreign)} was expected to be an array`)
+                case 'fkeyStep':
+                    if (typeof foreign === 'object') {
+                        for (let [_,sAr] of Object.entries(foreign)) {
+                            if (Array.isArray(sAr)) {
+                                await Promise.all(
+                                    sAr.map(d => cls.delete(d, real, false))
+                                )
+                            } else {
+                                throw new TypeError(`${sAr} is not an array`)
+                            }
+                        }
+                        break
+                    }
+                    throw new TypeError(`${JSON.stringify(foreign)} was expected to be a step object`)
+                default:
+                    throw new TypeError(`INTERNAL ERROR: ${data} has invalid type.`)
+            }
+        }
 
         // Update parent
-        // if (this.parentKey) {
-        //     console.log('delete from parent')
-        // }
+        // The original call is the only one that should update
+        // the parent field
+        if (base && this.parentField) {
+            let localId = this.parentField.local
+            if (localId in doc) {
+                let parentId = (<any>doc)[localId]
+                if (!isDBId(parentId)) {
+                    throw new TypeError(`parent id ${parentId} invalid`)
+                }
+                await getApiInstanceFromId(parentId)
+                    .removeReference(
+                        doc._id as string,
+                        this.parentField.foreign,
+                        real
+                    )
+            } else {
+                throw new TypeError(`parent id key ${localId} dne in ${doc}`)
+            }
+        }
 
         if (real) {
+            console.log(`DELETING ${this.name} | ${key} | ${doc}`)
             await this.collection.remove(key)
         } else {
             console.log(`collection ${this.name} id ${key} deleted`)
@@ -586,10 +665,10 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 ctx.status = 500
             }
         })
-        .delete('/', async (ctx) => {
+        .delete('/:id', async (ctx) => {
             try {
                 if (await this.exists(ctx.params.id)) {
-                    await this.delete(ctx.params.id, ctx.header['user-agent'] !== 'backend-testing')
+                    await this.delete(ctx.params.id, ctx.header['user-agent'] !== 'backend-testing', true)
                     ctx.status = 200
                     ctx.body = `${this.dname} deleted`
                 } else {

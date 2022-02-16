@@ -10,11 +10,20 @@ class ModuleRoute extends ApiRoute<IModule> {
             'Module',
             {
                 'title':{type:'string'},
-                'tasks':{type:'fkeyStep'},
-                'comments':{type:'fkeyArray',optional:true,default:{}},
+                'tasks':{type:'fkeyStep',freeable:true},
+                'comments':{
+                    type:'fkeyArray',
+                    optional:true,
+                    default:{},
+                    freeable:true
+                },
                 'project':{type:'parent'},
                 'status':{type:'string'},
-                'waived':{type:'boolean',optional:true,default:false}
+                'waived':{
+                    type:'boolean',
+                    optional:true,
+                    default:false
+                }
             },
             false,
             {
