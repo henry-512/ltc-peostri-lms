@@ -74,7 +74,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         private foreignStep: null | string
     ) {
         this.collection = db.collection(this.name)
-        this.getAllQueryFields = appendReturnFields(aql`id:z._id,`, this.visibleFields)
+        this.getAllQueryFields = appendReturnFields(aql`id:z._key,`, this.visibleFields)
         instances[name] = this
     }
 
