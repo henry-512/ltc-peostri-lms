@@ -28,8 +28,28 @@ const useListStyles = makeStyles({
      },
 });
 
+const useButtonStyles = makeStyles(theme => ({
+     root: {
+          minWidth: '0px',
+          width: '100%',
+          padding: '.5rem',
+          textAlign: 'center'
+     },
+     button: {
+          minWidth: '0px',
+          width: '100%',
+          padding: '.5rem',
+          textAlign: 'center'
+     },
+     label: {
+          width: 'auto'
+     }
+}))
+
 const ProjectListGrid = (props: DatagridProps) => {
      const classes = useListStyles();
+     const buttonClasses = useButtonStyles();
+
      return (
           <Datagrid
                classes={{
@@ -37,6 +57,7 @@ const ProjectListGrid = (props: DatagridProps) => {
                     headerCell: classes.headerCell,
                     rowCell: classes.rowCell,
                }}
+               rowClick="edit"
                {...props}
           >
                <TextField source="id" />
@@ -46,8 +67,6 @@ const ProjectListGrid = (props: DatagridProps) => {
                <DateField source="start" />
                <DateField source="end" />
                <TextField source="status" />
-               <EditButton basePath='/' label="" />
-               <DeleteButton basePath='/' label="" />
           </Datagrid>
      );
 };
