@@ -15,7 +15,7 @@ class ProjectRoute extends ApiRoute<IProject> {
                 'title':{type:'string'},
                 'start':{type:'string'},
                 'end':{type:'string'},
-                'status':{type:'string'},
+                'status':{type:'string',default:'AWAITING'},
                 'comments':{type:'fkeyArray'},
                 'modules':{type:'fkeyStep'},
                 'users':{type:'fkeyArray'}

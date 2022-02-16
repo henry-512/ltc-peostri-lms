@@ -11,7 +11,7 @@ class TaskRoute extends ApiRoute<ITask> {
                 'title':{type:'string'},
                 'status':{type:'string',default:'AWAITING'},
                 'users':{type:'fkeyArray',default:[]},
-                'module':{type:'fkey'},
+                'module':{type:'parent'},
                 'type':{type:'string'}
             },
             false,

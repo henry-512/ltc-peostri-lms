@@ -10,7 +10,7 @@ class CommentRoute extends ApiRoute<IComment> {
             {
                 'content':{type:'string'},
                 'author':{type:'fkey'},
-                'parent':{type:'fkey'}
+                'parent':{type:'parent'}
             },
             true,
             {
