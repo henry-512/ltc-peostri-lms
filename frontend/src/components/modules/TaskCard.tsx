@@ -1,7 +1,11 @@
-import { Card, makeStyles, Typography } from "@material-ui/core";
+import { Button, Card, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, makeStyles, Typography } from "@material-ui/core";
+import { useState } from "react";
 import { useTranslate } from "react-admin";
 import { Draggable } from "react-beautiful-dnd";
-import { ITask } from "src/util/types";
+import { useForm } from "react-final-form";
+import { IModule, ITask, ITaskStep } from "src/util/types";
+import Creator from "./Creator";
+import TaskFields from "./TaskFields";
 
 const useStyles = makeStyles(theme => ({
      root: {
@@ -10,24 +14,48 @@ const useStyles = makeStyles(theme => ({
      cardContent: {
          padding: theme.spacing(1),
          display: 'flex',
+         flexDirection: 'column'
      },
      cardText: {
          marginLeft: theme.spacing(1),
-     },
+     }
 }));
 
 type TaskCardProps = {
      info?: ITask,
      index?: number,
-     stepKey?: string
+     stepKey?: string,
+     baseSource?: string
 }
 
-const TaskCard = ({info, index, stepKey}: TaskCardProps) => {
+const TaskCard = ({info, index, stepKey, baseSource}: TaskCardProps) => {
      const translate = useTranslate();
      const classes = useStyles();
+
+     const [open, setOpen] = useState(false);
+     const form = useForm();
+     const source = `${baseSource}[${stepKey}][${index}]`;
+
+     const handleClickOpen = () => {
+          setOpen(true);
+     }
+
+     const cancelCreator = () => {
+          return;
+     }
+
+     const submitCreator = () => {
+          return;
+     }
+
+     const getSource = (key?: string) => {
+          if (key) return `${source}.${key}`.toString();
+          return source.toString();
+     }
+     
      return (
           <>
-               <Draggable draggableId={info?.id || ""} index={index || 0} key={info?.id || ""}>
+               <Draggable draggableId={"task-" + stepKey + "-" + index || ""} index={index || 0} key={info?.id || ""}>
                     {(provided, snapshot) => (
                          <div
                               className={classes.root}
@@ -43,6 +71,7 @@ const TaskCard = ({info, index, stepKey}: TaskCardProps) => {
                                              : '',
                                    }}
                                    elevation={snapshot.isDragging ? 3 : 1}
+                                   onClick={handleClickOpen}
                               >    
                                    <div className={classes.cardContent}>
                                         <div className={classes.cardText}>
@@ -52,7 +81,18 @@ const TaskCard = ({info, index, stepKey}: TaskCardProps) => {
                                         </div>
                                    </div>
                               </Card>
-                         </div>
+                              <Creator 
+                                   label={translate('project.layout.edit_task', { title: info?.title || "cannot find task" })} 
+                                   open={open} 
+                                   setOpen={setOpen} 
+                                   ariaLabel={"task-update-" + stepKey + "-" + index} 
+                                   cancelAction={cancelCreator}
+                                   submitAction={submitCreator} 
+                                   maxWidth="md"
+                              >
+                                   <TaskFields getSource={getSource} initialValues={info} />
+                              </Creator>
+                         </div>               
                     )}
                </Draggable>
           </>

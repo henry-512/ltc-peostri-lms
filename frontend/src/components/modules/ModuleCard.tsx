@@ -4,10 +4,8 @@ import { useTranslate } from "react-admin";
 import { Draggable } from "react-beautiful-dnd";
 import { useForm } from "react-final-form";
 import { IModule, ITaskStep } from "src/util/types";
-import { TaskCard } from ".";
-import Steps from "../steps";
-
-const BORDER_COLOR = '#e0e0e3';
+import Creator from "./Creator";
+import ModuleFields from "./ModuleFields";
 
 const useStyles = makeStyles(theme => ({
      root: {
@@ -22,66 +20,43 @@ const useStyles = makeStyles(theme => ({
          marginLeft: theme.spacing(1),
      }
 }));
-
-const useDialogStyles = makeStyles(theme => ({
-     root: {
-          margin: 0,
-          padding: theme.spacing(2),
-          borderBottom: '1px solid ' + BORDER_COLOR
-     }
-}));
-
-const useDialogContentStyles = makeStyles((theme) => ({
-     root: {
-       padding: theme.spacing(2),
-       paddingTop: 0
-     }
-}));
-
-const useDialogActionsStyles = makeStyles((theme) => ({
-     root: {
-          margin: 0,
-          padding: theme.spacing(2),
-          borderTop: '1px solid ' + BORDER_COLOR,
-          display: 'flex',
-          justifyContent: 'space-between'
-     }
-}));
-
 type ModuleCardProps = {
      steps?: any,
      info?: IModule,
      index?: number,
      stepKey?: string,
-     subSteps?: ITaskStep
+     subSteps?: ITaskStep,
+     getSource?: string
 }
 
 const ModuleCard = ({steps, info, index, stepKey, subSteps}: ModuleCardProps) => {
      const translate = useTranslate();
      const classes = useStyles();
-     const dialogStyles = useDialogStyles();
-     const dialogActionStyles = useDialogActionsStyles();
-     const dialogContentStyles = useDialogContentStyles();
 
      const [open, setOpen] = useState(false);
      const form = useForm();
-
-     const updateModuleStep = (newSteps: any) => {
-          steps[stepKey || 0][index || 0].steps = newSteps
-          form.change(`steps`, steps);
-     }
+     const source = `modules[${stepKey}][${index}]`;
 
      const handleClickOpen = () => {
           setOpen(true);
-     };
+     }
 
-     const handleClose = () => {
-          setOpen(false);
-     };
+     const cancelCreator = () => {
+          return;
+     }
 
+     const submitCreator = () => {
+          return;
+     }
+
+     const getSource = (key?: string) => {
+          if (key) return `${source}.${key}`.toString();
+          return source.toString();
+     }
+     
      return (
           <>
-               <Draggable draggableId={info?.id || ""} index={index || 0} key={info?.id || ""}>
+               <Draggable draggableId={"module-" + stepKey + "-" + index || ""} index={index || 0} key={info?.id || ""}>
                     {(provided, snapshot) => (
                          <div
                               className={classes.root}
@@ -107,22 +82,16 @@ const ModuleCard = ({steps, info, index, stepKey, subSteps}: ModuleCardProps) =>
                                         </div>
                                    </div>
                               </Card>
-                              <Dialog open={open} onClose={handleClose} aria-labelledby={"task-ordering-" + index} fullWidth={true} maxWidth="lg">
-                                   <DialogTitle id={"task-ordering-" + index} classes={dialogStyles}>Ordering Tasks for Module: {info?.title}</DialogTitle>
-                                   <DialogContent classes={dialogContentStyles}>
-                                        <Steps title={translate('project.create.layout.order_tasks')} help={translate('project.create.layout.order_tasks_help')} ogSteps={subSteps} changeOnAction={false} updateForm={updateModuleStep}>
-                                             <TaskCard />
-                                        </Steps>
-                                   </DialogContent>
-                                   <DialogActions classes={dialogActionStyles}>
-                                        <Button onClick={handleClose} color="primary">
-                                             Cancel
-                                        </Button>
-                                        <Button onClick={handleClose} color="primary">
-                                             Save
-                                        </Button>
-                                   </DialogActions>
-                              </Dialog>
+                              <Creator 
+                                   label={translate('project.layout.edit_module', { title: info?.title || "cannot find module" })} 
+                                   open={open} 
+                                   setOpen={setOpen} 
+                                   ariaLabel={"module-update-" + stepKey + "-" + index} 
+                                   cancelAction={cancelCreator}
+                                   submitAction={submitCreator} 
+                              >
+                                   <ModuleFields getSource={getSource} initialValues={info} />
+                              </Creator>
                          </div>               
                     )}
                </Draggable>

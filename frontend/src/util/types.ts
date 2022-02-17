@@ -79,11 +79,11 @@ export interface ITaskWaiverReview extends ITask {
 
 export interface IModule extends IArangoIndexes {
      title: string;
-     tasks: ITask[];
+     tasks: ITaskStep;
      comments: Array<string> | Array<IComment>;
      project?: string | IProject;
      status: Status | "WAIVED";
-     steps: ITaskStep;
+     waive_module?: boolean;
 }
 
 export interface IProject extends IArangoIndexes, ICreateUpdate {
@@ -92,9 +92,8 @@ export interface IProject extends IArangoIndexes, ICreateUpdate {
      end: Date;
      status: Status;
      comments: Array<string> | Array<IComment>;
-     modules: IModule[];
+     modules: IModuleStep;
      users: Array<string> | Array<IUser>;
-     steps: IModuleStep;
      auto_assign?: boolean;
      author?: IUser | string;
 }

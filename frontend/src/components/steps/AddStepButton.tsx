@@ -1,10 +1,10 @@
 import { MouseEventHandler } from "react";
 import { Button } from "react-admin";
-import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
+import PlaylistAddRoundedIcon from '@material-ui/icons/PlaylistAddRounded';
 
-const AddStepButton = ({label, onClick}: {label: string | undefined, onClick: MouseEventHandler | undefined}) => (
-     <Button label={label} onClick={onClick} color="primary" variant="contained">
-          <AddCircleOutlineIcon />
+const AddStepButton = ({label, onClick, disabled}: {label: string | undefined, onClick: MouseEventHandler | undefined, disabled: boolean}) => (
+     <Button label={label} onClick={onClick} color="primary" variant="contained" disabled={disabled}>
+          <PlaylistAddRoundedIcon />
      </Button>
 )
 

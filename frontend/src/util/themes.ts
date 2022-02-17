@@ -3,6 +3,9 @@ export const darkTheme = {
           primary: {
                main: '#90caf9',
           },
+          borderColor: {
+               main: '#e0e0e3'
+          },
           secondary: {
                main: '#FBBA72',
           },
@@ -52,6 +55,9 @@ export const lightTheme = {
      palette: {
           primary: {
                main: '#4f3cc9'
+          },
+          borderColor: {
+               main: '#e0e0e3'
           },
           secondary: {
                light: '#5f5fc4',

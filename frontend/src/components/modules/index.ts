@@ -1,11 +1,5 @@
-import ModuleCard from './ModuleCard'
-import ModuleCreator from './ModuleCreator'
-import TaskCard from './TaskCard'
-import TaskCreator from './TaskCreator'
+import ModuleManager from "./ModuleManger";
 
 export {
-     ModuleCard,
-     TaskCard,
-     ModuleCreator,
-     TaskCreator
+     ModuleManager
 }

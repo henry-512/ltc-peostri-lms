@@ -1,6 +1,7 @@
 import { Box, Typography } from "@material-ui/core"
 import { MouseEventHandler } from "react";
 import { Button, SaveButton, Toolbar, ToolbarProps, useFormGroup, useTranslate } from "react-admin"
+import { useForm } from "react-final-form";
 
 export interface StepToolbarProps extends ToolbarProps {
      active: number;
@@ -16,6 +17,8 @@ export interface StepToolbarProps extends ToolbarProps {
 export default function StepToolbar(props: StepToolbarProps) {
      const translate = useTranslate();
      const formGroupState = useFormGroup(props.validator);
+     const form = useForm();
+     const formState = form.getState();
 
      const submitForm = (e: any): Promise<Object> => {
           e.preventDefault();
@@ -51,7 +54,7 @@ export default function StepToolbar(props: StepToolbarProps) {
                     <SaveButton
                          label="layout.button.create"
                          redirect="show"
-                         disabled={formGroupState.invalid && formGroupState.dirty ? true : false}
+                         disabled={formState.invalid ? true : false}
                          handleSubmit={submitForm}
                     />
                )}

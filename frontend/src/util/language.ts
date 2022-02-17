@@ -17,43 +17,49 @@ const domainMessages = {
                }
           },
           project: {
-               create: {
-                    title: "Create a Project",
-                    steps: {
-                         general: "General Information",
-                         modules: "Module Selection",
-                         order: "Module Order",
-                         review: "Review"
-                    },
-                    fields: {
-                         title: "Title",
-                         start: "Start Date",
-                         end: "End Date",
-                         member: "Assign Members",
-                         module_title: "Module Title",
-                         module_status: "Module Status",
-                         task_title: "Task Title",
-                         task_type: "Task Type",
-                         task_status: "Task Status",
-                         usergroup: "User Group",
-                         waiver_file: "Drop a File Here, or Click Here to Browse Files"
-                    },
-                    layout: {
-                         general: "Project Information",
-                         assign: "Assign Members to Project",
-                         auto_assign: "Auto Assign to Tasks by Rank",
-                         add_modules: "Add Modules",
-                         add_tasks: "Add Tasks",
-                         waive_module: "Waive Module",
-                         waive_help: "Attach a File or Comment to Waive this Module",
-                         order_modules: "Order Modules",
-                         order_modules_help: "Drag and Drop the Modules in Order",
-                         order_tasks: "Order Tasks",
-                         order_tasks_help: "Drag and Drop the Tasks in Order"
-                    },
-                    warnings: {
-                         order_back: "(Returning to the previous page will undo all of your changes)"
-                    }
+               title: "Create a Project",
+               steps: {
+                    general: "General Information",
+                    modules: "Module Management",
+                    order: "Module Order",
+                    review: "Review"
+               },
+               fields: {
+                    title: "Title",
+                    start: "Start Date",
+                    end: "End Date",
+                    member: "Assign Members",
+                    module_title: "Module Title",
+                    module_status: "Module Status",
+                    task_title: "Task Title",
+                    task_type: "Task Type",
+                    task_status: "Task Status",
+                    usergroup: "User Group",
+                    waiver_file: "Drop a File Here, or Click Here to Browse Files"
+               },
+               layout: {
+                    general: "Project Information",
+                    assign: "Assign Members to Project",
+                    auto_assign: "Auto Assign to Tasks by Rank",
+                    waive_module: "Waive Module",
+                    waive_help: "Attach a File or Comment to Waive this Module",
+                    module_title: "Module Management",
+                    order_modules_help: "Drag and Drop the Modules in Order",
+                    order_tasks_help: "Drag and Drop the Tasks in Order",
+                    create_module: "Add Module",
+                    create_task: "Add Task",
+                    add_step: "Add Step",
+                    save: "Save",
+                    create: "Create",
+                    cancel: "Cancel",
+                    no_modules: "Add a Module to this Project",
+                    task_title: "Task Management",
+                    no_tasks: "Add a Task to this Module",
+                    edit_module: "Editing Module: %{title}",
+                    edit_task: "Editing Task: %{title}"
+               },
+               warnings: {
+                    order_back: "(Returning to the previous page will undo all of your changes)"
                }
           },
           tasks: {

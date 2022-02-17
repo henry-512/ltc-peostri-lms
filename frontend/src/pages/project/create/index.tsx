@@ -35,40 +35,8 @@ export default function ProjectCreate(props: any) {
      const search = new URLSearchParams(props.location.search);
 
      const transform = (data: any) => {
-          delete data.modules;
-          data.modules = data.steps;
-          delete data.steps;
           delete data.auto_assign;
           data.comments = [];
-          
-          let modKeys = Object.keys(data.modules);
-          for (let i = 0; i < modKeys.length; i++) {
-               if (data.modules[modKeys[i]].length <= 0) {
-                    delete data.modules[modKeys[i]];
-                    continue;
-               }
-
-               for (let j = 0; j < data.modules[modKeys[i]].length; j++) {
-                    delete data.modules[modKeys[i]][j].waive_module;
-                    data.modules[modKeys[i]][j].comments = [];
-
-                    if (data.modules[modKeys[i]][j].comment) {
-                         data.modules[modKeys[i]][j].comments.push(data.modules[modKeys[i]][j].comment);
-                         delete data.modules[modKeys[i]][j].comment;
-                    }
-                    
-                    delete data.modules[modKeys[i]][j].tasks;
-                    data.modules[modKeys[i]][j].tasks = data.modules[modKeys[i]][j].steps;
-                    delete data.modules[modKeys[i]][j].steps;
-
-                    /*let taskKeys = Object.keys(data.modules[modKeys[i]][j].tasks);
-                    for (let k = 0; j < taskKeys.length; k++) {
-                         for (let l = 0; l < data.modules[modKeys[i]][j].tasks[taskKeys[i]].length; l++) {
-                              data.modules[modKeys[i]][j].tasks[taskKeys[k]][l]
-                         }
-                    }*/
-               }
-          }
 
           return {
                ...data
@@ -76,14 +44,14 @@ export default function ProjectCreate(props: any) {
      }
 
      return (
-          <Create title={translate('project.create.title')} {...props} transform={transform}>
+          <Create title={translate('project.title')} {...props} transform={transform}>
                <Stepper validate={validateProject}>
 
-                    <General classes={classes} title={translate('project.create.steps.general')} style={{ width: "100%" }} isTemplate={(typeof search.get('template') == 'string')} validator="general" {...props}/>
+                    <General classes={classes} title={translate('project.steps.general')} style={{ width: "100%" }} isTemplate={(typeof search.get('template') == 'string')} validator="general" {...props}/>
 
-                    <Modules classes={classes} title={translate('project.create.steps.modules')} className={classes.content} validator="modules" {...props}/>
+                    <Modules classes={classes} title={translate('project.steps.modules')} className={classes.content} validator="modules" {...props}/>
 
-                    {/*<Review classes={classes} title={translate('project.create.steps.review')} className={classes.content} validator="" {...props}/>*/}
+                    {/*<Review classes={classes} title={translate('project.steps.review')} className={classes.content} validator="" {...props}/>*/}
                     
                </Stepper>
           </Create>
