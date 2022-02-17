@@ -629,21 +629,14 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         })
         .post('/', koaBody(), async (ctx) => {
             try {
-                let body = ctx.request.body
-    
-                if (body.id && await this.exists(body.id)) {
-                    ctx.status = 409
-                    ctx.body = `${this.dname} [${body.id}] already exists`
-                } else {
-                    let newID = generateDBID(this.name)
-                    let doc = body as Type
-                    await this.create(newID, doc, ctx.header['user-agent'] !== 'backend-testing')
-    
-                    ctx.status = 201
-                    ctx.body = {
-                        id: newID,
-                        message: `${this.dname} created with id [${newID}]`
-                    }
+                let doc = ctx.request.body as Type
+                let newID = generateDBID(this.name)
+                await this.create(newID, doc, ctx.header['user-agent'] !== 'backend-testing')
+
+                ctx.status = 201
+                ctx.body = {
+                    id: newID,
+                    message: `${this.dname} created with id [${newID}]`
                 }
             } catch (err) {
                 console.log(err)

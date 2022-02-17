@@ -5,15 +5,20 @@
   "main": "./build/index.js",
   "scripts": {
     "start": "node ./build/index.js",
+    "clean": "npx tsc --build --clean",
+
+    "test": "cd ../backend-testing && npm test",
+
     "prebuild": "mkdir ./build; cp ./.env ./build/.env",
     "build": "npx tsc --build",
-    "clean": "npx tsc --build --clean",
-    "wipe": "rm -r ./build/*",
-    "sweep": "npm run wipe; npm run build && npm run start",
     "prewinbuild": ".\\winprebuild.bat",
     "winbuild": "npx tsc --build",
-    "winsweep": ".\\winsweep.bat",
-    "winwipe": ".\\winwipe.bat"
+
+    "wipe": "rm -r ./build/*",
+    "winwipe": "DEL /S %CD%\\build\\*",
+
+    "sweep": "npm run wipe; npm run build && npm run start",
+    "winsweep": ".\\winsweep.bat"
   },
   "author": "",
   "license": "ISC",
