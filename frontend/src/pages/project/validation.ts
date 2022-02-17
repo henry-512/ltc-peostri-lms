@@ -3,7 +3,7 @@ import { IProject } from "src/util/types";
 export default function validateProject(project: IProject) {
      const errors: any = {};
 
-     /*if (!project.title) {
+     if (!project.title) {
           errors.title = 'The title is required';
      }
      
@@ -30,6 +30,6 @@ export default function validateProject(project: IProject) {
      }
 
      // Note: Module and Task Validation is done directly on the components input fields.
-     */
+
      return errors
 }

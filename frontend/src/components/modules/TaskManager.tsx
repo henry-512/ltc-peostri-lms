@@ -63,7 +63,6 @@ const TaskManager = (props: TaskManagerProps) => {
      }
 
      const updateStep = (newSteps: any) => {
-          console.log(props.source);
           form.change(props.source, newSteps)
      }
 

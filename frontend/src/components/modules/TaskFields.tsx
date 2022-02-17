@@ -65,7 +65,7 @@ const TaskFields = (props: TaskFieldsProps) => {
                               label="project.fields.task_type" 
                               fullWidth
                               helperText=" "
-                              required
+                              validate={[required()]}
                               disableValue="not_available"
                          />
                     </Grid>       
@@ -109,7 +109,7 @@ const TaskFields = (props: TaskFieldsProps) => {
                               reference="users"
                               source={getSource?.('users') || ""}
                          >
-                              <AutoAssignArrayInput />
+                              <AutoAssignArrayInput source={getSource?.()}/>
                          </ReferenceArrayInput>
                     </Grid>
                </Grid>

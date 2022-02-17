@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, makeStyles } from '@material-ui/core';
 import React, { MouseEventHandler, useEffect } from 'react';
-import { useTranslate } from 'react-admin';
+import { FormGroupContextProvider, useFormGroup, useFormGroupContext, useTranslate } from 'react-admin';
 import { useForm } from 'react-final-form';
 
 const useDialogStyles = makeStyles(theme => ({
@@ -62,24 +62,28 @@ const Creator = (props: CreatorProps) => {
           }
           props.setOpen(false);
      }
+
+     const formGroupState = useFormGroup(props.ariaLabel);
      
      return (
           <>
                <Dialog open={props.open} onClose={handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'lg')}>
                     <DialogTitle id={props.ariaLabel} classes={dialogStyles}>{props.label}</DialogTitle>
                     <DialogContent classes={dialogContentStyles}>
-                         {React.Children.map(props.children, (child, index) => {
-                              return React.cloneElement(child, {
-                                   key: index,
-                                   ...props
-                              })
-                         })}
+                         <FormGroupContextProvider name={props.ariaLabel}>
+                              {React.Children.map(props.children, (child, index) => {
+                                   return React.cloneElement(child, {
+                                        key: index,
+                                        ...props
+                                   })
+                              })}
+                         </FormGroupContextProvider>
                     </DialogContent>
                     <DialogActions classes={dialogActionStyles}>
                          <Button onClick={handleClose} color="primary">
                               {translate('project.layout.cancel')}
                          </Button>
-                         <Button onClick={handleSubmit} color="primary">
+                         <Button onClick={handleSubmit} color="primary" disabled={formGroupState.invalid ? true : false}>
                               {props.create ? translate('project.layout.create') : translate('project.layout.save')}
                          </Button>
                     </DialogActions>

@@ -1,8 +1,9 @@
+import get from "lodash.get";
 import { useEffect } from "react";
 import { AutocompleteArrayInput, useReferenceArrayInputContext } from "react-admin";
 import { useForm } from "react-final-form";
 
-const AutoAssignArrayInput = (props: any): JSX.Element => {
+const AutoAssignArrayInput = (props: any) => {
      const {
           choices, // An array of records matching both the current input value and the filters
           error, // A potential error that may have occured while fetching the data
@@ -21,15 +22,17 @@ const AutoAssignArrayInput = (props: any): JSX.Element => {
      const autoAssign = () => {
           if (!formData.auto_assign) return;
           if (!formData.users) return;
-          if (!formData[props.mName][props.mID][props.tName][props.tID]) return;
-          if (!formData[props.mName][props.mID][props.tName][props.tID].userGroup) return;
+          if (!props.source) return;
+          const data = get(formData, props.source)
+          if (!data) return;
 
           choices.forEach((user: any, i: number) => {
-               if (user.userGroup.id != formData[props.mName][props.mID][props.tName][props.tID].userGroup) return;
+               console.log(user.userGroup.id)
+               if (user.userGroup.id != data.userGroup) return;
                if (!formData.users.includes(user.id)) return;
-               if (typeof formData[props.mName][props.mID][props.tName][props.tID].users != 'undefined' && formData[props.mName][props.mID][props.tName][props.tID].users.includes(user.id)) return;
+               if (typeof data.users != 'undefined' && data.users.includes(user.id)) return;
 
-               form.change(`${props.mName}[${props.mID}].${props.tName}[${props.tID}].users`, [...(formData[props.mName][props.mID][props.tName][props.tID].users || []), user.id]);
+               form.change(`${props.source}.users`, [...(data.users || []), user.id]);
           })
      }
 
