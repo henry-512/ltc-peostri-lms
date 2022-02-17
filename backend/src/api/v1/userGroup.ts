@@ -8,11 +8,14 @@ class UserGroupRoute extends ApiRoute<IUserGroup> {
             'User Group',
             {
                 'name':{type:'string',default:'New User Group'},
-                'permissions':{type:'object',default:{
-                    'perm1':false,
-                    'perm2':false,
-                    'perm3':false
-                },hideGetRef:true}
+                'permissions':{
+                    type:'object',default:{
+                        'perm1':false,
+                        'perm2':false,
+                        'perm3':false
+                    },
+                    hideGetRef:true
+                }
             },
             false,
             {},

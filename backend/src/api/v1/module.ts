@@ -14,7 +14,7 @@ class ModuleRoute extends ApiRoute<IModule> {
                 'comments':{
                     type:'fkeyArray',
                     optional:true,
-                    default:{},
+                    default:[],
                     freeable:true
                 },
                 'project':{type:'parent'},

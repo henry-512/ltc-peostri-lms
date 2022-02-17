@@ -134,28 +134,66 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         return this.collection.documentExists(id)
     }
 
-    // /**
-    //  * Converts all IDs (with collection) in the document to keys
-    //  * (without collection)
-    //  */
-    // private convertIds(doc:Type) {
-    //     if (!doc.id || !isDBId(doc.id)) {
-    //         throw new TypeError(`Id invalid ${doc}`)
-    //     }
+    /**
+     * Converts all IDs (with collection) in the document to keys
+     * (without collection)
+     */
+    private convertIds(doc:Type) {
+        // if (!doc.id || !isDBKey(doc.id)) {
+        //     throw new TypeError(`Id invalid ${doc}`)
+        // }
 
-    //     for (let [key,cls] of this.foreignEntries) {
-    //         if (key in doc) {
-    //             let local = key as keyof Type
-    //             let foreign = doc[local]
+        for (let [key,cls] of this.foreignEntries) {
+            if (key in doc) {
+                let local = key as keyof Type
+                let foreign = doc[local]
 
-    //             switch (foreign) {
+                let data = this.fields[key]
 
-    //             }
-    //         } else {
-    //             console.warn(`${key} dne in doc`)
-    //         }
-    //     }
-    // }
+                switch (data.type) {
+                    case 'fkey':
+                        if (typeof foreign === 'string') {
+                            doc[local] = <any>splitId(foreign).key
+                            continue
+                        } else if (typeof foreign === 'object') {
+                            continue
+                        }
+                        throw new TypeError(`${JSON.stringify(foreign)} was expected to be a string`)
+                    case 'fkeyArray':
+                        if (Array.isArray(foreign)) {
+                            doc[local] = <any>foreign.map(
+                                k => splitId(k).key
+                            )
+                            continue
+                        }
+                        console.log(key)
+                        console.log(doc)
+                        console.log(foreign)
+                        console.log(typeof foreign)
+                        throw new TypeError(`${JSON.stringify(foreign)} was expected to be an array`)
+                    case 'fkeyStep':
+                        if (typeof foreign === 'object') {
+                            let temp:any = {}
+                            for (let [sid, sar] of Object.entries(foreign)) {
+                                if (Array.isArray(sar)) {
+                                    temp[sid] =
+                                        sar.map(k => splitId(k).key)
+                                } else {
+                                    throw new TypeError(`${sar} is not an array`)
+                                }
+                            }
+                            doc[local] = temp
+                            continue
+                        }
+                        throw new TypeError(`${JSON.stringify(foreign)} was expected to be a step object`)
+                    default:
+                        throw new TypeError(`INTERNAL ERROR: ${data} has invalid type.`)
+                }
+            } else {
+                console.warn(`${key} dne in doc`)
+            }
+        }
+    }
 
     /**
      * Retrieves a query from the server, following the passed parameters.
@@ -253,7 +291,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 case 'fkey':
                     if (typeof foreign === 'string') {
                         doc[localKey] = await deref(foreign, cls)
-                        break
+                        continue
                     }
                     throw new TypeError(`${JSON.stringify(foreign)} was expected to be a string`)
                 // Foreign key array
@@ -261,7 +299,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     if (Array.isArray(foreign)) {
                         // For each foreign key in the array, retrieve it from the database; then store the documents (as an array) back in doc[key]
                         doc[localKey] = <any>await Promise.all(foreign.map(async k => deref(k, cls)))
-                        break
+                        continue
                     }
                     throw new TypeError(`${JSON.stringify(foreign)} was expected to be an array`)
                 // Foreign key step object
@@ -278,7 +316,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                             }
                         }
                         doc[localKey] = <any>temp
-                        break
+                        continue
                     }
                     throw new TypeError(`${JSON.stringify(foreign)} was expected to be a step object`)
                 default:
@@ -378,7 +416,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 case 'fkey':
                     if (typeof foreign === 'object' || typeof foreign === 'string') {
                         addDoc[localKey] = <any>await ref(foreign, cls)
-                        break
+                        continue
                     }
                     throw new TypeError(`${foreign} expected to be a document`)
                 // Ref array of docs
@@ -387,7 +425,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                         addDoc[localKey] = <any>await Promise.all(foreign.map(
                             lpDoc => ref(lpDoc, cls)
                         ))
-                        break
+                        continue
                     }
                     throw new TypeError(`${foreign} expected to be an array`)
                 // Ref step obj of docs
@@ -404,11 +442,11 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                             throw new TypeError(`${stepAr} expected to be an array`)
                         }
                         addDoc[localKey] = temp
-                        break
+                        continue
                     }
                     throw new TypeError(`${JSON.stringify(foreign)} expected to be a step array`)
                 case 'parent':
-                    break
+                    continue
                 default:
                     throw new TypeError(`INTERNAL ERROR: ${data} has invalid type.`)
             }
@@ -534,7 +572,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 case 'fkey':
                     if (typeof foreign === 'string') {
                         await cls.delete(foreign, real, false)
-                        break
+                        continue
                     }
                     throw new TypeError(`${JSON.stringify(foreign)} was expected to be a string`)
                     
@@ -543,7 +581,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                         await Promise.all(foreign.map(
                             d => cls.delete(d, real, false)
                         ))
-                        break
+                        continue
                     }
                     throw new TypeError(`${JSON.stringify(foreign)} was expected to be an array`)
                 case 'fkeyStep':
@@ -557,7 +595,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                                 throw new TypeError(`${sAr} is not an array`)
                             }
                         }
-                        break
+                        continue
                     }
                     throw new TypeError(`${JSON.stringify(foreign)} was expected to be a step object`)
                 default:
@@ -600,6 +638,11 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 const cursor = await this.query(ctx.request.query)
                 let all = await cursor.all()
 
+                // Convert all document foreign ids to keys
+                all.forEach(
+                    doc => this.convertIds(doc)
+                )
+
                 ctx.status = 200
                 ctx.body = all
     
@@ -635,7 +678,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
 
                 ctx.status = 201
                 ctx.body = {
-                    id: newID,
+                    id: splitId(newID).key,
                     message: `${this.dname} created with id [${newID}]`
                 }
             } catch (err) {
