@@ -284,10 +284,6 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         for (let [fkey,cls] of this.foreignEntries) {
             let data = this.fields[fkey]
 
-            if (data.getIdKeepAsRef) {
-                continue
-            }
-
             if (!(fkey in doc)) {
                 if (data.optional) {
                     console.warn(`Optional field [${fkey}] dne`)
@@ -305,7 +301,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 // Single foreign key
                 case 'fkey':
                     if (typeof foreign === 'string') {
-                        doc[localKey] = await deref(foreign, cls)
+                        doc[localKey] = data.getIdKeepAsRef
+                            ? convertToKey(foreign)
+                            : await deref(foreign, cls)
                         continue
                     }
                     throw new TypeError(`${JSON.stringify(foreign)} was expected to be a string`)
@@ -313,7 +311,10 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 case 'fkeyArray':
                     if (Array.isArray(foreign)) {
                         // For each foreign key in the array, retrieve it from the database; then store the documents (as an array) back in doc[key]
-                        doc[localKey] = <any>await Promise.all(foreign.map(async k => deref(k, cls)))
+                        doc[localKey] = <any>await Promise.all(foreign.map(async k => data.getIdKeepAsRef
+                            ? convertToKey(k)
+                            : deref(k, cls)
+                        ))
                         continue
                     }
                     throw new TypeError(`${JSON.stringify(foreign)} was expected to be an array`)
@@ -324,7 +325,10 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                         for (let [stepId, stepArray] of Object.entries(foreign)) {
                             if (Array.isArray(stepArray)) {
                                 temp[stepId] = <any>await Promise.all(
-                                    stepArray.map(k => deref(k, cls))
+                                    stepArray.map(k => data.getIdKeepAsRef
+                                        ? convertToKey(k)
+                                        : deref(k, cls)
+                                    )
                                 )
                             } else {
                                 throw new TypeError(`${stepArray} is not an array`)
