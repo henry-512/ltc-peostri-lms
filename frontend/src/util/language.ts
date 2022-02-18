@@ -13,11 +13,18 @@ const domainMessages = {
                     create: "Create",
                     next: "Next",
                     back: "Back",
-                    skip: "Skip"
+                    skip: "Skip",
+                    save: "Save",
+                    delete: "Delete"
                }
           },
           project: {
-               title: "Create a Project",
+               edit: {
+                    title: "Editing Project"
+               },
+               create: {
+                    title: "Creating Project",
+               },
                steps: {
                     general: "General Information",
                     modules: "Module Management",

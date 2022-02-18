@@ -4,6 +4,7 @@ import { IProject } from "src/util/types";
 import Stepper from "../../../components/stepper/Stepper";
 import General from "../steps/General";
 import Modules from "../steps/Modules";
+import transformer from "../transformer";
 import validateProject from "../validation";
 
 const useStyles = makeStyles(theme => ({
@@ -35,34 +36,9 @@ export default function ProjectCreate(props: any) {
      const classes = useStyles();
      const search = new URLSearchParams(props.location.search);
 
-     const transform = (data: IProject) => {
-          delete data.auto_assign;
-          data.comments = [];
-
-          for (const mKey in data.modules) {
-               if (data.modules[mKey].length <= 0) {
-                    delete data.modules[mKey];
-                    continue;
-               }
-
-               for (let i = 0; i < data.modules[mKey].length; i++) {
-                    const module = data.modules[mKey][i];
-                    for (const tKey in module.tasks) {
-                         if (module.tasks[tKey].length <= 0) {
-                              delete data.modules[mKey][i].tasks[tKey];
-                         }
-                    }
-               }
-          }
-
-          return {
-               ...data
-          }
-     }
-
      return (
-          <Create title={translate('project.title')} {...props} transform={transform}>
-               <Stepper validate={validateProject}>
+          <Create title={translate('project.create.title')} {...props} transform={transformer}>
+               <Stepper validate={validateProject} create>
 
                     <General classes={classes} title={translate('project.steps.general')} style={{ width: "100%" }} isTemplate={(typeof search.get('template') == 'string')} validator="general" {...props}/>
 

@@ -74,7 +74,8 @@ export default function Stepper(props: any) {
                     handleNext={handleNext}
                     handleSkip={handleSkip} 
                     backText={backText}   
-                    validator={validator}            
+                    validator={validator} 
+                    create={props.create}           
                />
           } {...props} validation={props.validate}>
                <StepHeader 

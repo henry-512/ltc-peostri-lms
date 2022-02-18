@@ -1,6 +1,6 @@
 import { Box, Typography } from "@material-ui/core"
 import { MouseEventHandler } from "react";
-import { Button, SaveButton, Toolbar, ToolbarProps, useFormGroup, useTranslate } from "react-admin"
+import { Button, DeleteButton, SaveButton, Toolbar, ToolbarProps, useFormGroup, useTranslate } from "react-admin"
 import { useForm } from "react-final-form";
 
 export interface StepToolbarProps extends ToolbarProps {
@@ -12,6 +12,7 @@ export interface StepToolbarProps extends ToolbarProps {
      handleSkip: MouseEventHandler;
      backText: string;
      validator: string;
+     create: boolean;
 }
 
 export default function StepToolbar(props: StepToolbarProps) {
@@ -20,14 +21,22 @@ export default function StepToolbar(props: StepToolbarProps) {
      const form = useForm();
      const formState = form.getState();
 
-     const submitForm = (e: any): Promise<Object> => {
-          e.preventDefault();
-
-          return Promise.resolve({});
-     }
-
      return (
           <Toolbar {...props}>
+               {(!props.create) ? (
+                    <DeleteButton
+                         label={"layout.button.delete"}
+                         redirect="list"
+                         variant="outlined"
+                         style={{
+                              borderColor: '#f44336',
+                              padding: '6px 16px',
+                              marginRight: '8px'
+                         }}
+                    />
+               ) : (
+                    <></>
+               )}
                <Button
                     color="inherit"
                     disabled={props.active === 0}
@@ -52,10 +61,9 @@ export default function StepToolbar(props: StepToolbarProps) {
                     <Button onClick={props.handleNext} label={translate('layout.button.next')} disabled={formGroupState.invalid && formGroupState.dirty ? true : false} />
                ):( 
                     <SaveButton
-                         label="layout.button.create"
-                         redirect="show"
+                         label={(props.create) ? "layout.button.create" : "layout.button.save"}
+                         redirect={(props.create) ? "edit" : "list"}
                          disabled={formState.invalid ? true : false}
-                         handleSubmit={submitForm}
                     />
                )}
           </Toolbar>
