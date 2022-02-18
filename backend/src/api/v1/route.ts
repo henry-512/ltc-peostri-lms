@@ -7,7 +7,7 @@ import koaBody from "koa-body"
 
 import { db } from "../../database"
 import { IArangoIndexes, IComment, ICreateUpdate } from "../../lms/types"
-import { generateDBID, isDBId, isDBKey, keyToId, splitId } from "../../lms/util"
+import { convertToKey, generateDBID, isDBId, isDBKey, keyToId, splitId } from "../../lms/util"
 import { CommentRouteInstance } from "./comments"
 
 interface DBData {
@@ -128,9 +128,16 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
 		sortDir: GeneratedAqlQuery,
 		offset: number, 
 		count: number,
-        queryFields: GeneratedAqlQuery
+        queryFields: GeneratedAqlQuery,
+        filterIds: string[]
     ): GeneratedAqlQuery {
-        return aql`FOR z in ${collection} SORT z.${sort} ${sortDir} LIMIT ${offset}, ${count} RETURN {${queryFields}}`
+        let query = aql`FOR z in ${collection} SORT z.${sort} ${sortDir}`
+
+        if (filterIds.length > 0) {
+            query = aql`${query} FILTER z._key IN ${filterIds}`
+        }
+
+        return aql`${query} LIMIT ${offset}, ${count} RETURN {${queryFields}}`
     }
 
     public async exists(id: string) {
@@ -165,10 +172,6 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                             )
                             continue
                         }
-                        console.log(key)
-                        console.log(doc)
-                        console.log(foreign)
-                        console.log(typeof foreign)
                         throw new TypeError(`${JSON.stringify(foreign)} was expected to be an array`)
                     case 'fkeyStep':
                         if (typeof foreign === 'object') {
@@ -207,9 +210,17 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         let offset = 0
         let count = 10
 
-        // TODO: implement filtering
-        // q.filter
+        // TODO: implement generic filtering
+        let filter = JSON.parse(q.filter)
+        let filterIds:string[] = []
 
+        if (filter) {
+            if ('id' in filter && Array.isArray(filter.id)) {
+                filterIds = filter.id.map((s:string) => convertToKey(s))
+            }
+        }
+
+        // Sorting
         if (q.sort && q.sort.length == 2) {
             for (let [key] of this.fieldEntries) {
                 if (key === q.sort[0]) {
@@ -229,7 +240,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             this.collection,
             sort,sortDir,
             offset,count,
-            this.getAllQueryFields
+            this.getAllQueryFields,
+            filterIds
         )
 
         return db.query(query)
@@ -338,14 +350,16 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     private async addToReferenceMap(
         addDocId: string,
         addDoc: Type,
-        map: Map<DocumentCollection, IArangoIndexes[]>
+        map: Map<DocumentCollection, IArangoIndexes[]>,
+        create: boolean
     ): Promise<void> {
         delete addDoc.id
-        //addDoc._id = addDocId
-        addDoc._key = splitId(addDocId).key
+        addDoc._key = convertToKey(addDocId)
 
         if (this.hasCUTimestamp) {
-            (<ICreateUpdate>addDoc).createdAt = new Date(); //??? ; ???
+            if (create) {
+                (<ICreateUpdate>addDoc).createdAt = new Date(); //??? ; ???
+            }
             (<ICreateUpdate>addDoc).updatedAt = new Date()
         }
 
@@ -367,7 +381,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                         author: 'users/0123456789012345678900',
                         parent: addDocId
                     }
-                    await cls.addToReferenceMap(childId, com, map)
+                    await cls.addToReferenceMap(childId, com, map, create)
                     return childId
                 }
                 throw new TypeError(`Foreign key [${doc}] does not exist`)
@@ -380,8 +394,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     doc[cls.parentField.local] = addDocId
                 }
 
-                let childId = generateDBID(cls.name)
-                await cls.addToReferenceMap(childId, doc, map)
+                let childId = create ? generateDBID(cls.name) : doc.id
+                await cls.addToReferenceMap(childId, doc, map, create)
 
                 return childId
             }
@@ -463,7 +477,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         }
     }
 
-    protected async create(id: string, doc: Type, real: boolean) {
+    protected async create(key: string, doc: Type, real: boolean) {
         // The passed document has a parent key, so we need to
         // update the parent to include this document
         // if (this.parentKey && this.parentKey.local in doc) {
@@ -473,46 +487,37 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // Turns a fully-dereferenced document into a reference
         // document
         let map = new Map<DocumentCollection, IArangoIndexes[]>()
-        await this.addToReferenceMap(id, doc, map)
+        await this.addToReferenceMap(key, doc, map, true)
 
-        if (real) {
-            // Saves each document in the map to its respective collection
-            try {
-                for (let [col, docs] of map) {
-                    for (let doc of docs) {
-                        console.log(`Saving ${col.name} | ${JSON.stringify(doc)}`)
-                        // TODO: Delete docs on failed save
-                        await col.save(doc)
-                    }
-                }
-            } catch (err) {
-                // Delete malformed documents
-                console.error(`Error with saving: ${err}`)
-                for (let [col, docs] of map) {
-                    for (let doc of docs) {
-                        if ('_key' in doc) {
-                            let k = doc._key as string
-                            if (await col.documentExists(k)) {
-                                console.log(`Removing malformed doc w/ id ${k}`)
-                                await col.remove(k)
-                            }
-                        } else {
-                            throw new TypeError(`INTERNAL ERROR ${doc} lacks _key field`)
-                        }
-                    }
+        real || console.log('FAKING CREATE')
+        // Saves each document in the map to its respective collection
+        try {
+            for (let [col, docs] of map) {
+                for (let doc of docs) {
+                    console.log(`Saving ${col.name} | ${JSON.stringify(doc)}`)
+                    real && await col.save(doc)
                 }
             }
-        } else {
+        } catch (err) {
+            // Delete malformed documents
+            console.error(`Error with saving: ${err}`)
             for (let [col, docs] of map) {
-                for (let d of docs) {
-                    console.log(`Saved ${col.name} | ${JSON.stringify(d)}`)
+                for (let doc of docs) {
+                    if ('_key' in doc) {
+                        let k = doc._key as string
+                        if (await col.documentExists(k)) {
+                            console.log(`Removing malformed doc w/ id ${k}`)
+                            await col.remove(k)
+                        }
+                    } else {
+                        throw new TypeError(`INTERNAL ERROR ${doc} lacks _key field`)
+                    }
                 }
             }
         }
     }
 
     protected async update(key: string, doc: Type, real: boolean) {
-        delete doc.id
         // We dont need to update all elements, .update does that
         // automatically for us :)
 
@@ -521,16 +526,25 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         //     //if ()
         // }
 
-        // Update the date if necessary
-        if (this.hasCUTimestamp) {
-            (<ICreateUpdate>doc).updatedAt = new Date()
-        }
+        let map = new Map<DocumentCollection, IArangoIndexes[]>()
+        await this.addToReferenceMap(key, doc, map, true)
 
-        // Update the db
-        if (real) {
-            return this.collection.update(key, doc)
-        } else {
-            console.log(`collection ${this.name} id ${key} updated to ${doc}`)
+        real || console.log('FAKING UPDATE')
+        // Updates each document in the map to its respective collection
+        // TODO Delete/revert malformed docs
+        for (let [col, docs] of map) {
+            for (let d of docs) {
+                if (!d._key || isDBKey(d._key)) {
+                    throw new TypeError(`${d._key} invalid`)
+                }
+                if (await col.documentExists(d._key)) {
+                    console.log(`Updating ${col.name} | ${JSON.stringify(d)}`)
+                    real && await col.update(d._key, d)
+                } else {
+                    console.log(`Saving ${col.name} | ${JSON.stringify(d)}`)
+                    real && await col.save(d)
+                }
+            }
         }
     }
     
@@ -627,12 +641,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             }
         }
 
-        if (real) {
-            console.log(`DELETING ${this.name} | ${key} | ${doc}`)
-            await this.collection.remove(key)
-        } else {
-            console.log(`collection ${this.name} id ${key} deleted`)
-        }
+        console.log(`${real ? 'DELETING' : 'FAKE DELETING'} ${this.name} | ${key} | ${doc}`)
+        real && await this.collection.remove(key)
     }
 
     makeRouter() { return new Router({prefix:this.name})

@@ -30,12 +30,16 @@ class UserRoute extends ApiRoute<IUser> {
 		sortDir: GeneratedAqlQuery,
 		offset: number, 
 		count: number,
-        queryFields: GeneratedAqlQuery
+        queryFields: GeneratedAqlQuery,
+        filterIds: string[]
     ): GeneratedAqlQuery {
-        return aql`
-            FOR z in ${collection}
-            SORT z.${sort} ${sortDir}
-            LIMIT ${offset}, ${count}
+        let query = aql`FOR z in ${collection} SORT z.${sort} ${sortDir}`
+
+        if (filterIds.length > 0) {
+            query = aql`${query} FILTER z._key IN ${filterIds}`
+        }
+
+        return aql`${query} LIMIT ${offset}, ${count}
             LET a = (RETURN DOCUMENT(z.userGroup))[0]
             RETURN {userGroup:(RETURN {id:a._key,name:a.name})[0],${queryFields}}`
     }

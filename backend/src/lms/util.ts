@@ -50,6 +50,16 @@ export function keyToId(key: string, name:string) {
     return `${name}/${key}`
 }
 
+export function convertToKey(str:string) {
+    if (isDBKey(str)) {
+        return str 
+    } else if (isDBId(str)) {
+        return splitId(str).key
+    } else {
+        throw new TypeError(`${str} is not a valid key or id`)
+    }
+}
+
 /**
  * Strips the key and collection from the passed id.
  * @param id A valid database id
