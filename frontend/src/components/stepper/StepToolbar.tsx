@@ -62,7 +62,7 @@ export default function StepToolbar(props: StepToolbarProps) {
                ):( 
                     <SaveButton
                          label={(props.create) ? "layout.button.create" : "layout.button.save"}
-                         redirect={(props.create) ? "edit" : "list"}
+                         redirect="list"
                          disabled={formState.invalid ? true : false}
                     />
                )}
