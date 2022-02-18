@@ -16,7 +16,10 @@ interface DBData {
     default?:any,
     hideGetAll?:boolean,
     hideGetId?:boolean,
+    // True if this key should be shown in dereferenced docs
     hideGetRef?:boolean,
+    // True if this key shouldn't be dereferenced
+    getIdKeepAsRef?:boolean,
     isForeign?:boolean,
     // True if this foreign object reference can be freely deleted
     freeable?:boolean,
@@ -139,10 +142,6 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      * (without collection)
      */
     private convertIds(doc:Type) {
-        // if (!doc.id || !isDBKey(doc.id)) {
-        //     throw new TypeError(`Id invalid ${doc}`)
-        // }
-
         for (let [key,cls] of this.foreignEntries) {
             if (key in doc) {
                 let local = key as keyof Type
@@ -272,6 +271,10 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // Loop over the foreign keys
         for (let [fkey,cls] of this.foreignEntries) {
             let data = this.fields[fkey]
+
+            if (data.getIdKeepAsRef) {
+                continue
+            }
 
             if (!(fkey in doc)) {
                 if (data.optional) {
