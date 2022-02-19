@@ -1,5 +1,3 @@
-// import fetch from 'node-fetch';
-
 import { IFileMetadata } from "../../lms/types";
 import { ApiRoute } from "./route";
 import { UserRouteInstance } from "./users";
@@ -35,16 +33,34 @@ class FileMetadataRoute extends ApiRoute<IFileMetadata> {
             throw new TypeError(`${doc} is not a valid file reference`)
         }
 
+        // lol
         // let blob:any = await fetch(doc.src).then(r => r.blob())
+        // let blob:any = await new Promise((resolve, reject) => {
+        //     let xhr = new XMLHttpRequest()
+        //     xhr.open('GET', doc.src, true)
+        //     xhr.responseType = 'blob'
+        //     xhr.onload = (e) => {
+        //         if (xhr.status == 200) {
+        //             resolve(xhr.response)
+        //         } else {
+        //             reject()
+        //         }
+        //     }
+        //     xhr.onerror = () => {
+        //         reject()
+        //     }
+        //     xhr.send()
+        // })
 
-        // blob.lastModifiedDate = new Date()
-        // blob.name = doc.title
+        let blob:any = {}
+        blob.src = doc.src
+        blob.lastModifiedDate = new Date()
+        blob.name = doc.title
 
         let meta:any = {}
         meta.author = 'users/0123456789012345678900'
         meta.name = doc.title
-        // meta.blob = blob
-        meta.blob = doc.src
+        meta.blob = blob
 
         return meta
     }
