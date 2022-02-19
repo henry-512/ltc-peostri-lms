@@ -68,3 +68,26 @@ users
       "avatar",
       "userGroup"
     ]
+
+
+  "message": "File Meta contains invalid fields",
+  "level": "moderate",
+  "rule": {
+    "properties": {
+      "name": {
+        "type": "string"
+      },
+      "author": {
+        "type": "string"
+      },
+      "createdAt": {
+        "type": "string"
+      },
+      "updatedAt": {
+        "type": "string"
+      },
+      "blob": {
+        "type": "object"
+      }
+    }
+  }

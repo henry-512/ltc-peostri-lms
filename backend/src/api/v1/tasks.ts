@@ -1,5 +1,6 @@
 import { ITask } from "../../lms/types";
 import { ApiRoute } from "./route";
+import { UserGroupRouteInstance } from "./userGroup";
 import { UserRouteInstance } from "./users";
 
 class TaskRoute extends ApiRoute<ITask> {
@@ -11,12 +12,14 @@ class TaskRoute extends ApiRoute<ITask> {
                 'title':{type:'string'},
                 'status':{type:'string',default:'AWAITING'},
                 'users':{type:'fkeyArray',default:[],getIdKeepAsRef:true},
+                'userGroup':{type:'fkey',optional:true,getIdKeepAsRef:true},
                 'module':{type:'parent'},
                 'type':{type:'string'}
             },
             false,
             {
-                'users': UserRouteInstance
+                'users': UserRouteInstance,
+                'userGroup': UserGroupRouteInstance,
             },
             {local:'module',foreign:'tasks'}
         )

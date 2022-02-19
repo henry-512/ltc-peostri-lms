@@ -10,7 +10,7 @@ class FileMetadataRoute extends ApiRoute<IFileMetadata> {
             {
                 'name':{type:'string'},
                 'author':{type:'fkey'},
-                'location':{type:'string'}
+                'blob':{type:'object'},
             },
             true,
             {
@@ -18,6 +18,33 @@ class FileMetadataRoute extends ApiRoute<IFileMetadata> {
             },
             null
         )
+    }
+
+    // Doc of format
+    /*
+    {
+        rawFile: {path: "string.pdf"},
+        src: "blob:http://localhost:3000/uuid",
+        title: "string.pdf"
+    }
+     */
+    protected override async modifyDoc(doc:any, par:string) {
+        if (!('title' in doc && 'src' in doc)) {
+            throw new TypeError(`${doc} is not a valid file reference`)
+        }
+
+        // let blob:any = await fetch(doc.src).then(r => r.blob())
+
+        // blob.lastModifiedDate = new Date()
+        // blob.name = doc.title
+
+        let meta:any = {}
+        meta.author = 'users/0123456789012345678900'
+        meta.name = doc.title
+        // meta.blob = blob
+        meta.blob = doc.src
+
+        return meta
     }
 }
 

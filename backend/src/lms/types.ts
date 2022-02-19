@@ -96,10 +96,7 @@ export interface IUserGroup extends IArangoIndexes {
 export interface IFileMetadata extends IArangoIndexes, ICreateUpdate {
      name: string;
      author: string | IUser;
-     location: {
-          name: string;
-          revision: string;
-     }
+     blob: File;
 }
 
 export interface IModuleTemplate extends IModule, IArangoIndexes {
