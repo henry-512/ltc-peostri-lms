@@ -760,7 +760,10 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 if (await this.exists(ctx.params.id)) {
                     await this.update(ctx.params.id, ctx.request.body, ctx.header['user-agent'] !== 'backend-testing')
                     ctx.status = 200
-                    ctx.body = `${this.dname} [${ctx.params.id}] updated`
+                    ctx.body = {
+                        id: ctx.params.id,
+                        message: `${this.dname} [${ctx.params.id}] updated`,
+                    }
                 } else {
                     ctx.status = 409
                     ctx.body = `${this.dname} [${ctx.params.id}] dne`
