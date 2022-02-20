@@ -45,6 +45,7 @@ export interface ITask extends IArangoIndexes {
      title: string;
      status: Status;
      users?: Array<string> | Array<IUser>;
+     userGroup?: string;
      module?: string | IModule;
      type?: TaskTypes;
 }

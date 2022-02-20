@@ -533,7 +533,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         }
     }
 
-    protected async create(key: string, doc: Type, real: boolean) {
+    protected async create(id: string, doc: Type, real: boolean) {
         // The passed document has a parent key, so we need to
         // update the parent to include this document
         // if (this.parentKey && this.parentKey.local in doc) {
@@ -543,7 +543,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // Turns a fully-dereferenced document into a reference
         // document
         let map = new Map<ApiRoute<IArangoIndexes>, IArangoIndexes[]>()
-        await this.addToReferenceMap(key, doc, map, true)
+        await this.addToReferenceMap(id, doc, map, true)
 
         real || console.log('FAKING CREATE')
         // Saves each document in the map to its respective collection
@@ -574,6 +574,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     }
 
     protected async update(key: string, doc: Type, real: boolean) {
+        let id = keyToId(key, this.name)
+
         // We dont need to update all elements, .update does that
         // automatically for us :)
 
@@ -583,7 +585,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // }
 
         let map = new Map<ApiRoute<IArangoIndexes>, IArangoIndexes[]>()
-        await this.addToReferenceMap(key, doc, map, true)
+        await this.addToReferenceMap(id, doc, map, true)
 
         real || console.log('FAKING UPDATE')
         // Updates each document in the map to its respective collection

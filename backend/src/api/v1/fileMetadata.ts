@@ -10,7 +10,7 @@ class FileMetadataRoute extends ApiRoute<IFileMetadata> {
             {
                 'name':{type:'string'},
                 'author':{type:'fkey'},
-                'blob':{type:'object'},
+                // 'path':{type:'string',optional:true},
             },
             true,
             {
@@ -52,15 +52,15 @@ class FileMetadataRoute extends ApiRoute<IFileMetadata> {
         //     xhr.send()
         // })
 
-        let blob:any = {}
-        blob.src = doc.src
-        blob.lastModifiedDate = new Date()
-        blob.name = doc.title
+        // let blob:any = {}
+        // blob.src = doc.src
+        // blob.lastModifiedDate = new Date()
+        // blob.name = doc.title
 
         let meta:any = {}
         meta.author = 'users/0123456789012345678900'
         meta.name = doc.title
-        meta.blob = blob
+        // meta.blob = blob
 
         return meta
     }

@@ -19,8 +19,11 @@ class ModuleRoute extends ApiRoute<IModule> {
                     freeable:true
                 },
                 'project':{type:'parent'},
-                'status':{type:'string'},
-                'waived':{
+                'status':{
+                    type:'string',
+                    default: 'AWAITING'
+                },
+                'waive-module':{
                     type:'boolean',
                     optional:true,
                     default:false
