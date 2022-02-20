@@ -20,6 +20,8 @@ interface DBData {
     hideGetRef?:boolean,
     // True if this key shouldn't be dereferenced
     getIdKeepAsRef?:boolean,
+    // True if this foreign key shouldn't accept built documents
+    denyNewDoc?:boolean,
     isForeign?:boolean,
     // True if this foreign object reference can be freely deleted
     freeable?:boolean,
@@ -226,13 +228,15 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         let offset = 0
         let count = 10
 
-        // TODO: implement generic filtering
-        let filter = JSON.parse(q.filter)
         let filterIds:string[] = []
 
-        if (filter) {
-            if ('id' in filter && Array.isArray(filter.id)) {
-                filterIds = filter.id.map((s:string) => convertToKey(s))
+        // TODO: implement generic filtering
+        if (q.filter) {
+            let filter = JSON.parse(q.filter)
+            if (filter) {
+                if ('id' in filter && Array.isArray(filter.id)) {
+                    filterIds = filter.id.map((s:string) => convertToKey(s))
+                }
             }
         }
 
@@ -376,6 +380,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     private async ref(
         doc:any,
         par:string,
+        data:DBData,
         map: Map<ApiRoute<IArangoIndexes>, IArangoIndexes[]>,
         create: boolean
     ) : Promise<any> {
@@ -396,6 +401,10 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             throw new TypeError(`Foreign key [${doc}] does not exist`)
         // Objects are fully-formed documents
         } else if (typeof doc === 'object') {
+            if (data.denyNewDoc) {
+                throw new TypeError(`New documents ${doc} not acceptable`)
+            }
+
             doc = await this.modifyDoc(doc, par)
 
             // Update parent field only if it isn't already set
@@ -476,6 +485,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                         addDoc[localKey] = await cls.ref(
                             foreign,
                             addDocId,
+                            data,
                             map,
                             create
                         )
@@ -489,6 +499,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                             lpDoc => cls.ref(
                                 lpDoc,
                                 addDocId,
+                                data,
                                 map,
                                 create
                             )
@@ -506,6 +517,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                                     stepAr.map(lpDoc => cls.ref(
                                         lpDoc,
                                         addDocId,
+                                        data,
                                         map,
                                         create
                                     ))

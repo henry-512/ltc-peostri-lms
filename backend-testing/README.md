@@ -1,15 +1,21 @@
-# backend-testing
+# PEO STRI LMS (Backend testing)
 
-Blackbox backend testing for the PEO-STRI LMS API Backend
+Blackbox backend testing for the PEO-STRI LMS API Backend. Built using SuperTest, Chai, and Mocha for NodeJS.
 
-# To run
+# Build instructions
 
-Install with
-```sh
+## Install
+
+- Install NodeJS and NPM
+- Git clone or extract to a directory
+- Run the following in this (`backend-testing`) directory to install relevant packages
+
+```
 npm install
 ```
-Then
-```sh
+
+## Execution
+
+```
 npm test
 ```
-to execute the testing scripts.

@@ -4,8 +4,6 @@ import { ModuleRouteInstance } from "./module";
 import { ApiRoute } from "./route";
 import { UserRouteInstance } from "./users";
 
-// default status AWAITING
-
 class ProjectRoute extends ApiRoute<IProject> {
     constructor() {
         super(
@@ -22,7 +20,11 @@ class ProjectRoute extends ApiRoute<IProject> {
                     freeable:true
                 },
                 'modules':{type:'fkeyStep',freeable:true},
-                'users':{type:'fkeyArray',getIdKeepAsRef:true}
+                'users':{
+                    type:'fkeyArray',
+                    getIdKeepAsRef:true,
+                    denyNewDoc:true,
+                },
             },
             true,
             {
