@@ -6,9 +6,8 @@ import { ArrayCursor } from "arangojs/cursor"
 import koaBody from "koa-body"
 
 import { db } from "../../database"
-import { IArangoIndexes, IComment, ICreateUpdate } from "../../lms/types"
+import { IArangoIndexes, ICreateUpdate } from "../../lms/types"
 import { convertToKey, generateDBID, isDBId, isDBKey, keyToId, splitId } from "../../lms/util"
-import { CommentRouteInstance } from "./comments"
 
 interface DBData {
     type:'string' | 'boolean' | 'object' | 'parent' | 'fkey' | 'fkeyArray' | 'fkeyStep',
@@ -404,7 +403,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // Objects are fully-formed documents
         } else if (typeof doc === 'object') {
             if (!data.acceptNewDoc) {
-                throw new TypeError(`New documents [${doc}] not acceptable for this type`)
+                throw new TypeError(`New documents [${JSON.stringify(doc)}] not acceptable for this type ${JSON.stringify(data)}`)
             }
 
             doc = await this.modifyDoc(doc, par)
@@ -506,6 +505,18 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                                 create
                             )
                         ))
+                        continue
+                    }
+                    if (typeof foreign === 'string') {
+                        addDoc[localKey] = <any>[
+                            await cls.ref(
+                                foreign,
+                                addDocId,
+                                data,
+                                map,
+                                create
+                            )
+                        ]
                         continue
                     }
                     throw new TypeError(`${foreign} expected to be an array`)

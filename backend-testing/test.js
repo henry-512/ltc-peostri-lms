@@ -19,6 +19,9 @@ function test(n) {
         })
     })
 
+    // This takes too long for projects
+    // Refactor into multiple describe() calls?
+    /*
     describe(`${n} POST/GET/PUT/DELETE chain`, () => {
         it('Chain code', async () => {
             let r = await request
@@ -66,7 +69,7 @@ function test(n) {
                 .get(route)
             expect(r.status).equal(404)
         })
-    })
+    })*/
 
     describe(`${n} POST accepts`, () => {
         raw.acceptPost.map(d => {
@@ -96,4 +99,4 @@ function test(n) {
 }
 
 test('users')
-// test('projects')
+test('projects')

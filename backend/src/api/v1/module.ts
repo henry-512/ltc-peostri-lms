@@ -11,7 +11,11 @@ class ModuleRoute extends ApiRoute<IModule> {
             'Module',
             {
                 'title':{type:'string'},
-                'tasks':{type:'fkeyStep',freeable:true},
+                'tasks':{
+                    type:'fkeyStep',
+                    freeable:true,
+                    acceptNewDoc:true,
+                },
                 'comments':{
                     type:'fkeyArray',
                     optional:true,
