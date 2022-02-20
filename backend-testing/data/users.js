@@ -1,77 +1,93 @@
-const { debugUserGroupKey, debugUserGroupId } = require('.')
+const { debugUserGroupKey, debugUserGroupId, debugUserId } = require('.')
 
-module.exports = [
-	{
-		n: 'Base case',
-		expect: {
-			code:200
-		},
-		request: {
-			'firstName': 'John',
-			'lastName': 'Doe',
-			'avatar': '',
-			'userGroup': debugUserGroupId
-		}
+module.exports = {
+	chain: {
+		acceptPut: [],
+		failPut: [],
 	},
-	{
-		n: 'Fully-formed userGroup (not valid for this call)',
-		expect: {
-			code:500
+	acceptPost: [
+		{
+			n: 'Base case',
+			d: {
+				'firstName': 'John',
+				'lastName': 'Doe',
+				'avatar': '',
+				'userGroup': debugUserGroupId
+			},
+		}, {
+			n: 'Passed ID',
+			d: {
+				'id': 'id-insertion',
+				'firstName': 'John',
+				'lastName': 'Doe',
+				'avatar': '',
+				'userGroup': debugUserGroupId
+			},
+		}, {
+			n: 'Valid key, not an ID',
+			d: {
+				'firstName': 'John',
+				'lastName': 'Doe',
+				'avatar': '',
+				'userGroup': debugUserGroupKey
+			},
 		},
-		request: {
-			'firstName': 'Jason',
-			'lastName': 'Doe',
-			'avatar': '',
-			'userGroup': {
-				'name': 'Jason\'s super-cool Usergroup',
-				'permissions': {
-					'perm1': true,
-					'perm2': true,
-					'perm3': true
+	],
+	failPost: [
+		{
+			n: 'Fully-formed userGroup',
+			d: {
+				'firstName': 'Jason',
+				'lastName': 'Doe',
+				'avatar': '',
+				'userGroup': {
+					'name': 'Jason\'s super-cool Usergroup',
+					'permissions': {
+						'perm1': true,
+						'perm2': true,
+						'perm3': true
+					}
 				}
 			}
+		}, {
+			n: 'Missing fields',
+			d: {
+				'firstName': 'Josh',
+				'userGroup': debugUserGroupId
+			},
+		}, {
+		// 	n: 'Additional field',
+		// 	d: {
+		// 		'firstName': 'Joshua',
+		// 		'lastName': 'Doe',
+		// 		'avatar': '',
+		// 		'userGroup': debugUserGroupId,
+		// 		'super-cool-hackerinos': '; DROP TABLE USERS'
+		// 	},
+		// }, {
+			n: 'Valid foreign id, but not a userGroup',
+			d: {
+				'firstName': 'Joe',
+				'lastName': 'Doe',
+				'avatar': '',
+				'userGroup': debugUserId
+			},
+		}, {
+			n: 'Empty string key',
+			d: {
+				'firstName': 'Jordan',
+				'lastName': 'Doe',
+				'avatar': '',
+				'userGroup': ''
+			},
+		}, {
+			n: 'Invalid key',
+			d: {
+				'firstName': 'Jordan',
+				'lastName': 'Doe',
+				'avatar': '',
+				'userGroup': '//:)'
+			}
 		}
-	},
-	// Missing fields
-	{
-		'firstName': 'Josh',
-		'userGroup': debugUserGroupId
-	},
-	// Additional field
-	{
-		'firstName': 'Joshua',
-		'lastName': 'Doe',
-		'avatar': '',
-		'userGroup': debugUserGroupId,
-		'super-cool-hackerinos': '; DROP TABLE USERS'
-	},
-	// Valid key, but not a userGroup
-	{
-		'firstName': 'Joe',
-		'lastName': 'Doe',
-		'avatar': '',
-		'userGroup': debugUserGroupId
-	},
-	// Empty string key
-	{
-		'firstName': 'Jordan',
-		'lastName': 'Doe',
-		'avatar': '',
-		'userGroup': ''
-	},
-	// Passed ID
-	{
-		'id': 'id-insertion',
-		'firstName': 'John',
-		'lastName': 'Doe',
-		'avatar': '',
-		'userGroup': debugUserGroupId
-	},
-	// Valid key, not an ID
-	{
-		'firstName': 'John',
-		'lastName': 'Doe',
-		'avatar': '',
-		'userGroup': debugUserGroupKey
-	}
-]
+	],
+}

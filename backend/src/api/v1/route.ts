@@ -6,9 +6,8 @@ import { ArrayCursor } from "arangojs/cursor"
 import koaBody from "koa-body"
 
 import { db } from "../../database"
-import { IArangoIndexes, IComment, ICreateUpdate } from "../../lms/types"
+import { IArangoIndexes, ICreateUpdate } from "../../lms/types"
 import { convertToKey, generateDBID, isDBId, isDBKey, keyToId, splitId } from "../../lms/util"
-import { CommentRouteInstance } from "./comments"
 
 interface DBData {
     type:'string' | 'boolean' | 'object' | 'parent' | 'fkey' | 'fkeyArray' | 'fkeyStep',
@@ -20,6 +19,8 @@ interface DBData {
     hideGetRef?:boolean,
     // True if this key shouldn't be dereferenced
     getIdKeepAsRef?:boolean,
+    // True if this foreign key should accept built documents
+    acceptNewDoc?:boolean,
     isForeign?:boolean,
     // True if this foreign object reference can be freely deleted
     freeable?:boolean,
@@ -226,13 +227,15 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         let offset = 0
         let count = 10
 
-        // TODO: implement generic filtering
-        let filter = JSON.parse(q.filter)
         let filterIds:string[] = []
 
-        if (filter) {
-            if ('id' in filter && Array.isArray(filter.id)) {
-                filterIds = filter.id.map((s:string) => convertToKey(s))
+        // TODO: implement generic filtering
+        if (q.filter) {
+            let filter = JSON.parse(q.filter)
+            if (filter) {
+                if ('id' in filter && Array.isArray(filter.id)) {
+                    filterIds = filter.id.map((s:string) => convertToKey(s))
+                }
             }
         }
 
@@ -376,6 +379,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     private async ref(
         doc:any,
         par:string,
+        data:DBData,
         map: Map<ApiRoute<IArangoIndexes>, IArangoIndexes[]>,
         create: boolean
     ) : Promise<any> {
@@ -386,16 +390,22 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 return isDBKey(doc) ? keyToId(doc, this.name) : doc
             }
 
-            let built = this.buildFromString(doc, par)
-            if (built) {
-                let childId = generateDBID(this.name)
-                await this.addToReferenceMap(childId, built, map, create)
-                return childId
+            if (data.acceptNewDoc) {
+                let built = this.buildFromString(doc, par)
+                if (built) {
+                    let childId = generateDBID(this.name)
+                    await this.addToReferenceMap(childId, built, map, create)
+                    return childId
+                }
             }
 
             throw new TypeError(`Foreign key [${doc}] does not exist`)
         // Objects are fully-formed documents
         } else if (typeof doc === 'object') {
+            if (!data.acceptNewDoc) {
+                throw new TypeError(`New documents [${JSON.stringify(doc)}] not acceptable for this type ${JSON.stringify(data)}`)
+            }
+
             doc = await this.modifyDoc(doc, par)
 
             // Update parent field only if it isn't already set
@@ -476,6 +486,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                         addDoc[localKey] = await cls.ref(
                             foreign,
                             addDocId,
+                            data,
                             map,
                             create
                         )
@@ -489,10 +500,23 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                             lpDoc => cls.ref(
                                 lpDoc,
                                 addDocId,
+                                data,
                                 map,
                                 create
                             )
                         ))
+                        continue
+                    }
+                    if (typeof foreign === 'string') {
+                        addDoc[localKey] = <any>[
+                            await cls.ref(
+                                foreign,
+                                addDocId,
+                                data,
+                                map,
+                                create
+                            )
+                        ]
                         continue
                     }
                     throw new TypeError(`${foreign} expected to be an array`)
@@ -506,6 +530,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                                     stepAr.map(lpDoc => cls.ref(
                                         lpDoc,
                                         addDocId,
+                                        data,
                                         map,
                                         create
                                     ))
@@ -533,7 +558,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         }
     }
 
-    protected async create(key: string, doc: Type, real: boolean) {
+    protected async create(id: string, doc: Type, real: boolean) {
         // The passed document has a parent key, so we need to
         // update the parent to include this document
         // if (this.parentKey && this.parentKey.local in doc) {
@@ -543,7 +568,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // Turns a fully-dereferenced document into a reference
         // document
         let map = new Map<ApiRoute<IArangoIndexes>, IArangoIndexes[]>()
-        await this.addToReferenceMap(key, doc, map, true)
+        await this.addToReferenceMap(id, doc, map, true)
 
         real || console.log('FAKING CREATE')
         // Saves each document in the map to its respective collection
@@ -574,6 +599,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     }
 
     protected async update(key: string, doc: Type, real: boolean) {
+        let id = keyToId(key, this.name)
+
         // We dont need to update all elements, .update does that
         // automatically for us :)
 
@@ -583,7 +610,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // }
 
         let map = new Map<ApiRoute<IArangoIndexes>, IArangoIndexes[]>()
-        await this.addToReferenceMap(key, doc, map, true)
+        await this.addToReferenceMap(id, doc, map, true)
 
         real || console.log('FAKING UPDATE')
         // Updates each document in the map to its respective collection

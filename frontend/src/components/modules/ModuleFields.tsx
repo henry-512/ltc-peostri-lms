@@ -96,7 +96,7 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                          </Typography>
                     </Grid>
                     <Grid item xs={6} style={{marginTop: '-32px'}}>
-                         <RichTextInput source={getSource?.('comment') || ""} toolbar={[ ['bold', 'italic', 'underline'] ]} label="" helperText=" " />
+                         <RichTextInput source={getSource?.('comments') || ""} toolbar={[ ['bold', 'italic', 'underline'] ]} label="" helperText=" " />
                     </Grid>
                     <Grid item xs={6} style={{marginTop: '-32px'}}>
                          <FileInput source={getSource?.('file') || ""} accept="application/pdf" fullWidth label="" labelSingle="project.fields.waiver_file" helperText=" ">
