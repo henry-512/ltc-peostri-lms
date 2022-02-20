@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@koa/cors": "^3.1.0",
+    "@koa/multer": "^3.0.0",
     "@koa/router": "^10.1.1",
     "arangojs": "^7.6.1",
     "dotenv": "^14.3.0",
@@ -36,6 +37,7 @@
     "koa-body": "^4.2.0",
     "koa-qs": "^3.0.0",
     "koa-userauth": "^2.1.0",
+    "multer": "^1.4.4",
     "uuid": "^8.3.2"
   }
 }

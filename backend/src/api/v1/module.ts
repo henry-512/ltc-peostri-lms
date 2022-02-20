@@ -11,21 +11,34 @@ class ModuleRoute extends ApiRoute<IModule> {
             'Module',
             {
                 'title':{type:'string'},
-                'tasks':{type:'fkeyStep',freeable:true},
+                'tasks':{
+                    type:'fkeyStep',
+                    freeable:true,
+                    acceptNewDoc:true,
+                },
                 'comments':{
                     type:'fkeyArray',
                     optional:true,
                     default:[],
-                    freeable:true
+                    freeable:true,
+                    acceptNewDoc:true,
                 },
                 'project':{type:'parent'},
-                'status':{type:'string'},
-                'waived':{
+                'status':{
+                    type:'string',
+                    default: 'AWAITING'
+                },
+                'waive-module':{
                     type:'boolean',
                     optional:true,
                     default:false
                 },
-                'file':{type:'fkey',optional:true,getIdKeepAsRef:true},
+                'file':{
+                    type:'fkey',
+                    optional:true,
+                    getIdKeepAsRef:true,
+                    acceptNewDoc:true,
+                },
             },
             false,
             {

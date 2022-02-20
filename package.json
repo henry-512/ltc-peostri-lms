@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "Logistical framework",
   "scripts": {
-    "install": "npm run install-back && npm run install-front",
+    "install": "npm run install-back && npm run install-front && npm run install-back-test",
+    "install-back-test": "cd backend-testing && npm install && cd ..",
     "install-back": "cd backend && npm install && cd ..",
     "install-front": "cd frontend && npm install && cd ..",
     "backend": "cd backend && npm run sweep",
-    "frontend": "cd frontend && npm run build && npm run start"
+    "frontend": "cd frontend && npm run build && npm run dev"
   },
   "license": "ISC",
   "dependencies": {
