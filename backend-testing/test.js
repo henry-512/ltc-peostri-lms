@@ -1,8 +1,5 @@
 const request = require('supertest')('localhost:5000/api/v1/')
-require('chai')
-
 const { expect } = require('chai')
-const user = require('./data/users.js')
 
 // .query('range=1..5')
 // .send('{}')
@@ -14,8 +11,8 @@ function test(n) {
 
     describe(`${n} GET all`, () => {
         it('Base call', async () => {
-            r = await request
-                .get(`${n}`)
+            let r = await request
+                .get(n)
             expect(r.status).equal(200)
             expect(r.headers).an('object')
                 .any.keys('content-range','access-control-expose-headers')
@@ -24,37 +21,72 @@ function test(n) {
 
     describe(`${n} POST/GET/PUT/DELETE chain`, () => {
         it('Chain code', async () => {
-            r = await request
-                .post(`${n}`)
-                .send(raw.chain.post)
+            let r = await request
+                .post(n)
+                .send(raw.chain.post || raw.acceptPost[0].d)
             expect(r.status).equal(201)
-            expect()
+            expect(r.body).an('object')
+                .any.key('id')
+            
+            let key = r.body.id
+            let route = `${n}/${key}`
+
+            r = await request
+                .get(route)
+            expect(r.status).equal(200)
+            expect(r.body).an('object')
+            expect(r.body.id).equal(key)
 
             // PUT
-            for (let data in raw.chain.acceptPut) {
+            // Try to upload POST-acceptable data
+            for (let data of raw.acceptPost) {
                 r = await request
-                    .put(`${n}/${id}`)
+                    .put(route)
+                    .send(data.d)
+                expect(r.status).equal(200)
+                expect(r.body).an('object')
+                expect(r.body.id).equal(key)
             }
+            // Try to upload POST-unacceptable data
+            for (let data of raw.failPost) {
+                r = await request
+                    .post(n)
+                    .set('User-Agent', 'backend-testing')
+                    .send(data.d)
+                expect(r.status).not.equal(201)
+            }
+
+            // Delete test document
+            r = await request
+                .delete(route)
+            expect(r.status).equal(200)
+
+            // Verify actually deleted
+            r = await request
+                .get(route)
+            expect(r.status).equal(404)
         })
     })
 
     describe(`${n} POST accepts`, () => {
         raw.acceptPost.map(d => {
-            it(`${d.n}`, async () => {
-                r = await request
-                    .post(`${n}`)
+            it(d.n, async () => {
+                let r = await request
+                    .post(n)
                     .set('User-Agent', 'backend-testing')
                     .send(d.d)
                 expect(r.status).equal(201)
+                expect(r.body).an('object')
+                    .any.key('id')
             })
         })
     })
 
     describe(`${n} POST fails`, () => {
         raw.failPost.map(d => {
-            it(`${d.n}`, async () => {
-                r = await request
-                    .post(`${n}`)
+            it(d.n, async () => {
+                let r = await request
+                    .post(n)
                     .set('User-Agent', 'backend-testing')
                     .send(d.d)
                 expect(r.status).not.equal(201)

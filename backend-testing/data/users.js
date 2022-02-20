@@ -2,13 +2,8 @@ const { debugUserGroupKey, debugUserGroupId, debugUserId } = require('.')
 
 module.exports = {
 	chain: {
-		post: {
-			'firstName': 'John',
-			'lastName': 'Doe',
-			'avatar': '',
-			'userGroup': debugUserGroupId
-		},
-		acceptPut: []
+		acceptPut: [],
+		failPut: [],
 	},
 	acceptPost: [
 		{
@@ -40,7 +35,7 @@ module.exports = {
 	],
 	failPost: [
 		{
-			n: 'Fully-formed userGroup (not valid for this call)',
+			n: 'Fully-formed userGroup',
 			d: {
 				'firstName': 'Jason',
 				'lastName': 'Doe',

@@ -20,8 +20,8 @@ interface DBData {
     hideGetRef?:boolean,
     // True if this key shouldn't be dereferenced
     getIdKeepAsRef?:boolean,
-    // True if this foreign key shouldn't accept built documents
-    denyNewDoc?:boolean,
+    // True if this foreign key should accept built documents
+    acceptNewDoc?:boolean,
     isForeign?:boolean,
     // True if this foreign object reference can be freely deleted
     freeable?:boolean,
@@ -391,18 +391,20 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 return isDBKey(doc) ? keyToId(doc, this.name) : doc
             }
 
-            let built = this.buildFromString(doc, par)
-            if (built) {
-                let childId = generateDBID(this.name)
-                await this.addToReferenceMap(childId, built, map, create)
-                return childId
+            if (data.acceptNewDoc) {
+                let built = this.buildFromString(doc, par)
+                if (built) {
+                    let childId = generateDBID(this.name)
+                    await this.addToReferenceMap(childId, built, map, create)
+                    return childId
+                }
             }
 
             throw new TypeError(`Foreign key [${doc}] does not exist`)
         // Objects are fully-formed documents
         } else if (typeof doc === 'object') {
-            if (data.denyNewDoc) {
-                throw new TypeError(`New documents ${doc} not acceptable`)
+            if (!data.acceptNewDoc) {
+                throw new TypeError(`New documents [${doc}] not acceptable for this type`)
             }
 
             doc = await this.modifyDoc(doc, par)

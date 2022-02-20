@@ -13,17 +13,25 @@ class ProjectRoute extends ApiRoute<IProject> {
                 'title':{type:'string'},
                 'start':{type:'string'},
                 'end':{type:'string'},
-                'status':{type:'string',default:'AWAITING'},
+                'status':{
+                    type:'string',
+                    default:'AWAITING'
+                },
                 'comments':{
                     type:'fkeyArray',
                     default:[],
-                    freeable:true
+                    freeable:true,
+                    acceptNewDoc:true,
                 },
-                'modules':{type:'fkeyStep',freeable:true},
+                'modules':{
+                    type:'fkeyStep',
+                    freeable:true,
+                    acceptNewDoc:true,
+                },
                 'users':{
                     type:'fkeyArray',
+                    default:[],
                     getIdKeepAsRef:true,
-                    denyNewDoc:true,
                 },
             },
             true,

@@ -16,7 +16,8 @@ class ModuleRoute extends ApiRoute<IModule> {
                     type:'fkeyArray',
                     optional:true,
                     default:[],
-                    freeable:true
+                    freeable:true,
+                    acceptNewDoc:true,
                 },
                 'project':{type:'parent'},
                 'status':{
@@ -28,7 +29,12 @@ class ModuleRoute extends ApiRoute<IModule> {
                     optional:true,
                     default:false
                 },
-                'file':{type:'fkey',optional:true,getIdKeepAsRef:true},
+                'file':{
+                    type:'fkey',
+                    optional:true,
+                    getIdKeepAsRef:true,
+                    acceptNewDoc:true,
+                },
             },
             false,
             {

@@ -13,10 +13,7 @@ class UserRoute extends ApiRoute<IUser> {
                 'firstName': {type:'string'},
                 'lastName':{type:'string'},
                 'avatar':{type:'string'},
-                'userGroup':{
-                    type:'fkey',
-                    denyNewDoc:true,
-                }
+                'userGroup':{type:'fkey'},
             },
             false,
             {

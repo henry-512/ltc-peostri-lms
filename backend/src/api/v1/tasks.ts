@@ -10,10 +10,24 @@ class TaskRoute extends ApiRoute<ITask> {
             'Task',
             {
                 'title':{type:'string'},
-                'status':{type:'string',default:'AWAITING'},
-                'users':{type:'fkeyArray',default:[],getIdKeepAsRef:true},
-                'userGroup':{type:'fkey',optional:true,getIdKeepAsRef:true},
-                'module':{type:'parent'},
+                'status':{
+                    type:'string',
+                    default:'AWAITING',
+                },
+                'users':{
+                    type:'fkeyArray',
+                    default:[],
+                    getIdKeepAsRef:true,
+                },
+                'userGroup':{
+                    type:'fkey',
+                    optional:true,
+                    getIdKeepAsRef:true,
+                },
+                'module':{
+                    type:'parent',
+                    acceptNewDoc:true,
+                },
                 'type':{type:'string'}
             },
             false,

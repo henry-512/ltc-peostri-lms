@@ -124,9 +124,16 @@ Takes the document in the body and uploads it to the collection. Accepts derefer
 
 # TODO
 
+## Modifications
+
 - Proper error responses from the DB
   - 409 on POST
+- Actual logger
 
-# thinking
+## Known oversights
+
+- `PUT` can remove foreign keys without warning, creating a memory leak
+
+## thinking
 
 - Multithread db upload?
