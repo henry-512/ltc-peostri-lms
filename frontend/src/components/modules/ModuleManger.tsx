@@ -75,7 +75,7 @@ const ModuleManager = (props: ModuleManagerProps) => {
                     renderData={modules}
                     emptyText={translate('project.layout.no_modules')}
                >
-                    <ModuleCard />
+                    <ModuleCard fixKey={setCurKey} />
                </Steps> 
                <Creator 
                     label={translate('project.layout.create_module')} 

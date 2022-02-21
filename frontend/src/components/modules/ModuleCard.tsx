@@ -1,4 +1,5 @@
 import { Button, Card, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, makeStyles, Typography } from "@material-ui/core";
+import get from "lodash.get";
 import { useState } from "react";
 import { useTranslate } from "react-admin";
 import { Draggable } from "react-beautiful-dnd";
@@ -26,10 +27,11 @@ type ModuleCardProps = {
      index?: number,
      stepKey?: string,
      subSteps?: ITaskStep,
-     getSource?: string
+     getSource?: string,
+     fixKey: Function
 }
 
-const ModuleCard = ({steps, info, index, stepKey, subSteps}: ModuleCardProps) => {
+const ModuleCard = ({steps, info, index, stepKey, subSteps, fixKey}: ModuleCardProps) => {
      const translate = useTranslate();
      const classes = useStyles();
 
@@ -52,6 +54,16 @@ const ModuleCard = ({steps, info, index, stepKey, subSteps}: ModuleCardProps) =>
      const getSource = (key?: string) => {
           if (key) return `${source}.${key}`.toString();
           return source.toString();
+     }
+
+     const deleteCreator = () => {
+          let modules = get(form.getState().values, `modules[${stepKey}]`);
+          modules.splice(index, 1);
+          form.change(`modules[${stepKey}]`, modules);
+
+          if (modules.length <= 0) {
+               fixKey(stepKey?.split('-')[1]);
+          }
      }
      
      return (
@@ -89,6 +101,7 @@ const ModuleCard = ({steps, info, index, stepKey, subSteps}: ModuleCardProps) =>
                                    ariaLabel={"module-update-" + stepKey + "-" + index} 
                                    cancelAction={cancelCreator}
                                    submitAction={submitCreator} 
+                                   deleteAction={deleteCreator}
                               >
                                    <ModuleFields getSource={getSource} initialValues={info} />
                               </Creator>

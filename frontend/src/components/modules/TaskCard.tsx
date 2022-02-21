@@ -1,4 +1,5 @@
 import { Button, Card, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, makeStyles, Typography } from "@material-ui/core";
+import get from "lodash.get";
 import { useState } from "react";
 import { useTranslate } from "react-admin";
 import { Draggable } from "react-beautiful-dnd";
@@ -25,10 +26,11 @@ type TaskCardProps = {
      info?: ITask,
      index?: number,
      stepKey?: string,
-     baseSource?: string
+     baseSource?: string,
+     fixKey: Function
 }
 
-const TaskCard = ({info, index, stepKey, baseSource}: TaskCardProps) => {
+const TaskCard = ({info, index, stepKey, baseSource, fixKey}: TaskCardProps) => {
      const translate = useTranslate();
      const classes = useStyles();
 
@@ -51,6 +53,16 @@ const TaskCard = ({info, index, stepKey, baseSource}: TaskCardProps) => {
      const getSource = (key?: string) => {
           if (key) return `${source}.${key}`.toString();
           return source.toString();
+     }
+
+     const deleteCreator = () => {
+          let modules = get(form.getState().values, `${baseSource}[${stepKey}]`);
+          modules.splice(index, 1);
+          form.change(`${baseSource}[${stepKey}]`, modules);
+
+          if (modules.length <= 0) {
+               fixKey(stepKey?.split('-')[1]);
+          }
      }
      
      return (
@@ -88,6 +100,7 @@ const TaskCard = ({info, index, stepKey, baseSource}: TaskCardProps) => {
                                    ariaLabel={"task-update-" + stepKey + "-" + index} 
                                    cancelAction={cancelCreator}
                                    submitAction={submitCreator} 
+                                   deleteAction={deleteCreator}
                                    maxWidth="md"
                               >
                                    <TaskFields getSource={getSource} initialValues={info} />

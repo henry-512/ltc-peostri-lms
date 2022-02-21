@@ -80,7 +80,7 @@ const TaskManager = (props: TaskManagerProps) => {
                     changeOnAction={false} 
                     updateForm={updateStep}
                >
-                    <TaskCard baseSource={props.source} />
+                    <TaskCard baseSource={props.source} fixKey={setCurKey} />
                </Steps> 
                <Creator 
                     label={translate('project.layout.create_task')} 
