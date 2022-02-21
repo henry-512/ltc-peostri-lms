@@ -221,7 +221,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      *  - range [offset, count]
      * @return A cursor representing all db objects that fit the query 
      */
-    protected async query(q: any): Promise<ArrayCursor<Type>> {
+    protected async query(q: any) {
         let sort = aql`_key`
         let sortDir = ApiRoute.ASC
         let offset = 0
@@ -263,7 +263,12 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             filterIds
         )
 
-        return db.query(query)
+        return {
+            cursor: await db.query(query),
+            size: (await this.collection.count()).count,
+            low: offset,
+            high: offset + count,
+        }
     }
 
     /**
@@ -731,8 +736,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     makeRouter() { return new Router({prefix:this.name})
         .get('/', async (ctx) => {
             try {
-                const cursor = await this.query(ctx.request.query)
-                let all = await cursor.all()
+                const qdata = await this.query(ctx.request.query)
+                let all = await qdata.cursor.all()
 
                 // Convert all document foreign ids to keys
                 all.forEach(
@@ -742,7 +747,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 ctx.status = 200
                 ctx.body = all
     
-                ctx.set('Content-Range', `${this.name} 0-${Math.max(all.length-1, 0)}/${all.length}`)
+                ctx.set('Content-Range', `${this.name} ${qdata.low}-${qdata.high}/${qdata.size}`)
                 ctx.set('Access-Control-Expose-Headers', 'Content-Range')
             } catch (err) {
                 console.log(err)
@@ -754,9 +759,6 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 if (await this.exists(ctx.params.id)) {
                     ctx.body = await this.getFromDB(ctx.params.id, true)
                     ctx.status = 200
-
-                    ctx.set('Content-Range', `${this.name} 0-0/1`)
-                    ctx.set('Access-Control-Expose-Headers', 'Content-Range')
                 } else {
                     ctx.status = 404
                     ctx.body = `${this.dname} [${ctx.params.id}] dne.`
