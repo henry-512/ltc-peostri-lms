@@ -12,6 +12,7 @@
   },
   "license": "ISC",
   "dependencies": {
-    "peostri-backend": "file:backend"
+    "peostri-backend": "file:backend",
+    "pm2": "^5.2.0"
   }
 }

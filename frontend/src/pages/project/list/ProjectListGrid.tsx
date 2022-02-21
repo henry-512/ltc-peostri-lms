@@ -39,7 +39,7 @@ const ProjectListGrid = (props: DatagridProps) => {
                rowClick="edit"
                {...props}
           >
-               <TextField source="id" />
+               {/*<TextField source="id" /> // TODO: Temporarily removing ID due to illegible ID's */}
                <TextField source="title" />
                <DateField source="createdAt" showTime />
                <DateField source="updatedAt" showTime />
