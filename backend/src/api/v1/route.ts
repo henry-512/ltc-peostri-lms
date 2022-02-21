@@ -805,7 +805,10 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 if (await this.exists(ctx.params.id)) {
                     await this.delete(ctx.params.id, ctx.header['user-agent'] !== 'backend-testing', true)
                     ctx.status = 200
-                    ctx.body = `${this.dname} deleted`
+                    ctx.body = {
+                        id: ctx.params.id,
+                        message: `${this.dname} deleted`,
+                    }
                 } else {
                     ctx.status = 404
                     ctx.body = `${this.dname} [${ctx.params.id}] dne`
