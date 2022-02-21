@@ -22,8 +22,8 @@ const useStyles = makeStyles(theme => ({
      },
      waiverWrapperOpen: {
           transition: 'height 0.3s ease',
-          height: '161px',
-          marginBottom: '-40px',
+          height: '190px',
+          marginBottom: '-30px',
           maxHeight: 'unset'
      }
 }))
