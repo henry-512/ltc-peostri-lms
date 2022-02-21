@@ -1,7 +1,7 @@
 import Router from "@koa/router"
 import { aql } from "arangojs"
 import { GeneratedAqlQuery } from "arangojs/aql"
-import { DocumentCollection } from "arangojs/collection"
+import { CollectionUpdateOptions, DocumentCollection } from "arangojs/collection"
 import { ArrayCursor } from "arangojs/cursor"
 import koaBody from "koa-body"
 
@@ -80,8 +80,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         return this.collection.save(doc)
     }
 
-    protected async updateUnsafe(doc: Type) {
-        return this.collection.update(doc._key as string, doc)
+    protected async updateUnsafe(doc: Type, opt: CollectionUpdateOptions) {
+        return this.collection.update(doc._key as string, doc, opt)
     }
 
     protected async removeUnsafe(id: string) {
@@ -627,7 +627,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 }
                 if (await api.exists(d._key)) {
                     console.log(`Updating ${api.name} | ${JSON.stringify(d)}`)
-                    real && await api.updateUnsafe(d)
+                    real && await api.updateUnsafe(d, {
+                        mergeObjects:false
+                    })
                 } else {
                     console.log(`Saving ${api.name} | ${JSON.stringify(d)}`)
                     real && await api.saveUnsafe(d)
