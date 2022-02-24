@@ -12,7 +12,9 @@ module.exports = {
 				'firstName': 'John',
 				'lastName': 'Doe',
 				'avatar': '',
-				'userGroup': debugUserGroupId
+				'userGroup': debugUserGroupId,
+				'username': 'usName',
+				'password': 'password'
 			},
 		}, {
 			n: 'Passed ID',
@@ -21,7 +23,9 @@ module.exports = {
 				'firstName': 'John',
 				'lastName': 'Doe',
 				'avatar': '',
-				'userGroup': debugUserGroupId
+				'userGroup': debugUserGroupId,
+				'username': 'usName',
+				'password': 'password'
 			},
 		}, {
 			n: 'Valid key, not an ID',
@@ -29,7 +33,9 @@ module.exports = {
 				'firstName': 'John',
 				'lastName': 'Doe',
 				'avatar': '',
-				'userGroup': debugUserGroupKey
+				'userGroup': debugUserGroupKey,
+				'username': 'usName',
+				'password': 'password'
 			},
 		},
 	],
@@ -47,13 +53,17 @@ module.exports = {
 						'perm2': true,
 						'perm3': true
 					}
-				}
+				},
+				'username': 'usName',
+				'password': 'password'
 			}
 		}, {
 			n: 'Missing fields',
 			d: {
 				'firstName': 'Josh',
-				'userGroup': debugUserGroupId
+				'userGroup': debugUserGroupId,
+				'username': 'usName',
+				'password': 'password'
 			},
 		}, {
 		// 	n: 'Additional field',
@@ -70,7 +80,9 @@ module.exports = {
 				'firstName': 'Joe',
 				'lastName': 'Doe',
 				'avatar': '',
-				'userGroup': debugUserId
+				'userGroup': debugUserId,
+				'username': 'usName',
+				'password': 'password'
 			},
 		}, {
 			n: 'Empty string key',
@@ -78,16 +90,29 @@ module.exports = {
 				'firstName': 'Jordan',
 				'lastName': 'Doe',
 				'avatar': '',
-				'userGroup': ''
+				'userGroup': '',
+				'username': 'usName',
+				'password': 'password'
 			},
 		}, {
 			n: 'Invalid key',
 			d: {
-				'firstName': 'Jordan',
+				'firstName': 'Jackie',
 				'lastName': 'Doe',
 				'avatar': '',
-				'userGroup': '//:)'
+				'userGroup': '//:)',
+				'username': 'usName',
+				'password': 'password'
 			}
+		}, {
+			n: 'Missing password',
+			d: {
+				'firstName': 'Jacklyn',
+				'lastName': 'Doe',
+				'avatar': '',
+				'userGroup': debugUserGroupId,
+				'username': 'usName'
+			},
 		}
 	],
 }

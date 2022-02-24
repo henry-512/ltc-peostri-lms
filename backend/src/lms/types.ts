@@ -33,6 +33,9 @@ export interface IUser extends IArangoIndexes {
      lastName: string;
      avatar: null | string;
      userGroup: string | IUserGroup;
+
+     username: string;
+     password: string;
 }
 
 export interface IComment extends IArangoIndexes, ICreateUpdate {

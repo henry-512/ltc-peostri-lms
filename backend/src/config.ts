@@ -8,6 +8,8 @@ export interface Config {
 	dbName: string
 	dbUser: string
 	dbPass: string
+
+	secret: string
 }
 
 const config: Config = {
@@ -15,7 +17,9 @@ const config: Config = {
 	dbUrl: process.env.DB_URL || 'localhost',
 	dbName: process.env.DB_NAME || 'db',
 	dbUser: process.env.DB_USER || 'user',
-	dbPass: process.env.DB_PASS || 'password'
+	dbPass: process.env.DB_PASS || 'password',
+
+	secret: process.env.SECRET || 'soyoung',
 }
 
 // export env settings

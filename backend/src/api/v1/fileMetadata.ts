@@ -28,7 +28,7 @@ class FileMetadataRoute extends ApiRoute<IFileMetadata> {
         title: "string.pdf"
     }
      */
-    protected override async modifyDoc(doc:any, par:string) {
+    protected override async modifyDoc(doc:any) {
         if (!('title' in doc && 'src' in doc)) {
             throw new TypeError(`${doc} is not a valid file reference`)
         }

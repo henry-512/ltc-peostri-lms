@@ -2,8 +2,6 @@ import Router from "@koa/router"
 import { aql } from "arangojs"
 import { GeneratedAqlQuery } from "arangojs/aql"
 import { CollectionUpdateOptions, DocumentCollection } from "arangojs/collection"
-import { ArrayCursor } from "arangojs/cursor"
-import koaBody from "koa-body"
 
 import { db } from "../../database"
 import { IArangoIndexes, ICreateUpdate } from "../../lms/types"
@@ -152,7 +150,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         queryFields: GeneratedAqlQuery,
         filterIds: string[]
     ): GeneratedAqlQuery {
-        let query = aql`FOR z in ${collection} SORT z.${sort} ${sortDir}`
+        let query = aql`FOR z IN ${collection} SORT z.${sort} ${sortDir}`
 
         if (filterIds.length > 0) {
             query = aql`${query} FILTER z._key IN ${filterIds}`
@@ -373,9 +371,10 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     }
 
     /**
-     * Modifies a document
+     * Modifies a document. Called after verifying all fields exist,
+     * and after dereferencing all keys
      */
-    protected async modifyDoc(doc:any,par:string) { return doc }
+    protected async modifyDoc(doc:any) { return doc }
 
     /**
      * Validates a document reference
@@ -410,8 +409,6 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             if (!data.acceptNewDoc) {
                 throw new TypeError(`New documents [${JSON.stringify(doc)}] not acceptable for this type ${JSON.stringify(data)}`)
             }
-
-            doc = await this.modifyDoc(doc, par)
 
             // Update parent field only if it isn't already set
             // TODO: validate existing parent keys
@@ -464,16 +461,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     console.warn(`optional key ${key} dne`)
                     continue
                 } else {
-                    throw new TypeError(`${key} dne in ${addDoc}`)
+                    throw new TypeError(`${key} dne in ${JSON.stringify(addDoc)}`)
                 }
             }
-
-            // if (this.parentField && this.parentField.local === key) {
-            //     if (foreign && isDBKey(foreign)) {
-            //         addDoc[localKey] = <any>keyToId(foreign, this.name)
-            //     }
-            //     continue
-            // }
 
             if (!data.isForeign) {
                 continue
@@ -554,6 +544,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     throw new TypeError(`INTERNAL ERROR: ${JSON.stringify(data)} has invalid type.`)
             }
         }
+
+        // Modify this document, if required
+        addDoc = await this.modifyDoc(addDoc)
 
         // Add the document to the map
         if (map.has(this)) {
@@ -736,7 +729,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     }
 
     makeRouter() { return new Router({prefix:this.name})
-        .get('/', async (ctx) => {
+        .get('/', async (ctx, next) => {
             try {
                 const qdata = await this.query(ctx.request.query)
                 let all = await qdata.cursor.all()
@@ -751,16 +744,20 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     
                 ctx.set('Content-Range', `${this.name} ${qdata.low}-${qdata.high}/${qdata.size}`)
                 ctx.set('Access-Control-Expose-Headers', 'Content-Range')
+
+                next()
             } catch (err) {
                 console.log(err)
                 ctx.status = 500
             }
         })
-        .get('/:id', async (ctx) => {
+        .get('/:id', async (ctx, next) => {
             try {
                 if (await this.exists(ctx.params.id)) {
                     ctx.body = await this.getFromDB(ctx.params.id, true)
                     ctx.status = 200
+
+                    next()
                 } else {
                     ctx.status = 404
                     ctx.body = `${this.dname} [${ctx.params.id}] dne.`
@@ -770,7 +767,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 ctx.status = 500
             }
         })
-        .post('/', koaBody(), async (ctx) => {
+        .post('/', async (ctx, next) => {
             try {
                 let doc = ctx.request.body as Type
                 let newID = generateDBID(this.name)
@@ -781,12 +778,14 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     id: splitId(newID).key,
                     message: `${this.dname} created with id [${newID}]`
                 }
+
+                next()
             } catch (err) {
                 console.log(err)
                 ctx.status = 500
             }
         })
-        .put('/:id', koaBody(), async (ctx) => {
+        .put('/:id', async (ctx, next) => {
             try {
                 if (await this.exists(ctx.params.id)) {
                     await this.update(ctx.params.id, ctx.request.body, ctx.header['user-agent'] !== 'backend-testing')
@@ -795,6 +794,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                         id: ctx.params.id,
                         message: `${this.dname} [${ctx.params.id}] updated`,
                     }
+
+                    next()
                 } else {
                     ctx.status = 409
                     ctx.body = `${this.dname} [${ctx.params.id}] dne`
@@ -804,7 +805,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 ctx.status = 500
             }
         })
-        .delete('/:id', async (ctx) => {
+        .delete('/:id', async (ctx, next) => {
             try {
                 if (await this.exists(ctx.params.id)) {
                     await this.delete(ctx.params.id, ctx.header['user-agent'] !== 'backend-testing', true)
@@ -813,6 +814,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                         id: ctx.params.id,
                         message: `${this.dname} deleted`,
                     }
+
+                    next()
                 } else {
                     ctx.status = 404
                     ctx.body = `${this.dname} [${ctx.params.id}] dne`

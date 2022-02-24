@@ -4,9 +4,8 @@ let debugUserGroupKey   = '0123456789012345678900'
 let debugUserId         = 'users/0123456789012345678900'
 let debugUserKey        = '0123456789012345678900'
 
-let GET = {
-    type: 'get'
-}
+let authUserName        = 'john-doe'
+let authPassword        = 'password'
 
 // console.log(module.exports.GET_SUCCESS.type)
 module.exports = {
@@ -14,6 +13,6 @@ module.exports = {
     debugUserGroupKey,
     debugUserId,
     debugUserKey,
-
-    GET,
+    authUserName,
+    authPassword,
 }

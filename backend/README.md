@@ -62,6 +62,19 @@ The server requires requests to be sent to `api/[version]/[collection]`. These A
 - comments
 - fileMetadata
 
+## Authentication
+
+All requests to `/api/` and its subdirectories is restricted to authenticated users. Authentication uses JWT tokens with a lifespan of 1 hour. To recieve a token, send a `POST` request to `/auth` with the following body:
+
+```json
+{
+  "username": "my-username",
+  "password": "my-password"
+}
+```
+
+This returns a JWT token in the `token` response body field. This token should be passed as a header (`Authorization`, `Bearer ABCXYZ...`) for all API requests.
+
 ## `GET: collection?query`
 
 Queries the collection and returns an array of documents.
