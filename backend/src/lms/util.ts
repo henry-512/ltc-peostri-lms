@@ -31,8 +31,9 @@ export function generateBase64UUID(): string {
         // Append the remaining 6 bits
         key = key.concat(b64.charAt(rem))
     }
+    // move last character to start, so index 0 can only be A-D
     // 1 byte is left remaining
-    return key.concat(b64.charAt(bytes[16] & 63), b64.charAt(bytes[16] >> 6))
+    return b64.charAt(bytes[16] >> 6).concat(key, b64.charAt(bytes[16] & 63))
 }
 
 export function generateDBID(name: string) {

@@ -2,6 +2,7 @@ import Koa from 'koa'
 import cors from '@koa/cors'
 import koaBody from 'koa-body'
 import jwt from 'koa-jwt'
+import jsonwebtoken from 'jsonwebtoken'
 
 import { config } from './config'
 import { apiRouter, authRouter } from './router'

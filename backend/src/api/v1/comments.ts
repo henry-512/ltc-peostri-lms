@@ -1,6 +1,7 @@
+import { ParameterizedContext } from "koa";
 import { IComment } from "../../lms/types";
 import { ApiRoute } from "./route";
-import { UserRouteInstance } from "./users";
+import { AuthUser, UserRouteInstance } from "./users";
 
 class CommentRoute extends ApiRoute<IComment> {
     constructor() {
@@ -20,17 +21,24 @@ class CommentRoute extends ApiRoute<IComment> {
         )
     }
 
+    protected override modifyDoc(user: AuthUser, doc: any): Promise<any> {
+        if (!doc.author) {
+            doc.author = user.getId()
+        }
+        return doc
+    }
+
     // NOTE: If this is supposed to be a comment reference
     // but does not exist, this generates a comment.
     protected override buildFromString(
+        user: AuthUser,
         str:string,
         parent:string
     ) : IComment | null {
         // TODO: input validation
         let com: IComment = {
             content: str,
-            // TODO: Make this into user validation
-            author: 'users/0123456789012345678900',
+            author: user.getId(),
             parent: parent
         }
         return com

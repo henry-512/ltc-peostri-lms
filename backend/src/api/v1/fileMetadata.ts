@@ -1,6 +1,7 @@
+import { ParameterizedContext } from "koa";
 import { IFileMetadata } from "../../lms/types";
 import { ApiRoute } from "./route";
-import { UserRouteInstance } from "./users";
+import { AuthUser, UserRouteInstance } from "./users";
 
 class FileMetadataRoute extends ApiRoute<IFileMetadata> {
     constructor() {
@@ -28,7 +29,7 @@ class FileMetadataRoute extends ApiRoute<IFileMetadata> {
         title: "string.pdf"
     }
      */
-    protected override async modifyDoc(doc:any) {
+    protected override async modifyDoc(user: AuthUser, doc:any) {
         if (!('title' in doc && 'src' in doc)) {
             throw new TypeError(`${doc} is not a valid file reference`)
         }
@@ -58,7 +59,7 @@ class FileMetadataRoute extends ApiRoute<IFileMetadata> {
         // blob.name = doc.title
 
         let meta:any = {}
-        meta.author = 'users/0123456789012345678900'
+        meta.author = user.getId()
         meta.name = doc.title
         // meta.blob = blob
 

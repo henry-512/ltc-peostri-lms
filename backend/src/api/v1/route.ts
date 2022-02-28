@@ -2,10 +2,12 @@ import Router from "@koa/router"
 import { aql } from "arangojs"
 import { GeneratedAqlQuery } from "arangojs/aql"
 import { CollectionUpdateOptions, DocumentCollection } from "arangojs/collection"
+import { ParameterizedContext } from "koa"
 
 import { db } from "../../database"
 import { IArangoIndexes, ICreateUpdate } from "../../lms/types"
 import { convertToKey, generateDBID, isDBId, isDBKey, keyToId, splitId } from "../../lms/util"
+import { AuthUser } from "./users"
 
 interface DBData {
     type:'string' | 'boolean' | 'object' | 'parent' | 'fkey' | 'fkeyArray' | 'fkeyStep',
@@ -70,7 +72,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         return this.collection.documentExists(id)
     }
 
-    private async getUnsafe(id: string): Promise<Type> {
+    protected async getUnsafe(id: string): Promise<Type> {
         return this.collection.document(id)
     }
 
@@ -95,7 +97,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      * 
      */
     constructor(
-        protected name: string,
+        public name: string,
         protected dname: string,
         protected fields: {
             [key:string]: DBData
@@ -275,7 +277,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      * @param dereference If true, dereference all foreign keys in this and all other documents
      * @return A Type representing a document with key, with .id set and ._* removed
      */
-    public async getFromDB(id: string, dereference: boolean) {
+    public async getFromDB(user: AuthUser, id: string, dereference: boolean) {
         let doc = await this.getUnsafe(id)
     
         doc.id = doc._key
@@ -292,7 +294,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
          */
         async function deref(k:string, r:ApiRoute<IArangoIndexes>) {
             if (isDBId(k)) {
-                return <any>r.getFromDB(k, true)
+                return <any>r.getFromDB(user, k, true)
             } else {
                 throw new TypeError(`Foreign key [${k}] is not a valid id. Did you forget the collection name? (name/key)`)
             }
@@ -366,7 +368,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     /**
      * Accepts a non id/key string
      */
-    protected buildFromString(str:string,par:string) : Type | null {
+    protected buildFromString(user: AuthUser,str:string,par:string) : Type | null {
         return null
     }
 
@@ -374,13 +376,14 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      * Modifies a document. Called after verifying all fields exist,
      * and after dereferencing all keys
      */
-    protected async modifyDoc(doc:any) { return doc }
+    protected async modifyDoc(user: AuthUser,doc:any) { return doc }
 
     /**
      * Validates a document reference
      * @return The id of the new document
      */
     private async ref(
+        user: AuthUser,
         doc:any,
         par:string,
         data:DBData,
@@ -395,10 +398,10 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             }
 
             if (data.acceptNewDoc) {
-                let built = this.buildFromString(doc, par)
+                let built = this.buildFromString(user, doc, par)
                 if (built) {
                     let childId = generateDBID(this.name)
-                    await this.addToReferenceMap(childId, built, map, create)
+                    await this.addToReferenceMap(user, childId, built, map, create)
                     return childId
                 }
             }
@@ -420,7 +423,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             }
 
             let childId = create ? generateDBID(this.name) : doc.id
-            await this.addToReferenceMap(childId, doc, map, create)
+            await this.addToReferenceMap(user, childId, doc, map, create)
             return childId
         }
         throw new TypeError(`${doc} is not a foreign document or reference`)
@@ -433,6 +436,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      * @param map The map to add to
      */
     private async addToReferenceMap(
+        user: AuthUser,
         addDocId: string,
         addDoc: Type,
         map: Map<ApiRoute<IArangoIndexes>, IArangoIndexes[]>,
@@ -479,6 +483,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 case 'fkey':
                     if (typeof foreign === 'object' || typeof foreign === 'string') {
                         addDoc[localKey] = await cls.ref(
+                            user,
                             foreign,
                             addDocId,
                             data,
@@ -493,6 +498,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     if (Array.isArray(foreign)) {
                         addDoc[localKey] = <any>await Promise.all(foreign.map(
                             lpDoc => cls.ref(
+                                user,
                                 lpDoc,
                                 addDocId,
                                 data,
@@ -505,6 +511,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     if (typeof foreign === 'string') {
                         addDoc[localKey] = <any>[
                             await cls.ref(
+                                user,
                                 foreign,
                                 addDocId,
                                 data,
@@ -523,6 +530,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                             if (Array.isArray(stepAr)) {
                                 temp[stepId] = <any>await Promise.all(
                                     stepAr.map(lpDoc => cls.ref(
+                                        user,
                                         lpDoc,
                                         addDocId,
                                         data,
@@ -546,7 +554,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         }
 
         // Modify this document, if required
-        addDoc = await this.modifyDoc(addDoc)
+        addDoc = await this.modifyDoc(user, addDoc)
 
         // Add the document to the map
         if (map.has(this)) {
@@ -556,7 +564,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         }
     }
 
-    protected async create(id: string, doc: Type, real: boolean) {
+    protected async create(user: AuthUser, id: string, doc: Type, real: boolean) {
         // The passed document has a parent key, so we need to
         // update the parent to include this document
         // if (this.parentKey && this.parentKey.local in doc) {
@@ -566,7 +574,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // Turns a fully-dereferenced document into a reference
         // document
         let map = new Map<ApiRoute<IArangoIndexes>, IArangoIndexes[]>()
-        await this.addToReferenceMap(id, doc, map, true)
+        await this.addToReferenceMap(user, id, doc, map, true)
 
         real || console.log('FAKING CREATE')
         // Saves each document in the map to its respective collection
@@ -596,7 +604,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         }
     }
 
-    protected async update(key: string, doc: Type, real: boolean) {
+    protected async update(user: AuthUser, key: string, doc: Type, real: boolean) {
         let id = keyToId(key, this.name)
 
         // We dont need to update all elements, .update does that
@@ -608,7 +616,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // }
 
         let map = new Map<ApiRoute<IArangoIndexes>, IArangoIndexes[]>()
-        await this.addToReferenceMap(id, doc, map, true)
+        await this.addToReferenceMap(user, id, doc, map, true)
 
         real || console.log('FAKING UPDATE')
         // Updates each document in the map to its respective collection
@@ -644,7 +652,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      * @param base True if this is the base call (ie the call that should
      *  update parent fields)
      */
-    protected async delete(key: string, real: boolean, base: boolean) {
+    protected async delete(user: AuthUser, key: string, real: boolean, base: boolean) {
         if (!await this.exists(key)) {
             console.warn(`Document with id ${key} dne, due to malformed document`)
             return
@@ -671,7 +679,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             switch (data.type) {
                 case 'fkey':
                     if (typeof foreign === 'string') {
-                        await cls.delete(foreign, real, false)
+                        await cls.delete(user, foreign, real, false)
                         continue
                     }
                     throw new TypeError(`${JSON.stringify(foreign)} was expected to be a string`)
@@ -679,7 +687,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 case 'fkeyArray':
                     if (Array.isArray(foreign)) {
                         await Promise.all(foreign.map(
-                            d => cls.delete(d, real, false)
+                            d => cls.delete(user, d, real, false)
                         ))
                         continue
                     }
@@ -689,7 +697,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                         for (let [_,sAr] of Object.entries(foreign)) {
                             if (Array.isArray(sAr)) {
                                 await Promise.all(
-                                    sAr.map(d => cls.delete(d, real, false))
+                                    sAr.map(d => cls.delete(user, d, real, false))
                                 )
                             } else {
                                 throw new TypeError(`${sAr} is not an array`)
@@ -754,7 +762,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         .get('/:id', async (ctx, next) => {
             try {
                 if (await this.exists(ctx.params.id)) {
-                    ctx.body = await this.getFromDB(ctx.params.id, true)
+                    let user = new AuthUser(ctx.header.authorization)
+
+                    ctx.body = await this.getFromDB(user, ctx.params.id, true)
                     ctx.status = 200
 
                     next()
@@ -771,7 +781,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             try {
                 let doc = ctx.request.body as Type
                 let newID = generateDBID(this.name)
-                await this.create(newID, doc, ctx.header['user-agent'] !== 'backend-testing')
+
+                let user = new AuthUser(ctx.header.authorization)
+                await this.create(user, newID, doc, ctx.header['user-agent'] !== 'backend-testing')
 
                 ctx.status = 201
                 ctx.body = {
@@ -788,7 +800,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         .put('/:id', async (ctx, next) => {
             try {
                 if (await this.exists(ctx.params.id)) {
-                    await this.update(ctx.params.id, ctx.request.body, ctx.header['user-agent'] !== 'backend-testing')
+                    let user = new AuthUser(ctx.header.authorization)
+                    await this.update(user, ctx.params.id, ctx.request.body, ctx.header['user-agent'] !== 'backend-testing')
                     ctx.status = 200
                     ctx.body = {
                         id: ctx.params.id,
@@ -808,7 +821,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         .delete('/:id', async (ctx, next) => {
             try {
                 if (await this.exists(ctx.params.id)) {
-                    await this.delete(ctx.params.id, ctx.header['user-agent'] !== 'backend-testing', true)
+                    let user = new AuthUser(ctx.header.authorization)
+                    await this.delete(user, ctx.params.id, ctx.header['user-agent'] !== 'backend-testing', true)
                     ctx.status = 200
                     ctx.body = {
                         id: ctx.params.id,

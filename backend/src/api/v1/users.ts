@@ -1,16 +1,54 @@
 import Router from "@koa/router";
 import { aql, GeneratedAqlQuery } from "arangojs/aql";
 import { DocumentCollection } from "arangojs/collection";
-import jsonwebtoken from 'jsonwebtoken'
+import jsonwebtoken, { JwtPayload } from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
+import { ParameterizedContext } from "koa";
 
 import { config } from "../../config";
 import { db } from "../../database";
-import { IUser } from "../../lms/types";
+import { IUser, IUserGroup } from "../../lms/types";
 import { ApiRoute } from "./route";
 import { UserGroupRouteInstance } from "./userGroup";
+import { isDBKey, keyToId } from "../../lms/util";
+
+export class AuthUser {
+    private group?: IUserGroup
+    private userPromise: Promise<IUser>
+    private user?: IUser
+    public key
+
+    constructor(auth?:string) {
+        if (!auth || typeof auth !== 'string') {
+            throw new TypeError(`${auth} is not a string`)
+        }
+        let jwt = jsonwebtoken.verify(auth.split(' ')[1], config.secret)
+        this.key = (<JwtPayload>jwt).user
+        if (isDBKey(this.key)) {
+            throw new TypeError(`${auth} is not a valid auth string`)
+        }
+        this.userPromise = UserRouteInstance.getUser(this.key)
+    }
+
+    getId() { return keyToId(this.key, UserRouteInstance.name) }
+
+    async hasPermission() {
+        if (!this.user) this.user = await this.userPromise
+        if (!this.group) this.group = await UserGroupRouteInstance
+            .getGroup(this.user.userGroup as string)
+        
+        return false
+    }
+}
 
 class UserRoute extends ApiRoute<IUser> {
+    public async getUser(key: string): Promise<IUser> {
+        if (key && isDBKey(key) && this.exists(key)) {
+            return this.getUnsafe(key)
+        }
+        throw new TypeError(`${key} not a valid key`)
+    }
+
     constructor() {
         super(
             'users',
@@ -63,7 +101,7 @@ class UserRoute extends ApiRoute<IUser> {
             RETURN {userGroup:(RETURN {id:a._key,name:a.name})[0],${queryFields}}`
     }
 
-    override async modifyDoc(doc:any) {
+    override async modifyDoc(user: AuthUser, doc:any) {
         // Hash password
         doc.password = await bcrypt.hash(doc.password, 5)
         return doc
@@ -102,7 +140,7 @@ class UserRoute extends ApiRoute<IUser> {
                     if (reqPass && typeof reqPass === 'string' && await bcrypt.compare(reqPass, password)) {
                         ctx.body = {
                             token: jsonwebtoken.sign({
-                                data: dbUserWOPass,
+                                user: dbUserWOPass.id,
                                 exp: Math.floor(Date.now() / 1000) + 3600
                             }, config.secret)
                         }
