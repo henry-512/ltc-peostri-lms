@@ -73,7 +73,7 @@ All requests to `/api/` and its subdirectories is restricted to authenticated us
 }
 ```
 
-This returns a JWT token in the `token` response body field. This token should be passed as a header (`Authorization`, `Bearer ABCXYZ...`) for all API requests.
+This returns a JWT token as a cookie, with the name `token`.
 
 ## `GET: collection?query`
 

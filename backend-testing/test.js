@@ -1,4 +1,4 @@
-let req = require('supertest')
+let supertest = require('supertest')
 const { expect } = require('chai')
 const { authUserName, authPassword } = require('./data')
 
@@ -7,29 +7,12 @@ const { authUserName, authPassword } = require('./data')
 // .send(jsonObj)
 //https://visionmedia.github.io/superagent/
 
-var TOKEN
-var AUTH_HEADER
+var API = 'api/v1/'
+var agent = supertest.agent('localhost:5000/')
 
 describe(`Authenticate`, () => {
-    let request = req('localhost:5000/')
-
-    it('Valid authenticate', async () => {
-        let r = await request
-            .post('auth')
-            .send({
-                username: authUserName,
-                password: authPassword,
-            })
-        expect(r.status).equal(200)
-        expect(r.body).an('object')
-            .any.key('token')
-        
-        TOKEN = r.body.token
-        AUTH_HEADER = `Bearer ${TOKEN}`
-    })
-
     it('Invalid username', async () => {
-        let r = await request
+        let r = await agent
             .post('auth')
             .send({
                 username: 'hehe :)',
@@ -39,7 +22,7 @@ describe(`Authenticate`, () => {
     })
 
     it('Invalid password', async () => {
-        let r = await request
+        let r = await agent
             .post('auth')
             .send({
                 username: authUserName,
@@ -47,17 +30,31 @@ describe(`Authenticate`, () => {
             })
         expect(r.status).not.equal(200)
     })
+
+    it('Valid authenticate', async () => {
+        let r = await agent
+            .post('auth')
+            .send({
+                username: authUserName,
+                password: authPassword,
+            })
+        expect(r.status).equal(200)
+        expect('token')
+        expect('set-cookie', /token/)
+        // expect(r.body).an('object')
+        //     .any.key('token')
+
+    })
 })
 
 function test(n) {
-    let request = req('localhost:5000/api/v1/')
     let raw = require(`./data/${n}`)
 
     describe(`${n} GET all`, () => {
         it('Base call', async () => {
-            let r = await request
-                .get(n)
-                .set('Authorization', AUTH_HEADER)
+            let r = await agent
+                .get(API + n)
+                // .set('Authorization', AUTH_HEADER)
                 
             expect(r.status).equal(200)
             expect(r.headers).an('object')
@@ -68,6 +65,7 @@ function test(n) {
     // This takes too long for projects
     // Refactor into multiple describe() calls?
     //if (n !== 'projects') {
+        /*
     if (false) {
     describe(`${n} POST/GET/PUT/DELETE chain`, () => {
         it('Chain code', async () => {
@@ -118,14 +116,15 @@ function test(n) {
         })
     })
     }
+    */
 
     describe(`${n} POST accepts`, () => {
         raw.acceptPost.map(d => {
             it(d.n, async () => {
-                let r = await request
-                    .post(n)
+                let r = await agent
+                    .post(API + n)
                     .set('User-Agent', 'backend-testing')
-                    .set('Authorization', AUTH_HEADER)
+                    // .set('Authorization', AUTH_HEADER)
                     .send(d.d)
                 expect(r.status).equal(201)
                 expect(r.body).an('object')
@@ -137,10 +136,10 @@ function test(n) {
     describe(`${n} POST fails`, () => {
         raw.failPost.map(d => {
             it(d.n, async () => {
-                let r = await request
-                    .post(n)
+                let r = await agent
+                    .post(API + n)
                     .set('User-Agent', 'backend-testing')
-                    .set('Authorization', AUTH_HEADER)
+                    // .set('Authorization', AUTH_HEADER)
                     .send(d.d)
                 expect(r.status).not.equal(201)
             })

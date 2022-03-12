@@ -22,10 +22,10 @@ export class AuthUser {
         if (!auth || typeof auth !== 'string') {
             throw new TypeError(`${auth} is not a string`)
         }
-        let jwt = jsonwebtoken.verify(auth.split(' ')[1], config.secret)
+        let jwt = jsonwebtoken.verify(auth, config.secret)
         this.key = (<JwtPayload>jwt).user
-        if (isDBKey(this.key)) {
-            throw new TypeError(`${auth} is not a valid auth string`)
+        if (!isDBKey(this.key)) {
+            throw new TypeError(`${auth} ->\n${jwt} is not a valid auth string`)
         }
         this.userPromise = UserRouteInstance.getUser(this.key)
     }
@@ -124,6 +124,7 @@ class UserRoute extends ApiRoute<IUser> {
     }
 
     public authRouter() { return new Router({prefix: '/auth'})
+        // Validate login and create JWT cookie
         .post('/', async (ctx, next) => {
             try {
                 let reqUN = ctx.request.body.username
@@ -138,12 +139,17 @@ class UserRoute extends ApiRoute<IUser> {
                     } = dbUser
 
                     if (reqPass && typeof reqPass === 'string' && await bcrypt.compare(reqPass, password)) {
-                        ctx.body = {
-                            token: jsonwebtoken.sign({
+                        let token = jsonwebtoken.sign({
                                 user: dbUserWOPass.id,
                                 exp: Math.floor(Date.now() / 1000) + 3600
                             }, config.secret)
-                        }
+                        // ctx.body = {
+                        //     token: 
+                        // }
+                        ctx.cookies.set('token', token, {
+                            httpOnly: true
+                        })
+                        ctx.status = 200
                     } else {
                         throw new TypeError(`[${password}] is not a string`)
                     }

@@ -762,7 +762,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         .get('/:id', async (ctx, next) => {
             try {
                 if (await this.exists(ctx.params.id)) {
-                    let user = new AuthUser(ctx.header.authorization)
+                    let user = new AuthUser(ctx.cookies.get('token'))
 
                     ctx.body = await this.getFromDB(user, ctx.params.id, true)
                     ctx.status = 200
@@ -782,7 +782,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 let doc = ctx.request.body as Type
                 let newID = generateDBID(this.name)
 
-                let user = new AuthUser(ctx.header.authorization)
+                let user = new AuthUser(ctx.cookies.get('token'))
                 await this.create(user, newID, doc, ctx.header['user-agent'] !== 'backend-testing')
 
                 ctx.status = 201
@@ -800,7 +800,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         .put('/:id', async (ctx, next) => {
             try {
                 if (await this.exists(ctx.params.id)) {
-                    let user = new AuthUser(ctx.header.authorization)
+                    let user = new AuthUser(ctx.cookies.get('token'))
                     await this.update(user, ctx.params.id, ctx.request.body, ctx.header['user-agent'] !== 'backend-testing')
                     ctx.status = 200
                     ctx.body = {
@@ -821,7 +821,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         .delete('/:id', async (ctx, next) => {
             try {
                 if (await this.exists(ctx.params.id)) {
-                    let user = new AuthUser(ctx.header.authorization)
+                    let user = new AuthUser(ctx.cookies.get('token'))
                     await this.delete(user, ctx.params.id, ctx.header['user-agent'] !== 'backend-testing', true)
                     ctx.status = 200
                     ctx.body = {

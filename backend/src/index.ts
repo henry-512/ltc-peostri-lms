@@ -33,7 +33,10 @@ apiRouter().then(async api => {
     })
     
     // Private routes
-    app.use(jwt({ secret: config.secret }))
+    app.use(jwt({
+        secret: config.secret,
+        cookie: 'token',
+    }))
     app.use(api.routes())
 
     app.listen(config.apiPort, () => {
