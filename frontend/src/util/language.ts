@@ -8,7 +8,8 @@ const domainMessages = {
                 administration: "Administration",
                 projects: "Projects",
                 templates: "Templates",
-                users: "Users"
+                users: "Users",
+                permissions: "Permissions"
             },
             button: {
                 create: "Create",
