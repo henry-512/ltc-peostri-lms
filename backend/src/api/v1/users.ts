@@ -147,14 +147,15 @@ class UserRoute extends ApiRoute<IUser> {
                         //     token: 
                         // }
                         ctx.cookies.set('token', token, {
-                            httpOnly: true
+                            httpOnly: true,
+                            maxAge: 3600 * 1000
                         })
                         ctx.response.body = {
                             ...dbUserWOPass
                         }
                         ctx.status = 200
                     } else {
-                        throw new TypeError(`[${password}] is not a string`)
+                        throw new TypeError(`[${reqPass}] is not a string`)
                     }
                 } else {
                     throw new TypeError(`[${reqUN}] is not a string`)
@@ -165,7 +166,29 @@ class UserRoute extends ApiRoute<IUser> {
             }
         })
         .get('/', async (ctx, next) => {
-            ctx.status = 200
+            try {
+                const user = new AuthUser(ctx.cookies.get('token'))
+
+                ctx.status = 200
+            } catch (err: any) {
+                // TODO: May be a better way to implement this...
+                if (err.message == "undefined is not a string") {
+                    ctx.status = 401
+                    return;
+                }
+
+                console.log(err)
+                ctx.status = 500
+            }
+        })
+        .post('/logout', async (ctx, next) => {
+            try {
+                ctx.cookies.set('token', '')
+                ctx.status = 200
+            } catch(err) {
+                console.log(err)
+                ctx.status = 500
+            }
         })
     }
 }
