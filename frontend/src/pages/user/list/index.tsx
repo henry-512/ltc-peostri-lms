@@ -1,7 +1,10 @@
 import { makeStyles } from '@material-ui/core';
-import { Datagrid, List, ListProps, TextField } from 'react-admin';
+import React from 'react';
+import { BulkDeleteButton, Datagrid, FieldProps, List, ListProps, ReferenceField, TextField } from 'react-admin';
+import { AvatarField, UserListFilters } from 'src/components/users';
+import { IUser } from 'src/util/types';
 
-const useListStyles = makeStyles({
+const useListStyles = makeStyles(theme => ({
     headerRow: {
         borderLeftColor: 'transparent',
         borderLeftWidth: 5,
@@ -13,21 +16,31 @@ const useListStyles = makeStyles({
     rowCell: {
         padding: '6px 8px 6px 8px',
     },
-    comment: {
-        maxWidth: '18em',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-    },
-});
+    avatar: {
+        marginRight: theme.spacing(1),
+        marginTop: -theme.spacing(0.5),
+        marginBottom: -theme.spacing(0.5),
+    }
+}));
 
-const UserList = (props: ListProps) => {
+const BulkUserToolbar = (props: any) => (
+    <React.Fragment>
+        <BulkDeleteButton {...props} />
+    </React.Fragment>
+)
+
+interface UserListProps extends FieldProps<IUser>, ListProps {
+    
+}
+
+const UserList = (props: UserListProps) => {
     const classes = useListStyles();
-
     return (
         <>
             <List {...props}
                 perPage={25}
+                bulkActionButtons={<BulkUserToolbar />}
+                filters={UserListFilters}
             >
                 <Datagrid
                     classes={{
@@ -38,10 +51,13 @@ const UserList = (props: ListProps) => {
                     rowClick="edit"
                 >
                     {/*<TextField source="id" /> // TODO: Temporarily removing ID due to illegible ID's */}
+                    <AvatarField className={classes.avatar} />
                     <TextField source="firstName" />
                     <TextField source="lastName" />
                     <TextField source="username" />
-                    <TextField source="avatar" />
+                    <ReferenceField source="userGroup.id" reference="userGroups">
+                        <TextField source="name" />
+                    </ReferenceField>
                 </Datagrid>
             </List>
         </>

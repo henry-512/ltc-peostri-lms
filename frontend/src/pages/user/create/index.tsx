@@ -1,52 +1,127 @@
-import { makeStyles } from "@material-ui/core";
-import { Create, useTranslate } from "react-admin";
-import { IProject } from "src/util/types";
-import Stepper from "../../../components/stepper/Stepper";
-import General from "../steps/General";
-import Modules from "../steps/Modules";
-import transformer from "../transformer";
-import validateProject from "../validation";
+import { Box, makeStyles, Theme, Typography } from "@material-ui/core";
+import { Styles } from "@material-ui/core/styles/withStyles";
+import { Create, CreateProps, DateInput, email, PasswordInput, ReferenceInput, required, SelectInput, SimpleForm, TextInput, useTranslate } from "react-admin";
+import { AnyObject } from "react-final-form";
 
-const useStyles = makeStyles(theme => ({
-     root: {},
-     content: {
-          marginTop: theme.spacing(2)
-     },
-     usersTitle: {
-          display: 'flex', 
-          alignItems: 'center'
-     },
-     taskBox: {
-          font: 'inherit'
-     },
-     fieldTitle: {
-          borderBottom: '2px solid ' + theme.palette.primary.main,
-          paddingBottom: '.25rem',
-          lineHeight: '1',
-          color: theme.palette.text.primary,
-          marginBottom: '.25rem'
-     },
-     alignCenter: {
-          alignItems: 'center'
-     }
-}));
+export const styles: Styles<Theme, any> = {
+    first_name: { display: 'inline-block' },
+    last_name: { display: 'inline-block', marginLeft: 32 },
+    email: { width: 544 },
+    address: { maxWidth: 544 },
+    zipcode: { display: 'inline-block' },
+    city: { display: 'inline-block', marginLeft: 32 },
+    comment: {
+        maxWidth: '20em',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+    },
+    password: { display: 'inline-block' },
+    confirm_password: { display: 'inline-block', marginLeft: 32 },
+};
 
-export default function ProjectCreate(props: any) {
-     const translate = useTranslate();
-     const classes = useStyles();
-     const search = new URLSearchParams(props.location.search);
+const useStyles = makeStyles(styles);
 
-     return (
-          <Create title={translate('project.create.title')} {...props} transform={transformer}>
-               <Stepper validate={validateProject} create>
+export const validatePasswords = ({
+    password,
+    confirm_password,
+}: AnyObject) => {
+    const errors = {} as any;
 
-                    <General classes={classes} title={translate('project.steps.general')} style={{ width: "100%" }} isTemplate={(typeof search.get('template') == 'string')} validator="general" {...props}/>
+    if (password && confirm_password && password !== confirm_password) {
+        errors.confirm_password = [
+            'resources.customers.errors.password_mismatch',
+        ];
+    }
 
-                    <Modules classes={classes} title={translate('project.steps.modules')} className={classes.content} validator="modules" {...props}/>
+    return errors;
+};
 
-                    {/*<Review classes={classes} title={translate('project.steps.review')} className={classes.content} validator="" {...props}/>*/}
-                    
-               </Stepper>
-          </Create>
-     )
-}
+const UserCreate = (props: CreateProps) => {
+    const classes = useStyles(props);
+    const date = new Date();
+    return (
+        <Create {...props}>
+            <SimpleForm
+                // Here for the GQL provider
+                initialValues={{
+                    birthday: date,
+                    first_seen: date,
+                    last_seen: date,
+                    has_ordered: false,
+                    latest_purchase: date,
+                    has_newsletter: false,
+                    groups: [],
+                    nb_commands: 0,
+                    total_spent: 0,
+                }}
+                validate={validatePasswords}
+            >
+                <SectionTitle label="resources.customers.fieldGroups.identity" />
+                <TextInput
+                    autoFocus
+                    source="firstName"
+                    formClassName={classes.first_name}
+                    validate={requiredValidate}
+                />
+                <TextInput
+                    source="lastName"
+                    formClassName={classes.last_name}
+                    validate={requiredValidate}
+                />
+                <TextInput
+                    source="userName"
+                    formClassName={classes.last_name}
+                    validate={requiredValidate}
+                />
+                <TextInput
+                    type="email"
+                    source="email"
+                    validation={{ email: true }}
+                    fullWidth
+                    formClassName={classes.email}
+                    validate={[required(), email()]}
+                />
+                <Separator />
+                <ReferenceInput 
+                    label="project.fields.usergroup"
+                    reference="userGroups"
+                    source="userGroup"
+                >
+                    <SelectInput
+                        optionText={choice => `${choice.name}`}
+                        optionValue="id"
+                        helperText=" "
+                        fullWidth
+                    />
+                </ReferenceInput>
+                <Separator />
+                <SectionTitle label="resources.customers.fieldGroups.password" />
+                <PasswordInput
+                    source="password"
+                    formClassName={classes.password}
+                />
+                <PasswordInput
+                    source="confirm_password"
+                    formClassName={classes.confirm_password}
+                />
+            </SimpleForm>
+        </Create>
+    );
+};
+
+const requiredValidate = [required()];
+
+const SectionTitle = ({ label }: { label: string }) => {
+    const translate = useTranslate();
+
+    return (
+        <Typography variant="h6" gutterBottom>
+            {translate(label)}
+        </Typography>
+    );
+};
+
+const Separator = () => <Box pt="1em" />;
+
+export default UserCreate
