@@ -10,6 +10,7 @@ import domainMessages from './util/language';
 import auth from './util/authProvider';
 import LoginPage from './pages/login';
 import { UserCreate, UserEdit, UserList } from './pages/user';
+import { TemplateCreate, TemplateEdit, TemplateList } from './pages/template';
 
 const API_URL = process.env.REACT_APP_API_URL + "/" + process.env.REACT_APP_API_VERSION || "";
 
@@ -35,6 +36,7 @@ const App = () => {
             disableTelemetry
         >
             <Resource name='projects' list={ProjectList} create={ProjectCreate} edit={ProjectEdit} />
+            <Resource name='templates' list={TemplateList} create={TemplateCreate} edit={TemplateEdit} />
             <Resource name="users" list={UserList} create={UserCreate} edit={UserEdit} />
             <Resource name="userGroups" />
         </Admin>
