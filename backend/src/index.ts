@@ -13,7 +13,9 @@ apiRouter().then(async api => {
     // Output all router paths
     console.log(api.stack.map(i => `${i.path} ${i.methods}`))
 
-    app.use(cors())
+    app.use(cors({
+        credentials: true
+    }))
     app.use(koaBody())
 
     // Authentication route
