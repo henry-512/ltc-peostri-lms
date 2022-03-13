@@ -164,6 +164,9 @@ class UserRoute extends ApiRoute<IUser> {
                 ctx.status = 500
             }
         })
+        .get('/', async (ctx, next) => {
+            ctx.status = 200
+        })
     }
 }
 
