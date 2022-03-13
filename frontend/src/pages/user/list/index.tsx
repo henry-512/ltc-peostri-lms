@@ -1,16 +1,16 @@
 import { List, ListProps } from 'react-admin';
-import ProjectListGrid from './ProjectListGrid';
+import UserListGrid from './UserListGrid';
 
-const ProjectList = (props: ListProps) => {
+const UserList = (props: ListProps) => {
      return (
           <>
                <List {...props}
                     perPage={25}
                >
-                    <ProjectListGrid />
+                    <UserListGrid />
                </List>
           </>
      );
 }
 
-export default ProjectList;
+export default UserList;

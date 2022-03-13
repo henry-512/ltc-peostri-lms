@@ -26,7 +26,7 @@ const useListStyles = makeStyles({
      },
 });
 
-const ProjectListGrid = (props: DatagridProps) => {
+const UserListGrid = (props: DatagridProps) => {
      const classes = useListStyles();
 
      return (
@@ -39,15 +39,12 @@ const ProjectListGrid = (props: DatagridProps) => {
                rowClick="edit"
                {...props}
           >
-               {/*<TextField source="id" /> // TODO: Temporarily removing ID due to illegible ID's */}
-               <TextField source="title" />
-               <DateField source="createdAt" showTime />
-               <DateField source="updatedAt" showTime />
-               <DateField source="start" locales="en-US" options={{ timeZone: 'UTC' }} />
-               <DateField source="end" locales="en-US" options={{ timeZone: 'UTC' }} />
-               <TextField source="status" />
+               <TextField source="firstName" />
+               <TextField source="lastName" />
+               <TextField source="username" />
+               <TextField source="avatar" />
           </Datagrid>
      );
 };
 
-export default ProjectListGrid;
+export default UserListGrid;
