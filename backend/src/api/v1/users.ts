@@ -123,7 +123,7 @@ class UserRoute extends ApiRoute<IUser> {
         }
     }
 
-    public authRouter() { return new Router({prefix: '/auth'})
+    public authRouter() { return new Router({prefix: '/api/auth'})
         // Validate login and create JWT cookie
         .post('/', async (ctx, next) => {
             try {
