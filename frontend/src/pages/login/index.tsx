@@ -6,17 +6,18 @@ import { useLocation } from 'react-router-dom';
 
 import {
     Avatar,
+    Box,
     Button,
     Card,
     CardActions,
     CircularProgress,
+    CssBaseline,
     TextField,
 } from '@material-ui/core';
 import { createTheme, makeStyles } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 import LockIcon from '@material-ui/icons/Lock';
 import { Notification, useTranslate, useLogin, useNotify } from 'react-admin';
-
 import { lightTheme } from '../../util/themes';
 
 const useStyles = makeStyles(theme => ({
@@ -26,38 +27,34 @@ const useStyles = makeStyles(theme => ({
         minHeight: '100vh',
         alignItems: 'center',
         justifyContent: 'flex-start',
-        background: 'url(https://source.unsplash.com/random/1600x900)',
+        background: 'url(/login-bg.jpg)',
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'cover',
     },
     card: {
         minWidth: 300,
-        marginTop: '6em',
     },
-    avatar: {
-        margin: '1em',
-        display: 'flex',
-        justifyContent: 'center',
-    },
-    icon: {
-        backgroundColor: theme.palette.secondary.main,
-    },
-    hint: {
-        marginTop: '1em',
-        display: 'flex',
-        justifyContent: 'center',
-        color: theme.palette.grey[500],
+    logo: {
+        display: "flex",
+        maxWidth: "300px",
+        margin: "1em .5em",
+        justifyContent: "center",
+        "& img": {
+            maxWidth: "70%",
+            display: "block"
+        }
     },
     form: {
         padding: '0 1em 1em 1em',
     },
     input: {
-        marginTop: '1em',
+        marginTop: '.5em'
     },
     actions: {
         padding: '0 1em 1em 1em',
     },
 }));
+
 
 const renderInput = ({
     meta: { touched, error } = { touched: false, error: undefined },
@@ -97,8 +94,8 @@ const Login = () => {
                     typeof error === 'string'
                         ? error
                         : typeof error === 'undefined' || !error.message
-                        ? 'ra.auth.sign_in_error'
-                        : error.message,
+                            ? 'ra.auth.sign_in_error'
+                            : error.message,
                     {
                         type: 'warning',
                         messageArgs: {
@@ -106,8 +103,8 @@ const Login = () => {
                                 typeof error === 'string'
                                     ? error
                                     : error && error.message
-                                    ? error.message
-                                    : undefined,
+                                        ? error.message
+                                        : undefined,
                         },
                     }
                 );
@@ -133,55 +130,55 @@ const Login = () => {
             render={({ handleSubmit }) => (
                 <form onSubmit={handleSubmit} noValidate>
                     <div className={classes.main}>
-                        <Card className={classes.card}>
-                            <div className={classes.avatar}>
-                                <Avatar className={classes.icon}>
-                                    <LockIcon />
-                                </Avatar>
-                            </div>
-                            <div className={classes.hint}>
-                                Hint: demo / demo
-                            </div>
-                            <div className={classes.form}>
-                                <div className={classes.input}>
-                                    <Field
-                                        autoFocus
-                                        name="username"
-                                        // @ts-ignore
-                                        component={renderInput}
-                                        label={translate('ra.auth.username')}
-                                        disabled={loading}
-                                    />
+                        <Box display="flex" flexDirection="column" position="absolute" top="50%" style={{
+                            transform: "translateY(-50%)",
+                            gap: '1em'
+                        }} >
+                            <Card className={classes.card}>
+                                <div className={classes.logo}>
+                                    <img src="/logo.png" alt="PEO STRI" />
                                 </div>
-                                <div className={classes.input}>
-                                    <Field
-                                        name="password"
-                                        // @ts-ignore
-                                        component={renderInput}
-                                        label={translate('ra.auth.password')}
-                                        type="password"
-                                        disabled={loading}
-                                    />
-                                </div>
-                            </div>
-                            <CardActions className={classes.actions}>
-                                <Button
-                                    variant="contained"
-                                    type="submit"
-                                    color="primary"
-                                    disabled={loading}
-                                    fullWidth
-                                >
-                                    {loading && (
-                                        <CircularProgress
-                                            size={25}
-                                            thickness={2}
+                                <div className={classes.form}>
+                                    <div className={classes.input}>
+                                        <Field
+                                            autoFocus
+                                            name="username"
+                                            // @ts-ignore
+                                            component={renderInput}
+                                            label={translate('ra.auth.username')}
+                                            disabled={loading}
                                         />
-                                    )}
-                                    {translate('ra.auth.sign_in')}
-                                </Button>
-                            </CardActions>
-                        </Card>
+                                    </div>
+                                    <div className={classes.input}>
+                                        <Field
+                                            name="password"
+                                            // @ts-ignore
+                                            component={renderInput}
+                                            label={translate('ra.auth.password')}
+                                            type="password"
+                                            disabled={loading}
+                                        />
+                                    </div>
+                                </div>
+                                <CardActions className={classes.actions}>
+                                    <Button
+                                        variant="contained"
+                                        type="submit"
+                                        color="primary"
+                                        disabled={loading}
+                                        fullWidth
+                                    >
+                                        {loading && (
+                                            <CircularProgress
+                                                size={25}
+                                                thickness={2}
+                                            />
+                                        )}
+                                        {translate('ra.auth.sign_in')}
+                                    </Button>
+                                </CardActions>
+                            </Card>
+                        </Box>
                         <Notification />
                     </div>
                 </form>
@@ -198,10 +195,11 @@ Login.propTypes = {
 // We need to put the ThemeProvider decoration in another component
 // Because otherwise the useStyles() hook used in Login won't get
 // the right theme
-const LoginWithTheme = (props: any) => (
+const LoginPage = (props: any) => (
     <ThemeProvider theme={createTheme(lightTheme)}>
+        <CssBaseline />
         <Login {...props} />
     </ThemeProvider>
 );
 
-export default LoginWithTheme;
+export default LoginPage;
