@@ -149,6 +149,9 @@ class UserRoute extends ApiRoute<IUser> {
                         ctx.cookies.set('token', token, {
                             httpOnly: true
                         })
+                        ctx.response.body = {
+                            ...dbUserWOPass
+                        }
                         ctx.status = 200
                     } else {
                         throw new TypeError(`[${password}] is not a string`)
