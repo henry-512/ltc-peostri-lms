@@ -1,14 +1,14 @@
-import { ReduxState } from "react-admin";
+import { Record, ReduxState } from "react-admin";
 
 export type ThemeName = 'light' | 'dark';
 
 export interface AppState extends ReduxState {
-     theme: ThemeName;
+    theme: ThemeName;
 }
 
 export interface LoginInformation {
-     username: string,
-     password: string
+    username: string,
+    password: string
 }
 
 export type Status = "IN_PROGRESS" | "COMPLETED" | "ARCHIVED" | "AWAITING";
@@ -16,118 +16,118 @@ export type TaskTypes = "DOCUMENT_UPLOAD" | "DOCUMENT_REVIEW" | "MODULE_WAIVER" 
 
 // All are optional
 export interface IArangoIndexes {
-     _id?: string;
-     _rev?: string;
-     _key?: string;
+    _id?: string;
+    _rev?: string;
+    _key?: string;
 
-     id?: string;
+    id?: string;
 }
 
 export interface ITaskStep {
-     [id: number | string]: ITask[]
+    [id: number | string]: ITask[]
 }
 export interface IModuleStep {
-     [id: number | string]: IModule[]
+    [id: number | string]: IModule[]
 }
 
 // DB elements with create/update timestamps
 export interface ICreateUpdate {
-     createdAt?: string | Date;
-     updatedAt?: string | Date;
+    createdAt?: string | Date;
+    updatedAt?: string | Date;
 }
 
-export interface IUser extends IArangoIndexes {
-     firstName: string;
-     lastName: string;
-     avatar: null | string;
-     userGroup: string | IUserGroup;
+export interface IUser extends Record {
+    firstName: string;
+    lastName: string;
+    avatar: null | string;
+    userGroup: string | IUserGroup;
 }
 
 export interface IComment extends IArangoIndexes, ICreateUpdate {
-     content: string;
-     author: string | IUser;
-     parent?: string | IModule | IProject;
+    content: string;
+    author: string | IUser;
+    parent?: string | IModule | IProject;
 }
 
 export interface ITask extends IArangoIndexes {
-     title: string;
-     status: Status;
-     assigned?: Array<string> | Array<IUser>;
-     module?: string | IModule;
-     type?: TaskTypes;
+    title: string;
+    status: Status;
+    assigned?: Array<string> | Array<IUser>;
+    module?: string | IModule;
+    type?: TaskTypes;
 }
 
 export interface ITaskReview extends ITask {
-     type: "DOCUMENT_REVIEW";
+    type: "DOCUMENT_REVIEW";
 }
 
 export interface ITaskUpload extends ITask {
-     type: "DOCUMENT_UPLOAD";
+    type: "DOCUMENT_UPLOAD";
 }
 
 export interface ITaskApproval extends ITask {
-     type: "DOCUMENT_APPROVE";
+    type: "DOCUMENT_APPROVE";
 }
 
 export interface ITaskWaiver extends ITask {
-     type: "MODULE_WAIVER";
+    type: "MODULE_WAIVER";
 }
 
 export interface ITaskWaiverReview extends ITask {
-     type: "MODULE_WAIVER_APPROVAL";
+    type: "MODULE_WAIVER_APPROVAL";
 }
 
 export interface IModule extends IArangoIndexes {
-     title: string;
-     tasks: ITaskStep;
-     comments: Array<string> | Array<IComment>;
-     project?: string | IProject;
-     status: Status | "WAIVED";
-     waive_module?: boolean;
+    title: string;
+    tasks: ITaskStep;
+    comments: Array<string> | Array<IComment>;
+    project?: string | IProject;
+    status: Status | "WAIVED";
+    waive_module?: boolean;
 }
 
 export interface IProject extends IArangoIndexes, ICreateUpdate {
-     title: string;
-     start: Date;
-     end: Date;
-     status: Status;
-     comments: Array<string> | Array<IComment>;
-     modules: IModuleStep;
-     users: Array<string> | Array<IUser>;
-     auto_assign?: boolean;
-     author?: IUser | string;
+    title: string;
+    start: Date;
+    end: Date;
+    status: Status;
+    comments: Array<string> | Array<IComment>;
+    modules: IModuleStep;
+    users: Array<string> | Array<IUser>;
+    auto_assign?: boolean;
+    author?: IUser | string;
 }
 
 export interface IUserGroup extends IArangoIndexes {
-     name: string;
-     permissions?: {
-          perm1: boolean;
-          perm2: boolean;
-          perm3: boolean;
-     };
+    name: string;
+    permissions?: {
+        perm1: boolean;
+        perm2: boolean;
+        perm3: boolean;
+    };
 }
 
 export interface IFileMetadata extends IArangoIndexes, ICreateUpdate {
-     name: string;
-     author: string | IUser;
-     location: {
-          name: string;
-          revision: string;
-     }
+    name: string;
+    author: string | IUser;
+    location: {
+        name: string;
+        revision: string;
+    }
 }
 
 export interface IModuleTemplate extends IModule, IArangoIndexes {
-     description: string;
+    description: string;
 }
 
 export interface IProjectTemplate extends IArangoIndexes, ICreateUpdate {
-     title: string;
-     description: string;
-     modules: Array<IModule>;
+    title: string;
+    description: string;
+    modules: Array<IModule>;
 }
 
 export interface IGetListQuery {
-     filter: Array<string>;
-     range: Array<number>;
-     sort: Array<string>;
+    filter: Array<string>;
+    range: Array<number>;
+    sort: Array<string>;
 }
