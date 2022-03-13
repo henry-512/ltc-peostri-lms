@@ -7,7 +7,8 @@ const domainMessages = {
             menu: {
                 administration: "Administration",
                 projects: "Projects",
-                templates: "Templates"
+                templates: "Templates",
+                users: "Users"
             },
             button: {
                 create: "Create",

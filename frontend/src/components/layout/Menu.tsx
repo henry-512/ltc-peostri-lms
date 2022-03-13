@@ -15,6 +15,7 @@ import { AppState } from 'src/util/types';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { ProjectIcon } from '../../pages/project';
 import { TemplateIcon } from '../../pages/template';
+import { UserIcon } from '../../pages/user';
 
 type MenuName = 'menuAdmin';
 
@@ -62,6 +63,14 @@ const Menu = ({ dense = false }: MenuProps) => {
                          }}
                          primaryText={translate("layout.menu.templates")}
                          leftIcon={<TemplateIcon />}
+                    />
+                    <MenuItemLink
+                         to={{
+                              pathname: '/users',
+                              state: { _scrollToTop: true },
+                         }}
+                         primaryText={translate("layout.menu.users")}
+                         leftIcon={<UserIcon />}
                     />
                </SubMenu>
           </div>
