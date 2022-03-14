@@ -1,9 +1,9 @@
-import { IUserGroup } from "../../lms/types";
+import { IRank } from "../../lms/types";
 import { isDBId } from "../../lms/util";
 import { ApiRoute } from "./route";
 
-class UserGroupRoute extends ApiRoute<IUserGroup> {
-    public async getGroup(id: string): Promise<IUserGroup> {
+class RankRoute extends ApiRoute<IRank> {
+    public async getRank(id: string): Promise<IRank> {
         if (id && isDBId(id) && this.exists(id)) {
             return this.getUnsafe(id)
         }
@@ -12,10 +12,10 @@ class UserGroupRoute extends ApiRoute<IUserGroup> {
 
     constructor() {
         super(
-            'userGroups',
-            'User Group',
+            'ranks',
+            'Rank',
             {
-                'name':{type:'string',default:'New User Group'},
+                'name':{type:'string',default:'New Rank'},
                 'permissions':{
                     type:'object',default:{
                         'perm1':false,
@@ -32,4 +32,4 @@ class UserGroupRoute extends ApiRoute<IUserGroup> {
     }
 }
 
-export const UserGroupRouteInstance = new UserGroupRoute()
+export const RankRouteInstance = new RankRoute()

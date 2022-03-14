@@ -32,7 +32,7 @@ export interface IUser extends IArangoIndexes {
      firstName: string;
      lastName: string;
      avatar: null | string;
-     userGroup: string | IUserGroup;
+     rank: string | IRank;
 
      username: string;
      password: string;
@@ -88,7 +88,7 @@ export interface IProject extends IArangoIndexes, ICreateUpdate {
      users: Array<string> | Array<IUser>;
 }
 
-export interface IUserGroup extends IArangoIndexes {
+export interface IRank extends IArangoIndexes {
      name: string;
      permissions?: {
           perm1: boolean;

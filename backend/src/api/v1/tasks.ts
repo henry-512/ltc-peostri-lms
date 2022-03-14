@@ -1,6 +1,6 @@
 import { ITask } from "../../lms/types";
 import { ApiRoute } from "./route";
-import { UserGroupRouteInstance } from "./userGroup";
+import { RankRouteInstance } from "./ranks";
 import { UserRouteInstance } from "./users";
 
 class TaskRoute extends ApiRoute<ITask> {
@@ -19,7 +19,7 @@ class TaskRoute extends ApiRoute<ITask> {
                     default:[],
                     getIdKeepAsRef:true,
                 },
-                'userGroup':{
+                'rank':{
                     type:'fkey',
                     optional:true,
                     getIdKeepAsRef:true,
@@ -33,7 +33,7 @@ class TaskRoute extends ApiRoute<ITask> {
             false,
             {
                 'users': UserRouteInstance,
-                'userGroup': UserGroupRouteInstance,
+                'rank': RankRouteInstance,
             },
             {local:'module',foreign:'tasks'}
         )

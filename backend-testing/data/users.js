@@ -1,4 +1,4 @@
-const { debugUserGroupKey, debugUserGroupId, debugUserId } = require('.')
+const { debugRankKey, debugRankId, debugUserId } = require('.')
 
 module.exports = {
 	chain: {
@@ -12,7 +12,7 @@ module.exports = {
 				'firstName': 'John',
 				'lastName': 'Doe',
 				'avatar': '',
-				'userGroup': debugUserGroupId,
+				'rank': debugRankId,
 				'username': 'usName',
 				'password': 'password'
 			},
@@ -23,7 +23,7 @@ module.exports = {
 				'firstName': 'John',
 				'lastName': 'Doe',
 				'avatar': '',
-				'userGroup': debugUserGroupId,
+				'rank': debugRankId,
 				'username': 'usName',
 				'password': 'password'
 			},
@@ -33,7 +33,7 @@ module.exports = {
 				'firstName': 'John',
 				'lastName': 'Doe',
 				'avatar': '',
-				'userGroup': debugUserGroupKey,
+				'rank': debugRankKey,
 				'username': 'usName',
 				'password': 'password'
 			},
@@ -41,13 +41,13 @@ module.exports = {
 	],
 	failPost: [
 		{
-			n: 'Fully-formed userGroup',
+			n: 'Fully-formed rank',
 			d: {
 				'firstName': 'Jason',
 				'lastName': 'Doe',
 				'avatar': '',
-				'userGroup': {
-					'name': 'Jason\'s super-cool Usergroup',
+				'rank': {
+					'name': 'Jason\'s super-cool rank',
 					'permissions': {
 						'perm1': true,
 						'perm2': true,
@@ -61,7 +61,7 @@ module.exports = {
 			n: 'Missing fields',
 			d: {
 				'firstName': 'Josh',
-				'userGroup': debugUserGroupId,
+				'rank': debugRankId,
 				'username': 'usName',
 				'password': 'password'
 			},
@@ -71,16 +71,16 @@ module.exports = {
 		// 		'firstName': 'Joshua',
 		// 		'lastName': 'Doe',
 		// 		'avatar': '',
-		// 		'userGroup': debugUserGroupId,
+		// 		'rank': debugRankId,
 		// 		'super-cool-hackerinos': '; DROP TABLE USERS'
 		// 	},
 		// }, {
-			n: 'Valid foreign id, but not a userGroup',
+			n: 'Valid foreign id, but not a rank',
 			d: {
 				'firstName': 'Joe',
 				'lastName': 'Doe',
 				'avatar': '',
-				'userGroup': debugUserId,
+				'rank': debugUserId,
 				'username': 'usName',
 				'password': 'password'
 			},
@@ -90,7 +90,7 @@ module.exports = {
 				'firstName': 'Jordan',
 				'lastName': 'Doe',
 				'avatar': '',
-				'userGroup': '',
+				'rank': '',
 				'username': 'usName',
 				'password': 'password'
 			},
@@ -100,7 +100,7 @@ module.exports = {
 				'firstName': 'Jackie',
 				'lastName': 'Doe',
 				'avatar': '',
-				'userGroup': '//:)',
+				'rank': '//:)',
 				'username': 'usName',
 				'password': 'password'
 			}
@@ -110,7 +110,7 @@ module.exports = {
 				'firstName': 'Jacklyn',
 				'lastName': 'Doe',
 				'avatar': '',
-				'userGroup': debugUserGroupId,
+				'rank': debugRankId,
 				'username': 'usName'
 			},
 		}

@@ -7,13 +7,13 @@ import { ParameterizedContext } from "koa";
 
 import { config } from "../../config";
 import { db } from "../../database";
-import { IUser, IUserGroup } from "../../lms/types";
+import { IUser, IRank } from "../../lms/types";
 import { ApiRoute } from "./route";
-import { UserGroupRouteInstance } from "./userGroup";
+import { RankRouteInstance } from "./ranks";
 import { isDBKey, keyToId } from "../../lms/util";
 
 export class AuthUser {
-    private group?: IUserGroup
+    private rank?: IRank
     private userPromise: Promise<IUser>
     private user?: IUser
     public key
@@ -34,8 +34,8 @@ export class AuthUser {
 
     async hasPermission() {
         if (!this.user) this.user = await this.userPromise
-        if (!this.group) this.group = await UserGroupRouteInstance
-            .getGroup(this.user.userGroup as string)
+        if (!this.rank) this.rank = await RankRouteInstance
+            .getRank(this.user.rank as string)
         
         return false
     }
@@ -57,12 +57,12 @@ class UserRoute extends ApiRoute<IUser> {
                 'firstName': {type:'string'},
                 'lastName':{type:'string'},
                 'avatar':{type:'string'},
-                'userGroup':{type:'fkey'},
+                'rank':{type:'fkey'},
 
                 'username':{
                     type:'string',
                     hideGetAll:true,
-                    hideGetId:true,
+                    hideGetId:false,
                     hideGetRef:true,
                 },
                 'password':{
@@ -74,7 +74,7 @@ class UserRoute extends ApiRoute<IUser> {
             },
             false,
             {
-                'userGroup': UserGroupRouteInstance
+                'rank': RankRouteInstance
             },
             null
         )
@@ -98,7 +98,7 @@ class UserRoute extends ApiRoute<IUser> {
 
         return aql`${query} LIMIT ${offset}, ${count}
             LET a = (RETURN DOCUMENT(z.userGroup))[0]
-            RETURN {userGroup:(RETURN {id:a._key,name:a.name})[0],${queryFields}}`
+            RETURN {rank:(RETURN {id:a._key,name:a.name})[0],${queryFields}}`
     }
 
     override async modifyDoc(user: AuthUser, doc:any) {

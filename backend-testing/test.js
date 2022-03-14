@@ -7,8 +7,8 @@ const { authUserName, authPassword } = require('./data')
 // .send(jsonObj)
 //https://visionmedia.github.io/superagent/
 
-var API = 'api/v1/'
-var agent = supertest.agent('localhost:5000/')
+var API = 'v1/'
+var agent = supertest.agent('localhost:5000/api/')
 
 describe(`Authenticate`, () => {
     it('Invalid username', async () => {
