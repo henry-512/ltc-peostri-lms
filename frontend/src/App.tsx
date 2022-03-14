@@ -38,7 +38,7 @@ const App = () => {
             <Resource name='projects' list={ProjectList} create={ProjectCreate} edit={ProjectEdit} />
             <Resource name='templates' list={TemplateList} create={TemplateCreate} edit={TemplateEdit} />
             <Resource name="users" list={UserList} create={UserCreate} edit={UserEdit} />
-            <Resource name="userGroups" options={{ label: "layout.menu.permissions" }} />
+            <Resource name="ranks" options={{ label: "layout.menu.ranks" }} />
         </Admin>
     );
 }

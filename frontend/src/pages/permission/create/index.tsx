@@ -84,9 +84,9 @@ const UserCreate = (props: CreateProps) => {
                 />
                 <Separator />
                 <ReferenceInput 
-                    label="project.fields.usergroup"
-                    reference="userGroups"
-                    source="userGroup"
+                    label="project.fields.rank"
+                    reference="ranks"
+                    source="rank"
                 >
                     <SelectInput
                         optionText={choice => `${choice.name}`}

@@ -27,8 +27,8 @@ const AutoAssignArrayInput = (props: any) => {
           if (!data) return;
 
           choices.forEach((user: any, i: number) => {
-               console.log(user.userGroup.id)
-               if (user.userGroup.id != data.userGroup) return;
+               console.log(user.rank.id)
+               if (user.rank.id != data.rank) return;
                if (!formData.users.includes(user.id)) return;
                if (typeof data.users != 'undefined' && data.users.includes(user.id)) return;
 

@@ -54,7 +54,7 @@ const UserList = (props: UserListProps) => {
                     <TextField source="firstName" />
                     <TextField source="lastName" />
                     <TextField source="username" />
-                    <ReferenceField source="userGroup.id" reference="userGroups">
+                    <ReferenceField source="rank.id" reference="ranks">
                         <TextField source="name" />
                     </ReferenceField>
                 </Datagrid>

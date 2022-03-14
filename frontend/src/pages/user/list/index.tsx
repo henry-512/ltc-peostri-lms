@@ -72,7 +72,7 @@ const UserList = (props: UserListProps) => {
         <SearchInput source="q" alwaysOn />,
         <TextInput source="firstName" className={classes.filter} />,
         <TextInput source="lastName" className={classes.filter} />,
-        <ReferenceInput source="userGroup" reference="userGroups" className={classes.select} >
+        <ReferenceInput source="rank" reference="ranks" className={classes.select} >
             <SelectInput optionText={choice => `${choice.name}`} />
         </ReferenceInput>
     ];
@@ -94,12 +94,12 @@ const UserList = (props: UserListProps) => {
                 >
                     {/*<TextField source="id" /> // TODO: Temporarily removing ID due to illegible ID's */}
                     <AvatarField className={classes.avatar} />
-                    <TextField source="firstName" />
-                    <TextField source="lastName" />
-                    <TextField source="username" />
-                    <ReferenceField source="userGroup.id" reference="userGroups">
-                        <TextField source="name" />
+                    <TextField source="firstName" label="user.first_name" />
+                    <TextField source="lastName" label="user.last_name" />
+                    <ReferenceField source="rank.id" reference="ranks">
+                        <TextField source="name" label="user.rank" />
                     </ReferenceField>
+                    <TextField source="username" label="user.username" />
                 </Datagrid>
             </List>
         </>

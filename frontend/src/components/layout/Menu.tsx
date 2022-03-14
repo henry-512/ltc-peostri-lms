@@ -75,7 +75,7 @@ const Menu = ({ dense = false }: MenuProps) => {
                 />
                 <MenuItemLink
                     to={{
-                        pathname: '/userGroups',
+                        pathname: '/ranks',
                         state: { _scrollToTop: true },
                     }}
                     primaryText={translate("layout.menu.permissions")}

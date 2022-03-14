@@ -90,9 +90,9 @@ const TaskFields = (props: TaskFieldsProps) => {
 
                 <Grid item xs={3} style={{ marginTop: '-32px' }}>
                     <ReferenceInput
-                        label="project.fields.usergroup"
-                        reference="userGroups"
-                        source={getSource?.('userGroup') || ""}
+                        label="project.fields.rank"
+                        reference="ranks"
+                        source={getSource?.('rank') || ""}
                     >
                         <SelectInput
                             optionText={choice => `${choice.name}`}
