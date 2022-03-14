@@ -1,4 +1,3 @@
-import { ParameterizedContext } from "koa";
 import { IFileMetadata } from "../../lms/types";
 import { ApiRoute } from "./route";
 import { AuthUser, UserRouteInstance } from "./users";

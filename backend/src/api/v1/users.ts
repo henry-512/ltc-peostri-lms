@@ -12,35 +12,6 @@ import { ApiRoute } from "./route";
 import { RankRouteInstance } from "./ranks";
 import { isDBKey, keyToId } from "../../lms/util";
 
-export class AuthUser {
-    private rank?: IRank
-    private userPromise: Promise<IUser>
-    private user?: IUser
-    public key
-
-    constructor(auth?:string) {
-        if (!auth || typeof auth !== 'string') {
-            throw new TypeError(`${auth} is not a string`)
-        }
-        let jwt = jsonwebtoken.verify(auth, config.secret)
-        this.key = (<JwtPayload>jwt).user
-        if (!isDBKey(this.key)) {
-            throw new TypeError(`${auth} ->\n${jwt} is not a valid auth string`)
-        }
-        this.userPromise = UserRouteInstance.getUser(this.key)
-    }
-
-    getId() { return keyToId(this.key, UserRouteInstance.name) }
-
-    async hasPermission() {
-        if (!this.user) this.user = await this.userPromise
-        if (!this.rank) this.rank = await RankRouteInstance
-            .getRank(this.user.rank as string)
-        
-        return false
-    }
-}
-
 class UserRoute extends ApiRoute<IUser> {
     public async getUser(key: string): Promise<IUser> {
         if (key && isDBKey(key) && this.exists(key)) {
@@ -61,8 +32,6 @@ class UserRoute extends ApiRoute<IUser> {
 
                 'username':{
                     type:'string',
-                    hideGetAll:true,
-                    hideGetId:false,
                     hideGetRef:true,
                 },
                 'password':{
@@ -194,3 +163,35 @@ class UserRoute extends ApiRoute<IUser> {
 }
 
 export const UserRouteInstance = new UserRoute()
+
+/**
+ * An authenticated user instance, associated with their user id
+ */
+export class AuthUser {
+    private rank?: IRank
+    private userPromise: Promise<IUser>
+    private user?: IUser
+    public key
+
+    constructor(auth?:string) {
+        if (!auth || typeof auth !== 'string') {
+            throw new TypeError(`${auth} is not a string`)
+        }
+        let jwt = jsonwebtoken.verify(auth, config.secret)
+        this.key = (<JwtPayload>jwt).user
+        if (!isDBKey(this.key)) {
+            throw new TypeError(`${auth} ->\n${jwt} is not a valid auth string`)
+        }
+        this.userPromise = UserRouteInstance.getUser(this.key)
+    }
+
+    getId() { return keyToId(this.key, UserRouteInstance.name) }
+
+    async hasPermission() {
+        if (!this.user) this.user = await this.userPromise
+        if (!this.rank) this.rank = await RankRouteInstance
+            .getRank(this.user.rank as string)
+        
+        return false
+    }
+}
