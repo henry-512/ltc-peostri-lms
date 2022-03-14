@@ -96,8 +96,8 @@ const UserList = (props: UserListProps) => {
                     <AvatarField className={classes.avatar} />
                     <TextField source="firstName" label="user.first_name" />
                     <TextField source="lastName" label="user.last_name" />
-                    <ReferenceField source="rank.id" reference="ranks">
-                        <TextField source="name" label="user.rank" />
+                    <ReferenceField source="rank.id" reference="ranks" label="user.rank" >
+                        <TextField source="name" />
                     </ReferenceField>
                     <TextField source="username" label="user.username" />
                 </Datagrid>
