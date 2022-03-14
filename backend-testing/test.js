@@ -54,11 +54,25 @@ function test(n) {
         it('Base call', async () => {
             let r = await agent
                 .get(API + n)
-                // .set('Authorization', AUTH_HEADER)
                 
             expect(r.status).equal(200)
             expect(r.headers).an('object')
                 .any.keys('content-range','access-control-expose-headers')
+            expect(r.body).an('array')
+        })
+    })
+
+    describe(`${n} GET one`, () => {
+        it('Test fields', async () => {
+            let r = await agent
+                .get(API + n)
+                .query({
+                    range:[0,1],
+                })
+            
+            expect(r.status).equal(200)
+            expect(r.body).an('array').lengthOf(1)
+            // expect(r.body[0]).property('username').a('string')
         })
     })
 

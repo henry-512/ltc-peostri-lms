@@ -1,4 +1,3 @@
-import { ParameterizedContext } from "koa";
 import { IComment } from "../../lms/types";
 import { ApiRoute } from "./route";
 import { AuthUser, UserRouteInstance } from "./users";
