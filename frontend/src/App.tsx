@@ -12,7 +12,7 @@ import LoginPage from './pages/login';
 import { UserCreate, UserEdit, UserList } from './pages/user';
 import { TemplateCreate, TemplateEdit, TemplateList } from './pages/template';
 
-const API_URL = process.env.REACT_APP_API_URL + "/" + process.env.REACT_APP_API_VERSION || "";
+const API_URL = process.env.REACT_APP_API_URL + "/" + process.env.REACT_APP_API_VERSION || "http://localhost:5000/api/v1";
 
 const messages: any = {
     en: { ...englishMessages, ...domainMessages.en }
