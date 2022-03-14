@@ -40,7 +40,7 @@ export interface IUser extends Record {
     firstName: string;
     lastName: string;
     avatar: null | string;
-    userGroup: string | IUserGroup;
+    rank: string | IRank;
 }
 
 export interface IComment extends IArangoIndexes, ICreateUpdate {
@@ -98,7 +98,7 @@ export interface IProject extends IArangoIndexes, ICreateUpdate {
     author?: IUser | string;
 }
 
-export interface IUserGroup extends IArangoIndexes {
+export interface IRank extends IArangoIndexes {
     name: string;
     permissions?: {
         perm1: boolean;

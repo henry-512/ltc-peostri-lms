@@ -46,7 +46,7 @@ const domainMessages = {
                 task_title: "Task Title",
                 task_type: "Task Type",
                 task_status: "Task Status",
-                usergroup: "User Group",
+                rank: "Rank",
                 waiver_file: "Drop a File Here, or Click Here to Browse Files"
             },
             layout: {
@@ -82,6 +82,12 @@ const domainMessages = {
                 module_waiver: "Waiver",
                 module_waiver_approval: "Waiver Approval"
             }
+        },
+        user: {
+            first_name: "First Name",
+            last_name: "Last Name",
+            rank: "Rank",
+            username: "Username"
         }
     }
 }
