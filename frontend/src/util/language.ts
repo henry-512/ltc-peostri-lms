@@ -69,9 +69,6 @@ const domainMessages = {
                 no_tasks: "Add a Task to this Module",
                 edit_module: "Editing Module: %{title}",
                 edit_task: "Editing Task: %{title}"
-            },
-            warnings: {
-                order_back: "(Returning to the previous page will undo all of your changes)"
             }
         },
         tasks: {
