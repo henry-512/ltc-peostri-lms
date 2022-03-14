@@ -147,5 +147,22 @@ function test(n) {
     })
 }
 
+// Load dynamic test data
 test('users')
 test('projects')
+
+// Delete orphaned data
+describe('Orphans', () => {
+    it('del Orphan Modules', async () => {
+        let r = await agent
+            .set('User-Agent', 'backend-testing')
+            .delete(API + 'modules/orphan')
+        expect(r.status).equal(200)
+    })
+    it('del Orphan Tasks', async () => {
+        let r = await agent
+            .set('User-Agent', 'backend-testing')
+            .delete(API + 'tasks/orphan')
+        expect(r.status).equal(200)
+    })
+})

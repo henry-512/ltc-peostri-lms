@@ -736,8 +736,44 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         real && await this.collection.remove(key)
     }
 
-    makeRouter() { return new Router({prefix:this.name})
-        .get('/', async (ctx, next) => {
+    /**
+     * Removes all orphaned documents from this collection.
+     * A document is an orphan iff:
+     * - It has a parent field that points to a document that does not exist.
+     * - It should have a parent field, but doesn't
+     * - It has an invalid parent field
+     */
+    private async deleteOrphans() {
+        if (!this.parentField) throw new TypeError(`DeleteOrphans called on an invalid type ${name}`)
+
+        return db.query(aql`FOR d IN ${this.collection} FILTER DOCUMENT(d.${this.parentField.local})._id == null REMOVE d IN ${this.collection}`)
+    }
+
+    /**
+     * Removes all foreign key references that no longer point to valid documents.
+     */
+    private async disown() {
+        throw new Error('method not implemented :)')
+    }
+
+    makeRouter() {
+        let r = new Router({prefix:this.name})
+        // Orphan delete
+        if (this.parentField) {
+            r.delete('/orphan', async (ctx,next) => {
+                try {
+                    if (ctx.header['user-agent'] === 'backend-testing') {
+                        await this.deleteOrphans()
+                        ctx.status = 200
+                    }
+                    next()
+                } catch (err) {
+                    console.log(err)
+                    ctx.status = 500
+                }
+            })
+        }
+        r.get('/', async (ctx, next) => {
             try {
                 const qdata = await this.query(ctx.request.query)
                 let all = await qdata.cursor.all()
@@ -759,7 +795,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 ctx.status = 500
             }
         })
-        .get('/:id', async (ctx, next) => {
+        r.get('/:id', async (ctx, next) => {
             try {
                 if (await this.exists(ctx.params.id)) {
                     let user = new AuthUser(ctx.cookies.get('token'))
@@ -777,7 +813,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 ctx.status = 500
             }
         })
-        .post('/', async (ctx, next) => {
+        r.post('/', async (ctx, next) => {
             try {
                 let doc = ctx.request.body as Type
                 let newID = generateDBID(this.name)
@@ -797,7 +833,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 ctx.status = 500
             }
         })
-        .put('/:id', async (ctx, next) => {
+        r.put('/:id', async (ctx, next) => {
             try {
                 if (await this.exists(ctx.params.id)) {
                     let user = new AuthUser(ctx.cookies.get('token'))
@@ -818,7 +854,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 ctx.status = 500
             }
         })
-        .delete('/:id', async (ctx, next) => {
+        r.delete('/:id', async (ctx, next) => {
             try {
                 if (await this.exists(ctx.params.id)) {
                     let user = new AuthUser(ctx.cookies.get('token'))
@@ -839,5 +875,6 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 ctx.status = 500
             }
         })
+        return r
     }
 }
