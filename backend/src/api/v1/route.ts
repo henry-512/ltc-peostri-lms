@@ -669,7 +669,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             }
 
             if (!(fkey in doc)) {
-                console.warn(`foreign key ${fkey} dne`)
+                if (!data.optional) {
+                    console.warn(`foreign key ${fkey} dne`)
+                }
                 continue
             }
 
@@ -738,10 +740,11 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
 
     /**
      * Removes all orphaned documents from this collection.
-     * A document is an orphan iff:
+     * A document is an orphan if:
      * - It has a parent field that points to a document that does not exist.
      * - It should have a parent field, but doesn't
      * - It has an invalid parent field
+     * NOTE: VERY EXPENSIVE, don't run that often
      */
     private async deleteOrphans() {
         if (!this.parentField) throw new TypeError(`DeleteOrphans called on an invalid type ${name}`)
@@ -750,10 +753,101 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     }
 
     /**
-     * Removes all foreign key references that no longer point to valid documents.
+     * Removes all abandoned documents from this collection.
+     * A document is abandoned iff:
+     * - It has a parent field that points to a valid document
+     * - AND its parent document does not hold a reference to it
+     * NOTE: VERY EXPENSIVE, don't run that often
+     */
+    private async deleteAbandoned() {
+        throw new Error('not implemented :)')
+    }
+
+    /**
+     * Removes all foreign key references for documents in this collection that no longer point to valid documents.
+     * NOTE: EXCEPTIONALLY EXPENSIVE, only run when necessary
      */
     private async disown() {
-        throw new Error('method not implemented :)')
+        if (this.foreignEntries.length === 0) return
+
+        let cursor = await db.query(aql`FOR d in ${this.collection} RETURN d`)
+
+        while (cursor.hasNext) {
+            // Async ??
+            let doc = await cursor.next()
+
+            // Delete children
+            for (let [fkey,cls] of this.foreignEntries) {
+                let data = this.fields[fkey]
+
+                if (!(fkey in doc)) {
+                    if (!data.optional) {
+                        console.warn(`foreign key [${fkey}] dne`)
+                    }
+                    continue
+                }
+
+                let localKey = fkey as keyof Type
+                let foreign = doc[localKey]
+
+                switch (data.type) {
+                    case 'fkey':
+                        if (typeof foreign !== 'string') {
+                            throw new TypeError(`${JSON.stringify(foreign)} was expected to be a string`)
+                        }
+
+                        if (
+                            !isDBId(foreign)
+                            || !cls.exists(foreign)
+                        ) {
+                            doc[localKey] = ''
+                        }
+                        continue
+                    case 'fkeyArray':
+                        if (!Array.isArray(foreign)) {
+                            throw new TypeError(`${JSON.stringify(foreign)} was expected to be an array`)
+                        }
+                        for (var i = foreign.length - 1; i >= 0; i--) {
+                            if (
+                                !isDBId(foreign[i])
+                                || !cls.exists(foreign[i])
+                            ) {
+                                foreign.splice(i, 1)
+                            }
+                        }
+                        continue
+                    case 'fkeyStep':
+                        if (typeof foreign !== 'object') {
+                            throw new TypeError(`${JSON.stringify(foreign)} was expected to be a step object`)
+                        }
+                        for (let k in foreign) {
+                            let sAr = foreign[k]
+
+                            if (!Array.isArray(sAr)) {
+                                throw new TypeError(`${sAr} is not an array`)
+                            }
+                            for (var i = sAr.length - 1; i >= 0; i--) {
+                                if (
+                                    !isDBId(sAr[i])
+                                    || !cls.exists(sAr[i])
+                                ) {
+                                    sAr.splice(i, 1)
+                                }
+                            }
+                            if (sAr.length === 0) {
+                                delete foreign[k]
+                            }
+                        }
+                        continue
+                    default:
+                        throw new TypeError(`INTERNAL ERROR: ${data} has invalid type.`)
+                }
+            }
+
+            await this.updateUnsafe(doc, {
+                mergeObjects: false,
+            })
+        }
     }
 
     makeRouter() {
@@ -764,6 +858,21 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 try {
                     if (ctx.header['user-agent'] === 'backend-testing') {
                         await this.deleteOrphans()
+                        ctx.status = 200
+                    }
+                    next()
+                } catch (err) {
+                    console.log(err)
+                    ctx.status = 500
+                }
+            })
+        }
+        // Disown update
+        if (this.foreignEntries.length !== 0) {
+            r.delete('/disown', async (ctx,next) => {
+                try {
+                    if (ctx.header['user-agent'] === 'backend-testing') {
+                        await this.disown()
                         ctx.status = 200
                     }
                     next()

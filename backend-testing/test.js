@@ -151,6 +151,43 @@ function test(n) {
 test('users')
 test('projects')
 
+// Clean disowned data
+describe('Disowned', function() {
+    // These are beefy functions and need beefy runtimes
+    this.timeout(10000)
+
+    it('Disown Projects', async () => {
+        let r = await agent
+            .set('User-Agent', 'backend-testing')
+            .delete(API + 'projects/disown')
+        expect(r.status).equal(200)
+    })
+    it('Disown Modules', async () => {
+        let r = await agent
+            .set('User-Agent', 'backend-testing')
+            .delete(API + 'modules/disown')
+        expect(r.status).equal(200)
+    })
+    it('Disown Tasks', async () => {
+        let r = await agent
+            .set('User-Agent', 'backend-testing')
+            .delete(API + 'tasks/disown')
+        expect(r.status).equal(200)
+    })
+    it('Disown Users', async () => {
+        let r = await agent
+            .set('User-Agent', 'backend-testing')
+            .delete(API + 'users/disown')
+        expect(r.status).equal(200)
+    })
+    it('Disown Comments', async () => {
+        let r = await agent
+            .set('User-Agent', 'backend-testing')
+            .delete(API + 'comments/disown')
+        expect(r.status).equal(200)
+    })
+})
+
 // Delete orphaned data
 describe('Orphans', () => {
     it('del Orphan Modules', async () => {
