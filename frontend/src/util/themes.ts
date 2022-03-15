@@ -102,6 +102,11 @@ export const lightTheme = {
                 }
             }
         },
+        RaDatagrid: {
+            headerRow: {
+                borderBottom: '1px solid rgba(224, 224, 224, 1)'
+            }
+        },
         MuiPaper: {
             elevation1: {
                 boxShadow: 'none',
