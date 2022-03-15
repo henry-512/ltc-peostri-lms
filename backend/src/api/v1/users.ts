@@ -97,23 +97,21 @@ class UserRoute extends ApiRoute<IUser> {
     }
 
     public makeRouter() {
-        let r = super.makeRouter()
-
+        let r = new Router({prefix:this.routeName})
+        // Self
         r.get('/self', async (ctx, next) => {
             try {
                 let user = new AuthUser(ctx.cookies.get('token'))
 
-                ctx.body = this.getFromDB(user, user.getId())
+                ctx.body = await this.getFromDB(user, user.getId())
                 ctx.status = 200
-
-                next()
             } catch (err) {
                 console.log(err)
                 ctx.status = 500
             }
         })
 
-        return r
+        return super.makeRouter(r)
     }
 
     public authRouter() { return new Router({prefix: '/api/auth'})

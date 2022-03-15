@@ -818,8 +818,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         }
     }
 
-    makeRouter() {
-        let r = new Router({prefix:this.routeName})
+    makeRouter(router?:Router) {
+        let r = router || new Router({prefix:this.routeName})
         // Orphan delete
         if (config.devRoutes && this.parentField) {
             r.delete('/orphan', async (ctx,next) => {

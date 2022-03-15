@@ -20,6 +20,20 @@ class ProjectTemplateRoute extends ApiRoute<IProjectTemplate> {
             null,
         )
     }
+
+    public makeRouter() {
+        let r = super.makeRouter()
+        // Builds a project matching the passed project template ID
+        r.get('/instance/:id', async (ctx, next) => {
+            try {
+                next()
+            } catch (err) {
+                console.log(err)
+                ctx.status = 500
+            }
+        })
+        return r
+    }
 }
 
 export const ProjectTemplateRouteInstance = new ProjectTemplateRoute()
