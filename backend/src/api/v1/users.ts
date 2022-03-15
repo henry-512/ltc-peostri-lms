@@ -33,6 +33,7 @@ class UserRoute extends ApiRoute<IUser> {
                     type:'string',
                     default:'ACTIVE',
                 },
+                'email':{type:'string',optional:true},
 
                 'username':{
                     type:'string',
@@ -96,7 +97,7 @@ class UserRoute extends ApiRoute<IUser> {
         }
     }
 
-    public makeRouter() {
+    public override makeRouter() {
         let r = new Router({prefix:this.routeName})
         // Self
         r.get('/self', async (ctx, next) => {

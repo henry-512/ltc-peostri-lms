@@ -21,7 +21,7 @@ class ProjectTemplateRoute extends ApiRoute<IProjectTemplate> {
         )
     }
 
-    public makeRouter() {
+    public override makeRouter() {
         let r = super.makeRouter()
         // Builds a project matching the passed project template ID
         r.get('/instance/:id', async (ctx, next) => {
