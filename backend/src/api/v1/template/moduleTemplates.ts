@@ -1,4 +1,4 @@
-import { IModule, IModuleTemplate } from "../../../lms/types";
+import { IModule, IModuleTemplate, ITask } from "../../../lms/types";
 import { ApiRoute } from "../route";
 
 class ModuleTemplateRoute extends ApiRoute<IModuleTemplate> {
@@ -22,17 +22,33 @@ class ModuleTemplateRoute extends ApiRoute<IModuleTemplate> {
         )
     }
 
-    public buildModuleFromTemplate(temp:IModuleTemplate):IModule {
-        let module:IModule = {
-            title: temp.title,
-            tasks: {},
-            comments: [],
-            status: 'IN_PROGRESS',
-            waive_module: temp.waive_module,
-            file: ""
+    public async buildModuleFromId(id:string): Promise<IModule> {
+        let template = await this.getUnsafe(id)
+        return this.buildModuleFromTemplate(template)
+    }
+
+    private buildModuleFromTemplate(temp:IModuleTemplate):IModule {
+        let tasks:{[key:string]:ITask[]} = {}
+
+        for (let [stepName,tempArray] of Object.entries(temp.tasks)) {
+            tasks[stepName] = tempArray.map((t) => {
+                return {
+                    title: '',
+                    status: 'AWAITING',
+                    users: [],
+                    rank: t.rank,
+                    type: t.type
+                } as ITask
+            })
         }
 
-        return module
+        return {
+            title: temp.title,
+            tasks: tasks,
+            comments: [],
+            status: 'AWAITING',
+            waive_module: temp.waive_module,
+        }
     }
 
     public override makeRouter() {
@@ -40,6 +56,14 @@ class ModuleTemplateRoute extends ApiRoute<IModuleTemplate> {
         // Builds a project matching the passed project template ID
         r.get('/instance/:id', async (ctx, next) => {
             try {
+                if (!this.exists(ctx.params.id)) {
+                    ctx.body = this.buildModuleFromId(ctx.params.id)
+                    ctx.status = 200
+                } else {
+                    ctx.status = 404
+                    ctx.body = `${this.displayName} [${ctx.params.id}] dne.`
+                }
+
                 next()
             } catch (err) {
                 console.log(err)

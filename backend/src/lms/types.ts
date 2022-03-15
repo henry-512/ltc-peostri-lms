@@ -42,19 +42,19 @@ export interface IModule extends IArangoIndexes {
      project?: string;
      status: Status | "WAIVED";
      waive_module: boolean;
-     file: string | IFileMetadata;
+     file?: string | IFileMetadata;
 }
 
 export interface IProjectTemplate extends IArangoIndexes, ICreateUpdate {
      title: string;
      description: string;
-     modules: Array<IModule>;
+     modules: { [id:string]: IModule[] | string[] };
 }
 
 export interface IProject extends IArangoIndexes, ICreateUpdate {
      title: string;
-     start: Date;
-     end: Date;
+     start: string | Date;
+     end: string | Date;
      status: Status;
      comments: Array<string> | Array<IComment>;
      modules: { [id:string]: IModule[] | string[] };
