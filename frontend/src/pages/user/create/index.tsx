@@ -1,23 +1,18 @@
 import { Box, makeStyles, Theme, Typography } from "@material-ui/core";
 import { Styles } from "@material-ui/core/styles/withStyles";
-import { Create, CreateProps, DateInput, email, PasswordInput, ReferenceInput, required, SelectInput, SimpleForm, TextInput, useTranslate } from "react-admin";
+import { BooleanInput, Create, CreateProps, DateInput, email, PasswordInput, ReferenceInput, required, SelectInput, SimpleForm, TextInput, useTranslate } from "react-admin";
 import { AnyObject } from "react-final-form";
+import { AutoFillUserName } from "src/components/users";
 
 export const styles: Styles<Theme, any> = {
-    first_name: { display: 'inline-block' },
-    last_name: { display: 'inline-block', marginLeft: 32 },
-    email: { width: 544 },
-    address: { maxWidth: 544 },
-    zipcode: { display: 'inline-block' },
-    city: { display: 'inline-block', marginLeft: 32 },
-    comment: {
-        maxWidth: '20em',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
+    username: {
+        width: "75%",
+        flexShrink: 3
     },
-    password: { display: 'inline-block' },
-    confirm_password: { display: 'inline-block', marginLeft: 32 },
+    use_email: {
+        width: "25%",
+        flexGrow: 3
+    }
 };
 
 const useStyles = makeStyles(styles);
@@ -43,68 +38,99 @@ const UserCreate = (props: CreateProps) => {
     return (
         <Create {...props}>
             <SimpleForm
-                // Here for the GQL provider
-                initialValues={{
-                    birthday: date,
-                    first_seen: date,
-                    last_seen: date,
-                    has_ordered: false,
-                    latest_purchase: date,
-                    has_newsletter: false,
-                    groups: [],
-                    nb_commands: 0,
-                    total_spent: 0,
-                }}
                 validate={validatePasswords}
             >
-                <SectionTitle label="resources.customers.fieldGroups.identity" />
-                <TextInput
-                    autoFocus
-                    source="firstName"
-                    formClassName={classes.first_name}
-                    validate={requiredValidate}
-                />
-                <TextInput
-                    source="lastName"
-                    formClassName={classes.last_name}
-                    validate={requiredValidate}
-                />
-                <TextInput
-                    source="userName"
-                    formClassName={classes.last_name}
-                    validate={requiredValidate}
-                />
-                <TextInput
-                    type="email"
-                    source="email"
-                    validation={{ email: true }}
-                    fullWidth
-                    formClassName={classes.email}
-                    validate={[required(), email()]}
-                />
+                <Box display="flex" justifyContent="flex-start" width="100%" style={{
+                    gap: "32px"
+                }}>
+                    <Box display="flex" width="calc(50% - 16px)" flexDirection="column">
+                        <SectionTitle label="user.layout.identity" />
+                        <Box display="flex" style={{
+                            gap: "32px"
+                        }}>
+                            <TextInput
+                                autoFocus
+                                source="firstName"
+                                style={{
+                                    width: "calc(50% - 16px)"
+                                }}
+                                validate={requiredValidate}
+                            />
+                            <TextInput
+                                source="lastName"
+                                style={{
+                                    width: "calc(50% - 16px)"
+                                }}
+                                formClassName={classes.last_name}
+                                validate={requiredValidate}
+                            />
+                        </Box>
+                        <Box>
+                            <TextInput
+                                type="email"
+                                source="email"
+                                validation={{ email: true }}
+                                formClassName={classes.email}
+                                validate={[required(), email()]}
+                                fullWidth
+                            />
+                            <TextInput
+                                type="avatar"
+                                source="avatar"
+                                validate={requiredValidate}
+                                fullWidth
+                            />
+                        </Box>
+                    </Box>
+                    <Box width="calc(50% - 16px)">
+                        <SectionTitle label="user.layout.permissions" />
+                        <ReferenceInput
+                            label="project.fields.rank"
+                            reference="ranks"
+                            source="rank"
+                            style={{
+                                width: '50%'
+                            }}
+                        >
+                            <SelectInput
+                                optionText={choice => `${choice.name}`}
+                                optionValue="id"
+                                helperText=" "
+                            />
+                        </ReferenceInput>
+                    </Box>
+                </Box>
                 <Separator />
-                <ReferenceInput 
-                    label="project.fields.rank"
-                    reference="ranks"
-                    source="rank"
-                >
-                    <SelectInput
-                        optionText={choice => `${choice.name}`}
-                        optionValue="id"
-                        helperText=" "
-                        fullWidth
-                    />
-                </ReferenceInput>
-                <Separator />
-                <SectionTitle label="resources.customers.fieldGroups.password" />
-                <PasswordInput
-                    source="password"
-                    formClassName={classes.password}
-                />
-                <PasswordInput
-                    source="confirm_password"
-                    formClassName={classes.confirm_password}
-                />
+                <SectionTitle label="user.layout.security" />
+                <Box display="flex" width="50%" flexDirection="column">
+                    <Box display="flex" alignItems="center" style={{
+                        gap: "32px"
+                    }}>
+                        <AutoFillUserName
+                            className={classes.username}
+                            validate={requiredValidate}
+                        />
+                        <BooleanInput label="user.layout.use_email" source="useEmail" className={classes.use_email} />
+                    </Box>
+                    <Box display="flex" style={{
+                        gap: "32px"
+                    }}>
+                        <PasswordInput
+                            source="password"
+                            formClassName={classes.password}
+                            style={{
+                                width: "calc(50% - 16px)"
+                            }}
+                        />
+                        <PasswordInput
+                            source="confirm_password"
+                            formClassName={classes.confirm_password}
+                            style={{
+                                width: "calc(50% - 16px)"
+                            }}
+                        />
+                    </Box>
+                </Box>
             </SimpleForm>
         </Create>
     );

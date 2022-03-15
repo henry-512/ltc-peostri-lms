@@ -94,12 +94,12 @@ const UserList = (props: UserListProps) => {
                 >
                     {/*<TextField source="id" /> // TODO: Temporarily removing ID due to illegible ID's */}
                     <AvatarField className={classes.avatar} />
-                    <TextField source="firstName" label="user.first_name" />
-                    <TextField source="lastName" label="user.last_name" />
-                    <ReferenceField source="rank.id" reference="ranks" label="user.rank" >
+                    <TextField source="firstName" label="user.info.first_name" />
+                    <TextField source="lastName" label="user.info.last_name" />
+                    <ReferenceField source="rank.id" reference="ranks" label="user.info.rank" >
                         <TextField source="name" />
                     </ReferenceField>
-                    <TextField source="username" label="user.username" />
+                    <TextField source="username" label="user.info.username" />
                 </Datagrid>
             </List>
         </>

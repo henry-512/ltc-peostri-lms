@@ -81,10 +81,18 @@ const domainMessages = {
             }
         },
         user: {
-            first_name: "First Name",
-            last_name: "Last Name",
-            rank: "Rank",
-            username: "Username"
+            info: {
+                first_name: "First Name",
+                last_name: "Last Name",
+                rank: "Rank",
+                username: "Username"
+            },
+            layout: {
+                identity: "Identity",
+                security: "Security",
+                permissions: "Permissions",
+                use_email: "Use Email?"
+            }
         }
     }
 }
