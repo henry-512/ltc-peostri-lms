@@ -11,6 +11,7 @@ const app = require('koa-qs')(new Koa()) as Koa
 
 apiRouter().then(async api => {
     // Output all router paths
+    console.log(`API Router stack`)
     console.log(api.stack.map(i => `${i.path} ${i.methods}`))
 
     app.use(logger())
@@ -20,7 +21,10 @@ apiRouter().then(async api => {
     app.use(koaBody())
 
     // Authentication route
-    app.use(authRouter().routes())
+    let ar = authRouter()
+    console.log(`Authentication Router stack`)
+    console.log(ar.stack.map(i => `${i.path} ${i.methods}`))
+    app.use(ar.routes())
 
     // API parser
     app.use(async (ctx, next) => {

@@ -96,6 +96,26 @@ class UserRoute extends ApiRoute<IUser> {
         }
     }
 
+    public makeRouter() {
+        let r = super.makeRouter()
+
+        r.get('/self', async (ctx, next) => {
+            try {
+                let user = new AuthUser(ctx.cookies.get('token'))
+
+                ctx.body = this.getFromDB(user, user.getId())
+                ctx.status = 200
+
+                next()
+            } catch (err) {
+                console.log(err)
+                ctx.status = 500
+            }
+        })
+
+        return r
+    }
+
     public authRouter() { return new Router({prefix: '/api/auth'})
         // Validate login and create JWT cookie
         .post('/', async (ctx, next) => {
@@ -190,6 +210,11 @@ export class AuthUser {
     }
 
     getId() { return keyToId(this.key, UserRouteInstance.name) }
+
+    async getUser() {
+        if (!this.user) this.user = await this.userPromise
+        return this.user
+    }
 
     async hasPermission() {
         if (!this.user) this.user = await this.userPromise

@@ -2,6 +2,7 @@ import Router from "@koa/router"
 import { aql } from "arangojs"
 import { GeneratedAqlQuery } from "arangojs/aql"
 import { CollectionUpdateOptions, DocumentCollection } from "arangojs/collection"
+import { config } from "../../config"
 
 import { db } from "../../database"
 import { IArangoIndexes, ICreateUpdate } from "../../lms/types"
@@ -476,13 +477,16 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         for (const [pK,pV] of Object.entries(addDoc)) {
             if (pK in this.fields) continue
 
-            if (isNew === 0)
-                isNew = await this.exists(addDocId) ? 1 : 2
-            // Clean existing documents
-            if (isNew === 1) {
-                console.warn(`deleting key ${this.name}.${pK} from existing doc [${JSON.stringify(addDoc)}]`)
-                delete (<any>addDoc)[pK]
-                continue
+            // Developer routes
+            if (config.devRoutes) {
+                if (isNew === 0)
+                    isNew = await this.exists(addDocId) ? 1 : 2
+                // Clean existing documents
+                if (isNew === 1) {
+                    console.warn(`deleting key ${this.name}.${pK} from existing doc [${JSON.stringify(addDoc)}]`)
+                    delete (<any>addDoc)[pK]
+                    continue
+                }
             }
 
             throw new TypeError(`[${pK}] is not a valid key of ${this.name} (${JSON.stringify(addDoc)})`)
@@ -813,7 +817,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     makeRouter() {
         let r = new Router({prefix:this.name})
         // Orphan delete
-        if (this.parentField) {
+        if (config.devRoutes && this.parentField) {
             r.delete('/orphan', async (ctx,next) => {
                 try {
                     if (ctx.header['user-agent'] === 'backend-testing') {
@@ -828,7 +832,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             })
         }
         // Disown update
-        if (this.foreignEntries.length !== 0) {
+        if (config.devRoutes && this.foreignEntries.length !== 0) {
             r.delete('/disown', async (ctx,next) => {
                 try {
                     if (ctx.header['user-agent'] === 'backend-testing') {

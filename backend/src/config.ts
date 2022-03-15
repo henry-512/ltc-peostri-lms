@@ -8,6 +8,7 @@ export interface Config {
 	dbName: string
 	dbUser: string
 	dbPass: string
+	devRoutes?: string
 
 	secret: string
 }
@@ -18,6 +19,7 @@ const config: Config = {
 	dbName: process.env.DB_NAME || 'db',
 	dbUser: process.env.DB_USER || 'user',
 	dbPass: process.env.DB_PASS || 'password',
+	devRoutes: process.env.DEV_ROUTES,
 
 	secret: process.env.SECRET || 'soyoung',
 }
