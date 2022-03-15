@@ -41,6 +41,9 @@ export interface IUser extends Record {
     lastName: string;
     avatar: null | string;
     rank: string | IRank;
+    useEmail?: boolean;
+    password?: string;
+    email?: string;
 }
 
 export interface IComment extends IArangoIndexes, ICreateUpdate {

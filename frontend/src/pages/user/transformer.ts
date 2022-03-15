@@ -1,28 +1,14 @@
-import { IProject } from "src/util/types";
+import { IUser } from "src/util/types";
 
-const transformer = (data: IProject) => {
-     delete data.auto_assign;
-     data.comments = [];
+const transformer = (data: any) => {
+    delete data.useEmail;
+    delete data.confirm_password;
 
-     for (const mKey in data.modules) {
-          if (data.modules[mKey].length <= 0) {
-               delete data.modules[mKey];
-               continue;
-          }
+    console.log(data);
 
-          for (let i = 0; i < data.modules[mKey].length; i++) {
-               const module = data.modules[mKey][i];
-               for (const tKey in module.tasks) {
-                    if (module.tasks[tKey].length <= 0) {
-                         delete data.modules[mKey][i].tasks[tKey];
-                    }
-               }
-          }
-     }
-
-     return {
-          ...data
-     }
+    return {
+        ...data
+    }
 }
 
 export default transformer;

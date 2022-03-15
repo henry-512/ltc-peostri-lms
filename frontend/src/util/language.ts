@@ -91,7 +91,8 @@ const domainMessages = {
                 identity: "Identity",
                 security: "Security",
                 permissions: "Permissions",
-                use_email: "Use Email?"
+                use_email: "Use Email?",
+                create_title: "Create a User"
             }
         }
     }
