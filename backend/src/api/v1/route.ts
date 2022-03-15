@@ -429,7 +429,6 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 doc[this.parentField.local] = par
             }
 
-            console.log(`\n${doc.id}`)
             let isNew:0|1|2 = doc.id && await this.exists(doc.id) ? 1 : 2
 
             let childId = isNew === 2
@@ -479,6 +478,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
 
             if (isNew === 0)
                 isNew = await this.exists(addDocId) ? 1 : 2
+            // Clean existing documents
             if (isNew === 1) {
                 console.warn(`deleting key ${this.name}.${pK} from existing doc [${JSON.stringify(addDoc)}]`)
                 delete (<any>addDoc)[pK]
@@ -515,12 +515,11 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             // Validate types
             switch(data.type) {
                 case 'boolean':
-                    key = (key === 'true') as any
                 case 'string':
-                    if (typeof key === data.type) {
+                    if (typeof value === data.type) {
                         continue
                     }
-                    throw new TypeError(`${this.name}.${key} expected to be ${data.type}`)
+                    throw new TypeError(`${this.name}.${key} ${value} expected to be ${data.type}`)
                 // TODO: object type checking
                 case 'object':
                     continue

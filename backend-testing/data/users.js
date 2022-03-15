@@ -66,15 +66,27 @@ module.exports = {
 				'password': 'password'
 			},
 		}, {
-		// 	n: 'Additional field',
-		// 	d: {
-		// 		'firstName': 'Joshua',
-		// 		'lastName': 'Doe',
-		// 		'avatar': '',
-		// 		'rank': debugRankId,
-		// 		'super-cool-hackerinos': '; DROP TABLE USERS'
-		// 	},
-		// }, {
+			n: 'Additional field',
+			d: {
+				'firstName': 'Joshua',
+				'lastName': 'Doe',
+				'avatar': '',
+				'rank': debugRankId,
+				'super-cool-hackerinos': '; DROP TABLE USERS',
+				'username': 'usName',
+				'password': 'password',
+			},
+		}, {
+			n: 'Incorrect type',
+			d: {
+				'firstName': { 'firstName': 'Jackson' },
+				'lastName': 'Doe',
+				'avatar': '',
+				'rank': debugRankId,
+				'username': 'usName',
+				'password': 'password',
+			},
+		}, {
 			n: 'Valid foreign id, but not a rank',
 			d: {
 				'firstName': 'Joe',
