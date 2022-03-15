@@ -3,14 +3,13 @@ import { aql, GeneratedAqlQuery } from "arangojs/aql";
 import { DocumentCollection } from "arangojs/collection";
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
-import { ParameterizedContext } from "koa";
 
 import { config } from "../../config";
 import { db } from "../../database";
 import { IUser, IRank } from "../../lms/types";
 import { ApiRoute } from "./route";
 import { RankRouteInstance } from "./ranks";
-import { isDBKey, keyToId } from "../../lms/util";
+import { isDBKey } from "../../lms/util";
 
 class UserRoute extends ApiRoute<IUser> {
     public async getUser(key: string): Promise<IUser> {
@@ -22,6 +21,7 @@ class UserRoute extends ApiRoute<IUser> {
 
     constructor() {
         super(
+            'users',
             'users',
             'User',
             {
@@ -209,7 +209,7 @@ export class AuthUser {
         this.userPromise = UserRouteInstance.getUser(this.key)
     }
 
-    getId() { return keyToId(this.key, UserRouteInstance.name) }
+    getId() { return UserRouteInstance.keyToId(this.key) }
 
     async getUser() {
         if (!this.user) this.user = await this.userPromise

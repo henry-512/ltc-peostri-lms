@@ -7,6 +7,7 @@ class TaskRoute extends ApiRoute<ITask> {
     constructor() {
         super(
             'tasks',
+            'tasks',
             'Task',
             {
                 'title':{type:'string'},

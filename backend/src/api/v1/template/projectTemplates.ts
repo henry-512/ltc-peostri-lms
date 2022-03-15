@@ -6,6 +6,7 @@ class ProjectTemplateRoute extends ApiRoute<IProjectTemplate> {
     constructor() {
         super(
             'projectTemplates',
+            'template/projects',
             'Project Template',
             {
                 'title': { type: 'string' },

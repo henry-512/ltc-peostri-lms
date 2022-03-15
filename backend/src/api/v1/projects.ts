@@ -8,6 +8,7 @@ class ProjectRoute extends ApiRoute<IProject> {
     constructor() {
         super(
             'projects',
+            'projects',
             'Project',
             {
                 'title':{type:'string'},

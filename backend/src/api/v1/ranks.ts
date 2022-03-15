@@ -13,6 +13,7 @@ class RankRoute extends ApiRoute<IRank> {
     constructor() {
         super(
             'ranks',
+            'ranks',
             'Rank',
             {
                 'name':{type:'string',default:'New Rank'},

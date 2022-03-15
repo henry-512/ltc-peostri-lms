@@ -6,6 +6,7 @@ class FileMetadataRoute extends ApiRoute<IFileMetadata> {
     constructor() {
         super(
             'fileMetadata',
+            'fileMetadata',
             'File Metadata',
             {
                 'name':{type:'string'},

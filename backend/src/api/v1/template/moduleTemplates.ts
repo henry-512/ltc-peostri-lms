@@ -5,6 +5,7 @@ class ModuleTemplateRoute extends ApiRoute<IModuleTemplate> {
     constructor() {
         super(
             'moduleTemplates',
+            'template/modules',
             'Module Template',
             {
                 'title': { type:'string' },
