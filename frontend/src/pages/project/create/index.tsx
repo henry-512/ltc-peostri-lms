@@ -1,6 +1,5 @@
 import { makeStyles } from "@material-ui/core";
 import { Create, useTranslate } from "react-admin";
-import { IProject } from "src/util/types";
 import Stepper from "../../../components/stepper/Stepper";
 import General from "../steps/General";
 import Modules from "../steps/Modules";

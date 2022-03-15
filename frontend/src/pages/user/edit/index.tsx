@@ -1,10 +1,6 @@
 import { makeStyles } from "@material-ui/core";
 import { Edit, useTranslate } from "react-admin";
-import Stepper from "../../../components/stepper/Stepper";
-import General from "../steps/General";
-import Modules from "../steps/Modules";
 import transformer from "../transformer";
-import validateUser from "../validation";
 
 const useStyles = makeStyles(theme => ({
     root: {},

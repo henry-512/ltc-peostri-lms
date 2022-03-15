@@ -3,6 +3,7 @@ import { Styles } from "@material-ui/core/styles/withStyles";
 import { BooleanInput, Create, CreateProps, DateInput, email, PasswordInput, ReferenceInput, required, SelectInput, SimpleForm, TextInput, useTranslate } from "react-admin";
 import { AnyObject } from "react-final-form";
 import { AutoFillUserName } from "src/components/users";
+import transformer from "../transformer";
 
 export const styles: Styles<Theme, any> = {
     username: {
@@ -34,9 +35,10 @@ export const validatePasswords = ({
 
 const UserCreate = (props: CreateProps) => {
     const classes = useStyles(props);
-    const date = new Date();
+    const translate = useTranslate();
+    
     return (
-        <Create {...props}>
+        <Create {...props} transform={transformer} title={translate('user.layout.create_title')}>
             <SimpleForm
                 validate={validatePasswords}
             >
