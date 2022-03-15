@@ -2,7 +2,6 @@ import Router from "@koa/router"
 import { aql } from "arangojs"
 import { GeneratedAqlQuery } from "arangojs/aql"
 import { CollectionUpdateOptions, DocumentCollection } from "arangojs/collection"
-import { ParameterizedContext } from "koa"
 
 import { db } from "../../database"
 import { IArangoIndexes, ICreateUpdate } from "../../lms/types"
@@ -89,6 +88,116 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     }
 
     /**
+     * Runs the passed function on each foreign key in the document
+     */
+    protected async mapForeignKeys(
+        doc:Type,
+        fn:(
+            key:string,
+            data:DBData,
+            clazz:ApiRoute<IArangoIndexes>,
+        ) => Promise<any>,
+        skippable?:(
+            data:DBData,
+        ) => boolean,
+    ) : Promise<Type> {
+        return this.forEachForeignKey(
+            doc,
+            async (p,k,d,c) => p.doc[p.key] = <any>await fn(k,d,c),
+            async (p,a,d,c) => p.doc[p.key] = <any>await Promise.all(
+                a.map(k => fn(k,d,c))
+            ),
+            async (p,o,d,c) => {
+                let temp:any = {}
+                for (let stepId in o) {
+                    let stepArray = o[stepId]
+
+                    if (!Array.isArray(stepArray)) {
+                        throw new TypeError(`${stepArray} is not an array`)
+                    }
+                    temp[stepId] = <any>await Promise.all(
+                        stepArray.map(k => fn(k,d,c)
+                    ))
+                }
+                p.doc[p.key] = temp
+            },
+            skippable
+        )
+    }
+    
+    protected async forEachForeignKey(
+        doc:Type,
+        // Runs for each foreign key
+        keyCall:(
+            pointer:{doc:any,key:string | number | symbol}, //doc:Type
+            key:string,
+            data:DBData,
+            clazz:ApiRoute<IArangoIndexes>,
+        ) => Promise<any>,
+        // Runs for each foreign array
+        arrCall:(
+            pointer:{doc:any,key:string | number | symbol},
+            arr:Array<string>,
+            data:DBData,
+            clazz:ApiRoute<IArangoIndexes>,
+        ) => Promise<any>,
+        // Runs for each foreign step object
+        stpCall:(
+            pointer:{doc:any,key:string | number | symbol},
+            stp:{[index:string]:Array<string>},
+            data:DBData,
+            clazz:ApiRoute<IArangoIndexes>,
+        ) => Promise<any>,
+        skippable?:(
+            data:DBData,
+        ) => boolean,
+    ) : Promise<Type> {
+        for (let [fkey,clazz] of this.foreignEntries) {
+            let data = this.fields[fkey]
+
+            if (skippable && skippable(data)) continue
+
+            if (!(fkey in doc)) {
+                if (data.optional) {
+                    console.warn(`Optional foreign key [${fkey}] dne`)
+                    continue
+                }
+                throw new TypeError(`Foreign field [${fkey}] dne in [${JSON.stringify(doc)}]`)
+            }
+
+            // key of doc pointing to a foreign object
+            let local = fkey as keyof Type
+            // An array, string, or step object representing the foreign keys
+            let foreign = doc[local]
+
+            switch (data.type) {
+                // Single foreign key
+                case 'fkey':
+                    await keyCall({doc,key:local},<any>foreign,data,clazz)
+                    continue
+                // Foreign key array
+                case 'fkeyArray':
+                    if (!Array.isArray(foreign)) {
+                        throw new TypeError(`${JSON.stringify(foreign)} was expected to be an array`)
+                    }
+                    await arrCall({doc,key:local},foreign,data,clazz)
+                    continue
+                // Foreign key step object
+                case 'fkeyStep':
+                    if (typeof foreign !== 'object') {
+                        throw new TypeError(`${JSON.stringify(foreign)} was expected to be a step object`)
+                    }
+                    await stpCall({doc,key:local},<any>foreign,data,clazz)
+                    continue
+                default:
+                    throw new TypeError(`INTERNAL ERROR: ${data} has invalid type.`)
+            }
+        }
+
+        return doc
+    }
+
+    /**
      * @param name Database name
      * @param dname Display name, returned from requests and logs
      * @param fields All fields associated with the db type and their relevant data
@@ -107,8 +216,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
          */
         protected hasCUTimestamp: boolean,
         /**
-         * These fields should exist in fields.
-         *
+         * These fields should exist in this.fields.
          */
         private foreignClasses: {
             [local:string] : ApiRoute<IArangoIndexes>
@@ -122,6 +230,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             fields['updatedAt'] = {type:'string'}
         }
 
+        // Caches
         this.collection = db.collection(this.name)
         this.fieldEntries = Object.entries(this.fields)
         this.foreignEntries = Object.entries(this.foreignClasses)
@@ -140,6 +249,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             this.fields[this.parentField.local].isForeign = true
         }
 
+        // Fields to return from a getAll query
         this.getAllQueryFields = appendReturnFields(aql`id:z._key,`, gaKeys)
     }
 
@@ -165,53 +275,18 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      * Converts all IDs (with collection) in the document to keys
      * (without collection)
      */
-    private convertIds(doc:Type) {
-        for (let [key,cls] of this.foreignEntries) {
-            if (key in doc) {
-                let local = key as keyof Type
-                let foreign = doc[local]
-
-                let data = this.fields[key]
-
-                switch (data.type) {
-                    case 'fkey':
-                        if (typeof foreign === 'string') {
-                            doc[local] = <any>splitId(foreign).key
-                            continue
-                        } else if (typeof foreign === 'object') {
-                            continue
-                        }
-                        throw new TypeError(`${JSON.stringify(foreign)} was expected to be a string`)
-                    case 'fkeyArray':
-                        if (Array.isArray(foreign)) {
-                            doc[local] = <any>foreign.map(
-                                k => splitId(k).key
-                            )
-                            continue
-                        }
-                        throw new TypeError(`${JSON.stringify(foreign)} was expected to be an array`)
-                    case 'fkeyStep':
-                        if (typeof foreign === 'object') {
-                            let temp:any = {}
-                            for (let [sid, sar] of Object.entries(foreign)) {
-                                if (Array.isArray(sar)) {
-                                    temp[sid] =
-                                        sar.map(k => splitId(k).key)
-                                } else {
-                                    throw new TypeError(`${sar} is not an array`)
-                                }
-                            }
-                            doc[local] = temp
-                            continue
-                        }
-                        throw new TypeError(`${JSON.stringify(foreign)} was expected to be a step object`)
-                    default:
-                        throw new TypeError(`INTERNAL ERROR: ${data} has invalid type.`)
+    private async convertIds(doc:Type) : Promise<Type> {
+        return this.mapForeignKeys(doc, async (k,d,c) => {
+            if (typeof k === 'string') {
+                if (!isDBId(k)) {
+                    throw new TypeError(`${k} is not a valid id`)
                 }
-            } else {
-                console.warn(`${key} dne in doc`)
+                return splitId(k).key
+            } else if (typeof k === 'object') {
+                return k
             }
-        }
+            throw new TypeError(`${k} is not an object or key`)
+        })
     }
 
     /**
@@ -277,106 +352,38 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      * @param dereference If true, dereference all foreign keys in this and all other documents
      * @return A Type representing a document with key, with .id set and ._* removed
      */
-    public async getFromDB(user: AuthUser, id: string, dereference: boolean) {
+    public async getFromDB(user: AuthUser, id: string) : Promise<Type> {
         let doc = await this.getUnsafe(id)
     
         doc.id = doc._key
         delete doc._key
         delete doc._id
         delete doc._rev
-    
-        if (!dereference) {
-            return doc
-        }
-        /**
-         * Local function to dereference the passed id corresponding to
-         * the passed route.
-         */
-        async function deref(k:string, r:ApiRoute<IArangoIndexes>) {
-            if (isDBId(k)) {
-                return <any>r.getFromDB(user, k, true)
-            } else {
-                throw new TypeError(`Foreign key [${k}] is not a valid id. Did you forget the collection name? (name/key)`)
+
+        return this.mapForeignKeys(doc, async (k,data,clazz) => {
+            if (typeof k !== 'string') {
+                throw new TypeError(`[${k}] is not a string`)
             }
-        }
-
-        // Loop over the foreign keys
-        for (let [fkey,cls] of this.foreignEntries) {
-            let data = this.fields[fkey]
-
-            if (!(fkey in doc)) {
-                if (data.optional) {
-                    console.warn(`Optional field [${fkey}] dne`)
-                    continue
-                }
-                throw new TypeError(`Field ${fkey} dne in ${JSON.stringify(doc)}`)
+            if (data.getIdKeepAsRef) {
+                return convertToKey(k)
+            // Dereference the id into an object
+            } else if (isDBId(k)) {
+                return clazz.getFromDB(user, k)
             }
-
-            // key of doc pointing to 
-            let localKey = fkey as keyof Type
-            // An array or string representing the foreign keys
-            let foreign = doc[localKey]
-
-            switch (data.type) {
-                // Single foreign key
-                case 'fkey':
-                    if (typeof foreign === 'string') {
-                        doc[localKey] = data.getIdKeepAsRef
-                            ? convertToKey(foreign)
-                            : await deref(foreign, cls)
-                        continue
-                    }
-                    throw new TypeError(`${JSON.stringify(foreign)} was expected to be a string`)
-                // Foreign key array
-                case 'fkeyArray':
-                    if (Array.isArray(foreign)) {
-                        // For each foreign key in the array, retrieve it from the database; then store the documents (as an array) back in doc[key]
-                        doc[localKey] = <any>await Promise.all(foreign.map(async k => data.getIdKeepAsRef
-                            ? convertToKey(k)
-                            : deref(k, cls)
-                        ))
-                        continue
-                    }
-                    throw new TypeError(`${JSON.stringify(foreign)} was expected to be an array`)
-                // Foreign key step object
-                case 'fkeyStep':
-                    if (typeof foreign === 'object') {
-                        let temp:any = {}
-                        for (let [stepId, stepArray] of Object.entries(foreign)) {
-                            if (Array.isArray(stepArray)) {
-                                temp[stepId] = <any>await Promise.all(
-                                    stepArray.map(k => data.getIdKeepAsRef
-                                        ? convertToKey(k)
-                                        : deref(k, cls)
-                                    )
-                                )
-                            } else {
-                                throw new TypeError(`${stepArray} is not an array`)
-                            }
-                        }
-                        doc[localKey] = <any>temp
-                        continue
-                    }
-                    throw new TypeError(`${JSON.stringify(foreign)} was expected to be a step object`)
-                default:
-                    throw new TypeError(`INTERNAL ERROR: ${data} has invalid type.`)
-            }
-        }
-        return doc
+            throw new TypeError(`Foreign key [${k}] is not a valid id. Did you forget the collection name? (name/key)`)
+        })
     }
 
     /**
-     * Accepts a non id/key string
+     * Accepts a non id/key string and converts it into a valid document
      */
-    protected buildFromString(user: AuthUser,str:string,par:string) : Type | null {
-        return null
-    }
+    protected buildFromString(user:AuthUser,str:string,par:string) : Type | null { return null }
 
     /**
      * Modifies a document. Called after verifying all fields exist,
      * and after dereferencing all keys
      */
-    protected async modifyDoc(user: AuthUser,doc:any) { return doc }
+    protected async modifyDoc(user:AuthUser,doc:any) { return doc }
 
     /**
      * Validates a document reference
@@ -388,7 +395,6 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         par:string,
         data:DBData,
         map: Map<ApiRoute<IArangoIndexes>, IArangoIndexes[]>,
-        create: boolean
     ) : Promise<any> {
         if (typeof doc === 'string') {
             // Check if foreign key reference is valid
@@ -399,11 +405,12 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
 
             if (data.acceptNewDoc) {
                 let built = this.buildFromString(user, doc, par)
-                if (built) {
-                    let childId = generateDBID(this.name)
-                    await this.addToReferenceMap(user, childId, built, map, create)
-                    return childId
+                if (!built) {
+                    throw new TypeError(`[${doc}] is not a valid key`)
                 }
+                let childId = generateDBID(this.name)
+                await this.addToReferenceMap(user, childId, built, map, 2)
+                return childId
             }
 
             throw new TypeError(`Foreign key [${doc}] does not exist`)
@@ -422,8 +429,15 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 doc[this.parentField.local] = par
             }
 
-            let childId = create ? generateDBID(this.name) : doc.id
-            await this.addToReferenceMap(user, childId, doc, map, create)
+            console.log(`\n${doc.id}`)
+            let isNew:0|1|2 = doc.id && await this.exists(doc.id) ? 1 : 2
+
+            let childId = isNew === 2
+                ? generateDBID(this.name)
+                // Key exists, however it's a key
+                : keyToId(doc.id, this.name)
+
+            await this.addToReferenceMap(user, childId, doc, map, isNew)
             return childId
         }
         throw new TypeError(`${doc} is not a foreign document or reference`)
@@ -440,26 +454,52 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         addDocId: string,
         addDoc: Type,
         map: Map<ApiRoute<IArangoIndexes>, IArangoIndexes[]>,
-        create: boolean
+        /**
+         * 0 - Unknown
+         * 1 - Exists
+         * 2 - Does not exist
+         */
+        isNew: 0 | 1 | 2,
     ): Promise<void> {
+        // Used for frontend mangement, redundant in DB
         delete addDoc.id
-        addDoc._key = convertToKey(addDocId)
 
         if (this.hasCUTimestamp) {
-            if (create) {
+            if (isNew === 0)
+                isNew = await this.exists(addDocId) ? 1 : 2
+            if (isNew === 2) {
                 (<ICreateUpdate>addDoc).createdAt = new Date(); //??? ; ???
             }
             (<ICreateUpdate>addDoc).updatedAt = new Date()
         }
 
-        for (let [key,data] of this.fieldEntries) {
+        // Check for extra fields
+        for (const [pK,pV] of Object.entries(addDoc)) {
+            if (pK in this.fields) continue
+
+            if (isNew === 0)
+                isNew = await this.exists(addDocId) ? 1 : 2
+            if (isNew === 1) {
+                console.warn(`deleting key ${this.name}.${pK} from existing doc [${JSON.stringify(addDoc)}]`)
+                delete (<any>addDoc)[pK]
+                continue
+            }
+
+            throw new TypeError(`[${pK}] is not a valid key of ${this.name} (${JSON.stringify(addDoc)})`)
+        }
+
+        // Add DB key
+        addDoc._key = convertToKey(addDocId)
+
+        for (let [k,data] of this.fieldEntries) {
             // key of doc
-            let localKey = key as keyof Type
+            let key = k as keyof Type
             
+            // Check for missing fields
             if (!(key in addDoc)) {
                 if (data.default !== undefined) {
                     console.warn(`Using default ${data.default} for ${key}`)
-                    addDoc[localKey] = <any>data.default
+                    addDoc[key] = <any>data.default
                     continue
                 } else if (data.optional) {
                     console.warn(`optional key ${key} dne`)
@@ -469,83 +509,86 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 }
             }
 
-            if (!data.isForeign) {
-                continue
-            }
+            // The value associated with this key
+            let value = addDoc[key]
 
-            // A foreign key type
-            let foreign = addDoc[localKey]
-            // Foreign class
-            let cls = this.foreignClasses[key]
-
-            switch (data.type) {
-                // Ref single doc
-                case 'fkey':
-                    if (typeof foreign === 'object' || typeof foreign === 'string') {
-                        addDoc[localKey] = await cls.ref(
-                            user,
-                            foreign,
-                            addDocId,
-                            data,
-                            map,
-                            create
-                        )
+            // Validate types
+            switch(data.type) {
+                case 'boolean':
+                    key = (key === 'true') as any
+                case 'string':
+                    if (typeof key === data.type) {
                         continue
                     }
-                    throw new TypeError(`${foreign} expected to be a document`)
+                    throw new TypeError(`${this.name}.${key} expected to be ${data.type}`)
+                // TODO: object type checking
+                case 'object':
+                    continue
+                /*
+                    v FOREIGN OBJECTS v
+                */
+                // Ref single doc
+                case 'fkey':
+                    addDoc[key] = await this.foreignClasses[k].ref(
+                        user,
+                        value,
+                        addDocId,
+                        data,
+                        map,
+                    )
+                    continue
                 // Ref array of docs
                 case 'fkeyArray':
-                    if (Array.isArray(foreign)) {
-                        addDoc[localKey] = <any>await Promise.all(foreign.map(
-                            lpDoc => cls.ref(
+                    let clsar = this.foreignClasses[k]
+                    if (Array.isArray(value)) {
+                        addDoc[key] = <any>await Promise.all(value.map(
+                            lpDoc => clsar.ref(
                                 user,
                                 lpDoc,
                                 addDocId,
                                 data,
                                 map,
-                                create
                             )
                         ))
                         continue
                     }
-                    if (typeof foreign === 'string') {
-                        addDoc[localKey] = <any>[
-                            await cls.ref(
+                    if (typeof value === 'string') {
+                        addDoc[key] = <any>[
+                            await clsar.ref(
                                 user,
-                                foreign,
+                                value,
                                 addDocId,
                                 data,
                                 map,
-                                create
                             )
                         ]
                         continue
                     }
-                    throw new TypeError(`${foreign} expected to be an array`)
+                    throw new TypeError(`${value} expected to be an array`)
                 // Ref step obj of docs
                 case 'fkeyStep':
-                    if (typeof foreign === 'object') {
+                    let clsst = this.foreignClasses[k]
+                    if (typeof value === 'object') {
                         let temp:any = {}
-                        for (let [stepId, stepAr] of Object.entries(foreign)) {
+                        for (let [stepId, stepAr] of Object.entries(value)) {
                             if (Array.isArray(stepAr)) {
                                 temp[stepId] = <any>await Promise.all(
-                                    stepAr.map(lpDoc => cls.ref(
+                                    stepAr.map(lpDoc => clsst.ref(
                                         user,
                                         lpDoc,
                                         addDocId,
                                         data,
                                         map,
-                                        create
                                     ))
                                 )
                                 continue
                             }
                             throw new TypeError(`${stepAr} expected to be an array`)
                         }
-                        addDoc[localKey] = temp
+                        addDoc[key] = temp
                         continue
                     }
-                    throw new TypeError(`${JSON.stringify(foreign)} expected to be a step array`)
+                    throw new TypeError(`${JSON.stringify(value)} expected to be a step array`)
                 case 'parent':
                     continue
                 default:
@@ -574,7 +617,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // Turns a fully-dereferenced document into a reference
         // document
         let map = new Map<ApiRoute<IArangoIndexes>, IArangoIndexes[]>()
-        await this.addToReferenceMap(user, id, doc, map, true)
+        await this.addToReferenceMap(user, id, doc, map, 2)
 
         real || console.log('FAKING CREATE')
         // Saves each document in the map to its respective collection
@@ -616,7 +659,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // }
 
         let map = new Map<ApiRoute<IArangoIndexes>, IArangoIndexes[]>()
-        await this.addToReferenceMap(user, id, doc, map, true)
+        await this.addToReferenceMap(user, id, doc, map, 1)
 
         real || console.log('FAKING UPDATE')
         // Updates each document in the map to its respective collection
@@ -661,57 +704,12 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         let doc = await this.getUnsafe(key)
 
         // Delete children
-        for (let [fkey,cls] of this.foreignEntries) {
-            let data = this.fields[fkey]
-            
-            if (!data.freeable) {
-                continue
+        doc = await this.mapForeignKeys(doc, async(k,data,clazz) => {
+            if (typeof k !== 'string') {
+                throw new TypeError(`[${k}] is not a string`)
             }
-
-            if (!(fkey in doc)) {
-                if (!data.optional) {
-                    console.warn(`foreign key ${fkey} dne`)
-                }
-                continue
-            }
-
-            let localKey = fkey as keyof Type
-            let foreign = doc[localKey]
-
-            switch (data.type) {
-                case 'fkey':
-                    if (typeof foreign === 'string') {
-                        await cls.delete(user, foreign, real, false)
-                        continue
-                    }
-                    throw new TypeError(`${JSON.stringify(foreign)} was expected to be a string`)
-                    
-                case 'fkeyArray':
-                    if (Array.isArray(foreign)) {
-                        await Promise.all(foreign.map(
-                            d => cls.delete(user, d, real, false)
-                        ))
-                        continue
-                    }
-                    throw new TypeError(`${JSON.stringify(foreign)} was expected to be an array`)
-                case 'fkeyStep':
-                    if (typeof foreign === 'object') {
-                        for (let [_,sAr] of Object.entries(foreign)) {
-                            if (Array.isArray(sAr)) {
-                                await Promise.all(
-                                    sAr.map(d => cls.delete(user, d, real, false))
-                                )
-                            } else {
-                                throw new TypeError(`${sAr} is not an array`)
-                            }
-                        }
-                        continue
-                    }
-                    throw new TypeError(`${JSON.stringify(foreign)} was expected to be a step object`)
-                default:
-                    throw new TypeError(`INTERNAL ERROR: ${data} has invalid type.`)
-            }
-        }
+            return clazz.delete(user, k, real, false)
+        }, (data) => !data.freeable)
 
         // Update parent
         // The original call is the only one that should update
@@ -747,7 +745,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      * NOTE: VERY EXPENSIVE, don't run that often
      */
     private async deleteOrphans() {
-        if (!this.parentField) throw new TypeError(`DeleteOrphans called on an invalid type ${name}`)
+        if (!this.parentField) throw new TypeError(`DeleteOrphans called on an invalid type ${this.name}`)
 
         return db.query(aql`FOR d IN ${this.collection} FILTER DOCUMENT(d.${this.parentField.local})._id == null REMOVE d IN ${this.collection}`)
     }
@@ -776,76 +774,39 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             // Async ??
             let doc = await cursor.next()
 
-            // Delete children
-            for (let [fkey,cls] of this.foreignEntries) {
-                let data = this.fields[fkey]
-
-                if (!(fkey in doc)) {
-                    if (!data.optional) {
-                        console.warn(`foreign key [${fkey}] dne`)
+            // Delete disowned children
+            await this.updateUnsafe(await this.forEachForeignKey(
+                doc,
+                async (p,k,d,c) => {
+                    if (!isDBId(k) || !c.exists(k)) {
+                        p.doc[p.key] = <any>''
                     }
-                    continue
+                },
+                async (p,a,d,c) => {
+                    for (var i = a.length - 1; i >= 0; i--) {
+                        if (!isDBId(a[i]) || !c.exists(a[i])) {
+                            a.splice(i, 1)
+                        }
+                    }
+                },
+                async (p,o,d,c) => {
+                    for (let k in o) {
+                        let sAr = o[k]
+
+                        if (!Array.isArray(sAr)) {
+                            throw new TypeError(`${sAr} is not an array`)
+                        }
+                        for (var i = sAr.length - 1; i >= 0; i--) {
+                            if (!isDBId(sAr[i]) || !c.exists(sAr[i])) {
+                                sAr.splice(i, 1)
+                            }
+                        }
+                        // Delete empty steps
+                        if (sAr.length === 0) delete o[k]
+                    }
                 }
-
-                let localKey = fkey as keyof Type
-                let foreign = doc[localKey]
-
-                switch (data.type) {
-                    case 'fkey':
-                        if (typeof foreign !== 'string') {
-                            throw new TypeError(`${JSON.stringify(foreign)} was expected to be a string`)
-                        }
-
-                        if (
-                            !isDBId(foreign)
-                            || !cls.exists(foreign)
-                        ) {
-                            doc[localKey] = ''
-                        }
-                        continue
-                    case 'fkeyArray':
-                        if (!Array.isArray(foreign)) {
-                            throw new TypeError(`${JSON.stringify(foreign)} was expected to be an array`)
-                        }
-                        for (var i = foreign.length - 1; i >= 0; i--) {
-                            if (
-                                !isDBId(foreign[i])
-                                || !cls.exists(foreign[i])
-                            ) {
-                                foreign.splice(i, 1)
-                            }
-                        }
-                        continue
-                    case 'fkeyStep':
-                        if (typeof foreign !== 'object') {
-                            throw new TypeError(`${JSON.stringify(foreign)} was expected to be a step object`)
-                        }
-                        for (let k in foreign) {
-                            let sAr = foreign[k]
-
-                            if (!Array.isArray(sAr)) {
-                                throw new TypeError(`${sAr} is not an array`)
-                            }
-                            for (var i = sAr.length - 1; i >= 0; i--) {
-                                if (
-                                    !isDBId(sAr[i])
-                                    || !cls.exists(sAr[i])
-                                ) {
-                                    sAr.splice(i, 1)
-                                }
-                            }
-                            if (sAr.length === 0) {
-                                delete foreign[k]
-                            }
-                        }
-                        continue
-                    default:
-                        throw new TypeError(`INTERNAL ERROR: ${data} has invalid type.`)
-                }
-            }
-
-            await this.updateUnsafe(doc, {
-                mergeObjects: false,
+            ), {
+                mergeObjects:false,
             })
         }
     }
@@ -888,9 +849,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 let all = await qdata.cursor.all()
 
                 // Convert all document foreign ids to keys
-                all.forEach(
-                    doc => this.convertIds(doc)
-                )
+                await Promise.all(all.map(
+                    async doc => this.convertIds(doc)
+                ))
 
                 ctx.status = 200
                 ctx.body = all
@@ -909,7 +870,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 if (await this.exists(ctx.params.id)) {
                     let user = new AuthUser(ctx.cookies.get('token'))
 
-                    ctx.body = await this.getFromDB(user, ctx.params.id, true)
+                    ctx.body = await this.getFromDB(user, ctx.params.id)
                     ctx.status = 200
 
                     next()

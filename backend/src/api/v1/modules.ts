@@ -28,7 +28,7 @@ class ModuleRoute extends ApiRoute<IModule> {
                     type:'string',
                     default: 'AWAITING'
                 },
-                'waive-module':{
+                'waive_module':{
                     type:'boolean',
                     optional:true,
                     default:false

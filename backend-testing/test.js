@@ -165,6 +165,7 @@ function test(n) {
 test('users')
 test('projects')
 
+/*
 // Clean disowned data
 describe('Disowned', function() {
     // These are beefy functions and need beefy runtimes
@@ -217,3 +218,4 @@ describe('Orphans', () => {
         expect(r.status).equal(200)
     })
 })
+*/

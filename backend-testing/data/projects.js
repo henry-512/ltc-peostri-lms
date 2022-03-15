@@ -15,7 +15,7 @@ module.exports = {
                     'key-0': [
                         {
                             title:'Module 0-0',
-                            'waive-module':false,
+                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {
@@ -40,7 +40,7 @@ module.exports = {
                     'key-0': [
                         {
                             title:'Module 0-0',
-                            'waive-module':false,
+                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {
@@ -64,7 +64,7 @@ module.exports = {
                     'key-0': [
                         {
                             title:'Module 0-0',
-                            'waive-module':false,
+                            'waive_module':false,
                             comments: 'Hello o/',
                             tasks:{
                                 'key-0': [
@@ -89,7 +89,7 @@ module.exports = {
                     'key-0': [
                         {
                             title:'Module 0-0',
-                            'waive-module':false,
+                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {
@@ -100,7 +100,7 @@ module.exports = {
                             },
                         }, {
                             title:'Module 0-1',
-                            'waive-module':false,
+                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {
@@ -117,7 +117,7 @@ module.exports = {
                             },
                         }, {
                             title:'Module 0-2',
-                            'waive-module':false,
+                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {
@@ -146,7 +146,7 @@ module.exports = {
                     'key-1': [
                         {
                             title:'Module 1-0',
-                            'waive-module':false,
+                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {
@@ -161,7 +161,7 @@ module.exports = {
                         },
                         {
                             title:'Module 1-1',
-                            'waive-module':false,
+                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {
@@ -187,7 +187,7 @@ module.exports = {
                     'key-0': [
                         {
                             title:'Module 0-0',
-                            'waive-module':false,
+                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {
@@ -217,7 +217,7 @@ module.exports = {
                 end:'2022-11-11',
                 modules: {
                     title:'Module 0-0',
-                    'waive-module':false,
+                    'waive_module':false,
                     tasks:{
                         'key-0': [
                             {
@@ -238,7 +238,7 @@ module.exports = {
                 modules: [
                     {
                         title:'Module 0-0',
-                        'waive-module':false,
+                        'waive_module':false,
                         tasks:{
                             'key-0': [
                                 {
@@ -260,7 +260,7 @@ module.exports = {
                 modules: {
                     'key-0': [
                         {
-                            'waive-module':false,
+                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {
@@ -284,7 +284,7 @@ module.exports = {
                     'key-0': [
                         {
                             title:'Module 0-0',
-                            'waive-module':false,
+                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {
@@ -307,7 +307,7 @@ module.exports = {
                     'key-0': [
                         {
                             title:'Module 0-0',
-                            'waive-module':false,
+                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {

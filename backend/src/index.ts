@@ -2,7 +2,7 @@ import Koa from 'koa'
 import cors from '@koa/cors'
 import koaBody from 'koa-body'
 import jwt from 'koa-jwt'
-import jsonwebtoken from 'jsonwebtoken'
+import logger from 'koa-logger'
 
 import { config } from './config'
 import { apiRouter, authRouter } from './router'
@@ -13,6 +13,7 @@ apiRouter().then(async api => {
     // Output all router paths
     console.log(api.stack.map(i => `${i.path} ${i.methods}`))
 
+    app.use(logger())
     app.use(cors({
         credentials: true
     }))
@@ -24,7 +25,6 @@ apiRouter().then(async api => {
     // API parser
     app.use(async (ctx, next) => {
         try {
-            console.log(ctx.request.url)
             await next()
         } catch (err: any) {
             ctx.status = err.status || 500
