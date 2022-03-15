@@ -6,6 +6,7 @@ class CommentRoute extends ApiRoute<IComment> {
     constructor() {
         super(
             'comments',
+            'comments',
             'Comment',
             {
                 'content':{type:'string'},

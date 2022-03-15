@@ -10,6 +10,7 @@ const { authUserName, authPassword } = require('./data')
 var API = 'v1/'
 var agent = supertest.agent('localhost:5000/api/')
 
+// Authentication testing
 describe(`Authenticate`, () => {
     it('Invalid username', async () => {
         let r = await agent
@@ -44,6 +45,14 @@ describe(`Authenticate`, () => {
         // expect(r.body).an('object')
         //     .any.key('token')
 
+    })
+
+    it('Self user', async () => {
+        let r = await agent
+            .get(API + 'users/self')
+        expect(r.status).equal(200)
+        expect(r.body).an('object')
+            .any.key('username')
     })
 })
 

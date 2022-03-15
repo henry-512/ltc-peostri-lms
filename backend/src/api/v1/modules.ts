@@ -8,6 +8,7 @@ class ModuleRoute extends ApiRoute<IModule> {
     constructor() {
         super(
             'modules',
+            'modules',
             'Module',
             {
                 'title':{type:'string'},

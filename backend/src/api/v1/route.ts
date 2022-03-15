@@ -88,6 +88,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         await this.collection.remove(id)
     }
 
+    public keyToId(key: string) { return keyToId(key, this.dbName) }
+    public generateDBID() { return generateDBID(this.dbName) }
+
     /**
      * Runs the passed function on each foreign key in the document
      */
@@ -207,8 +210,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      * 
      */
     constructor(
-        public name: string,
-        protected dname: string,
+        public dbName: string,
+        protected routeName: string,
+        protected displayName: string,
         protected fields: {
             [key:string]: DBData
         },
@@ -232,7 +236,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         }
 
         // Caches
-        this.collection = db.collection(this.name)
+        this.collection = db.collection(this.dbName)
         this.fieldEntries = Object.entries(this.fields)
         this.foreignEntries = Object.entries(this.foreignClasses)
 
@@ -401,7 +405,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             // Check if foreign key reference is valid
             if ((isDBId(doc) || isDBKey(doc)) && await this.exists(doc)) {
                 // Convert from key to id
-                return isDBKey(doc) ? keyToId(doc, this.name) : doc
+                return isDBKey(doc) ? this.keyToId(doc) : doc
             }
 
             if (data.acceptNewDoc) {
@@ -409,7 +413,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 if (!built) {
                     throw new TypeError(`[${doc}] is not a valid key`)
                 }
-                let childId = generateDBID(this.name)
+                let childId = this.generateDBID()
                 await this.addToReferenceMap(user, childId, built, map, 2)
                 return childId
             }
@@ -433,9 +437,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             let isNew:0|1|2 = doc.id && await this.exists(doc.id) ? 1 : 2
 
             let childId = isNew === 2
-                ? generateDBID(this.name)
+                ? this.generateDBID()
                 // Key exists, however it's a key
-                : keyToId(doc.id, this.name)
+                : this.keyToId(doc.id)
 
             await this.addToReferenceMap(user, childId, doc, map, isNew)
             return childId
@@ -483,13 +487,13 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     isNew = await this.exists(addDocId) ? 1 : 2
                 // Clean existing documents
                 if (isNew === 1) {
-                    console.warn(`deleting key ${this.name}.${pK} from existing doc [${JSON.stringify(addDoc)}]`)
+                    console.warn(`deleting key ${this.dbName}.${pK} from existing doc [${JSON.stringify(addDoc)}]`)
                     delete (<any>addDoc)[pK]
                     continue
                 }
             }
 
-            throw new TypeError(`[${pK}] is not a valid key of ${this.name} (${JSON.stringify(addDoc)})`)
+            throw new TypeError(`[${pK}] is not a valid key of ${this.displayName} (${JSON.stringify(addDoc)})`)
         }
 
         // Add DB key
@@ -523,7 +527,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     if (typeof value === data.type) {
                         continue
                     }
-                    throw new TypeError(`${this.name}.${key} ${value} expected to be ${data.type}`)
+                    throw new TypeError(`${this.dbName}.${key} ${value} expected to be ${data.type}`)
                 // TODO: object type checking
                 case 'object':
                     continue
@@ -627,7 +631,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         try {
             for (let [api, docs] of map) {
                 for (let doc of docs) {
-                    console.log(`Saving ${api.name} | ${JSON.stringify(doc)}`)
+                    console.log(`Saving ${api.displayName} | ${JSON.stringify(doc)}`)
                     real && await api.saveUnsafe(doc)
                 }
             }
@@ -651,7 +655,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     }
 
     protected async update(user: AuthUser, key: string, doc: Type, real: boolean) {
-        let id = keyToId(key, this.name)
+        let id = this.keyToId(key)
 
         // We dont need to update all elements, .update does that
         // automatically for us :)
@@ -673,12 +677,12 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     throw new TypeError(`${d._key} invalid`)
                 }
                 if (await api.exists(d._key)) {
-                    console.log(`Updating ${api.name} | ${JSON.stringify(d)}`)
+                    console.log(`Updating ${api.displayName} | ${JSON.stringify(d)}`)
                     real && await api.updateUnsafe(d, {
                         mergeObjects:false
                     })
                 } else {
-                    console.log(`Saving ${api.name} | ${JSON.stringify(d)}`)
+                    console.log(`Saving ${api.displayName} | ${JSON.stringify(d)}`)
                     real && await api.saveUnsafe(d)
                 }
             }
@@ -735,7 +739,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             }
         }
 
-        console.log(`${real ? 'DELETING' : 'FAKE DELETING'} ${this.name} | ${key} | ${doc}`)
+        console.log(`${real ? 'DELETING' : 'FAKE DELETING'} ${this.displayName} | ${key} | ${doc}`)
         real && await this.collection.remove(key)
     }
 
@@ -748,7 +752,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      * NOTE: VERY EXPENSIVE, don't run that often
      */
     private async deleteOrphans() {
-        if (!this.parentField) throw new TypeError(`DeleteOrphans called on an invalid type ${this.name}`)
+        if (!this.parentField) throw new TypeError(`DeleteOrphans called on an invalid type ${this.displayName}`)
 
         return db.query(aql`FOR d IN ${this.collection} FILTER DOCUMENT(d.${this.parentField.local})._id == null REMOVE d IN ${this.collection}`)
     }
@@ -814,8 +818,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         }
     }
 
-    makeRouter() {
-        let r = new Router({prefix:this.name})
+    makeRouter(router?:Router) {
+        let r = router || new Router({prefix:this.routeName})
         // Orphan delete
         if (config.devRoutes && this.parentField) {
             r.delete('/orphan', async (ctx,next) => {
@@ -859,7 +863,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 ctx.status = 200
                 ctx.body = all
     
-                ctx.set('Content-Range', `${this.name} ${qdata.low}-${qdata.high}/${qdata.size}`)
+                ctx.set('Content-Range', `${this.dbName} ${qdata.low}-${qdata.high}/${qdata.size}`)
                 ctx.set('Access-Control-Expose-Headers', 'Content-Range')
 
                 next()
@@ -879,7 +883,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     next()
                 } else {
                     ctx.status = 404
-                    ctx.body = `${this.dname} [${ctx.params.id}] dne.`
+                    ctx.body = `${this.displayName} [${ctx.params.id}] dne.`
                 }
             } catch (err) {
                 console.log(err)
@@ -889,7 +893,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         r.post('/', async (ctx, next) => {
             try {
                 let doc = ctx.request.body as Type
-                let newID = generateDBID(this.name)
+                let newID = this.generateDBID()
 
                 let user = new AuthUser(ctx.cookies.get('token'))
                 await this.create(user, newID, doc, ctx.header['user-agent'] !== 'backend-testing')
@@ -897,7 +901,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 ctx.status = 201
                 ctx.body = {
                     id: splitId(newID).key,
-                    message: `${this.dname} created with id [${newID}]`
+                    message: `${this.displayName} created with id [${newID}]`
                 }
 
                 next()
@@ -914,13 +918,13 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     ctx.status = 200
                     ctx.body = {
                         id: ctx.params.id,
-                        message: `${this.dname} [${ctx.params.id}] updated`,
+                        message: `${this.displayName} [${ctx.params.id}] updated`,
                     }
 
                     next()
                 } else {
                     ctx.status = 409
-                    ctx.body = `${this.dname} [${ctx.params.id}] dne`
+                    ctx.body = `${this.displayName} [${ctx.params.id}] dne`
                 }
             } catch(err) {
                 console.log(err)
@@ -935,13 +939,13 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     ctx.status = 200
                     ctx.body = {
                         id: ctx.params.id,
-                        message: `${this.dname} deleted`,
+                        message: `${this.displayName} deleted`,
                     }
 
                     next()
                 } else {
                     ctx.status = 404
-                    ctx.body = `${this.dname} [${ctx.params.id}] dne`
+                    ctx.body = `${this.displayName} [${ctx.params.id}] dne`
                 }
             } catch(err) {
                 console.log(err)
