@@ -32,7 +32,7 @@ export interface IModuleTemplate extends IArangoIndexes {
      title: string;
      description: string;
      tasks: { [id:string]: ITaskTemplate[] };
-     'waive-module': boolean;
+     waive_module: boolean;
 }
 
 export interface IModule extends IArangoIndexes {
@@ -41,7 +41,7 @@ export interface IModule extends IArangoIndexes {
      comments: Array<string> | Array<IComment>;
      project?: string;
      status: Status | "WAIVED";
-     'waive-module': boolean;
+     waive_module: boolean;
      file: string | IFileMetadata;
 }
 
