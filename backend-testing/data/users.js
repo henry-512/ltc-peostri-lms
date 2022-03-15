@@ -37,6 +37,17 @@ module.exports = {
 				'username': 'usName',
 				'password': 'password'
 			},
+		}, {
+			n: 'Passed status',
+			d: {
+				'firstName': 'John',
+				'lastName': 'Doe',
+				'avatar': '',
+				'rank': debugRankId,
+				'username': 'usName',
+				'password': 'password',
+				'status': 'LOCKED',
+			},
 		},
 	],
 	failPost: [

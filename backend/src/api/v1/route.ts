@@ -467,9 +467,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             if (isNew === 0)
                 isNew = await this.exists(addDocId) ? 1 : 2
             if (isNew === 2) {
-                (<ICreateUpdate>addDoc).createdAt = new Date(); //??? ; ???
+                (<ICreateUpdate>addDoc).createdAt = new Date().toJSON()
             }
-            (<ICreateUpdate>addDoc).updatedAt = new Date()
+            (<ICreateUpdate>addDoc).updatedAt = new Date().toJSON()
         }
 
         // Check for extra fields

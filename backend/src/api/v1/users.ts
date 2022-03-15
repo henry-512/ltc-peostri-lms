@@ -29,6 +29,10 @@ class UserRoute extends ApiRoute<IUser> {
                 'lastName':{type:'string'},
                 'avatar':{type:'string'},
                 'rank':{type:'fkey'},
+                'status':{
+                    type:'string',
+                    default:'ACTIVE',
+                },
 
                 'username':{
                     type:'string',

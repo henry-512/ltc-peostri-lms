@@ -1,5 +1,6 @@
 export type Status = "IN_PROGRESS" | "COMPLETED" | "ARCHIVED" | "AWAITING";
 export type TaskTypes = "DOCUMENT_UPLOAD" | "DOCUMENT_REVIEW" | "MODULE_WAIVER" | "MODULE_WAIVER_APPROVAL"
+export type UserStatus = "ACTIVE" | "LOCKED" | "INACTIVE" | "SUSPENDED"
 
 // All are optional
 export interface IArangoIndexes {
@@ -90,6 +91,7 @@ export interface IUser extends IArangoIndexes {
      lastName: string;
      avatar: null | string;
      rank: string | IRank;
+     status: UserStatus;
 
      username: string;
      password: string;
