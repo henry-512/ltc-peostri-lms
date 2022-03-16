@@ -1,4 +1,5 @@
 import { v4, parse } from 'uuid';
+import { APIError, HTTPStatus } from './errors'
 
 // RFC4648 Chapter 5 standard: URL/file-safe base64 encoding lookup string
 const b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'
@@ -57,7 +58,13 @@ export function convertToKey(str:string) {
     } else if (isDBId(str)) {
         return splitId(str).key
     } else {
-        throw new TypeError(`${str} is not a valid key or id`)
+        throw new APIError(
+            'util',
+            'convertToKey',
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+            'Invalid system status',
+            `${str} is not a valid key or id`
+        )
     }
 }
 

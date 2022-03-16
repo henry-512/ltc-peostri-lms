@@ -1,4 +1,5 @@
 import { IFileMetadata } from "../../lms/types";
+import { HTTPStatus } from "../../lms/errors";
 import { ApiRoute } from "./route";
 import { AuthUser, UserRouteInstance } from "./users";
 
@@ -31,7 +32,12 @@ class FileMetadataRoute extends ApiRoute<IFileMetadata> {
      */
     protected override async modifyDoc(user: AuthUser, doc:any) {
         if (!('title' in doc && 'src' in doc)) {
-            throw new TypeError(`${doc} is not a valid file reference`)
+            throw this.error(
+                'modifyDoc',
+                HTTPStatus.BAD_REQUEST,
+                'Invalid file reference',
+                `${doc} is not a valid file reference`
+            )
         }
 
         // lol

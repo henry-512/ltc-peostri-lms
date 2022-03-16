@@ -9,22 +9,18 @@ async function apiRouter() {
         prefix: '/api/'
     })
 
-    try {
-        const dir = await fs.promises.opendir(path.resolve(__dirname, 'api'))
-        for await (const dirent of dir) {
-            var { routerBuilder } = await require(path.resolve(__dirname, 'api', dirent.name))
+    const dir = await fs.promises.opendir(path.resolve(__dirname, 'api'))
+    for await (const dirent of dir) {
+        var { routerBuilder } = await require(path.resolve(__dirname, 'api', dirent.name))
 
-            // Create router with api version
-            var router = routerBuilder(dirent.name)
+        // Create router with api version
+        var router = routerBuilder(dirent.name)
 
-            // Apply to router
-            apiRouter.use(router.routes())
-            console.log(`Applied api version ${dirent.name}`)
-        }
-        // dir.close()
-    } catch (err) {
-        console.log(err)
+        // Apply to router
+        apiRouter.use(router.routes())
+        console.log(`Applied api version ${dirent.name}`)
     }
+    // dir.close()
 
     return apiRouter
 }

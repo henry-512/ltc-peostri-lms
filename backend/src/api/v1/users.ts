@@ -10,13 +10,19 @@ import { IUser, IRank } from "../../lms/types";
 import { ApiRoute } from "./route";
 import { RankRouteInstance } from "./ranks";
 import { isDBKey } from "../../lms/util";
+import { APIError, HTTPStatus } from "../../lms/errors";
 
 class UserRoute extends ApiRoute<IUser> {
     public async getUser(key: string): Promise<IUser> {
         if (key && isDBKey(key) && this.exists(key)) {
             return this.getUnsafe(key)
         }
-        throw new TypeError(`${key} not a valid key`)
+        throw this.error(
+            'getUser',
+            HTTPStatus.BAD_REQUEST,
+            'Invalid user key',
+            `${key} not a valid key`
+        )
     }
 
     constructor() {
@@ -82,34 +88,39 @@ class UserRoute extends ApiRoute<IUser> {
     }
 
     private async getFromUsername(username: string) {
-        let query = aql`FOR z IN users FILTER z.username == ${username} RETURN {${this.getAllQueryFields}username:z.username,password:z.password}`
+        let query = aql`FOR z IN users FILTER z.username == ${username} RETURN {${this.getAllQueryFields}password:z.password}`
 
         let cursor = await db.query(query)
 
-        if (cursor.hasNext) {
-            let usr = await cursor.next()
-            if (cursor.hasNext) {
-                throw new TypeError('INTERNAL ERROR: Multiple users with the same username')
-            }
-            return usr
-        } else {
-            throw new TypeError(`Username ${username} not found`)
+        if (!cursor.hasNext) {
+            throw this.error(
+                'getFromUsername',
+                HTTPStatus.BAD_REQUEST,
+                'Login information invalid',
+                `Username ${username} not found`
+            )
         }
+
+        let usr = await cursor.next()
+        if (cursor.hasNext) {
+            throw this.error(
+                'getFromUsername',
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                'Invalid system state',
+                `Multiple users with the same username [${username}]`
+            )
+        }
+        return usr
     }
 
     public override makeRouter() {
         let r = new Router({prefix:this.routeName})
         // Self
         r.get('/self', async (ctx, next) => {
-            try {
-                let user = new AuthUser(ctx.cookies.get('token'))
+            let user = await AuthUser.validate(ctx.cookies.get('token'))
 
-                ctx.body = await this.getFromDB(user, user.getId())
-                ctx.status = 200
-            } catch (err) {
-                console.log(err)
-                ctx.status = 500
-            }
+            ctx.body = await this.getFromDB(user, user.getId())
+            ctx.status = 200
         })
 
         return super.makeRouter(r)
@@ -118,69 +129,57 @@ class UserRoute extends ApiRoute<IUser> {
     public authRouter() { return new Router({prefix: '/api/auth'})
         // Validate login and create JWT cookie
         .post('/', async (ctx, next) => {
-            try {
-                let reqUN = ctx.request.body.username
-                let reqPass = ctx.request.body.password
+            let reqUN = ctx.request.body.username
+            let reqPass = ctx.request.body.password
 
-                if (reqUN && typeof reqUN === 'string') {
-                    let dbUser = await this.getFromUsername(reqUN)
-
-                    const {
-                        password,
-                        ...dbUserWOPass
-                    } = dbUser
-
-                    if (reqPass && typeof reqPass === 'string' && await bcrypt.compare(reqPass, password)) {
-                        let token = jsonwebtoken.sign({
-                                user: dbUserWOPass.id,
-                                exp: Math.floor(Date.now() / 1000) + 3600
-                            }, config.secret)
-                        // ctx.body = {
-                        //     token: 
-                        // }
-                        ctx.cookies.set('token', token, {
-                            httpOnly: true,
-                            maxAge: 3600 * 1000
-                        })
-                        ctx.response.body = {
-                            ...dbUserWOPass
-                        }
-                        ctx.status = 200
-                    } else {
-                        throw new TypeError(`[${reqPass}] is not a string`)
-                    }
-                } else {
-                    throw new TypeError(`[${reqUN}] is not a string`)
-                }
-            } catch(err) {
-                console.log(err)
-                ctx.status = 500
+            if (!reqUN || typeof reqUN !== 'string') {
+                throw this.error(
+                    'authRouter.post',
+                    HTTPStatus.BAD_REQUEST,
+                    'Login information invalid',
+                    `Username [${reqUN}] is not a string`
+                )
             }
+
+            let dbUser = await this.getFromUsername(reqUN)
+
+            const {
+                password,
+                ...dbUserWOPass
+            } = dbUser
+
+            if (!reqPass || typeof reqPass !== 'string' || !(await bcrypt.compare(reqPass,password))) {
+                throw this.error(
+                    'authRouter.post',
+                    HTTPStatus.BAD_REQUEST,
+                    'Login information invalid',
+                    `Password [${reqPass}] is not valid`
+                )
+            }
+
+            let token = jsonwebtoken.sign({
+                    user: dbUserWOPass.id,
+                    exp: Math.floor(Date.now() / 1000) + 3600
+                }, config.secret)
+
+            ctx.cookies.set('token', token, {
+                httpOnly: true,
+                maxAge: 3600 * 1000
+            })
+            ctx.response.body = {
+                ...dbUserWOPass
+            }
+            ctx.status = 200
         })
         .get('/', async (ctx, next) => {
-            try {
-                const user = new AuthUser(ctx.cookies.get('token'))
+            // Runs the authentication routes
+            await next()
 
-                ctx.status = 200
-            } catch (err: any) {
-                // TODO: May be a better way to implement this...
-                if (err.message == "undefined is not a string") {
-                    ctx.status = 401
-                    return;
-                }
-
-                console.log(err)
-                ctx.status = 500
-            }
+            ctx.status = 200
         })
         .post('/logout', async (ctx, next) => {
-            try {
-                ctx.cookies.set('token', '')
-                ctx.status = 200
-            } catch(err) {
-                console.log(err)
-                ctx.status = 500
-            }
+            ctx.cookies.set('token', '')
+            ctx.status = 200
         })
     }
 }
@@ -192,34 +191,91 @@ export const UserRouteInstance = new UserRoute()
  */
 export class AuthUser {
     private rank?: IRank
-    private userPromise: Promise<IUser>
     private user?: IUser
     public key
 
-    constructor(auth?:string) {
+    /**
+     * Builds an error with the provided fields
+     */
+    private static error(
+        fn:string,
+        status:HTTPStatus,
+        message?:string,
+        verbose?:string
+    ): APIError {
+        return new APIError(
+            'AuthUser',
+            fn,
+            status,
+            message,
+            verbose
+        )
+    }
+
+    public static async validate(auth?:string) {
         if (!auth || typeof auth !== 'string') {
-            throw new TypeError(`${auth} is not a string`)
+            throw AuthUser.error(
+                'validate',
+                HTTPStatus.UNAUTHORIZED,
+                'Invalid login session',
+                `${auth} is not a string`
+            )
         }
-        let jwt = jsonwebtoken.verify(auth, config.secret)
+
+        let usr = new AuthUser(auth)
+        if (!await UserRouteInstance.exists(usr.key)) {
+            throw AuthUser.error(
+                'authRouter.get',
+                HTTPStatus.UNAUTHORIZED,
+                'Invalid login session',
+                `User [${usr.key}] does not exist`
+            )
+        }
+
+        return usr
+    }
+
+    private constructor(auth:string) {
+        let jwt:JwtPayload = {}
+
+        try {
+            let ver = jsonwebtoken.verify(auth, config.secret)
+            if (typeof ver === 'string') {
+                throw new TypeError(`Expected JWT, not [${ver}]`)
+            }
+            jwt = ver
+        } catch (err) {
+            throw AuthUser.error(
+                'constructor',
+                HTTPStatus.UNAUTHORIZED,
+                'Invalid login session',
+                `JWT ${auth} invalid: ${JSON.stringify(err)}`
+            )
+        }
+
         this.key = (<JwtPayload>jwt).user
         if (!isDBKey(this.key)) {
-            throw new TypeError(`${auth} ->\n${jwt} is not a valid auth string`)
+            throw AuthUser.error(
+                'constructor',
+                HTTPStatus.UNAUTHORIZED,
+                'Invalid login session',
+                `[${auth}]: [${jwt}] has an invalid key ${this.key}`
+            )
         }
-        this.userPromise = UserRouteInstance.getUser(this.key)
     }
 
     getId() { return UserRouteInstance.keyToId(this.key) }
 
     async getUser() {
-        if (!this.user) this.user = await this.userPromise
+        if (!this.user) this.user = await UserRouteInstance.getUser(this.key)
         return this.user
     }
 
-    async hasPermission() {
-        if (!this.user) this.user = await this.userPromise
+    async getRank() {
+        if (!this.user) this.user = await UserRouteInstance.getUser(this.key)
         if (!this.rank) this.rank = await RankRouteInstance
             .getRank(this.user.rank as string)
         
-        return false
+        return this.rank
     }
 }

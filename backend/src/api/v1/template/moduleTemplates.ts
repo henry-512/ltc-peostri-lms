@@ -55,20 +55,15 @@ class ModuleTemplateRoute extends ApiRoute<IModuleTemplate> {
         let r = super.makeRouter()
         // Builds a project matching the passed project template ID
         r.get('/instance/:id', async (ctx, next) => {
-            try {
-                if (!this.exists(ctx.params.id)) {
-                    ctx.body = this.buildModuleFromId(ctx.params.id)
-                    ctx.status = 200
-                } else {
-                    ctx.status = 404
-                    ctx.body = `${this.displayName} [${ctx.params.id}] dne.`
-                }
-
-                next()
-            } catch (err) {
-                console.log(err)
-                ctx.status = 500
+            if (!this.exists(ctx.params.id)) {
+                ctx.body = this.buildModuleFromId(ctx.params.id)
+                ctx.status = 200
+            } else {
+                ctx.status = 404
+                ctx.body = `${this.displayName} [${ctx.params.id}] dne`
             }
+
+            next()
         })
         return r
     }

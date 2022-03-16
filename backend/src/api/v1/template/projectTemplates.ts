@@ -2,6 +2,7 @@ import { IModule, IProject, IProjectTemplate } from "../../../lms/types";
 import { ModuleTemplateRouteInstance } from "./moduleTemplates";
 import { ApiRoute } from "../route";
 import { isDBId } from "../../../lms/util";
+import { HTTPStatus } from "../../../lms/errors";
 
 class ProjectTemplateRoute extends ApiRoute<IProjectTemplate> {
     constructor() {
@@ -33,10 +34,20 @@ class ProjectTemplateRoute extends ApiRoute<IProjectTemplate> {
         for (let [stepName,tempArray] of Object.entries(temp.modules)) {
             mods[stepName] = await Promise.all(tempArray.map(async (i) => {
                 if (typeof i !== 'string') {
-                    throw new TypeError(`${i} is not a string`)
+                    throw this.error(
+                        'buildProjectFromTemplate',
+                        HTTPStatus.INTERNAL_SERVER_ERROR,
+                        'Invalid system state',
+                        `${i} is not a string`
+                    )
                 }
                 if (!isDBId(i)) {
-                    throw new TypeError(`${i} is not a valid db id`)
+                    throw this.error(
+                        'buildProjectFromTemplate',
+                        HTTPStatus.INTERNAL_SERVER_ERROR,
+                        'Invalid system state',
+                        `${i} is not a valid db id`
+                    )
                 }
                 return ModuleTemplateRouteInstance.buildModuleFromId(i)
             }))
@@ -57,20 +68,15 @@ class ProjectTemplateRoute extends ApiRoute<IProjectTemplate> {
         let r = super.makeRouter()
         // Builds a project matching the passed project template ID
         r.get('/instance/:id', async (ctx, next) => {
-            try {
-                if (!this.exists(ctx.params.id)) {
-                    ctx.body = this.buildProjectFromId(ctx.params.id)
-                    ctx.status = 200
-                } else {
-                    ctx.status = 404
-                    ctx.body = `${this.displayName} [${ctx.params.id}] dne.`
-                }
-                
-                next()
-            } catch (err) {
-                console.log(err)
-                ctx.status = 500
+            if (!this.exists(ctx.params.id)) {
+                ctx.body = this.buildProjectFromId(ctx.params.id)
+                ctx.status = 200
+            } else {
+                ctx.status = 404
+                ctx.body = `${this.displayName} [${ctx.params.id}] dne`
             }
+            
+            next()
         })
         return r
     }

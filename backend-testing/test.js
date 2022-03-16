@@ -12,6 +12,18 @@ var agent = supertest.agent('localhost:5000/api/')
 
 // Authentication testing
 describe(`Authenticate`, () => {
+    it('Unauthorized access', async () => {
+        let r = await agent
+            .get('v1/projects')
+        expect(r.status).equal(401)
+    })
+
+    it('Auth check, no auth', async () => {
+        let r = await agent
+            .get('auth')
+        expect(r.status).equal(401)
+    })
+
     it('Invalid username', async () => {
         let r = await agent
             .post('auth')
@@ -19,7 +31,7 @@ describe(`Authenticate`, () => {
                 username: 'hehe :)',
                 password: authPassword
             })
-        expect(r.status).not.equal(200)
+        expect(r.status).equal(400)
     })
 
     it('Invalid password', async () => {
@@ -29,7 +41,7 @@ describe(`Authenticate`, () => {
                 username: authUserName,
                 password: 'grinning'
             })
-        expect(r.status).not.equal(200)
+        expect(r.status).equal(400)
     })
 
     it('Valid authenticate', async () => {
@@ -45,6 +57,12 @@ describe(`Authenticate`, () => {
         // expect(r.body).an('object')
         //     .any.key('token')
 
+    })
+
+    it('Auth check, valid auth', async () => {
+        let r = await agent
+            .get('auth')
+        expect(r.status).equal(200)
     })
 
     it('Self user', async () => {
@@ -147,7 +165,6 @@ function test(n) {
                 let r = await agent
                     .post(API + n)
                     .set('User-Agent', 'backend-testing')
-                    // .set('Authorization', AUTH_HEADER)
                     .send(d.d)
                 expect(r.status).equal(201)
                 expect(r.body).an('object')
@@ -162,7 +179,6 @@ function test(n) {
                 let r = await agent
                     .post(API + n)
                     .set('User-Agent', 'backend-testing')
-                    // .set('Authorization', AUTH_HEADER)
                     .send(d.d)
                 expect(r.status).not.equal(201)
             })

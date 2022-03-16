@@ -2,8 +2,9 @@ import Router from "@koa/router"
 import { aql } from "arangojs"
 import { GeneratedAqlQuery } from "arangojs/aql"
 import { CollectionUpdateOptions, DocumentCollection } from "arangojs/collection"
-import { config } from "../../config"
 
+import { config } from "../../config"
+import { APIError, HTTPStatus } from "../../lms/errors"
 import { db } from "../../database"
 import { IArangoIndexes, ICreateUpdate } from "../../lms/types"
 import { convertToKey, generateDBID, isDBId, isDBKey, keyToId, splitId } from "../../lms/util"
@@ -68,7 +69,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     private fieldEntries:[string, DBData][]
     private foreignEntries:[string, ApiRoute<IArangoIndexes>][]
 
-    protected async exists(id: string) {
+    public async exists(id: string) {
         return this.collection.documentExists(id)
     }
 
@@ -90,6 +91,24 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
 
     public keyToId(key: string) { return keyToId(key, this.dbName) }
     public generateDBID() { return generateDBID(this.dbName) }
+
+    /**
+     * Builds an error with the provided fields
+     */
+    protected error(
+        fn:string,
+        status:HTTPStatus,
+        message?:string,
+        verbose?:string
+    ): APIError {
+        return new APIError(
+            this.dbName,
+            fn,
+            status,
+            message,
+            verbose
+        )
+    }
 
     /**
      * Runs the passed function on each foreign key in the document
@@ -117,7 +136,12 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     let stepArray = o[stepId]
 
                     if (!Array.isArray(stepArray)) {
-                        throw new TypeError(`${stepArray} is not an array`)
+                        throw this.error(
+                            'mapForeignKeys',
+                            HTTPStatus.BAD_REQUEST,
+                            'Unexpected type',
+                            `${stepArray} is not an array`,
+                        )
                     }
                     temp[stepId] = <any>await Promise.all(
                         stepArray.map(k => fn(k,d,c)
@@ -166,7 +190,12 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     console.warn(`Optional foreign key [${fkey}] dne`)
                     continue
                 }
-                throw new TypeError(`Foreign field [${fkey}] dne in [${JSON.stringify(doc)}]`)
+                throw this.error(
+                    'forEachForeignKey',
+                    HTTPStatus.BAD_REQUEST,
+                    'Missing field',
+                    `Foreign field [${fkey}] dne in [${JSON.stringify(doc)}]`
+                )
             }
 
             // key of doc pointing to a foreign object
@@ -182,19 +211,34 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 // Foreign key array
                 case 'fkeyArray':
                     if (!Array.isArray(foreign)) {
-                        throw new TypeError(`${JSON.stringify(foreign)} was expected to be an array`)
+                        throw this.error(
+                            'forEachForeignKey',
+                            HTTPStatus.BAD_REQUEST,
+                            'Unexpected type',
+                            `${JSON.stringify(foreign)} was expected to be an array`
+                        )
                     }
                     await arrCall({doc,key:local},foreign,data,clazz)
                     continue
                 // Foreign key step object
                 case 'fkeyStep':
                     if (typeof foreign !== 'object') {
-                        throw new TypeError(`${JSON.stringify(foreign)} was expected to be a step object`)
+                        throw this.error(
+                            'forEachForeignKey',
+                            HTTPStatus.BAD_REQUEST,
+                            'Unexpected type',
+                            `${JSON.stringify(foreign)} was expected to be a step object`
+                        )
                     }
                     await stpCall({doc,key:local},<any>foreign,data,clazz)
                     continue
                 default:
-                    throw new TypeError(`INTERNAL ERROR: ${data} has invalid type.`)
+                    throw this.error(
+                        'forEachForeignKey',
+                        HTTPStatus.INTERNAL_SERVER_ERROR,
+                        'Invalid system state',
+                        `${JSON.stringify(data)} has invalid .type field (expected foreign key)`
+                    )
             }
         }
 
@@ -278,19 +322,21 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
 
     /**
      * Converts all IDs (with collection) in the document to keys
-     * (without collection)
+     * (without collection). Only called by GET/
      */
     private async convertIds(doc:Type) : Promise<Type> {
         return this.mapForeignKeys(doc, async (k,d,c) => {
-            if (typeof k === 'string') {
-                if (!isDBId(k)) {
-                    throw new TypeError(`${k} is not a valid id`)
-                }
+            if (typeof k === 'string' && isDBId(k)) {
                 return splitId(k).key
             } else if (typeof k === 'object') {
                 return k
             }
-            throw new TypeError(`${k} is not an object or key`)
+            throw this.error(
+                'convertIds',
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                'Invalid document status',
+                `${this.dbName} [${k}] expected to be a DB id`
+            )
         })
     }
 
@@ -366,16 +412,20 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         delete doc._rev
 
         return this.mapForeignKeys(doc, async (k,data,clazz) => {
-            if (typeof k !== 'string') {
-                throw new TypeError(`[${k}] is not a string`)
+            if (typeof k === 'string') {
+                if (data.getIdKeepAsRef) {
+                    return convertToKey(k)
+                // Dereference the id into an object
+                } else if (isDBId(k)) {
+                    return clazz.getFromDB(user, k)
+                }
             }
-            if (data.getIdKeepAsRef) {
-                return convertToKey(k)
-            // Dereference the id into an object
-            } else if (isDBId(k)) {
-                return clazz.getFromDB(user, k)
-            }
-            throw new TypeError(`Foreign key [${k}] is not a valid id. Did you forget the collection name? (name/key)`)
+            throw this.error(
+                'getFromDB.mapForeignKeys',
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                'Invalid document status',
+                `[${k}] expected to be a valid DB id`
+            )
         })
     }
 
@@ -410,19 +460,28 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
 
             if (data.acceptNewDoc) {
                 let built = this.buildFromString(user, doc, par)
-                if (!built) {
-                    throw new TypeError(`[${doc}] is not a valid key`)
+                if (built) {
+                    let childId = this.generateDBID()
+                    await this.addToReferenceMap(user, childId, built, map, 2)
+                    return childId
                 }
-                let childId = this.generateDBID()
-                await this.addToReferenceMap(user, childId, built, map, 2)
-                return childId
             }
 
-            throw new TypeError(`Foreign key [${doc}] does not exist`)
+            throw this.error(
+                'ref',
+                HTTPStatus.BAD_REQUEST,
+                'Invalid key reference',
+                `[${doc}] is not a valid key`
+            )
         // Objects are fully-formed documents
         } else if (typeof doc === 'object') {
             if (!data.acceptNewDoc) {
-                throw new TypeError(`New documents [${JSON.stringify(doc)}] not acceptable for this type ${JSON.stringify(data)}`)
+                throw this.error(
+                    'ref',
+                    HTTPStatus.BAD_REQUEST,
+                    'New document unauthorized',
+                    `New documents [${JSON.stringify(doc)}] not acceptable for type ${JSON.stringify(data)}`
+                )
             }
 
             // Update parent field only if it isn't already set
@@ -434,17 +493,24 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 doc[this.parentField.local] = par
             }
 
+            // If the formed document's id is already in the DB, it
+            // is not new
             let isNew:0|1|2 = doc.id && await this.exists(doc.id) ? 1 : 2
 
             let childId = isNew === 2
                 ? this.generateDBID()
-                // Key exists, however it's a key
+                // Document exists, however it's a key
                 : this.keyToId(doc.id)
 
             await this.addToReferenceMap(user, childId, doc, map, isNew)
             return childId
         }
-        throw new TypeError(`${doc} is not a foreign document or reference`)
+        throw this.error(
+            'ref',
+            HTTPStatus.BAD_REQUEST,
+            'Invalid foreign object',
+            `${doc} is not a foreign document or reference`
+        )
     }
 
     /**
@@ -493,7 +559,12 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 }
             }
 
-            throw new TypeError(`[${pK}] is not a valid key of ${this.displayName} (${JSON.stringify(addDoc)})`)
+            throw this.error(
+                'addToReferenceMap',
+                HTTPStatus.BAD_REQUEST,
+                'Excess data provided',
+                `${this.displayName}.${pK} [${pV}] was not expected in (${JSON.stringify(addDoc)})`
+            )
         }
 
         // Add DB key
@@ -513,7 +584,12 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     console.warn(`optional key ${key} dne`)
                     continue
                 } else {
-                    throw new TypeError(`${key} dne in ${JSON.stringify(addDoc)}`)
+                    throw this.error(
+                        'addToReferenceMap',
+                        HTTPStatus.BAD_REQUEST,
+                        'Missing required field',
+                        `${key} dne in ${JSON.stringify(addDoc)}`
+                    )
                 }
             }
 
@@ -527,7 +603,12 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     if (typeof value === data.type) {
                         continue
                     }
-                    throw new TypeError(`${this.dbName}.${key} ${value} expected to be ${data.type}`)
+                    throw this.error(
+                        'addToReferenceMap',
+                        HTTPStatus.BAD_REQUEST,
+                        'Invalid document field type',
+                        `${this.dbName}.${key} ${value} expected to be ${data.type}`
+                    )
                 // TODO: object type checking
                 case 'object':
                     continue
@@ -571,7 +652,12 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                         ]
                         continue
                     }
-                    throw new TypeError(`${value} expected to be an array`)
+                    throw this.error(
+                        'addToReferenceMap',
+                        HTTPStatus.BAD_REQUEST,
+                        'Invalid document field type',
+                        `${value} expected to be an array`
+                    )
                 // Ref step obj of docs
                 case 'fkeyStep':
                     let clsst = this.foreignClasses[k]
@@ -590,16 +676,31 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                                 )
                                 continue
                             }
-                            throw new TypeError(`${stepAr} expected to be an array`)
+                            throw this.error(
+                                'addToReferenceMap',
+                                HTTPStatus.BAD_REQUEST,
+                                'Invalid document field type',
+                                `${value} expected to be an array`
+                            )
                         }
                         addDoc[key] = temp
                         continue
                     }
-                    throw new TypeError(`${JSON.stringify(value)} expected to be a step array`)
+                    throw this.error(
+                        'addToReferenceMap',
+                        HTTPStatus.BAD_REQUEST,
+                        'Invalid document field type',
+                        `${JSON.stringify(value)} expected to be an step array`
+                    )
                 case 'parent':
                     continue
                 default:
-                    throw new TypeError(`INTERNAL ERROR: ${JSON.stringify(data)} has invalid type.`)
+                    throw this.error(
+                        'forEachForeignKey',
+                        HTTPStatus.INTERNAL_SERVER_ERROR,
+                        'Invalid system state',
+                        `${JSON.stringify(data)} has invalid .type field`
+                    )
             }
         }
 
@@ -635,7 +736,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     real && await api.saveUnsafe(doc)
                 }
             }
-        } catch (err) {
+        } catch (err:any) {
             // Delete malformed documents
             console.error(`Error with saving: ${err}`)
             for (let [api, docs] of map) {
@@ -647,10 +748,27 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                             await api.removeUnsafe(k)
                         }
                     } else {
-                        throw new TypeError(`INTERNAL ERROR ${doc} lacks _key field`)
+                        throw this.error(
+                            'create',
+                            HTTPStatus.INTERNAL_SERVER_ERROR,
+                            'Invalid system state',
+                            `${JSON.stringify(doc)} lacks _key field`
+                        )
                     }
                 }
             }
+
+            // If this is an APIError, pass control
+            if (err.fn) {
+                throw err
+            }
+            // Some other error type
+            throw this.error(
+                'create',
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                'Invalid system state',
+                JSON.stringify(err)
+            )
         }
     }
 
@@ -674,7 +792,12 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         for (let [api, docs] of map) {
             for (let d of docs) {
                 if (!d._key || !isDBKey(d._key)) {
-                    throw new TypeError(`${d._key} invalid`)
+                    throw this.error(
+                        'create',
+                        HTTPStatus.INTERNAL_SERVER_ERROR,
+                        'Invalid system state',
+                        `${d._key} invalid`
+                    )
                 }
                 if (await api.exists(d._key)) {
                     console.log(`Updating ${api.displayName} | ${JSON.stringify(d)}`)
@@ -690,11 +813,17 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     }
     
     private async addReference(id:string, field:string, real:boolean) {
-        throw new Error(`method not implemented lol`)
+        throw this.error(
+            'addReference',
+            HTTPStatus.NOT_IMPLEMENTED
+        )
     }
 
     private async removeReference(id:string, field:string, real:boolean) {
-        throw new Error(`method not implemented lol`)
+        throw this.error(
+            'removeReference',
+            HTTPStatus.NOT_IMPLEMENTED
+        )
     }
 
     /**
@@ -713,7 +842,12 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // Delete children
         doc = await this.mapForeignKeys(doc, async(k,data,clazz) => {
             if (typeof k !== 'string') {
-                throw new TypeError(`[${k}] is not a string`)
+                throw this.error(
+                    'delete',
+                    HTTPStatus.INTERNAL_SERVER_ERROR,
+                    'Invalid system state',
+                    `[${k}] is not a string`
+                )
             }
             return clazz.delete(user, k, real, false)
         }, (data) => !data.freeable)
@@ -726,7 +860,12 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             if (localId in doc) {
                 let parentId = (<any>doc)[localId]
                 if (!isDBId(parentId)) {
-                    throw new TypeError(`parent id ${parentId} invalid`)
+                    throw this.error(
+                        'delete',
+                        HTTPStatus.INTERNAL_SERVER_ERROR,
+                        'Invalid system state',
+                        `Parent id [${parentId}] invalid`
+                    )
                 }
                 await getApiInstanceFromId(parentId)
                     .removeReference(
@@ -735,7 +874,12 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                         real
                     )
             } else {
-                throw new TypeError(`parent id key ${localId} dne in ${doc}`)
+                throw this.error(
+                    'delete',
+                    HTTPStatus.INTERNAL_SERVER_ERROR,
+                    'Invalid system state',
+                    `Parent id key ${this.dbName}.${localId} dne in ${doc}`
+                )
             }
         }
 
@@ -752,8 +896,17 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      * NOTE: VERY EXPENSIVE, don't run that often
      */
     private async deleteOrphans() {
-        if (!this.parentField) throw new TypeError(`DeleteOrphans called on an invalid type ${this.displayName}`)
+        if (!this.parentField) {
+            throw this.error(
+                'deleteOrphans',
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                'Invalid system state',
+                `deleteOrphans called on ${this.dbName}`
+            )
+        }
 
+        // Filters documents with parent fields that cannot be properly
+        // dereferenced [DOCUMENT(d.parent) === null]
         return db.query(aql`FOR d IN ${this.collection} FILTER DOCUMENT(d.${this.parentField.local})._id == null REMOVE d IN ${this.collection}`)
     }
 
@@ -765,7 +918,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      * NOTE: VERY EXPENSIVE, don't run that often
      */
     private async deleteAbandoned() {
-        throw new Error('not implemented :)')
+        // Not implemented :)
+        return
     }
 
     /**
@@ -801,7 +955,12 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                         let sAr = o[k]
 
                         if (!Array.isArray(sAr)) {
-                            throw new TypeError(`${sAr} is not an array`)
+                            throw this.error(
+                                'disown',
+                                HTTPStatus.INTERNAL_SERVER_ERROR,
+                                'Invalid system state',
+                                `${sAr} is not an array`
+                            )
                         }
                         for (var i = sAr.length - 1; i >= 0; i--) {
                             if (!isDBId(sAr[i]) || !c.exists(sAr[i])) {
@@ -823,133 +982,101 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // Orphan delete
         if (config.devRoutes && this.parentField) {
             r.delete('/orphan', async (ctx,next) => {
-                try {
-                    if (ctx.header['user-agent'] === 'backend-testing') {
-                        await this.deleteOrphans()
-                        ctx.status = 200
-                    }
-                    next()
-                } catch (err) {
-                    console.log(err)
-                    ctx.status = 500
+                if (ctx.header['user-agent'] === 'backend-testing') {
+                    await this.deleteOrphans()
+                    ctx.status = 200
                 }
+                await next()
             })
         }
         // Disown update
         if (config.devRoutes && this.foreignEntries.length !== 0) {
             r.delete('/disown', async (ctx,next) => {
-                try {
-                    if (ctx.header['user-agent'] === 'backend-testing') {
-                        await this.disown()
-                        ctx.status = 200
-                    }
-                    next()
-                } catch (err) {
-                    console.log(err)
-                    ctx.status = 500
+                if (ctx.header['user-agent'] === 'backend-testing') {
+                    await this.disown()
+                    ctx.status = 200
                 }
+                await next()
             })
         }
         r.get('/', async (ctx, next) => {
-            try {
-                const qdata = await this.query(ctx.request.query)
-                let all = await qdata.cursor.all()
+            const qdata = await this.query(ctx.request.query)
+            let all = await qdata.cursor.all()
 
-                // Convert all document foreign ids to keys
-                await Promise.all(all.map(
-                    async doc => this.convertIds(doc)
-                ))
+            // Convert all document foreign ids to keys
+            await Promise.all(all.map(
+                async doc => this.convertIds(doc)
+            ))
 
-                ctx.status = 200
-                ctx.body = all
-    
-                ctx.set('Content-Range', `${this.dbName} ${qdata.low}-${qdata.high}/${qdata.size}`)
-                ctx.set('Access-Control-Expose-Headers', 'Content-Range')
+            ctx.status = 200
+            ctx.body = all
 
-                next()
-            } catch (err) {
-                console.log(err)
-                ctx.status = 500
-            }
+            ctx.set('Content-Range', `${this.dbName} ${qdata.low}-${qdata.high}/${qdata.size}`)
+            ctx.set('Access-Control-Expose-Headers', 'Content-Range')
+
+            await next()
         })
         r.get('/:id', async (ctx, next) => {
-            try {
-                if (await this.exists(ctx.params.id)) {
-                    let user = new AuthUser(ctx.cookies.get('token'))
+            if (await this.exists(ctx.params.id)) {
+                ctx.body = await this.getFromDB(
+                    ctx.state.user, ctx.params.id)
+                ctx.status = 200
 
-                    ctx.body = await this.getFromDB(user, ctx.params.id)
-                    ctx.status = 200
-
-                    next()
-                } else {
-                    ctx.status = 404
-                    ctx.body = `${this.displayName} [${ctx.params.id}] dne.`
-                }
-            } catch (err) {
-                console.log(err)
-                ctx.status = 500
+                await next()
+            } else {
+                ctx.status = 404
+                ctx.body = `${this.displayName} [${ctx.params.id}] dne.`
             }
         })
         r.post('/', async (ctx, next) => {
-            try {
-                let doc = ctx.request.body as Type
-                let newID = this.generateDBID()
+            let doc = ctx.request.body as Type
+            let newID = this.generateDBID()
 
-                let user = new AuthUser(ctx.cookies.get('token'))
-                await this.create(user, newID, doc, ctx.header['user-agent'] !== 'backend-testing')
+            await this.create(
+                ctx.state.user, newID, doc,
+                ctx.header['user-agent'] !== 'backend-testing')
 
-                ctx.status = 201
-                ctx.body = {
-                    id: splitId(newID).key,
-                    message: `${this.displayName} created with id [${newID}]`
-                }
-
-                next()
-            } catch (err) {
-                console.log(err)
-                ctx.status = 500
+            ctx.status = 201
+            ctx.body = {
+                id: splitId(newID).key,
+                message: `${this.displayName} created with id [${newID}]`
             }
+
+            await next()
         })
         r.put('/:id', async (ctx, next) => {
-            try {
-                if (await this.exists(ctx.params.id)) {
-                    let user = new AuthUser(ctx.cookies.get('token'))
-                    await this.update(user, ctx.params.id, ctx.request.body, ctx.header['user-agent'] !== 'backend-testing')
-                    ctx.status = 200
-                    ctx.body = {
-                        id: ctx.params.id,
-                        message: `${this.displayName} [${ctx.params.id}] updated`,
-                    }
-
-                    next()
-                } else {
-                    ctx.status = 409
-                    ctx.body = `${this.displayName} [${ctx.params.id}] dne`
+            if (await this.exists(ctx.params.id)) {
+                await this.update(
+                    ctx.state.user, ctx.params.id, ctx.request.body,
+                    ctx.header['user-agent'] !== 'backend-testing')
+                ctx.status = 200
+                ctx.body = {
+                    id: ctx.params.id,
+                    message: `${this.displayName} [${ctx.params.id}] updated`,
                 }
-            } catch(err) {
-                console.log(err)
-                ctx.status = 500
+
+                await next()
+            } else {
+                ctx.status = 409
+                ctx.body = `${this.displayName} [${ctx.params.id}] dne`
             }
         })
         r.delete('/:id', async (ctx, next) => {
-            try {
-                if (await this.exists(ctx.params.id)) {
-                    let user = new AuthUser(ctx.cookies.get('token'))
-                    await this.delete(user, ctx.params.id, ctx.header['user-agent'] !== 'backend-testing', true)
-                    ctx.status = 200
-                    ctx.body = {
-                        id: ctx.params.id,
-                        message: `${this.displayName} deleted`,
-                    }
-
-                    next()
-                } else {
-                    ctx.status = 404
-                    ctx.body = `${this.displayName} [${ctx.params.id}] dne`
+            if (await this.exists(ctx.params.id)) {
+                await this.delete(
+                    ctx.state.user, ctx.params.id,
+                    ctx.header['user-agent'] !== 'backend-testing',
+                    true)
+                ctx.status = 200
+                ctx.body = {
+                    id: ctx.params.id,
+                    message: `${this.displayName} deleted`,
                 }
-            } catch(err) {
-                console.log(err)
-                ctx.status = 500
+
+                await next()
+            } else {
+                ctx.status = 404
+                ctx.body = `${this.displayName} [${ctx.params.id}] dne`
             }
         })
         return r
