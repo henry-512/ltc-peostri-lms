@@ -8,7 +8,7 @@ import { APIError, HTTPStatus } from "../../lms/errors"
 import { db } from "../../database"
 import { IArangoIndexes, ICreateUpdate } from "../../lms/types"
 import { convertToKey, generateDBID, isDBId, isDBKey, keyToId, splitId } from "../../lms/util"
-import { AuthUser } from "./users"
+import { AuthUser } from "../auth"
 
 interface DBData {
     type:'string' | 'boolean' | 'object' | 'parent' | 'fkey' | 'fkeyArray' | 'fkeyStep',

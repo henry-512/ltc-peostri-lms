@@ -2,9 +2,7 @@ import Router from '@koa/router'
 import fs from 'fs'
 import path from 'path'
 
-import { UserRouteInstance } from './api/v1/users'
-
-async function apiRouter() {
+export async function apiRouter() {
     const apiRouter = new Router({
         prefix: '/api/'
     })
@@ -24,9 +22,3 @@ async function apiRouter() {
 
     return apiRouter
 }
-
-function authRouter() {
-    return UserRouteInstance.authRouter()
-}
-
-export { apiRouter, authRouter }

@@ -1,13 +1,12 @@
 import Koa from 'koa'
 import cors from '@koa/cors'
 import koaBody from 'koa-body'
-import jwt from 'koa-jwt'
 import logger from 'koa-logger'
 
 import { config } from './config'
-import { apiRouter, authRouter } from './router'
+import { apiRouter } from './router'
 import { APIError, HTTPStatus } from './lms/errors'
-import { AuthUser } from './api/v1/users'
+import { AuthUser } from './api/auth'
 
 const app = require('koa-qs')(new Koa()) as Koa
 
@@ -36,7 +35,7 @@ apiRouter().then(async api => {
 
                 console.log(`ERROR: ${err.method}:${err.path} ${err.apiName}.${err.fn} ${err.status}:\n  Message: ${err.message}\n  Verbose: ${err.verbose}\n${err.stack}`)
 
-                ctx.status = err.status || HTTPStatus.INTERNAL_SERVER_ERROR
+                ctx.status = err.status
                 ctx.body = {
                     error: err.message
                 }
@@ -44,7 +43,7 @@ apiRouter().then(async api => {
                 console.log('Non-api error thrown:')
                 console.log(e)
 
-                ctx.status = HTTPStatus.INTERNAL_SERVER_ERROR
+                ctx.status = e.status || HTTPStatus.INTERNAL_SERVER_ERROR
                 ctx.body = {
                     error: 'Invalid system status'
                 }
@@ -53,39 +52,15 @@ apiRouter().then(async api => {
     })
 
     // Authentication route
-    let ar = authRouter()
+    let ar = AuthUser.authRouter()
     console.log(`Authentication Router stack`)
     console.log(ar.stack.map(i => `${i.path} ${i.methods}`))
     app.use(ar.routes())
     
     // Authenticator
     app.use(async (ctx, next) => {
-        // Converts JWT errors to an APIError
-        try {
-            // console.log('AUTH A')
-            await next()
-        } catch (e: any) {
-            // Passthrough
-            if (e instanceof APIError) {
-                throw e
-            }
-            throw new APIError(
-                'Main',
-                'Authenticator',
-                HTTPStatus.UNAUTHORIZED,
-                'Invalid login session',
-                `JWT cookie is invalid: ${e}`
-            )
-        }
-    })
-    app.use(jwt({
-        secret: config.secret,
-        cookie: 'token',
-    }))
-    app.use(async (ctx, next) => {
+        // console.log('AUTH')
         // Validates user login, given a valid jwt token
-        // console.log('AUTH B')
-        // Build and validate user
         ctx.state.user = await AuthUser.validate(ctx.cookies.get('token'))
         // Run next middleware
         await next()
@@ -98,6 +73,6 @@ apiRouter().then(async api => {
         console.log(`Starting on ${config.apiPort}`)
     })
 }, err => {
-    console.log('internal error')
+    console.log('Startup error')
     console.log(err)
 })
