@@ -7,18 +7,26 @@ export async function apiRouter() {
         prefix: '/api/'
     })
 
-    const dir = await fs.promises.opendir(path.resolve(__dirname, 'api'))
-    for await (const dirent of dir) {
-        var { routerBuilder } = await require(path.resolve(__dirname, 'api', dirent.name))
+    // API directory
+    const root = path.resolve(__dirname, 'api')
+    for (const file of await fs.promises.readdir(root)) {
+        const full = path.join(root, file)
+        const stat = await fs.promises.stat(full)
+
+        if (!stat.isDirectory()) {
+            continue
+        }
+
+        // Import the router builder
+        var { routerBuilder } = await require(path.resolve(full))
 
         // Create router with api version
-        var router = routerBuilder(dirent.name)
+        var router = routerBuilder(file)
 
         // Apply to router
         apiRouter.use(router.routes())
-        console.log(`Applied api version ${dirent.name}`)
+        console.log(`Applied api version ${file}`)
     }
-    // dir.close()
 
     return apiRouter
 }

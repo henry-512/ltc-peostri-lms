@@ -1,7 +1,8 @@
 import { IFileMetadata } from "../../lms/types";
 import { HTTPStatus } from "../../lms/errors";
 import { ApiRoute } from "./route";
-import { AuthUser, UserRouteInstance } from "./users";
+import { UserRouteInstance } from "./users";
+import { AuthUser } from "../auth";
 
 class FileMetadataRoute extends ApiRoute<IFileMetadata> {
     constructor() {

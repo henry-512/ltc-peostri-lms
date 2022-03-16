@@ -1,6 +1,7 @@
 import { IComment } from "../../lms/types";
 import { ApiRoute } from "./route";
-import { AuthUser, UserRouteInstance } from "./users";
+import { UserRouteInstance } from "./users";
+import { AuthUser } from "../auth";
 
 class CommentRoute extends ApiRoute<IComment> {
     constructor() {
