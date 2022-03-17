@@ -80,6 +80,12 @@ export interface ITaskWaiverReview extends ITask {
     type: "MODULE_WAIVER_APPROVAL";
 }
 
+export interface IFile {
+    rawFile: any;
+    title: string;
+    src: string;
+}
+
 export interface IModule extends IArangoIndexes {
     title: string;
     tasks: ITaskStep;
@@ -87,6 +93,7 @@ export interface IModule extends IArangoIndexes {
     project?: string | IProject;
     status: Status | "WAIVED";
     waive_module?: boolean;
+    file?: any;
 }
 
 export interface IProject extends IArangoIndexes, ICreateUpdate {

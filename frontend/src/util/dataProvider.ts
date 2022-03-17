@@ -1,5 +1,6 @@
 import { stringify } from 'query-string';
 import { fetchUtils, DataProvider } from 'ra-core';
+import { IModule, IModuleStep, IProject } from './types';
 
 /**
  * Maps react-admin queries to a simple REST API
@@ -170,17 +171,40 @@ const dataProvider = (
         ).then(responses => ({ data: responses.map(({ json }) => json.id) })),
 
     create: async (resource, params) => {
-        await convertFilesToB64(params.data)
-        console.log(params.data)
+        switch(resource) {
+            case 'projects':
+                let formData = new FormData();
 
-        return httpClient(`${apiUrl}/${resource}`, {
-            method: 'POST',
-            // Converts the files in the body to a "usable" representation
-            // body: JSON.stringify(await convertToBase64(params.data.modules['key-0'][0].file))
-            body: JSON.stringify(params.data),
-        }).then(({ json }) => ({
-            data: { ...params.data, id: json.id },
-        }))
+                for (let step of Object.values<IModule[]>(params.data.modules)) {
+                    for (let module of step) {
+                        if (!module.file) continue;
+                        formData.append(`${module.id}-${module.file?.title}`, module.file.rawFile)
+                        module.file = `${module.id}-${module.file?.title}`
+                    }
+                }
+
+                let jsonData = new Blob([JSON.stringify(params.data)], {
+                    type: 'application/json'
+                })
+
+                formData.append('json', jsonData, "data");
+
+                return httpClient(`${apiUrl}/${resource}`, {
+                    method: 'POST',
+                    body: formData,
+                }).then(({ json }) => ({
+                    data: { ...params.data, id: json.id },
+                }))
+                break;
+            default: 
+                return httpClient(`${apiUrl}/${resource}`, {
+                    method: 'POST',
+                    body: JSON.stringify(params.data),
+                }).then(({ json }) => ({
+                    data: { ...params.data, id: json.id },
+                }))
+                break;
+        }
     },
 
     delete: (resource, params) =>
@@ -206,31 +230,5 @@ const dataProvider = (
             data: responses.map(({ json }) => json.id),
         })),
 });
-
-// Converts all files in the passed body to b64 objects
-async function convertFilesToB64(data:any) {
-    for (let [k,v] of Object.entries(data)) {
-        if (v instanceof File) {
-            console.log('hello')
-            console.log(v)
-            let blob = await convertToBase64(v)
-            console.log(blob)
-            data[k] = blob
-            delete data.src
-            console.log(data)
-        } else if (typeof v === 'object') {
-            await convertFilesToB64(v)
-        }
-    }
-}
-
-const convertToBase64 = (file:any) =>
-    new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-
-        reader.readAsDataURL(file);
-    });
 
 export default dataProvider;
