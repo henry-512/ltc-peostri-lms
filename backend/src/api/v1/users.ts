@@ -76,7 +76,7 @@ class UserRoute extends ApiRoute<IUser> {
         }
 
         return aql`${query} LIMIT ${offset}, ${count}
-            LET a = (RETURN DOCUMENT(z.userGroup))[0]
+            LET a = (RETURN DOCUMENT(z.rank))[0]
             RETURN {rank:(RETURN {id:a._key,name:a.name})[0],${queryFields}}`
     }
 
