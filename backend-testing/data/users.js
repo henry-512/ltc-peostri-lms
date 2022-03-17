@@ -1,4 +1,4 @@
-const { debugRankKey, debugRankId, debugUserId } = require('.')
+const { processStructure, debugRankKey, debugRankId, debugUserId } = require('.')
 
 let d = {
 	structure: {"firstName":{"type":"string"},"lastName":{"type":"string"},"avatar":{"type":"string"},"rank":{"type":"fkey","isForeign":true},"status":{"type":"string","default":"ACTIVE"},"email":{"type":"string","optional":true},"username":{"type":"string","hideGetRef":true},"password":{"type":"string","hideGetAll":true,"hideGetId":true,"hideGetRef":true}},
@@ -137,4 +137,4 @@ let d = {
 	],
 }
 
-module.exports = d
+module.exports = processStructure(d)

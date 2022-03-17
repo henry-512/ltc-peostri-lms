@@ -1,7 +1,6 @@
 let supertest = require('supertest')
 const { expect } = require('chai')
 const { authUserName, authPassword } = require('./data')
-const { matches } = require('./test')
 require('dotenv').config()
 
 // .query('range=1..5')
@@ -59,16 +58,16 @@ describe(`Authenticate`, () => {
         expect('token')
         expect('set-cookie', /token/)
         // Should return a user object
-        matches(
-            expect(r.body).an('object'),
-            user.structure
-        )
+        expect(r.body).an('object')
+        expect(r.body).include.all.keys(user.getId.required)
+        if (user.getAll.invalid.length !== 0)
+            expect(r.body).not.any.keys(user.getId.invalid)
     })
 
     it('Auth check, valid auth', async () => {
         let r = await agent
             .get('auth')
-        expect(r.status).equal(200)
+        expect(r.status).equal(204)
     })
 
     it('Self user', async () => {
@@ -107,7 +106,11 @@ function test(n) {
             
             expect(r.status).equal(200)
             expect(r.body).an('array').lengthOf(1)
-            // expect(r.body[0]).property('username').a('string')
+            let doc = r.body[0]
+            expect(doc).an('object')
+            expect(doc).include.all.keys(raw.getAll.required)
+            if (raw.getAll.invalid.length !== 0)
+                expect(doc).not.any.keys(raw.getAll.invalid)
         })
     })
 

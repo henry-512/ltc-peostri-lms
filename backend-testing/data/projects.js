@@ -1,6 +1,6 @@
-const { debugUserGroupKey, debugUserGroupId, debugUserId } = require('.')
+const { processStructure, debugUserId } = require('.')
 
-module.exports = {
+let d = {
     structure:{"title":{"type":"string"},"start":{"type":"string"},"end":{"type":"string"},"status":{"type":"string","default":"AWAITING"},"comments":{"type":"fkeyArray","default":[],"freeable":true,"acceptNewDoc":true,"isForeign":true},"modules":{"type":"fkeyStep","freeable":true,"acceptNewDoc":true,"isForeign":true},"users":{"type":"fkeyArray","default":[],"getIdKeepAsRef":true,"isForeign":true},"createdAt":{"type":"string"},"updatedAt":{"type":"string"}},
     acceptPost: [
         {
@@ -322,3 +322,5 @@ module.exports = {
         }
     ]
 }
+
+module.exports = processStructure(d)
