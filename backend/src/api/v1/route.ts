@@ -9,6 +9,7 @@ import { db } from "../../database"
 import { IArangoIndexes, ICreateUpdate } from "../../lms/types"
 import { convertToKey, generateDBID, isDBId, isDBKey, keyToId, splitId } from "../../lms/util"
 import { AuthUser } from "../auth"
+import axios from "axios"
 
 interface DBData {
     type:'string' | 'boolean' | 'object' | 'parent' | 'fkey' | 'fkeyArray' | 'fkeyStep',
@@ -411,6 +412,12 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         delete doc._id
         delete doc._rev
 
+        for (let [k, data] of this.fieldEntries) {
+            if (data.hideGetId) {
+                delete (<any>doc)[k]
+            }
+        }
+
         return this.mapForeignKeys(doc, async (k,data,clazz) => {
             if (typeof k === 'string') {
                 if (data.getIdKeepAsRef) {
@@ -438,7 +445,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      * Modifies a document. Called after verifying all fields exist,
      * and after dereferencing all keys
      */
-    protected async modifyDoc(user:AuthUser,doc:any) { return doc }
+    protected async modifyDoc(user:AuthUser,doc:any,id:string) { return doc }
 
     /**
      * Validates a document reference
@@ -475,15 +482,6 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             )
         // Objects are fully-formed documents
         } else if (typeof doc === 'object') {
-            if (!data.acceptNewDoc) {
-                throw this.error(
-                    'ref',
-                    HTTPStatus.BAD_REQUEST,
-                    'New document unauthorized',
-                    `New documents [${JSON.stringify(doc)}] not acceptable for type ${JSON.stringify(data)}`
-                )
-            }
-
             // Update parent field only if it isn't already set
             // TODO: validate existing parent keys
             if (this.parentField && !doc[this.parentField.local]) {
@@ -496,6 +494,16 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             // If the formed document's id is already in the DB, it
             // is not new
             let isNew:0|1|2 = doc.id && await this.exists(doc.id) ? 1 : 2
+
+            // If the document is new and allowed to be new
+            if (isNew === 2 && !data.acceptNewDoc) {
+                throw this.error(
+                    'ref',
+                    HTTPStatus.BAD_REQUEST,
+                    'New document unauthorized',
+                    `New documents [${JSON.stringify(doc)}] not acceptable for type ${JSON.stringify(data)}`
+                )
+            }
 
             let childId = isNew === 2
                 ? this.generateDBID()
@@ -533,6 +541,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     ): Promise<void> {
         // Used for frontend mangement, redundant in DB
         delete addDoc.id
+
+        // Modify this document, if required
+        addDoc = await this.modifyDoc(user, addDoc, addDocId)
 
         if (this.hasCUTimestamp) {
             if (isNew === 0)
@@ -703,9 +714,6 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     )
             }
         }
-
-        // Modify this document, if required
-        addDoc = await this.modifyDoc(user, addDoc)
 
         // Add the document to the map
         if (map.has(this)) {

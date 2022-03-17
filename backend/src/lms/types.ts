@@ -24,8 +24,9 @@ export interface IComment extends IArangoIndexes, ICreateUpdate {
 }
 
 export interface IFileMetadata extends IArangoIndexes, ICreateUpdate {
-     name: string;
+     title: string;
      author: string | IUser;
+     version: string;
 }
 
 export interface IModuleTemplate extends IArangoIndexes {

@@ -32,7 +32,6 @@
   },
   "dependencies": {
     "@koa/cors": "^3.1.0",
-    "@koa/multer": "^3.0.0",
     "@koa/router": "^10.1.1",
     "arangojs": "^7.6.1",
     "bcrypt": "^5.0.1",
@@ -43,7 +42,6 @@
     "koa-jwt": "^4.0.3",
     "koa-qs": "^3.0.0",
     "koa-userauth": "^2.1.0",
-    "multer": "^1.4.4",
     "uuid": "^8.3.2"
   }
 }

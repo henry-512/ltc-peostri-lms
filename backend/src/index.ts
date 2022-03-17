@@ -19,7 +19,9 @@ apiRouter().then(async api => {
     app.use(cors({
         credentials: true
     }))
-    app.use(koaBody())
+    app.use(koaBody({
+        multipart: true,
+    }))
 
     // API parser and error handler
     app.use(async (ctx, next) => {

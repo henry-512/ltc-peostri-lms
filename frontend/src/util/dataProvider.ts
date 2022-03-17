@@ -169,13 +169,19 @@ const dataProvider = (
             )
         ).then(responses => ({ data: responses.map(({ json }) => json.id) })),
 
-    create: (resource, params) =>
-        httpClient(`${apiUrl}/${resource}`, {
+    create: async (resource, params) => {
+        await convertFilesToB64(params.data)
+        console.log(params.data)
+
+        return httpClient(`${apiUrl}/${resource}`, {
             method: 'POST',
+            // Converts the files in the body to a "usable" representation
+            // body: JSON.stringify(await convertToBase64(params.data.modules['key-0'][0].file))
             body: JSON.stringify(params.data),
         }).then(({ json }) => ({
             data: { ...params.data, id: json.id },
-        })),
+        }))
+    },
 
     delete: (resource, params) =>
         httpClient(`${apiUrl}/${resource}/${params.id}`, {
@@ -200,5 +206,31 @@ const dataProvider = (
             data: responses.map(({ json }) => json.id),
         })),
 });
+
+// Converts all files in the passed body to b64 objects
+async function convertFilesToB64(data:any) {
+    for (let [k,v] of Object.entries(data)) {
+        if (v instanceof File) {
+            console.log('hello')
+            console.log(v)
+            let blob = await convertToBase64(v)
+            console.log(blob)
+            data[k] = blob
+            delete data.src
+            console.log(data)
+        } else if (typeof v === 'object') {
+            await convertFilesToB64(v)
+        }
+    }
+}
+
+const convertToBase64 = (file:any) =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+
+        reader.readAsDataURL(file);
+    });
 
 export default dataProvider;

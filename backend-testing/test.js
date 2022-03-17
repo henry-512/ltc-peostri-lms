@@ -1,6 +1,7 @@
 let supertest = require('supertest')
 const { expect } = require('chai')
 const { authUserName, authPassword } = require('./data')
+require('dotenv').config()
 
 // .query('range=1..5')
 // .send('{}')
@@ -8,7 +9,7 @@ const { authUserName, authPassword } = require('./data')
 //https://visionmedia.github.io/superagent/
 
 var API = 'v1/'
-var agent = supertest.agent('localhost:5000/api/')
+var agent = supertest.agent(`localhost:${process.env.PORT || 5000}/api/`)
 
 // Authentication testing
 describe(`Authenticate`, () => {
@@ -71,6 +72,8 @@ describe(`Authenticate`, () => {
         expect(r.status).equal(200)
         expect(r.body).an('object')
             .any.key('username')
+        expect(r.body).an('object')
+            .not.any.key('password')
     })
 })
 
