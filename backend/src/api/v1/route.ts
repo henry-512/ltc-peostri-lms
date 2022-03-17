@@ -1044,8 +1044,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             }
         })
         r.post('/', async (ctx, next) => {
-            console.log(`${this.dbName}: ${ctx.request.body}`)
-            console.log(`\tfiles: ${ctx.request.files}`)
+            console.log(`${this.dbName}: ${JSON.stringify(ctx.request.body)}`)
+            console.log(`\tfiles: ${JSON.stringify(ctx.request.files)}`)
 
             let doc = ctx.request.body as Type
             let newID = this.generateDBID()
