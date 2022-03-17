@@ -100,6 +100,7 @@ const UserList = (props: UserListProps) => {
                         <TextField source="name" />
                     </ReferenceField>
                     <TextField source="username" label="user.info.username" />
+                    <TextField source="email" label="user.info.email" />
                 </Datagrid>
             </List>
         </>

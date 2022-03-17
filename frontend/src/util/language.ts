@@ -85,7 +85,8 @@ const domainMessages = {
                 first_name: "First Name",
                 last_name: "Last Name",
                 rank: "Rank",
-                username: "Username"
+                username: "Username",
+                email: "Email"
             },
             layout: {
                 identity: "Identity",
