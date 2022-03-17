@@ -55,6 +55,9 @@ describe(`Authenticate`, () => {
         expect(r.status).equal(200)
         expect('token')
         expect('set-cookie', /token/)
+        // Should return a user object
+        expect(r.body).an('object')
+            .all.keys('hello')
         // expect(r.body).an('object')
         //     .any.key('token')
 

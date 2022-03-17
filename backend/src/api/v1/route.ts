@@ -9,7 +9,6 @@ import { db } from "../../database"
 import { IArangoIndexes, ICreateUpdate } from "../../lms/types"
 import { convertToKey, generateDBID, isDBId, isDBKey, keyToId, splitId } from "../../lms/util"
 import { AuthUser } from "../auth"
-import axios from "axios"
 
 interface DBData {
     type:'string' | 'boolean' | 'object' | 'parent' | 'fkey' | 'fkeyArray' | 'fkeyStep',
@@ -232,6 +231,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                         )
                     }
                     await stpCall({doc,key:local},<any>foreign,data,clazz)
+                    continue
+                case 'parent':
                     continue
                 default:
                     throw this.error(
@@ -992,7 +993,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             r.delete('/orphan', async (ctx,next) => {
                 if (ctx.header['user-agent'] === 'backend-testing') {
                     await this.deleteOrphans()
-                    ctx.status = 200
+                    ctx.status = HTTPStatus.OK
                 }
                 await next()
             })
@@ -1002,7 +1003,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             r.delete('/disown', async (ctx,next) => {
                 if (ctx.header['user-agent'] === 'backend-testing') {
                     await this.disown()
-                    ctx.status = 200
+                    ctx.status = HTTPStatus.OK
                 }
                 await next()
             })
@@ -1016,7 +1017,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 async doc => this.convertIds(doc)
             ))
 
-            ctx.status = 200
+            ctx.status = HTTPStatus.OK
             ctx.body = all
 
             ctx.set('Content-Range', `${this.dbName} ${qdata.low}-${qdata.high}/${qdata.size}`)
@@ -1028,11 +1029,11 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             if (await this.exists(ctx.params.id)) {
                 ctx.body = await this.getFromDB(
                     ctx.state.user, ctx.params.id)
-                ctx.status = 200
+                ctx.status = HTTPStatus.OK
 
                 await next()
             } else {
-                ctx.status = 404
+                ctx.status = HTTPStatus.NOT_FOUND
                 ctx.body = `${this.displayName} [${ctx.params.id}] dne.`
             }
         })
@@ -1044,7 +1045,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 ctx.state.user, newID, doc,
                 ctx.header['user-agent'] !== 'backend-testing')
 
-            ctx.status = 201
+            ctx.status = HTTPStatus.CREATED
             ctx.body = {
                 id: splitId(newID).key,
                 message: `${this.displayName} created with id [${newID}]`
@@ -1057,7 +1058,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 await this.update(
                     ctx.state.user, ctx.params.id, ctx.request.body,
                     ctx.header['user-agent'] !== 'backend-testing')
-                ctx.status = 200
+                ctx.status = HTTPStatus.OK
                 ctx.body = {
                     id: ctx.params.id,
                     message: `${this.displayName} [${ctx.params.id}] updated`,
@@ -1065,7 +1066,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
 
                 await next()
             } else {
-                ctx.status = 409
+                ctx.status = HTTPStatus.CONFLICT
                 ctx.body = `${this.displayName} [${ctx.params.id}] dne`
             }
         })
@@ -1075,7 +1076,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     ctx.state.user, ctx.params.id,
                     ctx.header['user-agent'] !== 'backend-testing',
                     true)
-                ctx.status = 200
+                ctx.status = HTTPStatus.OK
                 ctx.body = {
                     id: ctx.params.id,
                     message: `${this.displayName} deleted`,
@@ -1083,7 +1084,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
 
                 await next()
             } else {
-                ctx.status = 404
+                ctx.status = HTTPStatus.NOT_FOUND
                 ctx.body = `${this.displayName} [${ctx.params.id}] dne`
             }
         })

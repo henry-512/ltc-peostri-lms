@@ -20,6 +20,9 @@ export enum HTTPStatus {
 	NOT_FOUND = 404,
 	// Request known but not supported
 	METHOD_NOT_ALLOWED = 405,
+	// Request conflict with resource state
+	// ie PUT conflicts
+	CONFLICT = 409,
 
 	INTERNAL_SERVER_ERROR = 500,
 	NOT_IMPLEMENTED = 501,

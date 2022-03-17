@@ -1,3 +1,4 @@
+import { HTTPStatus } from "../../../lms/errors";
 import { IModule, IModuleTemplate, ITask } from "../../../lms/types";
 import { ApiRoute } from "../route";
 
@@ -57,9 +58,9 @@ class ModuleTemplateRoute extends ApiRoute<IModuleTemplate> {
         r.get('/instance/:id', async (ctx, next) => {
             if (!this.exists(ctx.params.id)) {
                 ctx.body = this.buildModuleFromId(ctx.params.id)
-                ctx.status = 200
+                ctx.status = HTTPStatus.OK
             } else {
-                ctx.status = 404
+                ctx.status = HTTPStatus.NOT_FOUND
                 ctx.body = `${this.displayName} [${ctx.params.id}] dne`
             }
 

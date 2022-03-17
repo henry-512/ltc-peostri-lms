@@ -119,7 +119,7 @@ class UserRoute extends ApiRoute<IUser> {
             let user = await AuthUser.validate(ctx.cookies.get('token'))
 
             ctx.body = await this.getFromDB(user, user.getId())
-            ctx.status = 200
+            ctx.status = HTTPStatus.OK
         })
 
         return super.makeRouter(r)

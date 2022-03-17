@@ -145,18 +145,18 @@ import { isDBKey } from "../lms/util"
             ctx.response.body = {
                 ...dbUserWOPass
             }
-            ctx.status = 200
+            ctx.status = HTTPStatus.OK
         })
         // Verifies the current login
         .get('/', async (ctx, next) => {
             // Runs the authentication routes
             await next()
 
-            ctx.status = 200
+            ctx.status = HTTPStatus.NO_CONTENT
         })
         .post('/logout', async (ctx, next) => {
             ctx.cookies.set('token', '')
-            ctx.status = 200
+            ctx.status = HTTPStatus.NO_CONTENT
         })
     }
 }

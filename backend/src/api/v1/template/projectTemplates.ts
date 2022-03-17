@@ -70,9 +70,9 @@ class ProjectTemplateRoute extends ApiRoute<IProjectTemplate> {
         r.get('/instance/:id', async (ctx, next) => {
             if (!this.exists(ctx.params.id)) {
                 ctx.body = this.buildProjectFromId(ctx.params.id)
-                ctx.status = 200
+                ctx.status = HTTPStatus.OK
             } else {
-                ctx.status = 404
+                ctx.status = HTTPStatus.NOT_FOUND
                 ctx.body = `${this.displayName} [${ctx.params.id}] dne`
             }
             
