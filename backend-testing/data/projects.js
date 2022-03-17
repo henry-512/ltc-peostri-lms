@@ -1,8 +1,7 @@
 const { debugUserGroupKey, debugUserGroupId, debugUserId } = require('.')
 
 module.exports = {
-    chain: {
-    },
+    structure:{"title":{"type":"string"},"start":{"type":"string"},"end":{"type":"string"},"status":{"type":"string","default":"AWAITING"},"comments":{"type":"fkeyArray","default":[],"freeable":true,"acceptNewDoc":true,"isForeign":true},"modules":{"type":"fkeyStep","freeable":true,"acceptNewDoc":true,"isForeign":true},"users":{"type":"fkeyArray","default":[],"getIdKeepAsRef":true,"isForeign":true},"createdAt":{"type":"string"},"updatedAt":{"type":"string"}},
     acceptPost: [
         {
             n: 'Base Case',

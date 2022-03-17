@@ -1,10 +1,7 @@
 const { debugRankKey, debugRankId, debugUserId } = require('.')
 
-module.exports = {
-	chain: {
-		acceptPut: [],
-		failPut: [],
-	},
+let d = {
+	structure: {"firstName":{"type":"string"},"lastName":{"type":"string"},"avatar":{"type":"string"},"rank":{"type":"fkey","isForeign":true},"status":{"type":"string","default":"ACTIVE"},"email":{"type":"string","optional":true},"username":{"type":"string","hideGetRef":true},"password":{"type":"string","hideGetAll":true,"hideGetId":true,"hideGetRef":true}},
 	acceptPost: [
 		{
 			n: 'Base case',
@@ -139,3 +136,5 @@ module.exports = {
 		}
 	],
 }
+
+module.exports = d

@@ -302,6 +302,12 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
 
         // Fields to return from a getAll query
         this.getAllQueryFields = appendReturnFields(aql`id:z._key,`, gaKeys)
+
+        // Debug document schema for test.js
+        if (config.devRoutes) {
+            console.log(this.dbName)
+            console.log(JSON.stringify(this.fields))
+        }
     }
 
     protected getAllQuery(
@@ -1038,6 +1044,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             }
         })
         r.post('/', async (ctx, next) => {
+            console.log(`${this.dbName}: ${ctx.request.body}`)
+            console.log(`\tfiles: ${ctx.request.files}`)
+
             let doc = ctx.request.body as Type
             let newID = this.generateDBID()
 

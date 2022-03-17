@@ -1,6 +1,7 @@
 let supertest = require('supertest')
 const { expect } = require('chai')
 const { authUserName, authPassword } = require('./data')
+const { matches } = require('./test')
 require('dotenv').config()
 
 // .query('range=1..5')
@@ -13,6 +14,8 @@ var agent = supertest.agent(`localhost:${process.env.PORT || 5000}/api/`)
 
 // Authentication testing
 describe(`Authenticate`, () => {
+    const user = require('./data/users')
+
     it('Unauthorized access', async () => {
         let r = await agent
             .get('v1/projects')
@@ -56,11 +59,10 @@ describe(`Authenticate`, () => {
         expect('token')
         expect('set-cookie', /token/)
         // Should return a user object
-        expect(r.body).an('object')
-            .all.keys('hello')
-        // expect(r.body).an('object')
-        //     .any.key('token')
-
+        matches(
+            expect(r.body).an('object'),
+            user.structure
+        )
     })
 
     it('Auth check, valid auth', async () => {
