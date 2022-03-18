@@ -23,10 +23,15 @@ export interface IComment extends IArangoIndexes, ICreateUpdate {
      parent?: string;
 }
 
-export interface IFileMetadata extends IArangoIndexes, ICreateUpdate {
-     title: string;
+export interface IFile extends ICreateUpdate {
+     src: string;
      author: string | IUser;
-     version: string;
+}
+
+export interface IFilemeta extends IArangoIndexes, ICreateUpdate {
+     title: string;
+     latest: IFile
+     old: IFile[];
 }
 
 export interface IModuleTemplate extends IArangoIndexes {
@@ -43,7 +48,7 @@ export interface IModule extends IArangoIndexes {
      project?: string;
      status: Status | "WAIVED";
      waive_module: boolean;
-     file?: string | IFileMetadata;
+     files?: string[] | IFilemeta[];
 }
 
 export interface IProjectTemplate extends IArangoIndexes, ICreateUpdate {

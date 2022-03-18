@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import { IFileMetadata } from "../../lms/types";
+import { IFilemeta } from "../../lms/types";
 import { HTTPStatus } from "../../lms/errors";
 import { ApiRoute } from "./route";
 import { UserRouteInstance } from "./users";
@@ -10,21 +10,24 @@ import { generateBase64UUID, generateDBID } from '../../lms/util';
 
 const FILE_PATH = 'fs'
 
-class FileMetadataRoute extends ApiRoute<IFileMetadata> {
+class FilemetaRoute extends ApiRoute<IFilemeta> {
     constructor() {
+        const fileSchema = {
+            __createUpdate: true,
+            src: {type:'string'},
+            author: {type:'fkey'},
+        }
+
         super(
-            'fileMetadata',
-            'fileMetadata',
+            'filemeta',
+            'filemeta',
             'File Metadata',
             {
                 'title':{type:'string'},
-                'author':{type:'fkey'},
-                'version':{
-                    type:'string',
-                    hideGetAll:true,
-                    hideGetId:true,
-                    hideGetRef:true,
-                },
+                'latest':{type:'object'},
+                'old':{
+                    type:'array',
+                }
             },
             true,
             {
@@ -45,9 +48,10 @@ class FileMetadataRoute extends ApiRoute<IFileMetadata> {
         return id
     }
 
-    private async readFile(doc: IFileMetadata) {
+    private async readFile(doc: IFilemeta) {
         return fs.promises.readFile(
-            path.join(FILE_PATH, `${doc.title}.${doc.version}`)
+            // path.join(FILE_PATH, `${doc.title}.${doc.version}`)
+            path.join(FILE_PATH, doc.title)
         )
     }
 
@@ -64,10 +68,11 @@ class FileMetadataRoute extends ApiRoute<IFileMetadata> {
 
         let version = await this.writeFile(fd.title, blobData)
 
-        let meta:IFileMetadata = {
-            author: user.getId(),
+        let meta:IFilemeta = {
+            // author: user.getId(),
             title: fd.title,
-            version,
+            latest: {} as any,
+            old: []
         }
 
         return meta
@@ -80,4 +85,4 @@ interface IFileData {
     title:string,
 }
 
-export const FileMetadataRouteInstance = new FileMetadataRoute()
+export const FilemetaRouteInstance = new FilemetaRoute()

@@ -1,6 +1,6 @@
 import { IModule } from "../../lms/types";
 import { CommentRouteInstance } from "./comments";
-import { FileMetadataRouteInstance } from "./fileMetadata";
+import { FilemetaRouteInstance } from "./filemeta";
 import { ApiRoute } from "./route";
 import { TaskRouteInstance } from "./tasks";
 
@@ -34,9 +34,10 @@ class ModuleRoute extends ApiRoute<IModule> {
                     optional:true,
                     default:false
                 },
-                'file':{
-                    type:'fkey',
+                'files':{
+                    type:'fkeyArray',
                     optional:true,
+                    default:[],
                     getIdKeepAsRef:true,
                     acceptNewDoc:true,
                 },
@@ -45,7 +46,7 @@ class ModuleRoute extends ApiRoute<IModule> {
             {
                 'tasks': TaskRouteInstance,
 		        'comments': CommentRouteInstance,
-                'file': FileMetadataRouteInstance,
+                'file': FilemetaRouteInstance,
             },
             {local:'project',foreign:'modules'}
         )

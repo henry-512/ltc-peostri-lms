@@ -1,6 +1,6 @@
 import Router from '@koa/router'
 import { CommentRouteInstance } from './comments'
-import { FileMetadataRouteInstance } from './fileMetadata'
+import { FilemetaRouteInstance } from './filemeta'
 import { ModuleRouteInstance } from './modules'
 import { ProjectRouteInstance } from './projects'
 import { TaskRouteInstance } from './tasks'
@@ -16,7 +16,7 @@ export function routerBuilder(version: string) {
 		.use(TaskRouteInstance.makeRouter().routes())
 		.use(ModuleRouteInstance.makeRouter().routes())
 		.use(CommentRouteInstance.makeRouter().routes())
-		.use(FileMetadataRouteInstance.makeRouter().routes())
+		.use(FilemetaRouteInstance.makeRouter().routes())
 		.use(ProjectRouteInstance.makeRouter().routes())
 		// Templates
 		.use(ModuleTemplateRouteInstance.makeRouter().routes())

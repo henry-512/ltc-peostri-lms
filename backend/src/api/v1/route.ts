@@ -11,7 +11,7 @@ import { convertToKey, generateDBID, isDBId, isDBKey, keyToId, splitId } from ".
 import { AuthUser } from "../auth"
 
 interface DBData {
-    type:'string' | 'boolean' | 'object' | 'parent' | 'fkey' | 'fkeyArray' | 'fkeyStep',
+    type:'string' | 'boolean' | 'object' | 'parent' | 'fkey' | 'fkeyArray' | 'fkeyStep' | 'array',
     optional?:boolean,
     default?:any,
     hideGetAll?:boolean,
@@ -627,6 +627,17 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                         'Invalid document field type',
                         `${this.dbName}.${key} ${value} expected to be ${data.type}`
                     )
+                // TODO: array type checking
+                case 'array':
+                    if (!Array.isArray(value)) {
+                        throw this.error(
+                            'addToReferenceMap',
+                            HTTPStatus.BAD_REQUEST,
+                            'Invalid document field type',
+                            `${this.dbName}.${key} ${value} expected to be array`
+                        )
+                    }
+                    continue
                 // TODO: object type checking
                 case 'object':
                     continue
