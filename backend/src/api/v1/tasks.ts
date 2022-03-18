@@ -19,24 +19,22 @@ class TaskRoute extends ApiRoute<ITask> {
                     type:'fkeyArray',
                     default:[],
                     getIdKeepAsRef:true,
+                    foreignApi:UserRouteInstance,
                 },
                 'rank':{
                     type:'fkey',
                     optional:true,
                     getIdKeepAsRef:true,
+                    foreignApi:RankRouteInstance,
                 },
                 'module':{
                     type:'parent',
                     acceptNewDoc:true,
+                    parentReferenceKey:'tasks'
                 },
                 'type':{type:'string'}
             },
             false,
-            {
-                'users': UserRouteInstance,
-                'rank': RankRouteInstance,
-            },
-            {local:'module',foreign:'tasks'}
         )
     }
 }

@@ -22,7 +22,15 @@ interface DBData {
     getIdKeepAsRef?:boolean,
     // True if this foreign key should accept built documents
     acceptNewDoc?:boolean,
-    isForeign?:boolean,
+    // The foreign ApiRoute that manages this document
+    foreignApi?:ApiRoute<IArangoIndexes>,
+    // If set, this key is a parent key pointing to the local key set in this field
+    // ie. module is a parent of task.
+    //   module[tasks] <-> task[module]
+    //   so tasks.module.parentReferenceKey = tasks
+    parentReferenceKey?:string,
+    // The foreign data that manages this document
+    // foreignData?:
     // True if this foreign object reference can be freely deleted
     freeable?:boolean,
 }
@@ -68,6 +76,9 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     // Caches
     private fieldEntries:[string, DBData][]
     private foreignEntries:[string, ApiRoute<IArangoIndexes>][]
+    private parentField: null | {
+        local:string, foreign:string
+    }
 
     public async exists(id: string) {
         return this.collection.documentExists(id)
@@ -91,6 +102,18 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
 
     public keyToId(key: string) { return keyToId(key, this.dbName) }
     public generateDBID() { return generateDBID(this.dbName) }
+
+    private getForeignApi(data:DBData) {
+        if (!data.foreignApi) {
+            throw this.error(
+                'getForeignApi',
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                'Invalid system state',
+                `${JSON.stringify(data)} has invalid .foreignApi field`
+            )
+        }
+        return data.foreignApi
+    }
 
     /**
      * Builds an error with the provided fields
@@ -118,7 +141,6 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         fn:(
             key:string,
             data:DBData,
-            clazz:ApiRoute<IArangoIndexes>,
         ) => Promise<any>,
         skippable?:(
             data:DBData,
@@ -126,11 +148,11 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     ) : Promise<Type> {
         return this.forEachForeignKey(
             doc,
-            async (p,k,d,c) => p.doc[p.key] = <any>await fn(k,d,c),
-            async (p,a,d,c) => p.doc[p.key] = <any>await Promise.all(
-                a.map(k => fn(k,d,c))
+            async (p,k,d) => p.doc[p.key] = <any>await fn(k,d),
+            async (p,a,d) => p.doc[p.key] = <any>await Promise.all(
+                a.map(k => fn(k,d))
             ),
-            async (p,o,d,c) => {
+            async (p,o,d) => {
                 let temp:any = {}
                 for (let stepId in o) {
                     let stepArray = o[stepId]
@@ -144,7 +166,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                         )
                     }
                     temp[stepId] = <any>await Promise.all(
-                        stepArray.map(k => fn(k,d,c)
+                        stepArray.map(k => fn(k,d)
                     ))
                 }
                 p.doc[p.key] = temp
@@ -160,21 +182,18 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             pointer:{doc:any,key:string | number | symbol}, //doc:Type
             key:string,
             data:DBData,
-            clazz:ApiRoute<IArangoIndexes>,
         ) => Promise<any>,
         // Runs for each foreign array
         arrCall:(
             pointer:{doc:any,key:string | number | symbol},
             arr:Array<string>,
             data:DBData,
-            clazz:ApiRoute<IArangoIndexes>,
         ) => Promise<any>,
         // Runs for each foreign step object
         stpCall:(
             pointer:{doc:any,key:string | number | symbol},
             stp:{[index:string]:Array<string>},
             data:DBData,
-            clazz:ApiRoute<IArangoIndexes>,
         ) => Promise<any>,
         skippable?:(
             data:DBData,
@@ -206,7 +225,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             switch (data.type) {
                 // Single foreign key
                 case 'fkey':
-                    await keyCall({doc,key:local},<any>foreign,data,clazz)
+                    await keyCall({doc,key:local},<any>foreign,data)
                     continue
                 // Foreign key array
                 case 'fkeyArray':
@@ -218,7 +237,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                             `${JSON.stringify(foreign)} was expected to be an array`
                         )
                     }
-                    await arrCall({doc,key:local},foreign,data,clazz)
+                    await arrCall({doc,key:local},foreign,data)
                     continue
                 // Foreign key step object
                 case 'fkeyStep':
@@ -230,9 +249,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                             `${JSON.stringify(foreign)} was expected to be a step object`
                         )
                     }
-                    await stpCall({doc,key:local},<any>foreign,data,clazz)
-                    continue
-                case 'parent':
+                    await stpCall({doc,key:local},<any>foreign,data)
                     continue
                 default:
                     throw this.error(
@@ -269,12 +286,12 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         /**
          * These fields should exist in this.fields.
          */
-        private foreignClasses: {
-            [local:string] : ApiRoute<IArangoIndexes>
-        },
-        private parentField: null | {
-            local:string, foreign:string
-        }
+        // private foreignClasses: {
+        //     [local:string] : ApiRoute<IArangoIndexes>
+        // },
+        // private parentField: null | {
+        //     local:string, foreign:string
+        // }
     ) {
         if (this.hasCUTimestamp) {
             fields['createdAt'] = {type:'string'}
@@ -284,20 +301,23 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // Caches
         this.collection = db.collection(this.dbName)
         this.fieldEntries = Object.entries(this.fields)
-        this.foreignEntries = Object.entries(this.foreignClasses)
+        this.foreignEntries = []
+        this.parentField = null
 
         let gaKeys:string[] = []
         for (let [key,data] of this.fieldEntries) {
             if (!data.hideGetAll) {
                 gaKeys = gaKeys.concat(key)
             }
-            if (key in this.foreignClasses) {
-                data.isForeign = true
+            if (data.foreignApi) {
+                this.foreignEntries.push([key, data.foreignApi])
             }
-        }
-
-        if (this.parentField) {
-            this.fields[this.parentField.local].isForeign = true
+            if (data.parentReferenceKey) {
+                this.parentField = {
+                    local: key,
+                    foreign: data.parentReferenceKey,
+                }
+            }
         }
 
         // Fields to return from a getAll query
@@ -333,7 +353,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      * (without collection). Only called by GET/
      */
     private async convertIds(doc:Type) : Promise<Type> {
-        return this.mapForeignKeys(doc, async (k,d,c) => {
+        return this.mapForeignKeys(doc, async (k,d) => {
             if (typeof k === 'string' && isDBId(k)) {
                 return splitId(k).key
             } else if (typeof k === 'object') {
@@ -425,13 +445,13 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             }
         }
 
-        return this.mapForeignKeys(doc, async (k,data,clazz) => {
+        return this.mapForeignKeys(doc, async (k,data) => {
             if (typeof k === 'string') {
                 if (data.getIdKeepAsRef) {
                     return convertToKey(k)
                 // Dereference the id into an object
                 } else if (isDBId(k)) {
-                    return clazz.getFromDB(user, k)
+                    return this.getForeignApi(data).getFromDB(user, k)
                 }
             }
             throw this.error(
@@ -541,8 +561,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         map: Map<ApiRoute<IArangoIndexes>, IArangoIndexes[]>,
         /**
          * 0 - Unknown
-         * 1 - Exists
-         * 2 - Does not exist
+         * 1 - Not new
+         * 2 - New
          */
         isNew: 0 | 1 | 2,
     ): Promise<void> {
@@ -602,6 +622,12 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     console.warn(`optional key ${key} dne`)
                     continue
                 } else {
+                    if (isNew === 0)
+                        isNew = await this.exists(addDocId) ? 1 : 2
+                    if (isNew !== 2) {
+                        console.warn(`key ${key} is missing in revised document`)
+                        continue
+                    }
                     throw this.error(
                         'addToReferenceMap',
                         HTTPStatus.BAD_REQUEST,
@@ -646,7 +672,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 */
                 // Ref single doc
                 case 'fkey':
-                    addDoc[key] = await this.foreignClasses[k].ref(
+                    addDoc[key] = await this.getForeignApi(data).ref(
                         user,
                         value,
                         addDocId,
@@ -656,7 +682,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     continue
                 // Ref array of docs
                 case 'fkeyArray':
-                    let clsar = this.foreignClasses[k]
+                    let clsar = this.getForeignApi(data)
                     if (Array.isArray(value)) {
                         addDoc[key] = <any>await Promise.all(value.map(
                             lpDoc => clsar.ref(
@@ -689,7 +715,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     )
                 // Ref step obj of docs
                 case 'fkeyStep':
-                    let clsst = this.foreignClasses[k]
+                    let clsst = this.getForeignApi(data)
                     if (typeof value === 'object') {
                         let temp:any = {}
                         for (let [stepId, stepAr] of Object.entries(value)) {
@@ -866,16 +892,16 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         let doc = await this.getUnsafe(key)
 
         // Delete children
-        doc = await this.mapForeignKeys(doc, async(k,data,clazz) => {
+        doc = await this.mapForeignKeys(doc, async(k,data) => {
             if (typeof k !== 'string') {
                 throw this.error(
-                    'delete',
+                    'delete.mapForeignKeys',
                     HTTPStatus.INTERNAL_SERVER_ERROR,
                     'Invalid system state',
                     `[${k}] is not a string`
                 )
             }
-            return clazz.delete(user, k, real, false)
+            return this.getForeignApi(data).delete(user, k, real, false)
         }, (data) => !data.freeable)
 
         // Update parent
@@ -964,19 +990,22 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             // Delete disowned children
             await this.updateUnsafe(await this.forEachForeignKey(
                 doc,
-                async (p,k,d,c) => {
+                async (p,k,d) => {
+                    let c = this.getForeignApi(d)
                     if (!isDBId(k) || !c.exists(k)) {
                         p.doc[p.key] = <any>''
                     }
                 },
-                async (p,a,d,c) => {
+                async (p,a,d) => {
+                    let c = this.getForeignApi(d)
                     for (var i = a.length - 1; i >= 0; i--) {
                         if (!isDBId(a[i]) || !c.exists(a[i])) {
                             a.splice(i, 1)
                         }
                     }
                 },
-                async (p,o,d,c) => {
+                async (p,o,d) => {
+                    let c = this.getForeignApi(d)
                     for (let k in o) {
                         let sAr = o[k]
 

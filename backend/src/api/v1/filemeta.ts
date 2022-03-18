@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import { IFilemeta } from "../../lms/types";
+import { IFile, IFilemeta } from "../../lms/types";
 import { HTTPStatus } from "../../lms/errors";
 import { ApiRoute } from "./route";
 import { UserRouteInstance } from "./users";
@@ -10,30 +10,39 @@ import { generateBase64UUID, generateDBID } from '../../lms/util';
 
 const FILE_PATH = 'fs'
 
+class Filedata extends ApiRoute<IFile> {
+    constructor() {
+        super(
+            '', '',
+            'File',
+            {
+                src: {type:'string'},
+                author: {
+                    type:'fkey',
+                    foreignApi: UserRouteInstance,
+                },
+            },
+            true,
+        )
+    }
+}
+
+const FiledataInstance = new Filedata()
+
 class FilemetaRoute extends ApiRoute<IFilemeta> {
     constructor() {
-        const fileSchema = {
-            __createUpdate: true,
-            src: {type:'string'},
-            author: {type:'fkey'},
-        }
-
         super(
             'filemeta',
             'filemeta',
             'File Metadata',
             {
                 'title':{type:'string'},
-                'latest':{type:'object'},
+                'latest':{type:'fkey'},
                 'old':{
-                    type:'array',
+                    type:'fkeyArray',
                 }
             },
             true,
-            {
-                'author': UserRouteInstance
-            },
-            null
         )
     }
 

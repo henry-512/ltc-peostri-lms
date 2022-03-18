@@ -13,13 +13,12 @@ class ProjectTemplateRoute extends ApiRoute<IProjectTemplate> {
             {
                 'title': { type: 'string' },
                 'description': { type: 'string' },
-                'modules': { type: 'fkeyStep' },
+                'modules': {
+                    type: 'fkeyStep',
+                    foreignApi: ModuleTemplateRouteInstance,
+                },
             },
             false,
-            {
-                'modules': ModuleTemplateRouteInstance,
-            },
-            null,
         )
     }
 

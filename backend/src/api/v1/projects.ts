@@ -23,25 +23,22 @@ class ProjectRoute extends ApiRoute<IProject> {
                     default:[],
                     freeable:true,
                     acceptNewDoc:true,
+                    foreignApi:CommentRouteInstance,
                 },
                 'modules':{
                     type:'fkeyStep',
                     freeable:true,
                     acceptNewDoc:true,
+                    foreignApi:ModuleRouteInstance,
                 },
                 'users':{
                     type:'fkeyArray',
                     default:[],
                     getIdKeepAsRef:true,
+                    foreignApi:UserRouteInstance,
                 },
             },
             true,
-            {
-                'comments': CommentRouteInstance,
-                'modules': ModuleRouteInstance,
-                'users': UserRouteInstance
-            },
-            null
         )
     }
 }

@@ -36,12 +36,16 @@ class UserRoute extends ApiRoute<IUser> {
                 'rank':{
                     type:'fkey',
                     getIdKeepAsRef:true,
+                    foreignApi:RankRouteInstance,
                 },
                 'status':{
                     type:'string',
                     default:'ACTIVE',
                 },
-                'email':{type:'string',optional:true},
+                'email':{
+                    type:'string',
+                    optional:true
+                },
 
                 'username':{
                     type:'string',
@@ -55,10 +59,6 @@ class UserRoute extends ApiRoute<IUser> {
                 }
             },
             false,
-            {
-                'rank': RankRouteInstance
-            },
-            null
         )
     }
     // Override

@@ -23,7 +23,7 @@ export interface IComment extends IArangoIndexes, ICreateUpdate {
      parent?: string;
 }
 
-export interface IFile extends ICreateUpdate {
+export interface IFile extends IArangoIndexes, ICreateUpdate {
      src: string;
      author: string | IUser;
 }

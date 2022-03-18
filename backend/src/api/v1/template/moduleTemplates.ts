@@ -18,8 +18,6 @@ class ModuleTemplateRoute extends ApiRoute<IModuleTemplate> {
                 },
             },
             false,
-            {},
-            null,
         )
     }
 

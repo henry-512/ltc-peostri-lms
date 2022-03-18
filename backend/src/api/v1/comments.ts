@@ -11,14 +11,16 @@ class CommentRoute extends ApiRoute<IComment> {
             'Comment',
             {
                 'content':{type:'string'},
-                'author':{type:'fkey'},
-                'parent':{type:'parent'}
+                'author':{
+                    type:'fkey',
+                    foreignApi:UserRouteInstance
+                },
+                'parent':{
+                    type:'parent',
+                    parentReferenceKey:'comments',
+                }
             },
             true,
-            {
-                'author': UserRouteInstance
-            },
-            {local:'parent',foreign:'comments'}
         )
     }
 

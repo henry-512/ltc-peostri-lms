@@ -97,7 +97,7 @@ function test(n) {
     })
 
     describe(`${n} GET one`, () => {
-        it('Test fields', async () => {
+        it('Filter range [0,1]', async () => {
             let r = await agent
                 .get(API + n)
                 .query({
@@ -111,6 +111,25 @@ function test(n) {
             expect(doc).include.all.keys(raw.getAll.required)
             if (raw.getAll.invalid.length !== 0)
                 expect(doc).not.any.keys(raw.getAll.invalid)
+        })
+
+        it('GET/:id', async () => {
+            let r = await agent
+                .get(API + n)
+                .query({
+                    range:[0,1],
+                })
+            
+            let id = r.body[0].id
+
+            r = await agent
+                .get(API + n + '/' + id)
+
+            expect(r.status).equal(200)
+            expect(r.body).an('object')
+            expect(r.body).include.all.keys(raw.getId.required)
+            if (raw.getId.invalid.length !== 0)
+                expect(r.body).not.any.keys(raw.getId.invalid)
         })
     })
 

@@ -27,8 +27,6 @@ class RankRoute extends ApiRoute<IRank> {
                 }
             },
             false,
-            {},
-            null
         )
     }
 }

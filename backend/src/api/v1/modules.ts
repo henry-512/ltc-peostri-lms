@@ -16,6 +16,7 @@ class ModuleRoute extends ApiRoute<IModule> {
                     type:'fkeyStep',
                     freeable:true,
                     acceptNewDoc:true,
+                    foreignApi:TaskRouteInstance,
                 },
                 'comments':{
                     type:'fkeyArray',
@@ -23,8 +24,12 @@ class ModuleRoute extends ApiRoute<IModule> {
                     default:[],
                     freeable:true,
                     acceptNewDoc:true,
+                    foreignApi:CommentRouteInstance,
                 },
-                'project':{type:'parent'},
+                'project':{
+                    type:'parent',
+                    parentReferenceKey:'modules'
+                },
                 'status':{
                     type:'string',
                     default: 'AWAITING'
@@ -40,15 +45,10 @@ class ModuleRoute extends ApiRoute<IModule> {
                     default:[],
                     getIdKeepAsRef:true,
                     acceptNewDoc:true,
+                    foreignApi:FilemetaRouteInstance
                 },
             },
             false,
-            {
-                'tasks': TaskRouteInstance,
-		        'comments': CommentRouteInstance,
-                'file': FilemetaRouteInstance,
-            },
-            {local:'project',foreign:'modules'}
         )
     }
 }
