@@ -2,8 +2,9 @@ import { Box, makeStyles, Theme, Typography } from "@material-ui/core";
 import { Styles } from "@material-ui/core/styles/withStyles";
 import { BooleanInput, Create, CreateProps, DateInput, email, PasswordInput, ReferenceInput, required, SelectInput, SimpleForm, TextInput, useTranslate } from "react-admin";
 import { AnyObject } from "react-final-form";
-import { AutoFillUserName } from "src/components/users";
+import { AutoFillUserName, SectionTitle, Separator, UserToolbar } from "src/components/users";
 import transformer from "../transformer";
+import { validatePasswords } from "../validation";
 
 export const styles: Styles<Theme, any> = {
     username: {
@@ -18,21 +19,6 @@ export const styles: Styles<Theme, any> = {
 
 const useStyles = makeStyles(styles);
 
-export const validatePasswords = ({
-    password,
-    confirm_password,
-}: AnyObject) => {
-    const errors = {} as any;
-
-    if (password && confirm_password && password !== confirm_password) {
-        errors.confirm_password = [
-            'resources.customers.errors.password_mismatch',
-        ];
-    }
-
-    return errors;
-};
-
 const UserCreate = (props: CreateProps) => {
     const classes = useStyles(props);
     const translate = useTranslate();
@@ -41,6 +27,11 @@ const UserCreate = (props: CreateProps) => {
         <Create {...props} transform={transformer} title={translate('user.layout.create_title')}>
             <SimpleForm
                 validate={validatePasswords}
+                toolbar={
+                    <UserToolbar
+                        create={true}
+                    />
+                }
             >
                 <Box display="flex" justifyContent="flex-start" width="100%" style={{
                     gap: "32px"
@@ -56,7 +47,7 @@ const UserCreate = (props: CreateProps) => {
                                 style={{
                                     width: "calc(50% - 16px)"
                                 }}
-                                validate={requiredValidate}
+                                validate={[required()]}
                             />
                             <TextInput
                                 source="lastName"
@@ -64,7 +55,7 @@ const UserCreate = (props: CreateProps) => {
                                     width: "calc(50% - 16px)"
                                 }}
                                 formClassName={classes.last_name}
-                                validate={requiredValidate}
+                                validate={[required()]}
                             />
                         </Box>
                         <Box>
@@ -79,7 +70,7 @@ const UserCreate = (props: CreateProps) => {
                             <TextInput
                                 type="avatar"
                                 source="avatar"
-                                validate={requiredValidate}
+                                validate={[required()]}
                                 fullWidth
                             />
                         </Box>
@@ -110,7 +101,7 @@ const UserCreate = (props: CreateProps) => {
                     }}>
                         <AutoFillUserName
                             className={classes.username}
-                            validate={requiredValidate}
+                            validate={[required()]}
                         />
                         <BooleanInput label="user.layout.use_email" source="useEmail" className={classes.use_email} />
                     </Box>
@@ -137,19 +128,5 @@ const UserCreate = (props: CreateProps) => {
         </Create>
     );
 };
-
-const requiredValidate = [required()];
-
-const SectionTitle = ({ label }: { label: string }) => {
-    const translate = useTranslate();
-
-    return (
-        <Typography variant="h6" gutterBottom>
-            {translate(label)}
-        </Typography>
-    );
-};
-
-const Separator = () => <Box pt="1em" />;
 
 export default UserCreate

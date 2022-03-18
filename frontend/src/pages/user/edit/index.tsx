@@ -1,40 +1,147 @@
-import { makeStyles } from "@material-ui/core";
-import { Edit, useTranslate } from "react-admin";
+import { Box, makeStyles, Theme } from "@material-ui/core";
+import { Styles } from "@material-ui/core/styles/withStyles";
+import { BooleanInput, Edit, EditActionsProps, email, FieldProps, PasswordInput, ReferenceInput, required, SelectInput, ShowButton, SimpleForm, TextInput, TopToolbar, useTranslate } from "react-admin";
+import { AutoFillUserName, SectionTitle, Separator, UserToolbar } from "src/components/users";
+import { IUser } from "src/util/types";
 import transformer from "../transformer";
+import { validatePasswords } from "../validation";
 
-const useStyles = makeStyles(theme => ({
-    root: {},
-    content: {
-        marginTop: theme.spacing(2)
+export const styles: Styles<Theme, any> = {
+    username: {
+        width: "75%",
+        flexShrink: 3
     },
-    usersTitle: {
-        display: 'flex',
-        alignItems: 'center'
-    },
-    taskBox: {
-        font: 'inherit'
-    },
-    fieldTitle: {
-        borderBottom: '2px solid ' + theme.palette.primary.main,
-        paddingBottom: '.25rem',
-        lineHeight: '1',
-        color: theme.palette.text.primary,
-        marginBottom: '.25rem'
-    },
-    alignCenter: {
-        alignItems: 'center'
+    use_email: {
+        width: "25%",
+        flexGrow: 3
     }
-}));
+};
 
-const ProjectEdit = (props: any) => {
+const useStyles = makeStyles(styles);
+
+const UserEditToolbar = ({ basePath, data, resource }: EditActionsProps) => (
+    <TopToolbar>
+        <ShowButton basePath={basePath} record={data} />
+    </TopToolbar>
+)
+
+const UserEditTitle = ({ record }: FieldProps<IUser>) => {
     const translate = useTranslate();
-    const classes = useStyles();
+
+    return record ? (
+        <>
+            {translate('user.layout.edit_title', { name: record.firstName + " " + record.lastName })}
+        </>
+    ) : null
+}
+
+const UserEdit = (props: any) => {
+    const classes = useStyles(props);
 
     return (
-        <Edit title={translate('user.edit.title')} {...props} transform={transformer}>
-
+        <Edit {...props} transform={transformer} actions={<UserEditToolbar />} title={<UserEditTitle />}>
+            <SimpleForm
+                validate={validatePasswords}
+                toolbar={
+                    <UserToolbar
+                        create={false}
+                    />
+                }
+            >
+                <Box display="flex" justifyContent="flex-start" width="100%" style={{
+                    gap: "32px"
+                }}>
+                    <Box display="flex" width="calc(50% - 16px)" flexDirection="column">
+                        <SectionTitle label="user.layout.identity" />
+                        <Box display="flex" style={{
+                            gap: "32px"
+                        }}>
+                            <TextInput
+                                autoFocus
+                                source="firstName"
+                                style={{
+                                    width: "calc(50% - 16px)"
+                                }}
+                                validate={[required()]}
+                            />
+                            <TextInput
+                                source="lastName"
+                                style={{
+                                    width: "calc(50% - 16px)"
+                                }}
+                                formClassName={classes.last_name}
+                                validate={[required()]}
+                            />
+                        </Box>
+                        <Box>
+                            <TextInput
+                                type="email"
+                                source="email"
+                                validation={{ email: true }}
+                                formClassName={classes.email}
+                                validate={[required(), email()]}
+                                fullWidth
+                            />
+                            <TextInput
+                                type="avatar"
+                                source="avatar"
+                                validate={[required()]}
+                                fullWidth
+                            />
+                        </Box>
+                    </Box>
+                    <Box width="calc(50% - 16px)">
+                        <SectionTitle label="user.layout.permissions" />
+                        <ReferenceInput
+                            label="project.fields.rank"
+                            reference="ranks"
+                            source="rank"
+                            style={{
+                                width: '50%'
+                            }}
+                        >
+                            <SelectInput
+                                optionText={choice => `${choice.name}`}
+                                optionValue="id"
+                                helperText=" "
+                            />
+                        </ReferenceInput>
+                    </Box>
+                </Box>
+                <Separator />
+                <SectionTitle label="user.layout.security" />
+                <Box display="flex" width="50%" flexDirection="column">
+                    <Box display="flex" alignItems="center" style={{
+                        gap: "32px"
+                    }}>
+                        <AutoFillUserName
+                            className={classes.username}
+                            validate={[required()]}
+                        />
+                        <BooleanInput label="user.layout.use_email" source="useEmail" className={classes.use_email} />
+                    </Box>
+                    <Box display="flex" style={{
+                        gap: "32px"
+                    }}>
+                        <PasswordInput
+                            source="password"
+                            formClassName={classes.password}
+                            style={{
+                                width: "calc(50% - 16px)"
+                            }}
+                        />
+                        <PasswordInput
+                            source="confirm_password"
+                            formClassName={classes.confirm_password}
+                            style={{
+                                width: "calc(50% - 16px)"
+                            }}
+                        />
+                    </Box>
+                </Box>
+            </SimpleForm>
         </Edit>
     )
 }
 
-export default ProjectEdit;
+export default UserEdit;

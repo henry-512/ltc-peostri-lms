@@ -12,10 +12,16 @@ const AutoFillUserName = (props: Props) => {
     const { values } = useFormState();
 
     useEffect(() => {
+        if (values.email === values.username) {
+            form.change('useEmail', true);
+        }
+    }, []);
+
+    useEffect(() => {
         if (values.useEmail) {
             form.change('username', values.email);
         } else {
-            form.change('username', "");
+            form.change('username', values.username || "");
         }
     }, [values.useEmail, values.email]);
 
