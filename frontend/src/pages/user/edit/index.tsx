@@ -1,7 +1,8 @@
 import { Box, makeStyles, Theme } from "@material-ui/core";
 import { Styles } from "@material-ui/core/styles/withStyles";
-import { BooleanInput, Edit, EditActionsProps, email, PasswordInput, ReferenceInput, required, SelectInput, ShowButton, SimpleForm, TextInput, TopToolbar, useTranslate } from "react-admin";
-import { AutoFillUserName, SectionTitle, Separator } from "src/components/users";
+import { BooleanInput, Edit, EditActionsProps, email, FieldProps, PasswordInput, ReferenceInput, required, SelectInput, ShowButton, SimpleForm, TextInput, TopToolbar, useTranslate } from "react-admin";
+import { AutoFillUserName, SectionTitle, Separator, UserToolbar } from "src/components/users";
+import { IUser } from "src/util/types";
 import transformer from "../transformer";
 import { validatePasswords } from "../validation";
 
@@ -24,14 +25,28 @@ const UserEditToolbar = ({ basePath, data, resource }: EditActionsProps) => (
     </TopToolbar>
 )
 
-const UserEdit = (props: any) => {
+const UserEditTitle = ({ record }: FieldProps<IUser>) => {
     const translate = useTranslate();
+
+    return record ? (
+        <>
+            {translate('user.layout.edit_title', { name: record.firstName + " " + record.lastName })}
+        </>
+    ) : null
+}
+
+const UserEdit = (props: any) => {
     const classes = useStyles(props);
 
     return (
-        <Edit title={translate('user.edit.title')} {...props} transform={transformer} actions={<UserEditToolbar />}>
+        <Edit {...props} transform={transformer} actions={<UserEditToolbar />} title={<UserEditTitle />}>
             <SimpleForm
                 validate={validatePasswords}
+                toolbar={
+                    <UserToolbar
+                        create={false}
+                    />
+                }
             >
                 <Box display="flex" justifyContent="flex-start" width="100%" style={{
                     gap: "32px"

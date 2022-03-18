@@ -93,7 +93,8 @@ const domainMessages = {
                 security: "Security",
                 permissions: "Permissions",
                 use_email: "Use Email?",
-                create_title: "Create a User"
+                create_title: "Create a User",
+                edit_title: "Editing User: %{name}"
             }
         },
         resources: {

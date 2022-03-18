@@ -2,7 +2,7 @@ import { Box, makeStyles, Theme, Typography } from "@material-ui/core";
 import { Styles } from "@material-ui/core/styles/withStyles";
 import { BooleanInput, Create, CreateProps, DateInput, email, PasswordInput, ReferenceInput, required, SelectInput, SimpleForm, TextInput, useTranslate } from "react-admin";
 import { AnyObject } from "react-final-form";
-import { AutoFillUserName, SectionTitle, Separator } from "src/components/users";
+import { AutoFillUserName, SectionTitle, Separator, UserToolbar } from "src/components/users";
 import transformer from "../transformer";
 import { validatePasswords } from "../validation";
 
@@ -27,6 +27,11 @@ const UserCreate = (props: CreateProps) => {
         <Create {...props} transform={transformer} title={translate('user.layout.create_title')}>
             <SimpleForm
                 validate={validatePasswords}
+                toolbar={
+                    <UserToolbar
+                        create={true}
+                    />
+                }
             >
                 <Box display="flex" justifyContent="flex-start" width="100%" style={{
                     gap: "32px"
