@@ -1,7 +1,7 @@
-import { IProject } from "../../lms/types";
+import { IProject } from "../../../lms/types";
 import { CommentRouteInstance } from "./comments";
 import { ModuleRouteInstance } from "./modules";
-import { ApiRoute } from "./route";
+import { ApiRoute } from "../route";
 import { UserRouteInstance } from "./users";
 
 class ProjectRoute extends ApiRoute<IProject> {

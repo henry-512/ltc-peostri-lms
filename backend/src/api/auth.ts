@@ -5,8 +5,8 @@ import jsonwebtoken, { JwtPayload } from 'jsonwebtoken'
 import { config } from "../config"
 import { APIError, HTTPStatus } from "../lms/errors"
 import { IRank, IUser } from "../lms/types"
-import { RankRouteInstance } from "./v1/ranks"
-import { UserRouteInstance } from "./v1/users"
+import { RankRouteInstance } from "./v1/data/ranks"
+import { UserRouteInstance } from "./v1/data/users"
 import { isDBKey } from "../lms/util"
 
 /**

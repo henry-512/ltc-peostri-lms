@@ -1,7 +1,7 @@
-import { IModule } from "../../lms/types";
+import { IModule } from "../../../lms/types";
 import { CommentRouteInstance } from "./comments";
 import { FilemetaRouteInstance } from "./filemeta";
-import { ApiRoute } from "./route";
+import { ApiRoute } from "../route";
 import { TaskRouteInstance } from "./tasks";
 
 class ModuleRoute extends ApiRoute<IModule> {

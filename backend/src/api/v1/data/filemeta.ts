@@ -1,12 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 
-import { IFile, IFilemeta } from "../../lms/types";
-import { HTTPStatus } from "../../lms/errors";
-import { ApiRoute } from "./route";
+import { IFile, IFilemeta } from "../../../lms/types";
+import { ApiRoute } from "../route";
 import { UserRouteInstance } from "./users";
-import { AuthUser } from "../auth";
-import { generateBase64UUID, generateDBID } from '../../lms/util';
+import { AuthUser } from "../../auth";
+import { generateBase64UUID } from '../../../lms/util';
 
 const FILE_PATH = 'fs'
 

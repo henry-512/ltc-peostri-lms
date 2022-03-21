@@ -7,7 +7,7 @@ import { config } from "../../config"
 import { APIError, HTTPStatus } from "../../lms/errors"
 import { db } from "../../database"
 import { IArangoIndexes, ICreateUpdate } from "../../lms/types"
-import { convertToKey, generateDBID, isDBId, isDBKey, keyToId, splitId } from "../../lms/util"
+import { convertToKey, generateDBID, isDBId, isDBKey, keyToId, splitId, appendReturnFields } from "../../lms/util"
 import { AuthUser } from "../auth"
 
 interface DBData {
@@ -33,21 +33,6 @@ interface DBData {
     // foreignData?:
     // True if this foreign object reference can be freely deleted
     freeable?:boolean,
-}
-
-/**
- * Makes an AQL query representing a return field of the form
- * [key1:z.key1,key2:z.key2, ...]
- * and appends it to the passed AQL query.
- * @param q The AQL query to append to
- * @param fields An array of string keys
- * @return A new AQL query
- */
-function appendReturnFields(q:GeneratedAqlQuery, fields: string[]) {
-    fields.forEach((s, i) => {
-        q = aql`${q}${s}:z.${s},`
-    })
-    return q
 }
 
 /**

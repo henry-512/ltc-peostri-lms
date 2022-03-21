@@ -1,5 +1,5 @@
-import { ITask } from "../../lms/types";
-import { ApiRoute } from "./route";
+import { ITask } from "../../../lms/types";
+import { ApiRoute } from "../route";
 import { RankRouteInstance } from "./ranks";
 import { UserRouteInstance } from "./users";
 

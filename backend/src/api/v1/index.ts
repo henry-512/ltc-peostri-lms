@@ -1,13 +1,13 @@
 import Router from '@koa/router'
-import { CommentRouteInstance } from './comments'
-import { FilemetaRouteInstance } from './filemeta'
-import { ModuleRouteInstance } from './modules'
-import { ProjectRouteInstance } from './projects'
-import { TaskRouteInstance } from './tasks'
-import { RankRouteInstance } from './ranks'
-import { UserRouteInstance } from './users'
-import { ModuleTemplateRouteInstance } from './template/moduleTemplates'
-import { ProjectTemplateRouteInstance } from './template/projectTemplates'
+import { CommentRouteInstance } from './data/comments'
+import { FilemetaRouteInstance } from './data/filemeta'
+import { ModuleRouteInstance } from './data/modules'
+import { ProjectRouteInstance } from './data/projects'
+import { TaskRouteInstance } from './data/tasks'
+import { RankRouteInstance } from './data/ranks'
+import { UserRouteInstance } from './data/users'
+import { ModuleTemplateRouteInstance } from './data/template/moduleTemplates'
+import { ProjectTemplateRouteInstance } from './data/template/projectTemplates'
 
 export function routerBuilder(version: string) {
 	return new Router({prefix: `${version}/`})
