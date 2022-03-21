@@ -3,13 +3,13 @@ import { aql, GeneratedAqlQuery } from "arangojs/aql";
 import { DocumentCollection } from "arangojs/collection";
 import bcrypt from 'bcrypt'
 
-import { db } from "../../database";
-import { IUser } from "../../lms/types";
-import { ApiRoute } from "./route";
+import { db } from "../../../database";
+import { IUser } from "../../../lms/types";
+import { ApiRoute } from "../route";
 import { RankRouteInstance } from "./ranks";
-import { isDBKey } from "../../lms/util";
-import { HTTPStatus } from "../../lms/errors";
-import { AuthUser } from "../auth";
+import { isDBKey } from "../../../lms/util";
+import { HTTPStatus } from "../../../lms/errors";
+import { AuthUser } from "../../auth";
 
 class UserRoute extends ApiRoute<IUser> {
     public async getUser(key: string): Promise<IUser> {
@@ -83,7 +83,12 @@ class UserRoute extends ApiRoute<IUser> {
             RETURN {rank:(RETURN {id:a._key,name:a.name})[0],${queryFields}}`
     }
 
-    override async modifyDoc(user: AuthUser, doc:any) {
+    override async modifyDoc(
+        user: AuthUser,
+        files: any,
+        doc: any,
+        id: string,
+    ) {
         // Hash password
         doc.password = await bcrypt.hash(doc.password, 5)
         return doc

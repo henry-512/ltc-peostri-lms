@@ -1,6 +1,6 @@
-import { HTTPStatus } from "../../../lms/errors";
-import { IModule, IModuleTemplate, ITask } from "../../../lms/types";
-import { ApiRoute } from "../route";
+import { HTTPStatus } from "../../../../lms/errors";
+import { IModule, IModuleTemplate, ITask } from "../../../../lms/types";
+import { ApiRoute } from "../../route";
 
 class ModuleTemplateRoute extends ApiRoute<IModuleTemplate> {
     constructor() {

@@ -1,8 +1,8 @@
-import { IModule, IProject, IProjectTemplate } from "../../../lms/types";
+import { IModule, IProject, IProjectTemplate } from "../../../../lms/types";
 import { ModuleTemplateRouteInstance } from "./moduleTemplates";
-import { ApiRoute } from "../route";
-import { isDBId } from "../../../lms/util";
-import { HTTPStatus } from "../../../lms/errors";
+import { ApiRoute } from "../../route";
+import { isDBId } from "../../../../lms/util";
+import { HTTPStatus } from "../../../../lms/errors";
 
 class ProjectTemplateRoute extends ApiRoute<IProjectTemplate> {
     constructor() {

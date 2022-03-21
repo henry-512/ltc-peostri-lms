@@ -1,4 +1,5 @@
 import dotenv from 'dotenv'
+import path from 'path';
 
 dotenv.config()
 
@@ -10,6 +11,7 @@ export interface Config {
 	dbPass: string
 	devRoutes?: string
 
+	basePath: string
 	secret: string
 }
 
@@ -21,6 +23,7 @@ const config: Config = {
 	dbPass: process.env.DB_PASS || 'password',
 	devRoutes: process.env.DEV_ROUTES,
 
+	basePath: path.resolve(__dirname, '..'),
 	secret: process.env.SECRET || 'soyoung',
 }
 

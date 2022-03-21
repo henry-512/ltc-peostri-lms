@@ -60,7 +60,7 @@ The server requires requests to be sent to `api/[version]/[collection]`. These A
 - modules
 - projects
 - comments
-- fileMetadata
+- filemeta
 
 ## Authentication
 

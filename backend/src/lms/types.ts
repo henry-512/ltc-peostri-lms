@@ -25,13 +25,14 @@ export interface IComment extends IArangoIndexes, ICreateUpdate {
 
 export interface IFile extends IArangoIndexes, ICreateUpdate {
      src: string;
+     title: string;
      author: string | IUser;
 }
 
 export interface IFilemeta extends IArangoIndexes, ICreateUpdate {
-     title: string;
-     latest: IFile
+     latest: IFile;
      old: IFile[];
+     module: string | IModule;
 }
 
 export interface IModuleTemplate extends IArangoIndexes {

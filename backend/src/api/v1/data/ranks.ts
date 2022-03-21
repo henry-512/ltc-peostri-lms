@@ -1,6 +1,6 @@
-import { IRank } from "../../lms/types";
-import { isDBId } from "../../lms/util";
-import { ApiRoute } from "./route";
+import { IRank } from "../../../lms/types";
+import { isDBId } from "../../../lms/util";
+import { ApiRoute } from "../route";
 
 class RankRoute extends ApiRoute<IRank> {
     public async getRank(id: string): Promise<IRank> {

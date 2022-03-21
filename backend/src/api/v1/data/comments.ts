@@ -1,7 +1,7 @@
-import { IComment } from "../../lms/types";
-import { ApiRoute } from "./route";
+import { IComment } from "../../../lms/types";
+import { ApiRoute } from "../route";
 import { UserRouteInstance } from "./users";
-import { AuthUser } from "../auth";
+import { AuthUser } from "../../auth";
 
 class CommentRoute extends ApiRoute<IComment> {
     constructor() {
@@ -24,7 +24,12 @@ class CommentRoute extends ApiRoute<IComment> {
         )
     }
 
-    protected override modifyDoc(user: AuthUser, doc: any): Promise<any> {
+    protected override async modifyDoc(
+        user: AuthUser,
+        files: any,
+        doc: any,
+        id: string,
+    ): Promise<IComment> {
         if (!doc.author) {
             doc.author = user.getId()
         }
@@ -33,16 +38,17 @@ class CommentRoute extends ApiRoute<IComment> {
 
     // NOTE: If this is supposed to be a comment reference
     // but does not exist, this generates a comment.
-    protected override buildFromString(
+    protected override async buildFromString(
         user: AuthUser,
+        files: any,
         str:string,
-        parent:string
-    ) : IComment | null {
+        par:string,
+    ) : Promise<IComment | null> {
         // TODO: input validation
         let com: IComment = {
             content: str,
             author: user.getId(),
-            parent: parent
+            parent: par
         }
         return com
     }
