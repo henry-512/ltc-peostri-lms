@@ -1,7 +1,7 @@
 import { makeStyles } from "@material-ui/core";
 import { Create, useTranslate } from "react-admin";
 import { IProject } from "src/util/types";
-import Stepper from "../../../components/stepper/Stepper";
+import Stepper from "../../../../components/stepper/Stepper";
 import General from "../steps/General";
 import Modules from "../steps/Modules";
 import transformer from "../transformer";
@@ -31,7 +31,7 @@ const useStyles = makeStyles(theme => ({
      }
 }));
 
-export default function ProjectCreate(props: any) {
+export default function ProjectTemplateCreate(props: any) {
      const translate = useTranslate();
      const classes = useStyles();
      const search = new URLSearchParams(props.location.search);

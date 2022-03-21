@@ -13,16 +13,19 @@ import {
 import SubMenu from './SubMenu';
 import { AppState } from 'src/util/types';
 import SettingsIcon from '@material-ui/icons/Settings';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
 import { ProjectIcon } from '../../pages/project';
-import { TemplateIcon } from '../../pages/template';
+import { ProjectTemplateIcon } from '../../pages/template/projects';
+import { ModuleTemplateIcon } from '../../pages/template/modules';
 import { UserIcon } from '../../pages/user';
 import { PermissionIcon } from 'src/pages/permission';
 
-type MenuName = 'menuAdmin';
+type MenuName = 'menuAdmin' | 'menuTemplate';
 
 const Menu = ({ dense = false }: MenuProps) => {
     const [state, setState] = useState({
         menuAdmin: true,
+        menuTemplate: true
     });
     const translate = useTranslate();
     const open = useSelector((state: ReduxState) => state.admin.ui.sidebarOpen);
@@ -59,14 +62,6 @@ const Menu = ({ dense = false }: MenuProps) => {
                 />
                 <MenuItemLink
                     to={{
-                        pathname: '/templates',
-                        state: { _scrollToTop: true },
-                    }}
-                    primaryText={translate("layout.menu.templates")}
-                    leftIcon={<TemplateIcon />}
-                />
-                <MenuItemLink
-                    to={{
                         pathname: '/users',
                         state: { _scrollToTop: true },
                     }}
@@ -80,6 +75,30 @@ const Menu = ({ dense = false }: MenuProps) => {
                     }}
                     primaryText={translate("layout.menu.permissions")}
                     leftIcon={<PermissionIcon />}
+                />
+            </SubMenu>
+            <SubMenu
+                handleToggle={() => handleToggle('menuTemplate')}
+                isOpen={state.menuTemplate}
+                name="layout.menu.templates"
+                icon={<FileCopyIcon />}
+                dense={dense}
+            >
+                <MenuItemLink
+                    to={{
+                        pathname: '/templates/modules',
+                        state: { _scrollToTop: true },
+                    }}
+                    primaryText={translate("layout.menu.modules")}
+                    leftIcon={<ModuleTemplateIcon />}
+                />
+                <MenuItemLink
+                    to={{
+                        pathname: '/templates/projects',
+                        state: { _scrollToTop: true },
+                    }}
+                    primaryText={translate("layout.menu.projects")}
+                    leftIcon={<ProjectTemplateIcon />}
                 />
             </SubMenu>
         </div>

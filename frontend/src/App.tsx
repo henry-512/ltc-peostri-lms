@@ -10,7 +10,8 @@ import domainMessages from './util/language';
 import auth from './util/authProvider';
 import LoginPage from './pages/login';
 import { UserCreate, UserEdit, UserList } from './pages/user';
-import { TemplateCreate, TemplateEdit, TemplateList } from './pages/template';
+import { ProjectTemplateCreate, ProjectTemplateEdit, ProjectTemplateList } from './pages/template/projects';
+import { ModuleTemplateCreate, ModuleTemplateEdit, ModuleTemplateList } from './pages/template/modules';
 
 const API_URL = process.env.REACT_APP_API_URL + "/" + process.env.REACT_APP_API_VERSION || "http://localhost:5000/api/v1";
 
@@ -36,7 +37,8 @@ const App = () => {
             disableTelemetry
         >
             <Resource name='projects' list={ProjectList} create={ProjectCreate} edit={ProjectEdit} />
-            <Resource name='templates' list={TemplateList} create={TemplateCreate} edit={TemplateEdit} />
+            <Resource name='template/projects' list={ProjectTemplateList} create={ProjectTemplateCreate} edit={ProjectTemplateEdit} />
+            <Resource name='template/modules' list={ModuleTemplateList} create={ModuleTemplateCreate} edit={ModuleTemplateEdit} />
             <Resource name="users" list={UserList} create={UserCreate} edit={UserEdit} />
             <Resource name="ranks" options={{ label: "layout.menu.ranks" }} />
         </Admin>

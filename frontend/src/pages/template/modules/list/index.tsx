@@ -21,7 +21,7 @@ const useListStyles = makeStyles({
     },
 });
 
-const ProjectList = (props: ListProps) => {
+const ModuleTemplateList = (props: ListProps) => {
     const classes = useListStyles();
 
      return (
@@ -50,4 +50,4 @@ const ProjectList = (props: ListProps) => {
      );
 }
 
-export default ProjectList;
+export default ModuleTemplateList;

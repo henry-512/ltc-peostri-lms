@@ -7,6 +7,7 @@ const domainMessages = {
             menu: {
                 administration: "Administration",
                 projects: "Projects",
+                modules: "Modules",
                 templates: "Templates",
                 users: "Users",
                 permissions: "Permissions"
