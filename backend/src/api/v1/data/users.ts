@@ -83,7 +83,12 @@ class UserRoute extends ApiRoute<IUser> {
             RETURN {rank:(RETURN {id:a._key,name:a.name})[0],${queryFields}}`
     }
 
-    override async modifyDoc(user: AuthUser, doc:any) {
+    override async modifyDoc(
+        user: AuthUser,
+        files: any,
+        doc: any,
+        id: string,
+    ) {
         // Hash password
         doc.password = await bcrypt.hash(doc.password, 5)
         return doc

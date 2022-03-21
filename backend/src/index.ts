@@ -2,6 +2,7 @@ import Koa from 'koa'
 import cors from '@koa/cors'
 import koaBody from 'koa-body'
 import logger from 'koa-logger'
+import path from 'path'
 
 import { config } from './config'
 import { apiRouter } from './router'
@@ -21,6 +22,11 @@ apiRouter().then(async api => {
     }))
     app.use(koaBody({
         multipart: true,
+        json: true,
+        formidable: {
+            keepExtensions: true,
+            // uploadDir: path.resolve(config.basePath, 'tmp'),
+        },
     }))
 
     // API parser and error handler

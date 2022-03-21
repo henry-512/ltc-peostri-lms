@@ -29,7 +29,6 @@ class TaskRoute extends ApiRoute<ITask> {
                 },
                 'module':{
                     type:'parent',
-                    acceptNewDoc:true,
                     parentReferenceKey:'tasks'
                 },
                 'type':{type:'string'}

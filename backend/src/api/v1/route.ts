@@ -2,6 +2,7 @@ import Router from "@koa/router"
 import { aql } from "arangojs"
 import { GeneratedAqlQuery } from "arangojs/aql"
 import { CollectionUpdateOptions, DocumentCollection } from "arangojs/collection"
+import fs from 'fs'
 
 import { config } from "../../config"
 import { APIError, HTTPStatus } from "../../lms/errors"
@@ -311,7 +312,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // Debug document schema for test.js
         if (config.devRoutes) {
             console.log(this.dbName)
-            console.log(JSON.stringify(this.fields))
+            // console.log(JSON.stringify(this.fields))
         }
     }
 
@@ -451,13 +452,13 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     /**
      * Accepts a non id/key string and converts it into a valid document
      */
-    protected buildFromString(user:AuthUser,str:string,par:string) : Type | null { return null }
+    protected async buildFromString(user:AuthUser,files:any,str:string,par:string) : Promise<Type | null> { return null }
 
     /**
      * Modifies a document. Called after verifying all fields exist,
      * and after dereferencing all keys
      */
-    protected async modifyDoc(user:AuthUser,doc:any,id:string) { return doc }
+    protected async modifyDoc(user:AuthUser,files:any,doc:any,id:string) : Promise<Type> { return doc }
 
     /**
      * Validates a document reference
@@ -465,6 +466,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      */
     private async ref(
         user: AuthUser,
+        files: any,
         doc:any,
         par:string,
         data:DBData,
@@ -478,10 +480,10 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             }
 
             if (data.acceptNewDoc) {
-                let built = this.buildFromString(user, doc, par)
+                let built = await this.buildFromString(user, files, doc, par)
                 if (built) {
                     let childId = this.generateDBID()
-                    await this.addToReferenceMap(user, childId, built, map, 2)
+                    await this.addToReferenceMap(user, files, childId, built, map, 2)
                     return childId
                 }
             }
@@ -522,7 +524,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 // Document exists, however it's a key
                 : this.keyToId(doc.id)
 
-            await this.addToReferenceMap(user, childId, doc, map, isNew)
+            await this.addToReferenceMap(user, files, childId, doc, map, isNew)
             return childId
         }
         throw this.error(
@@ -541,6 +543,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      */
     private async addToReferenceMap(
         user: AuthUser,
+        files: any,
         addDocId: string,
         addDoc: Type,
         map: Map<ApiRoute<IArangoIndexes>, IArangoIndexes[]>,
@@ -555,7 +558,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         delete addDoc.id
 
         // Modify this document, if required
-        addDoc = await this.modifyDoc(user, addDoc, addDocId)
+        addDoc = await this.modifyDoc(user, files, addDoc, addDocId)
 
         if (this.hasCUTimestamp) {
             if (isNew === 0)
@@ -659,6 +662,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 case 'fkey':
                     addDoc[key] = await this.getForeignApi(data).ref(
                         user,
+                        files,
                         value,
                         addDocId,
                         data,
@@ -672,6 +676,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                         addDoc[key] = <any>await Promise.all(value.map(
                             lpDoc => clsar.ref(
                                 user,
+                                files,
                                 lpDoc,
                                 addDocId,
                                 data,
@@ -684,6 +689,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                         addDoc[key] = <any>[
                             await clsar.ref(
                                 user,
+                                files,
                                 value,
                                 addDocId,
                                 data,
@@ -708,6 +714,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                                 temp[stepId] = <any>await Promise.all(
                                     stepAr.map(lpDoc => clsst.ref(
                                         user,
+                                        files,
                                         lpDoc,
                                         addDocId,
                                         data,
@@ -752,7 +759,13 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         }
     }
 
-    protected async create(user: AuthUser, id: string, doc: Type, real: boolean) {
+    protected async create(
+        user: AuthUser,
+        files: any,
+        id: string,
+        doc: Type,
+        real: boolean
+    ) {
         // The passed document has a parent key, so we need to
         // update the parent to include this document
         // if (this.parentKey && this.parentKey.local in doc) {
@@ -762,7 +775,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // Turns a fully-dereferenced document into a reference
         // document
         let map = new Map<ApiRoute<IArangoIndexes>, IArangoIndexes[]>()
-        await this.addToReferenceMap(user, id, doc, map, 2)
+        await this.addToReferenceMap(user, files, id, doc, map, 2)
 
         real || console.log('FAKING CREATE')
         // Saves each document in the map to its respective collection
@@ -796,7 +809,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             }
 
             // If this is an APIError, pass control
-            if (err.fn) {
+            if (err instanceof APIError) {
                 throw err
             }
             // Some other error type
@@ -809,7 +822,13 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         }
     }
 
-    protected async update(user: AuthUser, key: string, doc: Type, real: boolean) {
+    protected async update(
+        user: AuthUser,
+        files: any,
+        key: string,
+        doc: Type,
+        real: boolean
+    ) {
         let id = this.keyToId(key)
 
         // We dont need to update all elements, .update does that
@@ -821,7 +840,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         // }
 
         let map = new Map<ApiRoute<IArangoIndexes>, IArangoIndexes[]>()
-        await this.addToReferenceMap(user, id, doc, map, 1)
+        await this.addToReferenceMap(user, files, id, doc, map, 1)
 
         real || console.log('FAKING UPDATE')
         // Updates each document in the map to its respective collection
@@ -1069,15 +1088,32 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             }
         })
         r.post('/', async (ctx, next) => {
-            console.log(`${this.dbName}: ${JSON.stringify(ctx.request.body)}`)
-            console.log(`\tfiles: ${JSON.stringify(ctx.request.files)}`)
+            let doc:Type
 
-            let doc = ctx.request.body as Type
+            // Multipart form requests put the POST data in a different spot
+            if (ctx.request.files && ctx.request.files.json) {
+                let file = ctx.request.files.json
+                if (Array.isArray(file)) {
+                    file = file[0]
+                }
+                let buf = await fs.promises.readFile(
+                    file.path,
+                )
+
+                doc = JSON.parse(buf.toString())
+            } else {
+                doc = ctx.request.body as Type
+            }
+
             let newID = this.generateDBID()
 
             await this.create(
-                ctx.state.user, newID, doc,
+                ctx.state.user,
+                ctx.request.files,
+                newID, doc,
                 ctx.header['user-agent'] !== 'backend-testing')
+
+            this.error(':)', HTTPStatus.INTERNAL_SERVER_ERROR)
 
             ctx.status = HTTPStatus.CREATED
             ctx.body = {
@@ -1089,8 +1125,28 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         })
         r.put('/:id', async (ctx, next) => {
             if (await this.exists(ctx.params.id)) {
+                let doc:Type
+
+                // Multipart form requests put the POST data in a different spot
+                if (ctx.request.files && ctx.request.files.json) {
+                    let file = ctx.request.files.json
+                    if (Array.isArray(file)) {
+                        file = file[0]
+                    }
+                    let buf = await fs.promises.readFile(
+                        file.path,
+                    )
+    
+                    doc = JSON.parse(buf.toString())
+                } else {
+                    doc = ctx.request.body as Type
+                }
+
                 await this.update(
-                    ctx.state.user, ctx.params.id, ctx.request.body,
+                    ctx.state.user,
+                    ctx.request.files,
+                    ctx.params.id,
+                    doc,
                     ctx.header['user-agent'] !== 'backend-testing')
                 ctx.status = HTTPStatus.OK
                 ctx.body = {

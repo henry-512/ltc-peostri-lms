@@ -3,6 +3,7 @@ import { CommentRouteInstance } from "./comments";
 import { FilemetaRouteInstance } from "./filemeta";
 import { ApiRoute } from "../route";
 import { TaskRouteInstance } from "./tasks";
+import { AuthUser } from "../../auth";
 
 class ModuleRoute extends ApiRoute<IModule> {
     constructor() {
@@ -50,6 +51,24 @@ class ModuleRoute extends ApiRoute<IModule> {
             },
             false,
         )
+    }
+
+    protected override modifyDoc(
+        user: AuthUser,
+        files: any,
+        doc: any,
+        id: string,
+    ): Promise<IModule> {
+        // Convert a single file into a file array
+        if (doc.file) {
+            if (doc.files) {
+                doc.files.append(doc.file)
+            } else {
+                doc.files = [doc.file]
+            }
+            delete doc.file
+        }
+        return doc
     }
 }
 

@@ -6,8 +6,10 @@ import { ApiRoute } from "../route";
 import { UserRouteInstance } from "./users";
 import { AuthUser } from "../../auth";
 import { generateBase64UUID } from '../../../lms/util';
+import { HTTPStatus } from '../../../lms/errors';
+import { config } from '../../../config';
 
-const FILE_PATH = 'fs'
+const FILE_PATH = path.resolve(config.basePath, 'fs')
 
 class Filedata extends ApiRoute<IFile> {
     constructor() {
@@ -16,6 +18,7 @@ class Filedata extends ApiRoute<IFile> {
             'File',
             {
                 src: {type:'string'},
+                title: {type:'string'},
                 author: {
                     type:'fkey',
                     foreignApi: UserRouteInstance,
@@ -35,62 +38,90 @@ class FilemetaRoute extends ApiRoute<IFilemeta> {
             'filemeta',
             'File Metadata',
             {
-                'title':{type:'string'},
-                'latest':{type:'fkey'},
+                'latest':{
+                    type:'object',
+                },
                 'old':{
-                    type:'fkeyArray',
+                    type:'array',
+                },
+                'module':{
+                    type:'parent',
+                    parentReferenceKey:'files'
                 }
             },
             true,
         )
     }
 
-    private async writeFile(title:string, blob:string) {
+    private async writeFile(
+        user:AuthUser,
+        file:IFileData,
+    ) : Promise<IFile> {
         let id = generateBase64UUID()
+        let src:string = id + '-' + file.name
 
-        await fs.promises.writeFile(
-            path.join(FILE_PATH, `${title}.${id}`),
-            Buffer.from(blob, 'base64')
+        await fs.promises.rename(
+            file.path,
+            path.join(FILE_PATH, src),
         )
 
-        return id
+        return {
+            src,
+            title: file.name,
+            author: user.getId(),
+        }
     }
 
-    private async readFile(doc: IFilemeta) {
-        return fs.promises.readFile(
-            // path.join(FILE_PATH, `${doc.title}.${doc.version}`)
-            path.join(FILE_PATH, doc.title)
-        )
-    }
-
-    // Stores the passed document in the database
-    protected override async modifyDoc(
-        user: AuthUser,
-        doc: any,
-        id: string,
-    ): Promise<any> {
-        let fd:IFileData = doc as IFileData
-
-        // Trim blob header
-        let blobData = fd.rawFile.slice(fd.rawFile.indexOf('base64,') + 7)
-
-        let version = await this.writeFile(fd.title, blobData)
-
-        let meta:IFilemeta = {
-            // author: user.getId(),
-            title: fd.title,
-            latest: {} as any,
-            old: []
+    public async readLatest(doc: IFilemeta) {
+        let src = path.join(FILE_PATH, doc.latest.src)
+        let stat = await fs.promises.stat(src)
+        if (!stat.isFile) {
+            this.error(
+                'readLatest',
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                'Invalid system state',
+                `${src} is not a file`
+            )
         }
 
-        return meta
+        return fs.promises.readFile(src)
+    }
+
+    // Stores the passed file into the database
+    protected override async buildFromString(
+        user: AuthUser,
+        files: any,
+        str: string,
+        par: string
+    ): Promise<IFilemeta | null> {
+        if (!files[str]) {
+            this.error(
+                'buildFromString',
+                HTTPStatus.BAD_REQUEST,
+                'Unexpected file metadata',
+                `${str} is not a valid file reference`,
+            )
+        }
+
+        let fileData:IFileData = files[str] as IFileData
+        let latest = await this.writeFile(user, fileData)
+
+        return {
+            latest,
+            old: [],
+            module: par,
+        }
     }
 }
 
 interface IFileData {
-    // Blob string
-    rawFile:string,
-    title:string,
+    // Blob data
+    size:number,
+    path:string,
+    name:string,
+    // MIME media type
+    type:string,
+    mtime:string | Date,
 }
 
 export const FilemetaRouteInstance = new FilemetaRoute()
