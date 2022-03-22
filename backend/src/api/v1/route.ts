@@ -71,6 +71,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     }
 
     protected async getUnsafe(id: string): Promise<Type> {
+        console.log(id)
         return this.collection.document(id)
     }
 
@@ -335,26 +336,6 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
     }
 
     /**
-     * Converts all IDs (with collection) in the document to keys
-     * (without collection). Only called by GET/
-     */
-    private async convertIds(doc:Type) : Promise<Type> {
-        return this.mapForeignKeys(doc, async (k,d) => {
-            if (typeof k === 'string' && isDBId(k)) {
-                return splitId(k).key
-            } else if (typeof k === 'object') {
-                return k
-            }
-            throw this.error(
-                'convertIds',
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                'Invalid document status',
-                `${this.dbName} [${k}] expected to be a DB id`
-            )
-        })
-    }
-
-    /**
      * Retrieves a query from the server, following the passed parameters.
      * @param q An object with query fields.
      *  - sort [id, ASC/DESC]
@@ -418,6 +399,15 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      * @return A Type representing a document with key, with .id set and ._* removed
      */
     public async getFromDB(user: AuthUser, depth: number, id: string) : Promise<Type> {
+        if (!this.exists(id)) {
+            throw this.error(
+                'getFromDB.mapForeignKeys',
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                'Invalid document status',
+                `Foreign key [${id}] dne`
+            )
+        }
+
         let doc = await this.getUnsafe(id)
     
         doc.id = doc._key
@@ -858,7 +848,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 if (await api.exists(d._key)) {
                     console.log(`Updating ${api.displayName} | ${JSON.stringify(d)}`)
                     real && await api.updateUnsafe(d, {
-                        mergeObjects:false
+                        mergeObjects: false
                     })
                 } else {
                     console.log(`Saving ${api.displayName} | ${JSON.stringify(d)}`)
@@ -992,18 +982,18 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
             let doc = await cursor.next()
 
             // Delete disowned children
-            await this.updateUnsafe(await this.forEachForeignKey(
+            doc = await this.forEachForeignKey(
                 doc,
                 async (p,k,d) => {
                     let c = this.getForeignApi(d)
-                    if (!isDBId(k) || !c.exists(k)) {
+                    if (!isDBId(k) || !await c.exists(k)) {
                         p.doc[p.key] = <any>''
                     }
                 },
                 async (p,a,d) => {
                     let c = this.getForeignApi(d)
                     for (var i = a.length - 1; i >= 0; i--) {
-                        if (!isDBId(a[i]) || !c.exists(a[i])) {
+                        if (!isDBId(a[i]) || !await c.exists(a[i])) {
                             a.splice(i, 1)
                         }
                     }
@@ -1022,7 +1012,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                             )
                         }
                         for (var i = sAr.length - 1; i >= 0; i--) {
-                            if (!isDBId(sAr[i]) || !c.exists(sAr[i])) {
+                            if (!isDBId(sAr[i]) || !await c.exists(sAr[i])) {
                                 sAr.splice(i, 1)
                             }
                         }
@@ -1030,7 +1020,10 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                         if (sAr.length === 0) delete o[k]
                     }
                 }
-            ), {
+            )
+
+            // Update DB
+            await this.updateUnsafe(doc, {
                 mergeObjects:false,
             })
         }
@@ -1045,7 +1038,6 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     await this.deleteOrphans()
                     ctx.status = HTTPStatus.OK
                 }
-                await next()
             })
         }
         // Disown update
@@ -1055,7 +1047,6 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     await this.disown()
                     ctx.status = HTTPStatus.OK
                 }
-                await next()
             })
         }
         r.get('/', async (ctx, next) => {
@@ -1064,7 +1055,19 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
 
             // Convert all document foreign ids to keys
             await Promise.all(all.map(
-                async doc => this.convertIds(doc)
+                async doc => this.mapForeignKeys(doc, async (k,d) => {
+                    if (typeof k === 'string' && isDBId(k)) {
+                        return splitId(k).key
+                    } else if (typeof k === 'object') {
+                        return k
+                    }
+                    throw this.error(
+                        'convertIds',
+                        HTTPStatus.INTERNAL_SERVER_ERROR,
+                        'Invalid document status',
+                        `${this.dbName} [${k}] expected to be a DB id`
+                    )
+                })
             ))
 
             ctx.status = HTTPStatus.OK

@@ -90,7 +90,9 @@ class UserRoute extends ApiRoute<IUser> {
         id: string,
     ) {
         // Hash password
-        doc.password = await bcrypt.hash(doc.password, 5)
+        if (doc.password) {
+            doc.password = await bcrypt.hash(doc.password, 5)
+        }
         return doc
     }
 
