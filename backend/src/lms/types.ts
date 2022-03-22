@@ -37,7 +37,6 @@ export interface IFilemeta extends IArangoIndexes, ICreateUpdate {
 
 export interface IModuleTemplate extends IArangoIndexes {
      title: string;
-     description: string;
      tasks: { [id:string]: ITaskTemplate[] };
      waive_module: boolean;
 }
@@ -54,7 +53,6 @@ export interface IModule extends IArangoIndexes {
 
 export interface IProjectTemplate extends IArangoIndexes, ICreateUpdate {
      title: string;
-     description: string;
      modules: { [id:string]: IModule[] | string[] };
 }
 
@@ -79,7 +77,6 @@ export interface IRank extends IArangoIndexes {
 
 export interface ITaskTemplate extends IArangoIndexes {
      title: string;
-     description: string;
      rank?: string
      type: TaskTypes
 }

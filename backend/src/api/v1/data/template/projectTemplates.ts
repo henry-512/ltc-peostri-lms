@@ -1,10 +1,10 @@
 import { IModule, IProject, IProjectTemplate } from "../../../../lms/types";
-import { ModuleTemplateRouteInstance } from "./moduleTemplates";
+import { ModuleTempManager } from "./moduleTemplates";
 import { isDBId } from "../../../../lms/util";
 import { HTTPStatus } from "../../../../lms/errors";
 import { DBManager } from "../../DBManager";
 
-class ProjectTemplateRoute extends DBManager<IProjectTemplate> {
+class ProjectTemplate extends DBManager<IProjectTemplate> {
     constructor() {
         super(
             'projectTemplates',
@@ -12,10 +12,9 @@ class ProjectTemplateRoute extends DBManager<IProjectTemplate> {
             'Project Template',
             {
                 'title': { type: 'string' },
-                'description': { type: 'string' },
                 'modules': {
                     type: 'fkeyStep',
-                    foreignApi: ModuleTemplateRouteInstance,
+                    foreignApi: ModuleTempManager,
                 },
                 'ttc': {
                     type: 'number',
@@ -53,7 +52,7 @@ class ProjectTemplateRoute extends DBManager<IProjectTemplate> {
                         `${i} is not a valid db id`
                     )
                 }
-                return ModuleTemplateRouteInstance.buildModuleFromId(i)
+                return ModuleTempManager.buildModuleFromId(i)
             }))
         }
 
@@ -69,4 +68,4 @@ class ProjectTemplateRoute extends DBManager<IProjectTemplate> {
     }
 }
 
-export const ProjectTemplateRouteInstance = new ProjectTemplateRoute()
+export const ProjectTempManager = new ProjectTemplate()

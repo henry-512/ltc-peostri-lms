@@ -1,16 +1,40 @@
 import { HTTPStatus } from "../../../../lms/errors";
-import { IModule, IModuleTemplate, ITask } from "../../../../lms/types";
+import { IModule, IModuleTemplate, ITask, ITaskTemplate } from "../../../../lms/types";
+import { DataManager } from "../../DataManager";
 import { DBManager } from "../../DBManager";
+import { RankManager } from "../ranks";
 
-class ModuleTemplateRoute extends DBManager<IModuleTemplate> {
+class TaskTemplate extends DataManager<ITaskTemplate> {
+    constructor() {
+        super(
+            'Task Template',
+            {
+                'title': { type:'string' },
+                'rank': {
+                    type: 'fkey',
+                    foreignApi: RankManager,
+                },
+                'type': { type:'string' },
+                'ttc': { type:'number' },
+            },
+            false
+        )
+    }
+}
+
+const TaskTempManager = new TaskTemplate()
+
+class ModuleTemplate extends DBManager<IModuleTemplate> {
     constructor() {
         super(
             'moduleTemplates',
             'Module Template',
             {
                 'title': { type:'string' },
-                'description': { type:'string' },
-                'tasks': { type:'object' },
+                'tasks': {
+                    type:'object',
+                    foreignData: TaskTempManager,
+                },
                 'waive_module': {
                     type:'boolean',
                     optional:true,
@@ -55,4 +79,4 @@ class ModuleTemplateRoute extends DBManager<IModuleTemplate> {
     }
 }
 
-export const ModuleTemplateRouteInstance = new ModuleTemplateRoute()
+export const ModuleTempManager = new ModuleTemplate()

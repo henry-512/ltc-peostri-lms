@@ -8,8 +8,8 @@ import { ProjectManager } from './data/projects'
 import { TaskManager } from './data/tasks'
 import { RankManager } from './data/ranks'
 import { UserManager } from './data/users'
-import { ModuleTemplateRouteInstance } from './data/template/moduleTemplates'
-import { ProjectTemplateRouteInstance } from './data/template/projectTemplates'
+import { ModuleTempManager } from './data/template/moduleTemplates'
+import { ProjectTempManager } from './data/template/projectTemplates'
 import { HTTPStatus } from "../../lms/errors";
 import { IArangoIndexes } from "../../lms/types";
 import { DBManager } from "./DBManager";
@@ -32,11 +32,11 @@ export function routerBuilder(version: string) {
 		.use(route('comments', CommentManager))
 		.use(route('projects', ProjectManager))
 		// Templates
-		.use(route('template/modules', ModuleTemplateRouteInstance,
+		.use(route('template/modules', ModuleTempManager,
 			(r,m) => r.get('/instance/:id', async (ctx, next) => {
 				let id = m.db.keyToId(ctx.params.id)
 				if (!m.exists(id)) {
-					ctx.body = await ModuleTemplateRouteInstance
+					ctx.body = await ModuleTempManager
 						.buildModuleFromId(id)
 					ctx.status = HTTPStatus.OK
 				} else {
@@ -45,12 +45,12 @@ export function routerBuilder(version: string) {
 				}
 			})
 		))
-		.use(route('template/projects', ProjectTemplateRouteInstance,
+		.use(route('template/projects', ProjectTempManager,
 			// Builds a project matching the passed project template ID
 			(r,m) => r.get('/instance/:id', async (ctx, next) => {
 				let id = m.db.keyToId(ctx.params.id)
 				if (!m.exists(id)) {
-					ctx.body = await ProjectTemplateRouteInstance
+					ctx.body = await ProjectTempManager
 						.buildProjectFromId(id)
 					ctx.status = HTTPStatus.OK
 				} else {
