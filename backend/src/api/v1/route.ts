@@ -1037,6 +1037,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 if (ctx.header['user-agent'] === 'backend-testing') {
                     await this.deleteOrphans()
                     ctx.status = HTTPStatus.OK
+                } else {
+                    await next()
                 }
             })
         }
@@ -1046,6 +1048,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 if (ctx.header['user-agent'] === 'backend-testing') {
                     await this.disown()
                     ctx.status = HTTPStatus.OK
+                } else {
+                    await next()
                 }
             })
         }
@@ -1075,8 +1079,6 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
 
             ctx.set('Content-Range', `${this.dbName} ${qdata.low}-${qdata.high}/${qdata.size}`)
             ctx.set('Access-Control-Expose-Headers', 'Content-Range')
-
-            await next()
         })
         r.get('/:id', async (ctx, next) => {
             if (await this.exists(ctx.params.id)) {
@@ -1084,8 +1086,6 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     ctx.state.user, 0, ctx.params.id
                 )
                 ctx.status = HTTPStatus.OK
-
-                await next()
             } else {
                 ctx.status = HTTPStatus.NOT_FOUND
                 ctx.body = `${this.displayName} [${ctx.params.id}] dne.`
@@ -1122,8 +1122,6 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 id: splitId(newID).key,
                 message: `${this.displayName} created with id [${newID}]`
             }
-
-            await next()
         })
         r.put('/:id', async (ctx, next) => {
             if (await this.exists(ctx.params.id)) {
@@ -1150,13 +1148,11 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     ctx.params.id,
                     doc,
                     ctx.header['user-agent'] !== 'backend-testing')
-                ctx.status = HTTPStatus.OK
-                ctx.body = {
-                    id: ctx.params.id,
-                    message: `${this.displayName} [${ctx.params.id}] updated`,
-                }
 
-                await next()
+                ctx.body = await this.getFromDB(
+                    ctx.state.user, 0, ctx.params.id
+                )
+                ctx.status = HTTPStatus.OK
             } else {
                 ctx.status = HTTPStatus.CONFLICT
                 ctx.body = `${this.displayName} [${ctx.params.id}] dne`
@@ -1173,8 +1169,6 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     id: ctx.params.id,
                     message: `${this.displayName} deleted`,
                 }
-
-                await next()
             } else {
                 ctx.status = HTTPStatus.NOT_FOUND
                 ctx.body = `${this.displayName} [${ctx.params.id}] dne`
