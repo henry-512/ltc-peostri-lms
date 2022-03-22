@@ -8,13 +8,16 @@ class ProjectTemplate extends DBManager<IProjectTemplate> {
     constructor() {
         super(
             'projectTemplates',
-            // 'template/projects',
             'Project Template',
             {
                 'title': { type: 'string' },
                 'modules': {
                     type: 'fkeyStep',
                     foreignApi: ModuleTempManager,
+                },
+                'status': {
+                    type: 'string',
+                    default: 'AWAITING',
                 },
                 'ttc': {
                     type: 'number',

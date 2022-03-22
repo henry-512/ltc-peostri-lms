@@ -14,6 +14,10 @@ class TaskTemplate extends DataManager<ITaskTemplate> {
                     type: 'fkey',
                     foreignApi: RankManager,
                 },
+                'status': {
+                    type: 'string',
+                    default: 'AWAITING',
+                },
                 'type': { type:'string' },
                 'ttc': { type:'number' },
             },
@@ -34,6 +38,10 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
                 'tasks': {
                     type:'object',
                     foreignData: TaskTempManager,
+                },
+                'status': {
+                    type:'string',
+                    default: 'AWAITING',
                 },
                 'waive_module': {
                     type:'boolean',
