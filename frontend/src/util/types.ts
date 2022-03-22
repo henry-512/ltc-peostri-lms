@@ -134,8 +134,9 @@ export interface ITaskTemplate extends ITask {
 export interface IModuleTemplate extends IModule, IArangoIndexes {
     ttc: number;
     tasks: {
-        [id: string]: ITaskTemplate[]
+        [id: string | number]: ITaskTemplate[]
     }
+    [id: string]: any;
 }
 
 export interface IProjectTemplate extends IArangoIndexes, ICreateUpdate {
