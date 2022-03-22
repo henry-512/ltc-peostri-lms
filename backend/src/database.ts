@@ -27,7 +27,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         return this.collection.documentExists(id)
     }
 
-    public async getUnsafe(id: string): Promise<Type> {
+    private async getUnsafe(id: string): Promise<Type> {
         return this.collection.document(id)
     }
 
@@ -44,7 +44,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 
     private idRegex
-    public isId(id: string) { return this.idRegex.test(id) }
+    public isDBId(id: string) { return this.idRegex.test(id) }
     public keyToId(key: string) { return keyToId(key, this.dbName) }
     public generateDBID() { return generateDBID(this.dbName) }
 
@@ -106,7 +106,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 
     public async get(id: string) {
-        if (!this.isId(id)) {
+        if (!this.isDBId(id)) {
             throw this.error(
                 'get',
                 HTTPStatus.NOT_FOUND,
@@ -122,6 +122,15 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
                 `[${id}] DNE`
             )
         }
+
+        let doc = await this.getUnsafe(id)
+
+        doc.id = doc._key
+        delete doc._key
+        delete doc._id
+        delete doc._rev
+
+        return doc
     }
 }
 
