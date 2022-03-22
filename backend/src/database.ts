@@ -1,7 +1,7 @@
 import { aql, Database } from 'arangojs'
 import { GeneratedAqlQuery } from 'arangojs/aql'
 import { CollectionUpdateOptions, DocumentCollection } from 'arangojs/collection'
-import { IFieldData } from './lms/FieldData'
+// import { IFieldData } from './lms/FieldData'
 
 import { config } from './config'
 import { IArangoIndexes } from './lms/types'
@@ -14,9 +14,11 @@ export const db = new Database({
     auth: { username: config.dbUser, password: config.dbPass }
 })
 
-export class DBWrapper<Type extends IArangoIndexes> {
+/*
+export class ArangoWrapper<Type extends IArangoIndexes> {
     static ASC = aql`ASC`
     static DESC = aql`DESC`
+    static KEY = aql`_key`
 
     protected collection: DocumentCollection<Type>
     protected getAllQueryFields: GeneratedAqlQuery
@@ -58,4 +60,46 @@ export class DBWrapper<Type extends IArangoIndexes> {
             )
         )
     }
-}
+
+    private getAllQuery(
+        collection: DocumentCollection,
+		sort: GeneratedAqlQuery,
+		sortDir: GeneratedAqlQuery,
+		offset: number, 
+		count: number,
+        queryFields: GeneratedAqlQuery,
+        filterIds: string[]
+    ): GeneratedAqlQuery {
+        let query = aql`FOR z IN ${collection} SORT z.${sort} ${sortDir}`
+
+        if (filterIds.length > 0) {
+            query = aql`${query} FILTER z._key IN ${filterIds}`
+        }
+
+        return aql`${query} LIMIT ${offset}, ${count} RETURN {${queryFields}}`
+    }
+
+    public queryGet(
+        opts: {
+            filter?: {
+                key:string,
+                in?:any[],
+            }[],
+            sort?: {dir: 'ASC' | 'DESC', key: string},
+            range?: {
+                offset: number,
+                count: number,
+            }
+        }
+    ): GeneratedAqlQuery {
+        return this.getAllQuery(
+            this.collection,
+            aql`opts.sort.key` ?? ArangoWrapper.KEY,
+            opts.sort?.dir === 'ASC' ? ArangoWrapper.ASC : ArangoWrapper.DESC,
+            opts.range?.offset ?? 0,
+            opts.range?.count ?? 10,
+            this.getAllQueryFields,
+            [],
+        )
+    }
+}*/
