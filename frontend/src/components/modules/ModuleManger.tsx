@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { FormSpy, useForm, useFormState } from "react-final-form";
+import { useForm, useFormState } from "react-final-form";
 import { IModule, IModuleStep } from "src/util/types";
 import Steps from "../steps";
 import ModuleCard from "./ModuleCard";
 import Creator from "./Creator";
-import { Grid, makeStyles, Typography } from "@material-ui/core";
 import { useTranslate } from "react-admin";
 import ModuleFields from "./ModuleFields";
 

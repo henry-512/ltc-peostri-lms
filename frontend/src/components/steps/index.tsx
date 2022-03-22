@@ -1,10 +1,8 @@
 import { Box, Typography, makeStyles } from "@material-ui/core";
-import get from "lodash.get";
 import React, { MouseEventHandler, useEffect } from "react";
 import { useState } from "react";
 import { DragDropContext, Droppable, OnDragEndResponder } from "react-beautiful-dnd";
-import { useForm, useFormState } from "react-final-form";
-import { IModule, IModuleStep, ITaskStep } from "src/util/types";
+import { useForm } from "react-final-form";
 import AddNewButton from "./AddNewButton";
 import AddStepButton from "./AddStepButton";
 import RemoveStepButton from "./RemoveStepButton";

@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { SimpleForm, useFormGroup } from "react-admin"
+import React from "react";
+import { SimpleForm } from "react-admin"
 import StepHeader from "./StepHeader";
 import StepToolbar from "./StepToolbar"
 

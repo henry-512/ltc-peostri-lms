@@ -1,6 +1,6 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, makeStyles } from '@material-ui/core';
-import React, { MouseEventHandler, useEffect } from 'react';
-import { FormGroupContextProvider, useFormGroup, useFormGroupContext, useTranslate, Button as RAButton } from 'react-admin';
+import React from 'react';
+import { FormGroupContextProvider, useFormGroup, useTranslate, Button as RAButton } from 'react-admin';
 import { useForm } from 'react-final-form';
 import DeleteIcon from '@material-ui/icons/Delete';
 

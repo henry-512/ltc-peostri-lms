@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Fragment, ReactElement, ReactNode } from 'react';
 import { useSelector } from 'react-redux';
 import {

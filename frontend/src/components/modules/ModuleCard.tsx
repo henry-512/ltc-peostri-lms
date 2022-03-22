@@ -1,4 +1,4 @@
-import { Button, Card, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, makeStyles, Typography } from "@material-ui/core";
+import { Card, makeStyles, Typography } from "@material-ui/core";
 import get from "lodash.get";
 import { useState } from "react";
 import { useTranslate } from "react-admin";
@@ -31,7 +31,7 @@ type ModuleCardProps = {
      fixKey: Function
 }
 
-const ModuleCard = ({steps, info, index, stepKey, subSteps, fixKey}: ModuleCardProps) => {
+const ModuleCard = ({info, index, stepKey, fixKey}: ModuleCardProps) => {
      const translate = useTranslate();
      const classes = useStyles();
 

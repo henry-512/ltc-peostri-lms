@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { BooleanInput, TextInput } from "react-admin";
+import { useEffect } from "react";
+import { TextInput } from "react-admin";
 import { useForm, useFormState } from "react-final-form";
 
 type Props = {

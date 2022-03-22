@@ -1,5 +1,5 @@
 import { useTranslate } from 'react-admin';
-import { IModule, IModuleStep, ITask, ITaskStep } from 'src/util/types';
+import { ITask, ITaskStep } from 'src/util/types';
 import Steps from '../steps';
 import { useForm, useFormState } from 'react-final-form';
 import TaskFields from './TaskFields';

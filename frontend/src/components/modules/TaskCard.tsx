@@ -1,10 +1,10 @@
-import { Button, Card, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, makeStyles, Typography } from "@material-ui/core";
+import { Card, makeStyles, Typography } from "@material-ui/core";
 import get from "lodash.get";
 import { useState } from "react";
 import { useTranslate } from "react-admin";
 import { Draggable } from "react-beautiful-dnd";
 import { useForm } from "react-final-form";
-import { IModule, ITask, ITaskStep } from "src/util/types";
+import { ITask } from "src/util/types";
 import Creator from "./Creator";
 import TaskFields from "./TaskFields";
 

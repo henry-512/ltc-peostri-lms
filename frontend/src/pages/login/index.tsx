@@ -1,11 +1,9 @@
-import * as React from 'react';
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Field, withTypes } from 'react-final-form';
 import { useLocation } from 'react-router-dom';
 
 import {
-    Avatar,
     Box,
     Button,
     Card,
@@ -16,7 +14,6 @@ import {
 } from '@material-ui/core';
 import { createTheme, makeStyles } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
-import LockIcon from '@material-ui/icons/Lock';
 import { Notification, useTranslate, useLogin, useNotify } from 'react-admin';
 import { lightTheme } from '../../util/themes';
 
