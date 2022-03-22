@@ -1,6 +1,6 @@
 import { makeStyles } from "@material-ui/core";
 import { Create, SimpleForm, useTranslate } from "react-admin";
-import TemplateToolbar from "src/components/templates/TemplateToolbar";
+import { ModuleTemplateFields, TemplateToolbar } from "src/components/templates";
 import { IProject } from "src/util/types";
 import Stepper from "../../../../components/stepper/Stepper";
 import General from "../steps/General";
@@ -48,7 +48,7 @@ export default function ModuleTemplateCreate(props: any) {
                     />
                 }
             >
-                
+                <ModuleTemplateFields getSource={(src: string) => src} />
             </SimpleForm>
           </Create>
      )

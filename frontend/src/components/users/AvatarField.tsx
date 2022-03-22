@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import { FieldProps } from 'react-admin';
 import { IUser } from 'src/util/types';

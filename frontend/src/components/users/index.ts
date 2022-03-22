@@ -1,13 +1,15 @@
 import AvatarField from "./AvatarField";
 import AutoFillUserName from "./AutoFillUserName";
-import SectionTitle from "./SectionTitle";
-import Separator from "./Separator";
 import UserToolbar from "./UserToolbar";
+import UserEditToolbar from "./UserEditToolbar";
+import UserEditTitle from "./UserEditTitle";
+import UserFields from "./UserFields";
 
 export {
     AvatarField,
     AutoFillUserName,
-    SectionTitle,
-    Separator,
-    UserToolbar
+    UserToolbar,
+    UserEditToolbar,
+    UserEditTitle,
+    UserFields
 }

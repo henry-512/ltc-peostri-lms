@@ -1,5 +1,7 @@
 import TemplateToolbar from './TemplateToolbar';
+import ModuleTemplateFields from './ModuleTemplateFields';
 
-export default {
-    TemplateToolbar
+export {
+    TemplateToolbar,
+    ModuleTemplateFields
 }

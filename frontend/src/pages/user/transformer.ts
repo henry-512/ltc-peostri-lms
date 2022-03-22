@@ -1,10 +1,12 @@
 import { IUser } from "src/util/types";
 
-const transformer = (data: any) => {
+const transformer = (data: IUser) => {
     delete data.useEmail;
     delete data.confirm_password;
 
-    console.log(data);
+    if (data.password && data.password?.length <= 0) {
+        delete data.password;
+    }
 
     return {
         ...data
