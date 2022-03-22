@@ -4,6 +4,7 @@ const transformer = (data: IProject) => {
     delete data.auto_assign;
     data.comments = [];
 
+    //Remove empty steps.
     for (const mKey in data.modules) {
         if (data.modules[mKey].length <= 0) {
             delete data.modules[mKey];
