@@ -32,3 +32,7 @@ export interface IFieldData {
 export interface IForeignFieldData extends IFieldData {
     foreignApi: DBManager<IArangoIndexes>;
 }
+
+export interface IDataFieldData extends IFieldData {
+    foreignData: DataManager<any>;
+}

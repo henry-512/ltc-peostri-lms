@@ -14,7 +14,6 @@ let d = {
                     'key-0': [
                         {
                             title:'Module 0-0',
-                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {
@@ -39,7 +38,6 @@ let d = {
                     'key-0': [
                         {
                             title:'Module 0-0',
-                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {
@@ -63,7 +61,6 @@ let d = {
                     'key-0': [
                         {
                             title:'Module 0-0',
-                            'waive_module':false,
                             comments: 'Hello o/',
                             tasks:{
                                 'key-0': [
@@ -88,7 +85,6 @@ let d = {
                     'key-0': [
                         {
                             title:'Module 0-0',
-                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {
@@ -99,7 +95,6 @@ let d = {
                             },
                         }, {
                             title:'Module 0-1',
-                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {
@@ -116,7 +111,6 @@ let d = {
                             },
                         }, {
                             title:'Module 0-2',
-                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {
@@ -145,7 +139,6 @@ let d = {
                     'key-1': [
                         {
                             title:'Module 1-0',
-                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {
@@ -160,7 +153,6 @@ let d = {
                         },
                         {
                             title:'Module 1-1',
-                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {
@@ -173,7 +165,34 @@ let d = {
                     ]
                 }
             }
-        }
+        }, {
+            n: 'Waived module base',
+            d: {
+                title: 'Project',
+                users: [ debugUserId ],
+                start:'2022-11-11',
+                end:'2022-11-11',
+                modules: {
+                    'key-0': [
+                        {
+                            title:'Module 0-0',
+                            tasks:{
+                                'key-0': [
+                                    {
+                                        title:'Task 0-0-0-0',
+                                        type: 'DOCUMENT_REVIEW'
+                                    }
+                                ]
+                            },
+                            waive:{
+                                comment: 'Hello :)',
+                                author: debugUserId,
+                            },
+                        },
+                    ],
+                }
+            },
+        },
     ],
     failPost: [
         {
@@ -186,7 +205,6 @@ let d = {
                     'key-0': [
                         {
                             title:'Module 0-0',
-                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {
@@ -216,7 +234,6 @@ let d = {
                 end:'2022-11-11',
                 modules: {
                     title:'Module 0-0',
-                    'waive_module':false,
                     tasks:{
                         'key-0': [
                             {
@@ -237,7 +254,6 @@ let d = {
                 modules: [
                     {
                         title:'Module 0-0',
-                        'waive_module':false,
                         tasks:{
                             'key-0': [
                                 {
@@ -259,7 +275,6 @@ let d = {
                 modules: {
                     'key-0': [
                         {
-                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {
@@ -283,7 +298,6 @@ let d = {
                     'key-0': [
                         {
                             title:'Module 0-0',
-                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {
@@ -306,7 +320,6 @@ let d = {
                     'key-0': [
                         {
                             title:'Module 0-0',
-                            'waive_module':false,
                             tasks:{
                                 'key-0': [
                                     {

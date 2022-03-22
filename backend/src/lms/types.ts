@@ -41,6 +41,10 @@ export interface IModuleTemplate extends IArangoIndexes {
      waive_module: boolean;
 }
 
+export interface IWaiveData {
+     
+}
+
 export interface IModule extends IArangoIndexes {
      title: string;
      tasks: { [id:string]: ITask[] | string[] };
@@ -66,13 +70,15 @@ export interface IProject extends IArangoIndexes, ICreateUpdate {
      users: Array<string> | Array<IUser>;
 }
 
+export interface IPermission {
+     perm1: boolean;
+     perm2: boolean;
+     perm3: boolean;
+}
+
 export interface IRank extends IArangoIndexes {
      name: string;
-     permissions?: {
-          perm1: boolean;
-          perm2: boolean;
-          perm3: boolean;
-     };
+     permissions?: string | IPermission
 }
 
 export interface ITaskTemplate extends IArangoIndexes {

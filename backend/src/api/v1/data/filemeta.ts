@@ -108,8 +108,8 @@ class Filemeta extends DBManager<IFilemeta> {
         user: AuthUser,
         files: any,
         str: string,
-        par: string
-    ): Promise<IFilemeta | null> {
+        par: string,
+    ): Promise<IFilemeta | undefined> {
         if (!files[str]) {
             this.error(
                 'buildFromString',
@@ -123,6 +123,7 @@ class Filemeta extends DBManager<IFilemeta> {
         let latest = await this.writeFile(user, fileData)
 
         return {
+            id: this.db.generateDBID(),
             latest,
             old: [],
             module: par,

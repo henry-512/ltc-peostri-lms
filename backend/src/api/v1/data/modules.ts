@@ -1,9 +1,40 @@
-import { IModule } from "../../../lms/types";
+import { IModule, IWaiveData } from "../../../lms/types";
 import { CommentManager } from "./comments";
 import { FilemetaManager } from "./filemeta";
 import { TaskManager } from "./tasks";
 import { AuthUser } from "../../auth";
 import { DBManager } from "../DBManager";
+import { DataManager } from "../DataManager";
+import { UserManager } from "./users";
+
+class Waive extends DataManager<IWaiveData> {
+    constructor() {
+        super(
+            'Waive',
+            {
+                'comment': {
+                    type:'fkey',
+                    foreignApi:CommentManager,
+                    freeable:true,
+                    acceptNewDoc:true,
+                },
+                'file':{
+                    type:'fkey',
+                    foreignApi:FilemetaManager,
+                    optional: true,
+                    acceptNewDoc:true,
+                },
+                'author':{
+                    type:'fkey',
+                    foreignApi:UserManager,
+                }
+            },
+            false,
+        )
+    }
+}
+
+const WaiveManager = new Waive()
 
 class Module extends DBManager<IModule> {
     constructor() {
@@ -15,25 +46,18 @@ class Module extends DBManager<IModule> {
                 'tasks':{
                     type:'step',
                     instance:'fkey',
-                    freeable:true,
-                    acceptNewDoc:true,
                     foreignApi:TaskManager,
-                },
-                'waive_comment': {
-                    type:'fkey',
-                    optional:true,
                     freeable:true,
                     acceptNewDoc:true,
-                    foreignApi:CommentManager,
                 },
                 'comments':{
                     type:'array',
                     instance:'fkey',
+                    foreignApi:CommentManager,
                     optional:true,
                     default:[],
                     freeable:true,
                     acceptNewDoc:true,
-                    foreignApi:CommentManager,
                 },
                 'project':{
                     type:'parent',
@@ -43,24 +67,18 @@ class Module extends DBManager<IModule> {
                     type:'string',
                     default: 'AWAITING'
                 },
-                'waive_module':{
-                    type:'boolean',
-                    optional:true,
-                    default:false
-                },
-                'waive_module_file':{
-                    type:'fkey',
-                    optional:true,
-                    acceptNewDoc:true,
-                    foreignApi:FilemetaManager,
-                },
                 'files':{
                     type:'array',
                     instance:'fkey',
+                    foreignApi:FilemetaManager,
                     optional:true,
                     default:[],
                     acceptNewDoc:true,
-                    foreignApi:FilemetaManager
+                },
+                'waive':{
+                    type:'data',
+                    foreignData:WaiveManager,
+                    optional:true,
                 },
             },
             false,
@@ -71,7 +89,6 @@ class Module extends DBManager<IModule> {
         user: AuthUser,
         files: any,
         doc: any,
-        id: string,
     ): Promise<IModule> {
         // Convert a single file into a file array
         if (doc.file) {

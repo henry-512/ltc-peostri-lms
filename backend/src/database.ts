@@ -121,6 +121,10 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         }
     }
 
+    public async tryExists(id: string) {
+        return this.isDBId(id) && this.existsUnsafe(id)
+    }
+
     public async exists(id: string) {
         if (!this.isDBId(id)) {
             throw this.error(
