@@ -38,7 +38,7 @@ const ModuleFields = (props: ModuleFieldsProps) => {
     const classes = useStyles();
     const translate = useTranslate();
     const validateTitle = [required(), minLength(2), maxLength(150)];
-    const [showFileUpload, setShowFileUpload] = useState(initialValues.waive_module || false);
+    const [showFileUpload, setShowFileUpload] = useState(initialValues?.waive_module || false);
 
     return (
         <>
