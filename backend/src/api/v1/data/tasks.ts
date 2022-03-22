@@ -1,12 +1,11 @@
 import { ITask } from "../../../lms/types";
-import { ApiRoute } from "../route";
-import { RankRouteInstance } from "./ranks";
-import { UserRouteInstance } from "./users";
+import { DBManager } from "../DBManager";
+import { RankManager } from "./ranks";
+import { UserManager } from "./users";
 
-class TaskRoute extends ApiRoute<ITask> {
+class Task extends DBManager<ITask> {
     constructor() {
         super(
-            'tasks',
             'tasks',
             'Task',
             {
@@ -19,13 +18,13 @@ class TaskRoute extends ApiRoute<ITask> {
                     type:'fkeyArray',
                     default:[],
                     getIdKeepAsRef:true,
-                    foreignApi:UserRouteInstance,
+                    foreignApi:UserManager,
                 },
                 'rank':{
                     type:'fkey',
                     optional:true,
                     getIdKeepAsRef:true,
-                    foreignApi:RankRouteInstance,
+                    foreignApi:RankManager,
                 },
                 'module':{
                     type:'parent',
@@ -38,4 +37,4 @@ class TaskRoute extends ApiRoute<ITask> {
     }
 }
 
-export const TaskRouteInstance = new TaskRoute()
+export const TaskManager = new Task()

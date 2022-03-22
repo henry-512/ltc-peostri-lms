@@ -1,19 +1,18 @@
 import { IComment } from "../../../lms/types";
-import { ApiRoute } from "../route";
-import { UserRouteInstance } from "./users";
+import { UserManager } from "./users";
 import { AuthUser } from "../../auth";
+import { DBManager } from "../DBManager";
 
-class CommentRoute extends ApiRoute<IComment> {
+class Comment extends DBManager<IComment> {
     constructor() {
         super(
-            'comments',
             'comments',
             'Comment',
             {
                 'content':{type:'string'},
                 'author':{
                     type:'fkey',
-                    foreignApi:UserRouteInstance
+                    foreignApi:UserManager
                 },
                 'parent':{
                     type:'parent',
@@ -30,7 +29,7 @@ class CommentRoute extends ApiRoute<IComment> {
             return super.getFromDB(user, depth, id)
         }
 
-        let doc = await this.getUnsafe(id)
+        let doc = await this.db.get(id)
 
         // :)
         return doc.content as any
@@ -66,4 +65,4 @@ class CommentRoute extends ApiRoute<IComment> {
     }
 }
 
-export const CommentRouteInstance = new CommentRoute()
+export const CommentManager = new Comment()

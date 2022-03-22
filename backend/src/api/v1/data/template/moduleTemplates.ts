@@ -1,12 +1,11 @@
 import { HTTPStatus } from "../../../../lms/errors";
 import { IModule, IModuleTemplate, ITask } from "../../../../lms/types";
-import { ApiRoute } from "../../route";
+import { DBManager } from "../../DBManager";
 
-class ModuleTemplateRoute extends ApiRoute<IModuleTemplate> {
+class ModuleTemplateRoute extends DBManager<IModuleTemplate> {
     constructor() {
         super(
             'moduleTemplates',
-            'template/modules',
             'Module Template',
             {
                 'title': { type:'string' },
@@ -16,13 +15,18 @@ class ModuleTemplateRoute extends ApiRoute<IModuleTemplate> {
                     type:'boolean',
                     optional:true,
                 },
+                'ttc': {
+                    type: 'number',
+                    optional:true,
+                    default:0,
+                },
             },
             false,
         )
     }
 
     public async buildModuleFromId(id:string): Promise<IModule> {
-        let template = await this.getUnsafe(id)
+        let template = await this.db.get(id)
         return this.buildModuleFromTemplate(template)
     }
 
@@ -48,23 +52,6 @@ class ModuleTemplateRoute extends ApiRoute<IModuleTemplate> {
             status: 'AWAITING',
             waive_module: temp.waive_module,
         }
-    }
-
-    public override makeRouter() {
-        let r = super.makeRouter()
-        // Builds a project matching the passed project template ID
-        r.get('/instance/:id', async (ctx, next) => {
-            if (!this.exists(ctx.params.id)) {
-                ctx.body = this.buildModuleFromId(ctx.params.id)
-                ctx.status = HTTPStatus.OK
-            } else {
-                ctx.status = HTTPStatus.NOT_FOUND
-                ctx.body = `${this.displayName} [${ctx.params.id}] dne`
-            }
-
-            next()
-        })
-        return r
     }
 }
 

@@ -1,33 +1,31 @@
-import Router from "@koa/router";
-import { aql, GeneratedAqlQuery } from "arangojs/aql";
-import { DocumentCollection } from "arangojs/collection";
 import bcrypt from 'bcrypt'
 
-import { db } from "../../../database";
 import { IUser } from "../../../lms/types";
-import { ApiRoute } from "../route";
-import { RankRouteInstance } from "./ranks";
+import { RankManager } from "./ranks";
 import { isDBKey } from "../../../lms/util";
 import { HTTPStatus } from "../../../lms/errors";
 import { AuthUser } from "../../auth";
+import { DBManager } from "../DBManager";
+import { UserArangoWrapper } from "./UserArangoWrapper";
 
-class UserRoute extends ApiRoute<IUser> {
-    public async getUser(key: string): Promise<IUser> {
-        if (key && isDBKey(key) && this.exists(key)) {
-            return this.getUnsafe(key)
+export const DB_NAME = 'users'
+
+class User extends DBManager<IUser> {
+    public async getUser(id: string): Promise<IUser> {
+        if (id && isDBKey(id) && this.exists(id)) {
+            return this.db.get(id)
         }
         throw this.error(
             'getUser',
             HTTPStatus.BAD_REQUEST,
-            'Invalid user key',
-            `${key} not a valid key`
+            'Invalid user id',
+            `${id} not a valid id`
         )
     }
 
     constructor() {
         super(
-            'users',
-            'users',
+            DB_NAME,
             'User',
             {
                 'firstName': {type:'string'},
@@ -36,7 +34,7 @@ class UserRoute extends ApiRoute<IUser> {
                 'rank':{
                     type:'fkey',
                     getIdKeepAsRef:true,
-                    foreignApi:RankRouteInstance,
+                    foreignApi:RankManager,
                 },
                 'status':{
                     type:'string',
@@ -60,27 +58,8 @@ class UserRoute extends ApiRoute<IUser> {
             },
             false,
         )
-    }
-    // Override
-    // Dereferences the usergroup ID and name
-    override getAllQuery(
-        collection: DocumentCollection,
-		sort: GeneratedAqlQuery,
-		sortDir: GeneratedAqlQuery,
-		offset: number, 
-		count: number,
-        queryFields: GeneratedAqlQuery,
-        filterIds: string[]
-    ): GeneratedAqlQuery {
-        let query = aql`FOR z in ${collection} SORT z.${sort} ${sortDir}`
 
-        if (filterIds.length > 0) {
-            query = aql`${query} FILTER z._key IN ${filterIds}`
-        }
-
-        return aql`${query} LIMIT ${offset}, ${count}
-            LET a = (RETURN DOCUMENT(z.rank))[0]
-            RETURN {rank:(RETURN {id:a._key,name:a.name})[0],${queryFields}}`
+        this.db = new UserArangoWrapper(this.fieldEntries)
     }
 
     override async modifyDoc(
@@ -95,45 +74,6 @@ class UserRoute extends ApiRoute<IUser> {
         }
         return doc
     }
-
-    public async getFromUsername(username: string) {
-        let query = aql`FOR z IN users FILTER z.username == ${username} RETURN {${this.getAllQueryFields}password:z.password}`
-
-        let cursor = await db.query(query)
-
-        if (!cursor.hasNext) {
-            throw this.error(
-                'getFromUsername',
-                HTTPStatus.BAD_REQUEST,
-                'Login information invalid',
-                `Username ${username} not found`
-            )
-        }
-
-        let usr = await cursor.next()
-        if (cursor.hasNext) {
-            throw this.error(
-                'getFromUsername',
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                'Invalid system state',
-                `Multiple users with the same username [${username}]`
-            )
-        }
-        return usr
-    }
-
-    public override makeRouter() {
-        let r = new Router({prefix:this.routeName})
-        // Self
-        r.get('/self', async (ctx, next) => {
-            let user = await AuthUser.validate(ctx.cookies.get('token'))
-
-            ctx.body = await this.getFromDB(user, 0, user.getId())
-            ctx.status = HTTPStatus.OK
-        })
-
-        return super.makeRouter(r)
-    }
 }
 
-export const UserRouteInstance = new UserRoute()
+export const UserManager = new User()

@@ -1,10 +1,11 @@
 import { APIError, HTTPStatus, IErrorable } from "../../lms/errors"
 import { IFieldData, IForeignFieldData } from "../../lms/FieldData"
+import { AuthUser } from "../auth"
 
 export abstract class DataManager<Type> extends IErrorable {
     protected fieldEntries:[string, IFieldData][]
     private foreignEntries:[string, IForeignFieldData][]
-    private parentField: null | {
+    protected parentField: null | {
         local:string, foreign:string
     }
 
@@ -136,7 +137,6 @@ export abstract class DataManager<Type> extends IErrorable {
     }
 
     constructor(
-        routeName: string,
         className: string,
         protected fieldData: {[key:string]: IFieldData},
         /**
@@ -166,5 +166,44 @@ export abstract class DataManager<Type> extends IErrorable {
                 }
             }
         }
+    }
+
+    /**
+     * Accepts a non id/key string and converts it into a valid document
+     */
+    protected async buildFromString(
+        user: AuthUser,
+        files: any,
+        str: string,
+        par: string
+    ) : Promise<Type | null> {
+        return null
+    }
+
+    /**
+     * Modifies a document. Called after verifying all fields exist,
+     * and after dereferencing all keys
+     */
+    protected async modifyDoc(
+        user:AuthUser,
+        files:any,
+        doc:any,
+        id:string
+    ) : Promise<Type> {
+        return doc
+    }
+
+    protected async addReference(id:string, field:string, real:boolean) {
+        throw this.error(
+            'addReference',
+            HTTPStatus.NOT_IMPLEMENTED
+        )
+    }
+
+    protected async removeReference(id:string, field:string, real:boolean) {
+        throw this.error(
+            'removeReference',
+            HTTPStatus.NOT_IMPLEMENTED
+        )
     }
 }

@@ -5,8 +5,8 @@ import jsonwebtoken, { JwtPayload } from 'jsonwebtoken'
 import { config } from "../config"
 import { APIError, HTTPStatus } from "../lms/errors"
 import { IRank, IUser } from "../lms/types"
-import { RankRouteInstance } from "./v1/data/ranks"
-import { UserRouteInstance } from "./v1/data/users"
+import { RankManager } from "./v1/data/ranks"
+import { UserManager } from "./v1/data/users"
 import { isDBKey } from "../lms/util"
 
 /**
@@ -16,6 +16,7 @@ import { isDBKey } from "../lms/util"
     private rank?: IRank
     private user?: IUser
     public key
+    public id
 
     /**
      * Builds an error with the provided fields
@@ -46,7 +47,7 @@ import { isDBKey } from "../lms/util"
         }
 
         let usr = new AuthUser(auth)
-        if (!await UserRouteInstance.exists(usr.key)) {
+        if (!await UserManager.exists(usr.id)) {
             throw AuthUser.error(
                 'authRouter.get',
                 HTTPStatus.UNAUTHORIZED,
@@ -77,6 +78,7 @@ import { isDBKey } from "../lms/util"
         }
 
         this.key = (<JwtPayload>jwt).user
+        this.id = UserManager.db.keyToId(this.key)
         if (!isDBKey(this.key)) {
             throw AuthUser.error(
                 'constructor',
@@ -87,16 +89,16 @@ import { isDBKey } from "../lms/util"
         }
     }
 
-    getId() { return UserRouteInstance.keyToId(this.key) }
+    getId() { return UserManager.db.keyToId(this.key) }
 
     async getUser() {
-        if (!this.user) this.user = await UserRouteInstance.getUser(this.key)
+        if (!this.user) this.user = await UserManager.getUser(this.key)
         return this.user
     }
 
     async getRank() {
-        if (!this.user) this.user = await UserRouteInstance.getUser(this.key)
-        if (!this.rank) this.rank = await RankRouteInstance
+        if (!this.user) this.user = await UserManager.getUser(this.key)
+        if (!this.rank) this.rank = await RankManager
             .getRank(this.user.rank as string)
         
         return this.rank
@@ -117,7 +119,7 @@ import { isDBKey } from "../lms/util"
                 )
             }
 
-            let dbUser = await UserRouteInstance.getFromUsername(reqUN)
+            let dbUser = await (<any>UserManager.db).getFromUsername(reqUN)
 
             const {
                 password,

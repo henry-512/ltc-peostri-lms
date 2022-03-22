@@ -3,7 +3,7 @@ import { DataManager } from "../api/v1/DataManager";
 import { DBManager } from "../api/v1/DBManager";
 
 export interface IFieldData {
-    type: 'string' | 'boolean' | 'object' | 'parent' | 'fkey' | 'fkeyArray' | 'fkeyStep' | 'array';
+    type: 'string' | 'boolean' | 'number' | 'object' | 'parent' | 'fkey' | 'fkeyArray' | 'fkeyStep' | 'array';
     optional?: boolean;
     default?: any;
     hideGetAll?: boolean;

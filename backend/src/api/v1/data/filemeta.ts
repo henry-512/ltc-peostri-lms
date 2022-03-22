@@ -2,26 +2,26 @@ import fs from 'fs';
 import path from 'path';
 
 import { IFile, IFilemeta } from "../../../lms/types";
-import { ApiRoute } from "../route";
-import { UserRouteInstance } from "./users";
+import { UserManager } from "./users";
 import { AuthUser } from "../../auth";
 import { generateBase64UUID } from '../../../lms/util';
 import { HTTPStatus } from '../../../lms/errors';
 import { config } from '../../../config';
+import { DBManager } from '../DBManager';
+import { DataManager } from '../DataManager';
 
 const FILE_PATH = path.resolve(config.basePath, 'fs')
 
-class Filedata extends ApiRoute<IFile> {
+class Filedata extends DataManager<IFile> {
     constructor() {
         super(
-            '', '',
             'File',
             {
                 src: {type:'string'},
                 title: {type:'string'},
                 author: {
                     type:'fkey',
-                    foreignApi: UserRouteInstance,
+                    foreignApi: UserManager,
                 },
             },
             true,
@@ -31,10 +31,9 @@ class Filedata extends ApiRoute<IFile> {
 
 const FiledataInstance = new Filedata()
 
-class FilemetaRoute extends ApiRoute<IFilemeta> {
+class Filemeta extends DBManager<IFilemeta> {
     constructor() {
         super(
-            'filemeta',
             'filemeta',
             'File Metadata',
             {
@@ -58,7 +57,7 @@ class FilemetaRoute extends ApiRoute<IFilemeta> {
             return super.getFromDB(user, depth, id)
         }
 
-        let doc = await this.getUnsafe(id)
+        let doc = await this.db.get(id)
 
         // :)
         return {
@@ -138,4 +137,4 @@ interface IFileData {
     mtime:string | Date,
 }
 
-export const FilemetaRouteInstance = new FilemetaRoute()
+export const FilemetaManager = new Filemeta()

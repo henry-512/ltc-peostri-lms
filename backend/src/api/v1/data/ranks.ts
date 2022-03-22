@@ -1,18 +1,17 @@
 import { IRank } from "../../../lms/types";
 import { isDBId } from "../../../lms/util";
-import { ApiRoute } from "../route";
+import { DBManager } from "../DBManager";
 
-class RankRoute extends ApiRoute<IRank> {
+class Rank extends DBManager<IRank> {
     public async getRank(id: string): Promise<IRank> {
         if (id && isDBId(id) && this.exists(id)) {
-            return this.getUnsafe(id)
+            return this.db.get(id)
         }
         throw new TypeError(`${id} not a valid key`)
     }
 
     constructor() {
         super(
-            'ranks',
             'ranks',
             'Rank',
             {
@@ -31,4 +30,4 @@ class RankRoute extends ApiRoute<IRank> {
     }
 }
 
-export const RankRouteInstance = new RankRoute()
+export const RankManager = new Rank()

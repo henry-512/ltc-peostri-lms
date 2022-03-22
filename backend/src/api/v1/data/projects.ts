@@ -1,13 +1,12 @@
 import { IProject } from "../../../lms/types";
-import { CommentRouteInstance } from "./comments";
-import { ModuleRouteInstance } from "./modules";
-import { ApiRoute } from "../route";
-import { UserRouteInstance } from "./users";
+import { DBManager } from "../DBManager";
+import { CommentManager } from "./comments";
+import { ModuleManager } from "./modules";
+import { UserManager } from "./users";
 
-class ProjectRoute extends ApiRoute<IProject> {
+class Project extends DBManager<IProject> {
     constructor() {
         super(
-            'projects',
             'projects',
             'Project',
             {
@@ -23,19 +22,19 @@ class ProjectRoute extends ApiRoute<IProject> {
                     default:[],
                     freeable:true,
                     acceptNewDoc:true,
-                    foreignApi:CommentRouteInstance,
+                    foreignApi:CommentManager,
                 },
                 'modules':{
                     type:'fkeyStep',
                     freeable:true,
                     acceptNewDoc:true,
-                    foreignApi:ModuleRouteInstance,
+                    foreignApi:ModuleManager,
                 },
                 'users':{
                     type:'fkeyArray',
                     default:[],
                     getIdKeepAsRef:true,
-                    foreignApi:UserRouteInstance,
+                    foreignApi:UserManager,
                 },
             },
             true,
@@ -43,4 +42,4 @@ class ProjectRoute extends ApiRoute<IProject> {
     }
 }
 
-export const ProjectRouteInstance = new ProjectRoute()
+export const ProjectManager = new Project()

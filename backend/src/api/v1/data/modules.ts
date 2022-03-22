@@ -1,14 +1,13 @@
 import { IModule } from "../../../lms/types";
-import { CommentRouteInstance } from "./comments";
-import { FilemetaRouteInstance } from "./filemeta";
-import { ApiRoute } from "../route";
-import { TaskRouteInstance } from "./tasks";
+import { CommentManager } from "./comments";
+import { FilemetaManager } from "./filemeta";
+import { TaskManager } from "./tasks";
 import { AuthUser } from "../../auth";
+import { DBManager } from "../DBManager";
 
-class ModuleRoute extends ApiRoute<IModule> {
+class Module extends DBManager<IModule> {
     constructor() {
         super(
-            'modules',
             'modules',
             'Module',
             {
@@ -17,14 +16,14 @@ class ModuleRoute extends ApiRoute<IModule> {
                     type:'fkeyStep',
                     freeable:true,
                     acceptNewDoc:true,
-                    foreignApi:TaskRouteInstance,
+                    foreignApi:TaskManager,
                 },
                 'waive_comment': {
                     type:'fkey',
                     optional:true,
                     freeable:true,
                     acceptNewDoc:true,
-                    foreignApi:CommentRouteInstance,
+                    foreignApi:CommentManager,
                 },
                 'comments':{
                     type:'fkeyArray',
@@ -32,7 +31,7 @@ class ModuleRoute extends ApiRoute<IModule> {
                     default:[],
                     freeable:true,
                     acceptNewDoc:true,
-                    foreignApi:CommentRouteInstance,
+                    foreignApi:CommentManager,
                 },
                 'project':{
                     type:'parent',
@@ -51,14 +50,14 @@ class ModuleRoute extends ApiRoute<IModule> {
                     type:'fkey',
                     optional:true,
                     acceptNewDoc:true,
-                    foreignApi:FilemetaRouteInstance,
+                    foreignApi:FilemetaManager,
                 },
                 'files':{
                     type:'fkeyArray',
                     optional:true,
                     default:[],
                     acceptNewDoc:true,
-                    foreignApi:FilemetaRouteInstance
+                    foreignApi:FilemetaManager
                 },
             },
             false,
@@ -84,4 +83,4 @@ class ModuleRoute extends ApiRoute<IModule> {
     }
 }
 
-export const ModuleRouteInstance = new ModuleRoute()
+export const ModuleManager = new Module()
