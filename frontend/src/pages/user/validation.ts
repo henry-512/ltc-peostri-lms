@@ -4,7 +4,11 @@ import { IUser } from "src/util/types";
 export default function validateUser(user: IUser) {
     const errors: any = {};
 
-
+    if (user.password && user.confirm_password && user.password !== user.confirm_password) {
+        errors.confirm_password = [
+            'resources.customers.errors.password_mismatch',
+        ];
+    }
 
     // Note: Module and Task Validation is done directly on the components input fields.
 

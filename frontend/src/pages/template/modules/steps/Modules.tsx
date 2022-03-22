@@ -1,4 +1,4 @@
-import { Step } from "../../../components/stepper/Step";
+import { Step } from "../../../../components/stepper/Step";
 import { FormDataConsumer, FormGroupContextProvider } from "react-admin";
 import { ModuleManager } from "src/components/modules";
 

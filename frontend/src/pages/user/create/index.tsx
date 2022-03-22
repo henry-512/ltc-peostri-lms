@@ -4,7 +4,7 @@ import { BooleanInput, Create, CreateProps, DateInput, email, PasswordInput, Ref
 import { AnyObject } from "react-final-form";
 import { AutoFillUserName, SectionTitle, Separator, UserToolbar } from "src/components/users";
 import transformer from "../transformer";
-import { validatePasswords } from "../validation";
+import validateUser from "../validation";
 
 export const styles: Styles<Theme, any> = {
     username: {
@@ -26,7 +26,7 @@ const UserCreate = (props: CreateProps) => {
     return (
         <Create {...props} transform={transformer} title={translate('user.layout.create_title')}>
             <SimpleForm
-                validate={validatePasswords}
+                validate={validateUser}
                 toolbar={
                     <UserToolbar
                         create={true}

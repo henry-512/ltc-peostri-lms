@@ -1,8 +1,8 @@
 import ModuleTemplateCreate from './create'
 import ModuleTemplateEdit from './edit'
 import ModuleTemplateList from './list'
-import FileCopyIcon from '@material-ui/icons/FileCopy';
+import ViewModuleIcon from '@material-ui/icons/ViewModule';
 
-const ModuleTemplateIcon = FileCopyIcon;
+const ModuleTemplateIcon = ViewModuleIcon;
 
 export { ModuleTemplateCreate, ModuleTemplateEdit, ModuleTemplateList, ModuleTemplateIcon };

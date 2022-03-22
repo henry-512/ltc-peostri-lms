@@ -4,7 +4,7 @@ import { BooleanInput, Edit, EditActionsProps, email, FieldProps, PasswordInput,
 import { AutoFillUserName, SectionTitle, Separator, UserToolbar } from "src/components/users";
 import { IUser } from "src/util/types";
 import transformer from "../transformer";
-import { validatePasswords } from "../validation";
+import validateUser from "../validation";
 
 export const styles: Styles<Theme, any> = {
     username: {
@@ -41,7 +41,7 @@ const UserEdit = (props: any) => {
     return (
         <Edit {...props} transform={transformer} actions={<UserEditToolbar />} title={<UserEditTitle />}>
             <SimpleForm
-                validate={validatePasswords}
+                validate={validateUser}
                 toolbar={
                     <UserToolbar
                         create={false}
