@@ -10,6 +10,7 @@
 /build
 /backend/build
 /frontend/build
+/backend/fs
 
 # misc
 .DS_Store
