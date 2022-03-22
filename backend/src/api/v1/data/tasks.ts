@@ -15,7 +15,8 @@ class Task extends DBManager<ITask> {
                     default:'AWAITING',
                 },
                 'users':{
-                    type:'fkeyArray',
+                    type:'array',
+                    instance:'fkey',
                     default:[],
                     getIdKeepAsRef:true,
                     foreignApi:UserManager,

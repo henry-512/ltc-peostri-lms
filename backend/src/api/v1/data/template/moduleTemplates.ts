@@ -32,7 +32,7 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
             {
                 'title': { type:'string' },
                 'tasks': {
-                    type:'object',
+                    type:'data',
                     foreignData: TaskTempManager,
                 },
                 'waive_module': {

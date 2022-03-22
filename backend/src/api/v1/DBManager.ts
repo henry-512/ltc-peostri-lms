@@ -279,73 +279,12 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
         // Modify this document, if required
         addDoc = await this.modifyDoc(user, files, addDoc, addDocId)
 
-        if (this.hasCUTimestamp) {
-            if (isNew === 0)
-                isNew = await this.db.exists(addDocId) ? 1 : 2
-            if (isNew === 2) {
-                (<ICreateUpdate>addDoc).createdAt = new Date().toJSON()
-            }
-            (<ICreateUpdate>addDoc).updatedAt = new Date().toJSON()
-        }
-
-        // Check for extra fields
-        for (const [pK,pV] of Object.entries(addDoc)) {
-            if (pK in this.fieldData) continue
-
-            // Developer routes
-            if (config.devRoutes) {
-                if (isNew === 0)
-                    isNew = await this.db.exists(addDocId) ? 1 : 2
-                // Clean existing documents
-                if (isNew === 1) {
-                    console.warn(`deleting key ${this.className}.${pK} from existing doc [${JSON.stringify(addDoc)}]`)
-                    delete (<any>addDoc)[pK]
-                    continue
-                }
-            }
-
-            throw this.error(
-                'addToReferenceMap',
-                HTTPStatus.BAD_REQUEST,
-                'Excess data provided',
-                `${this.className}.${pK} [${pV}] was not expected in (${JSON.stringify(addDoc)})`
-            )
-        }
+        let doc = this.verifyAddedFields(user, files, addDocId, addDoc, await this.db.exists(addDocId))
 
         // Add DB key
         addDoc._key = convertToKey(addDocId)
 
         for (let [k, data] of this.fieldEntries) {
-            // key of doc
-            let key = k as keyof Type
-            
-            // Check for missing fields
-            if (!(key in addDoc)) {
-                if (data.default !== undefined) {
-                    console.warn(`Using default ${data.default} for ${key}`)
-                    addDoc[key] = <any>data.default
-                    continue
-                } else if (data.optional) {
-                    console.warn(`optional key ${key} dne`)
-                    continue
-                } else {
-                    if (isNew === 0)
-                        isNew = await this.db.exists(addDocId) ? 1 : 2
-                    if (isNew !== 2) {
-                        console.warn(`key ${key} is missing in revised document`)
-                        continue
-                    }
-                    throw this.error(
-                        'addToReferenceMap',
-                        HTTPStatus.BAD_REQUEST,
-                        'Missing required field',
-                        `${key} dne in ${JSON.stringify(addDoc)}`
-                    )
-                }
-            }
-
-            // The value associated with this key
-            let value = addDoc[key]
 
             // Validate types
             switch(data.type) {
@@ -373,7 +312,7 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
                     }
                     continue
                 // TODO: object type checking
-                case 'object':
+                case 'data':
                     continue
             }
 
@@ -387,7 +326,7 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
                     addDoc[key] = await ref(value)
                     continue
                 // Ref array of docs
-                case 'fkeyArray':
+                case 'array':
                     if (Array.isArray(value)) {
                         addDoc[key] = <any>await Promise.all(value.map(
                             lpDoc => ref(lpDoc)
@@ -407,7 +346,7 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
                         `${value} expected to be an array`
                     )
                 // Ref step obj of docs
-                case 'fkeyStep':
+                case 'step':
                     if (typeof value === 'object') {
                         let temp:any = {}
                         for (let [stepId, stepAr] of Object.entries(value)) {

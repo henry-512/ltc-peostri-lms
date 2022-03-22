@@ -38,10 +38,13 @@ class Filemeta extends DBManager<IFilemeta> {
             'File Metadata',
             {
                 'latest':{
-                    type:'object',
+                    type:'data',
+                    foreignData: FiledataInstance,
                 },
                 'old':{
                     type:'array',
+                    instance: 'data',
+                    foreignData: FiledataInstance,
                 },
                 'module':{
                     type:'parent',

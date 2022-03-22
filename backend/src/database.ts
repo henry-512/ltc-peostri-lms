@@ -21,7 +21,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     static DESC = aql`DESC`
     static KEY = aql`_key`
 
-    private collection: DocumentCollection<Type>
+    protected collection: DocumentCollection<Type>
     protected getAllQueryFields: GeneratedAqlQuery
 
     private async existsUnsafe(id: string) {
@@ -86,21 +86,19 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 
     protected getAllQuery(
-        collection: DocumentCollection,
 		sort: GeneratedAqlQuery,
 		sortDir: GeneratedAqlQuery,
 		offset: number, 
 		count: number,
-        queryFields: GeneratedAqlQuery,
         filterIds: string[]
     ): GeneratedAqlQuery {
-        let query = aql`FOR z IN ${collection} SORT z.${sort} ${sortDir}`
+        let query = aql`FOR z IN ${this.collection} SORT z.${sort} ${sortDir}`
 
         if (filterIds.length > 0) {
             query = aql`${query} FILTER z._key IN ${filterIds}`
         }
 
-        return aql`${query} LIMIT ${offset}, ${count} RETURN {${queryFields}}`
+        return aql`${query} LIMIT ${offset}, ${count} RETURN {${this.getAllQueryFields}}`
     }
 
     public async queryGet(
@@ -110,12 +108,10 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         size: number,
     }> {
         let query = this.getAllQuery(
-            this.collection,
             opts.sort ? aql`${opts.sort.key}` : ArangoWrapper.KEY,
             opts.sort?.dir === 'ASC' ? ArangoWrapper.ASC : ArangoWrapper.DESC,
             opts.range?.offset ?? 0,
             opts.range?.count ?? 10,
-            this.getAllQueryFields,
             [],
         )
 

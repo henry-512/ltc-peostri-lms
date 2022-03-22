@@ -13,7 +13,8 @@ class Module extends DBManager<IModule> {
             {
                 'title':{type:'string'},
                 'tasks':{
-                    type:'fkeyStep',
+                    type:'step',
+                    instance:'fkey',
                     freeable:true,
                     acceptNewDoc:true,
                     foreignApi:TaskManager,
@@ -26,7 +27,8 @@ class Module extends DBManager<IModule> {
                     foreignApi:CommentManager,
                 },
                 'comments':{
-                    type:'fkeyArray',
+                    type:'array',
+                    instance:'fkey',
                     optional:true,
                     default:[],
                     freeable:true,
@@ -53,7 +55,8 @@ class Module extends DBManager<IModule> {
                     foreignApi:FilemetaManager,
                 },
                 'files':{
-                    type:'fkeyArray',
+                    type:'array',
+                    instance:'fkey',
                     optional:true,
                     default:[],
                     acceptNewDoc:true,
