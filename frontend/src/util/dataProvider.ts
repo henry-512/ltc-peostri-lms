@@ -177,9 +177,24 @@ const dataProvider = (
 
                 for (let step of Object.values<IModule[]>(params.data.modules)) {
                     for (let module of step) {
-                        if (!module.file) continue;
-                        formData.append(`${module.id}-${module.file?.title}`, module.file.rawFile)
-                        module.file = `${module.id}-${module.file?.title}`
+                        if (!module.waive_module_file && !module.files) continue;
+
+                        if (module.waive_module_file) {
+                            formData.append(`${module.id}-${module.waive_module_file.title}`, module.waive_module_file.rawFile)
+                            module.waive_module_file = `${module.id}-${module.waive_module_file.title}`
+                        }
+
+                        if (module.files) {
+                            if (module.files.length) {
+                                for (let file of module.files) {
+                                    formData.append(`${module.id}-${file.title}`, file.rawFile)
+                                    file = `${module.id}-${file.title}`
+                                }
+                            } else {
+                                formData.append(`${module.id}-${module.files.title}`, module.files.rawFile)
+                                module.files = `${module.id}-${module.files.title}`
+                            }
+                        }
                     }
                 }
 
