@@ -53,7 +53,7 @@ class FilemetaRoute extends ApiRoute<IFilemeta> {
         )
     }
 
-    public async getFromDB(user: AuthUser, depth: number, id: string) : Promise<IFilemeta> {
+    public override async getFromDB(user: AuthUser, depth: number, id: string) : Promise<IFilemeta> {
         if (depth === 0) {
             return super.getFromDB(user, depth, id)
         }

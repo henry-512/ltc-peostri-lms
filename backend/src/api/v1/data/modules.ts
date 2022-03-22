@@ -50,7 +50,6 @@ class ModuleRoute extends ApiRoute<IModule> {
                 'waive_module_file':{
                     type:'fkey',
                     optional:true,
-                    getIdKeepAsRef:true,
                     acceptNewDoc:true,
                     foreignApi:FilemetaRouteInstance,
                 },
@@ -58,7 +57,6 @@ class ModuleRoute extends ApiRoute<IModule> {
                     type:'fkeyArray',
                     optional:true,
                     default:[],
-                    getIdKeepAsRef:true,
                     acceptNewDoc:true,
                     foreignApi:FilemetaRouteInstance
                 },

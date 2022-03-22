@@ -69,7 +69,7 @@ apiRouter().then(async api => {
     app.use(async (ctx, next) => {
         // console.log('AUTH')
         // Validates user login, given a valid jwt token
-        ctx.state.user = await AuthUser.validate(ctx.cookies.get('token'))
+        // ctx.state.user = await AuthUser.validate(ctx.cookies.get('token'))
         // Run next middleware
         await next()
     })
