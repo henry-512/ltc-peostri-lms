@@ -54,7 +54,7 @@ const instances: {[name:string]: ApiRoute<IArangoIndexes>} = {}
  */
 export abstract class ApiRoute<Type extends IArangoIndexes> {
     static ASC = aql`ASC`
-    static DESC = aql`DESC` 
+    static DESC = aql`DESC`
 
     protected collection: DocumentCollection<Type>
     protected getAllQueryFields: GeneratedAqlQuery
@@ -1112,8 +1112,6 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                 ctx.request.files,
                 newID, doc,
                 ctx.header['user-agent'] !== 'backend-testing')
-
-            this.error(':)', HTTPStatus.INTERNAL_SERVER_ERROR)
 
             ctx.status = HTTPStatus.CREATED
             ctx.body = {
