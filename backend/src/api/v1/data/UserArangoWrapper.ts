@@ -1,5 +1,4 @@
 import { aql, GeneratedAqlQuery } from "arangojs/aql";
-import { DocumentCollection } from "arangojs/collection";
 import { ArangoWrapper, db } from "../../../database";
 import { IUser } from "../../../lms/types";
 import { HTTPStatus } from "../../../lms/errors";
@@ -15,15 +14,13 @@ export class UserArangoWrapper extends ArangoWrapper<IUser> {
 
     // Dereferences the usergroup ID and name
     protected override getAllQuery(
-        collection: DocumentCollection,
         sort: GeneratedAqlQuery,
         sortDir: GeneratedAqlQuery,
         offset: number,
         count: number,
-        queryFields: GeneratedAqlQuery,
         filterIds: string[]
     ): GeneratedAqlQuery {
-        let query = aql`FOR z in ${collection} SORT z.${sort} ${sortDir}`;
+        let query = aql`FOR z in ${this.collection} SORT z.${sort} ${sortDir}`;
 
         if (filterIds.length > 0) {
             query = aql`${query} FILTER z._key IN ${filterIds}`;
@@ -31,7 +28,7 @@ export class UserArangoWrapper extends ArangoWrapper<IUser> {
 
         return aql`${query} LIMIT ${offset}, ${count}
             LET a = (RETURN DOCUMENT(z.rank))[0]
-            RETURN {rank:(RETURN {id:a._key,name:a.name})[0],${queryFields}}`;
+            RETURN {rank:(RETURN {id:a._key,name:a.name})[0],${this.getAllQueryFields}}`;
     }
 
     public async getFromUsername(username: string) {
@@ -50,12 +47,10 @@ export class UserArangoWrapper extends ArangoWrapper<IUser> {
 
         let usr = await cursor.next();
         if (cursor.hasNext) {
-            throw this.error(
+            throw this.internal(
                 'getFromUsername',
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                'Invalid system state',
                 `Multiple users with the same username [${username}]`
-            );
+            )
         }
         return usr;
     }

@@ -3,7 +3,9 @@ import { DataManager } from "../api/v1/DataManager";
 import { DBManager } from "../api/v1/DBManager";
 
 export interface IFieldData {
-    type: 'string' | 'boolean' | 'number' | 'object' | 'parent' | 'fkey' | 'fkeyArray' | 'fkeyStep' | 'array';
+    type: 'string' | 'boolean' | 'number' | 'data' | 'parent' | 'fkey' | 'step' | 'array';
+    // If type is an array or step, this is the type of that array or step
+    instance?: 'fkey' | 'data';
     optional?: boolean;
     default?: any;
     hideGetAll?: boolean;
@@ -29,4 +31,8 @@ export interface IFieldData {
 
 export interface IForeignFieldData extends IFieldData {
     foreignApi: DBManager<IArangoIndexes>;
+}
+
+export interface IDataFieldData extends IFieldData {
+    foreignData: DataManager<any>;
 }

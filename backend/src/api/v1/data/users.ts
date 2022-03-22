@@ -66,8 +66,7 @@ class User extends DBManager<IUser> {
         user: AuthUser,
         files: any,
         doc: any,
-        id: string,
-    ) {
+    ) : Promise<IUser> {
         // Hash password
         if (doc.password) {
             doc.password = await bcrypt.hash(doc.password, 5)

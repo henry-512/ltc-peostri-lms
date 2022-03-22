@@ -18,20 +18,23 @@ class Project extends DBManager<IProject> {
                     default:'AWAITING'
                 },
                 'comments':{
-                    type:'fkeyArray',
+                    type:'array',
+                    instance:'fkey',
                     default:[],
                     freeable:true,
                     acceptNewDoc:true,
                     foreignApi:CommentManager,
                 },
                 'modules':{
-                    type:'fkeyStep',
+                    type:'step',
+                    instance:'fkey',
                     freeable:true,
                     acceptNewDoc:true,
                     foreignApi:ModuleManager,
                 },
                 'users':{
-                    type:'fkeyArray',
+                    type:'array',
+                    instance:'fkey',
                     default:[],
                     getIdKeepAsRef:true,
                     foreignApi:UserManager,
