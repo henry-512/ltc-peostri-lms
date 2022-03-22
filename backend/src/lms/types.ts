@@ -43,7 +43,9 @@ export interface IModuleTemplate extends IArangoIndexes {
 }
 
 export interface IWaiveData {
-     
+     comment: string | IComment;
+     file: string | IFilemeta;
+     author: string | IUser;
 }
 
 export interface IModule extends IArangoIndexes {
