@@ -1,6 +1,6 @@
 import { stringify } from 'query-string';
 import { fetchUtils, DataProvider } from 'ra-core';
-import { IModule, IModuleStep, IProject } from './types';
+import { IModule } from './types';
 
 /**
  * Maps react-admin queries to a simple REST API
