@@ -53,8 +53,9 @@ const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
             module_ttc += stepTTC;
         }
 
-        form.change('ttc', module_ttc);
+        if (module_ttc == formData.ttc) return;
 
+        form.change('ttc', module_ttc);
     }, [formData.tasks])
 
     return (
