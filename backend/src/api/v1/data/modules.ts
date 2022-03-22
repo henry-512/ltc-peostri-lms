@@ -40,6 +40,13 @@ class ModuleRoute extends ApiRoute<IModule> {
                     optional:true,
                     default:false
                 },
+                'waive_module_file':{
+                    type:'fkey',
+                    optional:true,
+                    getIdKeepAsRef:true,
+                    acceptNewDoc:true,
+                    foreignApi:FilemetaRouteInstance,
+                },
                 'files':{
                     type:'fkeyArray',
                     optional:true,
