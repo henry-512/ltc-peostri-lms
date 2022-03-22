@@ -1,5 +1,6 @@
 import { makeStyles } from '@material-ui/core';
-import { Datagrid, DateField, List, ListProps, TextField } from 'react-admin';
+import { Datagrid, DateField, FunctionField, List, ListProps, NumberField, TextField } from 'react-admin';
+import { IModuleStep, IModuleTemplate, ITaskTemplate } from 'src/util/types';
 
 const useListStyles = makeStyles({
     headerRow: {
@@ -21,6 +22,18 @@ const useListStyles = makeStyles({
     },
 });
 
+const getTaskCount = (record?: Record<string, IModuleTemplate>) => {
+    if (!record) return 0;
+
+    let count = 0;
+    for (let [stepKey, step] of Object.entries<ITaskTemplate[]>(record.tasks)) {
+        for (let [taskKey, task] of Object.entries<ITaskTemplate>(step)) {
+            count++;
+        }
+    }
+    return count;
+}
+
 const ModuleTemplateList = (props: ListProps) => {
     const classes = useListStyles();
 
@@ -41,9 +54,10 @@ const ModuleTemplateList = (props: ListProps) => {
                         <TextField source="title" />
                         <DateField source="createdAt" showTime />
                         <DateField source="updatedAt" showTime />
-                        <DateField source="start" locales="en-US" options={{ timeZone: 'UTC' }} />
-                        <DateField source="end" locales="en-US" options={{ timeZone: 'UTC' }} />
                         <TextField source="status" />
+                        <NumberField source="ttc" />
+                        <FunctionField label="Steps" render={(record: Record<string, IModuleTemplate> | undefined) => `${Object.keys(record?.tasks || {}).length}`} />
+                        <FunctionField label="Tasks" render={(record: Record<string, IModuleTemplate> | undefined) => `${getTaskCount(record)}`} />
                     </Datagrid>
                </List>
           </>
