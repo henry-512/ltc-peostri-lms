@@ -182,6 +182,7 @@ const dataProvider = (
                         if (module.waive_module_file) {
                             formData.append(`${module.id}-${module.waive_module_file.title}`, module.waive_module_file.rawFile)
                             module.waive_module_file = `${module.id}-${module.waive_module_file.title}`
+                            console.log(module.waive_module_file)
                         }
 
                         if (module.files) {

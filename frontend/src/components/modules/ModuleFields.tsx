@@ -40,8 +40,6 @@ const ModuleFields = (props: ModuleFieldsProps) => {
     const validateTitle = [required(), minLength(2), maxLength(150)];
     const [showFileUpload, setShowFileUpload] = useState(initialValues.waive_module || false);
 
-    console.log(props);
-
     return (
         <>
             <Grid container spacing={2} style={{
@@ -98,11 +96,11 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                     </Typography>
                 </Grid>
                 <Grid item xs={6} style={{ marginTop: '-32px' }}>
-                    <RichTextInput source={getSource?.('comments') || ""} toolbar={[['bold', 'italic', 'underline']]} label="" helperText=" " />
+                    <RichTextInput source={getSource?.('waive_comment') || ""} toolbar={[['bold', 'italic', 'underline']]} label="" helperText=" " />
                 </Grid>
                 <Grid item xs={6} style={{ marginTop: '-32px' }}>
                     <FileInput source={getSource?.('waive_module_file') || ""} accept="application/pdf" fullWidth label="" labelSingle="project.fields.waiver_file" helperText=" ">
-                        <FileField source="src" title="title" />
+                        <FileField source="src" title="title" download={true} />
                     </FileInput>
                 </Grid>
             </Grid>
