@@ -1,7 +1,7 @@
 import { Grid, makeStyles } from "@material-ui/core"
-import { maxLength, minLength, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
-import AutoAssignArrayInput from "./AutoAssignArrayInput";
-import IDField from "./IDField";
+import { maxLength, minLength, NumberInput, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
+import AutoAssignArrayInput from "../modules/AutoAssignArrayInput";
+import IDField from "../modules/IDField";
 
 const useStyles = makeStyles(theme => ({
     taskForm: {
@@ -26,12 +26,12 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-type TaskFieldsProps = {
-    getSource: Function,
+type ModuleTemplateTaskFieldsProps = {
+    getSource?: Function,
     initialValues?: any
 }
 
-const TaskFields = (props: TaskFieldsProps) => {
+const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
     const { getSource } = props;
     const classes = useStyles();
     const translate = useTranslate();
@@ -57,8 +57,8 @@ const TaskFields = (props: TaskFieldsProps) => {
                             { id: 'DOCUMENT_UPLOAD', name: translate('tasks.types.document_upload') },
                             { id: 'DOCUMENT_REVIEW', name: translate('tasks.types.document_review') },
                             { id: 'DOCUMENT_APPROVE', name: translate('tasks.types.document_approve') },
-                            //{ id: 'MODULE_WAIVER', name: translate('tasks.types.module_waiver'), not_available: true },                                                                                               
-                            { id: 'MODULE_WAIVER_APPROVAL', name: translate('tasks.types.module_waiver_approval'), not_available: false },
+                            { id: 'MODULE_WAIVER', name: translate('tasks.types.module_waiver') },                                                                                               
+                            { id: 'MODULE_WAIVER_APPROVAL', name: translate('tasks.types.module_waiver_approval') },
                         ]}
                         optionText={choice => `${choice.name}`}
                         optionValue="id"
@@ -80,7 +80,6 @@ const TaskFields = (props: TaskFieldsProps) => {
                         ]}
                         optionText={choice => `${choice.name}`}
                         optionValue="id"
-                        disabled={false}
                         initialValue="AWAITING"
                         label="project.fields.task_status"
                         fullWidth
@@ -104,17 +103,17 @@ const TaskFields = (props: TaskFieldsProps) => {
                 </Grid>
 
                 <Grid item xs={9} style={{ marginTop: '-32px' }}>
-                    <ReferenceArrayInput
-                        label="project.fields.member"
-                        reference="users"
-                        source={getSource?.('users') || ""}
-                    >
-                        <AutoAssignArrayInput source={getSource?.()} />
-                    </ReferenceArrayInput>
+                    <NumberInput
+                        source={getSource?.('ttc') || ""}
+                        label="template.module.fields.ttc"
+                        fullWidth
+                        helperText=" "
+                        validate={[required()]}
+                    />
                 </Grid>
             </Grid>
         </>
     )
 }
 
-export default TaskFields;
+export default ModuleTemplateTaskFields;

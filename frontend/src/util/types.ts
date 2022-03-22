@@ -94,7 +94,7 @@ export interface IModule extends IArangoIndexes {
     status: Status | "WAIVED";
     waive_module?: boolean;
     waive_module_file?: any;
-    files?: any;
+    file?: any;
 }
 
 export interface IProject extends IArangoIndexes, ICreateUpdate {
@@ -127,13 +127,17 @@ export interface IFileMetadata extends IArangoIndexes, ICreateUpdate {
     }
 }
 
+export interface ITaskTemplate extends ITask {
+    ttc: number;
+}
+
 export interface IModuleTemplate extends IModule, IArangoIndexes {
-    description: string;
+    ttc: number;
 }
 
 export interface IProjectTemplate extends IArangoIndexes, ICreateUpdate {
     title: string;
-    description: string;
+    ttc: number;
     modules: Array<IModule>;
 }
 

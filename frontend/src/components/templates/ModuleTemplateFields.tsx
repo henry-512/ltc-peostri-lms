@@ -1,11 +1,12 @@
 import { Box, Grid, makeStyles, Typography } from "@material-ui/core"
 import IDField from "../modules/IDField";
-import WaiverInput from "../modules/WaiverInput";
-import classNames from "classnames";
-import RichTextInput from "ra-input-rich-text";
-import { FileField, FileInput, maxLength, minLength, required, SelectInput, TextInput, useTranslate } from "react-admin";
-import { useState } from "react";
+import { maxLength, minLength, NumberInput, required, SelectInput, TextInput } from "react-admin";
 import TaskManager from "../modules/TaskManager";
+import { SectionTitle } from "../misc";
+import { ModuleTemplateTaskFields } from ".";
+import { useEffect } from "react";
+import { useForm, useFormState } from "react-final-form";
+import { ITaskTemplate } from "src/util/types";
 
 const useStyles = makeStyles(theme => ({
     modulesForm: {
@@ -34,52 +35,75 @@ type ModuleTemplateFieldsProps = {
 }
 
 const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
-    const { getSource, initialValues } = props;
+    const { getSource } = props;
     const validateTitle = [required(), minLength(2), maxLength(150)];
+    const formData = useFormState().values;
+    const form = useForm();
+
+    useEffect(() => {
+        if (!formData.tasks) return;
+
+        let module_ttc = 0;
+        for (let [stepKey, step] of Object.entries<ITaskTemplate[]>(formData.tasks)) {
+            let stepTTC: number = 0;
+            for (let [taskKey, task] of Object.entries<ITaskTemplate>(step)) {
+                if (task.ttc < stepTTC) continue;
+                stepTTC = task.ttc;
+            }
+            module_ttc += stepTTC;
+        }
+
+        form.change('ttc', module_ttc);
+
+    }, [formData.tasks])
 
     return (
         <>
-            <Grid container spacing={2} style={{
-                marginTop: '.1rem'
-            }}>
-                <IDField source={getSource('id') || ""} id={props.initialValues?.id} />
-                <Grid item xs={5}>
-                    <TextInput
-                        source={getSource('title') || ""}
-                        label="project.fields.module_title"
-                        fullWidth
-                        helperText=" "
-                        validate={validateTitle}
-                    />
+            <Box display="flex" width="100%" flexDirection="column">
+                <SectionTitle label="template.module.layout.general" />
+                <Grid container spacing={4}>
+                    <Grid item xs={5}>
+                        <IDField source={getSource('id') || ""} id={props.initialValues?.id} />
+                        <TextInput
+                            source={getSource('title') || ""}
+                            label="template.module.fields.title"
+                            fullWidth
+                            helperText=" "
+                            validate={validateTitle}
+                        />
+                    </Grid>
+                    <Grid item xs={4}>
+                        <SelectInput
+                            source={getSource('status') || ""}
+                            choices={[
+                                { id: 'AWAITING', name: 'AWAITING' },
+                                { id: 'IN_PROGRESS', name: 'IN PROGRESS' },
+                                { id: 'COMPLETED', name: 'COMPLETED' },
+                                { id: 'WAIVED', name: 'WAIVED' },
+                                { id: 'ARCHIVED', name: 'ARCHIVED' }
+                            ]}
+                            optionText={choice => `${choice.name}`}
+                            optionValue="id"
+                            initialValue="AWAITING"
+                            label="template.module.fields.status"
+                            fullWidth
+                            helperText=" "
+                        />
+                    </Grid>
+                    
+                    <Grid item xs={3}>
+                        <NumberInput
+                            source="ttc"
+                            label="template.module.fields.ttc"
+                            fullWidth
+                            helperText="Calculated Based on Tasks"
+                            validate={[required()]}
+                            disabled
+                        />
+                    </Grid>
                 </Grid>
-
-                <Grid item xs={4}>
-                    <SelectInput
-                        source={getSource('status') || ""}
-                        choices={[
-                            { id: 'AWAITING', name: 'AWAITING' },
-                            { id: 'IN_PROGRESS', name: 'IN PROGRESS' },
-                            { id: 'COMPLETED', name: 'COMPLETED' },
-                            { id: 'WAIVED', name: 'WAIVED' },
-                            { id: 'ARCHIVED', name: 'ARCHIVED' }
-                        ]}
-                        optionText={choice => `${choice.name}`}
-                        optionValue="id"
-                        disabled
-                        initialValue="AWAITING"
-                        label="project.fields.module_status"
-                        fullWidth
-                        helperText=" "
-                    />
-                </Grid>
-            </Grid>
-            <Grid container spacing={2} style={{
-                marginTop: '.5rem'
-            }}>
-                <Grid item xs={12}>
-                    <TaskManager source={getSource?.('tasks') || ""} />
-                </Grid>
-            </Grid>
+                <TaskManager source="tasks" fields={<ModuleTemplateTaskFields />}/>
+            </Box>
         </>
     )
 }

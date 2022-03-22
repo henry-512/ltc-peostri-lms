@@ -1,13 +1,8 @@
 import { makeStyles } from "@material-ui/core";
 import { Create, SimpleForm, useTranslate } from "react-admin";
 import { ModuleTemplateFields, TemplateToolbar } from "src/components/templates";
-import { IProject } from "src/util/types";
-import Stepper from "../../../../components/stepper/Stepper";
-import General from "../steps/General";
-import Modules from "../steps/Modules";
 import transformer from "../transformer";
 import validateModuleTemplate from "../validation";
-import validateProject from "../validation";
 
 const useStyles = makeStyles(theme => ({
      root: {},
@@ -35,11 +30,9 @@ const useStyles = makeStyles(theme => ({
 
 export default function ModuleTemplateCreate(props: any) {
      const translate = useTranslate();
-     const classes = useStyles();
-     const search = new URLSearchParams(props.location.search);
 
      return (
-          <Create title={translate('project.create.title')} {...props} transform={transformer}>
+          <Create title={translate('template.module.layout.create_title')} {...props} transform={transformer}>
                <SimpleForm
                 validate={validateModuleTemplate}
                 toolbar={

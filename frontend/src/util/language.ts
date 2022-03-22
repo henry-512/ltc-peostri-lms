@@ -98,6 +98,20 @@ const domainMessages = {
                 edit_title: "Editing User: %{name}"
             }
         },
+        template: {
+            module: {
+                layout: {
+                    general: "General Information",
+                    create_title: "Create Module Template",
+                },
+                fields: {
+                    ttc: "Est. Time to Completion (in days)",
+                    title: "Module Name",
+                    description: "Descripiton",
+                    status: "Status"
+                }
+            }
+        },
         resources: {
             users: {
                 name: "Users",

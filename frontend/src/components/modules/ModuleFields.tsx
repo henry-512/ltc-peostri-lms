@@ -68,7 +68,7 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                         ]}
                         optionText={choice => `${choice.name}`}
                         optionValue="id"
-                        disabled
+                        disabled={false}
                         initialValue="AWAITING"
                         label="project.fields.module_status"
                         fullWidth
