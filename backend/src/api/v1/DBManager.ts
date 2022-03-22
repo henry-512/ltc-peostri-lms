@@ -29,6 +29,11 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
          */
         hasCUTimestamp: boolean,
     ) {
+        fields['id'] = {
+            type: 'string',
+            optional: true,
+        }
+
         super(className, fields, hasCUTimestamp)
 
         this.db = new ArangoWrapper<Type>(dbName, this.fieldEntries)
@@ -135,7 +140,6 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
     /**
      * Gets the document with the passed key from the database
      * @param id A (valid) db id for the document
-     * @param dereference If true, dereference all foreign keys in this and all other documents
      * @return A Type representing a document with key, with .id set and ._* removed
      */
     public async getFromDB(
@@ -148,6 +152,9 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
         for (let [k, data] of this.fieldEntries) {
             if (data.hideGetId) {
                 delete (<any>doc)[k]
+            } else if (data.default !== undefined) {
+                // Put default value in
+                (<any>doc)[k] = data.default
             }
         }
 
@@ -185,7 +192,7 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
             // Check if foreign key reference is valid
             if (this.db.isKeyOrId(doc)) {
                 let id = this.db.asId(doc)
-                if (await this.db.exists(doc)) {
+                if (await this.db.exists(id)) {
                     // Convert from key to id
                     return id
                 }
