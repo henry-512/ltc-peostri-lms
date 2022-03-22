@@ -181,13 +181,11 @@ const dataProvider = (
                 }).then(({ json }) => ({
                     data: { ...params.data, id: json.id },
                 }))
-                break;
             default: 
                 return httpClient(`${apiUrl}/${resource}/${params.id}`, {
                     method: 'PUT',
                     body: JSON.stringify(params.data),
                 }).then(({ json }) => ({ data: json }))
-                break;
         }
     },
 
@@ -231,7 +229,6 @@ const dataProvider = (
                 }).then(({ json }) => ({
                     data: { ...params.data, id: json.id },
                 }))
-                break;
             default: 
                 return httpClient(`${apiUrl}/${resource}`, {
                     method: 'POST',
@@ -239,7 +236,6 @@ const dataProvider = (
                 }).then(({ json }) => ({
                     data: { ...params.data, id: json.id },
                 }))
-                break;
         }
     },
 
