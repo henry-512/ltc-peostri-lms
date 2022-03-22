@@ -58,31 +58,31 @@ export class APIError extends Error {
 			|| message
 			|| `${apiName}.${fn} Error ${HTTPStatus[status]}`
 	}
-
-	static error = (
-		e:IErrorable,
-		fn:string,
-		status:HTTPStatus,
-		message?:string,
-		verbose?:string,
-	) => new APIError(e.clazzName, fn, status, message, verbose)
-
-	static internal = (
-		e:IErrorable,
-		fn:string,
-		verbose?:string,
-	) => new APIError(
-			e.clazzName,
-			fn,
-			HTTPStatus.INTERNAL_SERVER_ERROR,
-			'Invalid system state',
-			verbose,
-		)
 }
 
 /**
  * An interface denoting errorable objects
  */
-export interface IErrorable {
-	clazzName:string
+export abstract class IErrorable {
+	constructor(
+		public className:string,
+	) {}
+
+	public error = (
+		fn:string,
+		status:HTTPStatus,
+		message?:string,
+		verbose?:string,
+	) => new APIError(this.className, fn, status, message, verbose)
+
+	public internal = (
+		fn:string,
+		verbose?:string,
+	) => new APIError(
+			this.className,
+			fn,
+			HTTPStatus.INTERNAL_SERVER_ERROR,
+			'Invalid system state',
+			verbose,
+		)
 }

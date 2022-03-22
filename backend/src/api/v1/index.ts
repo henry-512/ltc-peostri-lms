@@ -28,6 +28,7 @@ export function routerBuilder(version: string) {
 				if (await FilemetaRouteInstance.exists(ctx.params.id)) {
 					let meta = await FilemetaRouteInstance.getFromDB(
 						ctx.state.user,
+						0,
 						ctx.params.id
 					)
 					let buffer = await FilemetaRouteInstance.readLatest(meta)

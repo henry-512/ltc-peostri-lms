@@ -53,6 +53,20 @@ class FilemetaRoute extends ApiRoute<IFilemeta> {
         )
     }
 
+    public async getFromDB(user: AuthUser, depth: number, id: string) : Promise<IFilemeta> {
+        if (depth === 0) {
+            return super.getFromDB(user, depth, id)
+        }
+
+        let doc = await this.getUnsafe(id)
+
+        // :)
+        return {
+            src: `api/v1/files/${id}`,
+            title: doc.latest.title,
+        } as any
+    }
+
     private async writeFile(
         user:AuthUser,
         file:IFileData,

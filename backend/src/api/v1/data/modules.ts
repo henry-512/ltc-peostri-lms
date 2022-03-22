@@ -19,6 +19,13 @@ class ModuleRoute extends ApiRoute<IModule> {
                     acceptNewDoc:true,
                     foreignApi:TaskRouteInstance,
                 },
+                'waive_comment': {
+                    type:'fkey',
+                    optional:true,
+                    freeable:true,
+                    acceptNewDoc:true,
+                    foreignApi:CommentRouteInstance,
+                },
                 'comments':{
                     type:'fkeyArray',
                     optional:true,

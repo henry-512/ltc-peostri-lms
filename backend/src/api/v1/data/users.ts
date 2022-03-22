@@ -126,7 +126,7 @@ class UserRoute extends ApiRoute<IUser> {
         r.get('/self', async (ctx, next) => {
             let user = await AuthUser.validate(ctx.cookies.get('token'))
 
-            ctx.body = await this.getFromDB(user, user.getId())
+            ctx.body = await this.getFromDB(user, 0, user.getId())
             ctx.status = HTTPStatus.OK
         })
 

@@ -417,7 +417,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
      * @param dereference If true, dereference all foreign keys in this and all other documents
      * @return A Type representing a document with key, with .id set and ._* removed
      */
-    public async getFromDB(user: AuthUser, id: string) : Promise<Type> {
+    public async getFromDB(user: AuthUser, depth: number, id: string) : Promise<Type> {
         let doc = await this.getUnsafe(id)
     
         doc.id = doc._key
@@ -437,7 +437,7 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
                     return convertToKey(k)
                 // Dereference the id into an object
                 } else if (isDBId(k)) {
-                    return this.getForeignApi(data).getFromDB(user, k)
+                    return this.getForeignApi(data).getFromDB(user, depth++, k)
                 }
             }
             throw this.error(
@@ -1078,7 +1078,8 @@ export abstract class ApiRoute<Type extends IArangoIndexes> {
         r.get('/:id', async (ctx, next) => {
             if (await this.exists(ctx.params.id)) {
                 ctx.body = await this.getFromDB(
-                    ctx.state.user, ctx.params.id)
+                    ctx.state.user, 0, ctx.params.id
+                )
                 ctx.status = HTTPStatus.OK
 
                 await next()
