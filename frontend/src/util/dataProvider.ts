@@ -153,11 +153,43 @@ const dataProvider = (
         });
     },
 
-    update: (resource, params) =>
-        httpClient(`${apiUrl}/${resource}/${params.id}`, {
-            method: 'PUT',
-            body: JSON.stringify(params.data),
-        }).then(({ json }) => ({ data: json })),
+    update: (resource, params) => {
+        switch(resource) {
+            case 'projects':
+                let formData = new FormData();
+
+                for (let step of Object.values<IModule[]>(params.data.modules)) {
+                    for (let module of step) {
+                        if (!module.waive_module_file) continue;
+
+                        if (module.waive_module_file && module.waive_module) {
+                            formData.append(`${module.id}-${module.waive_module_file.title}`, module.waive_module_file.rawFile)
+                            module.waive_module_file = `${module.id}-${module.waive_module_file.title}`
+                        }
+                    }
+                }
+
+                let jsonData = new Blob([JSON.stringify(params.data)], {
+                    type: 'application/json'
+                })
+
+                formData.append('json', jsonData, "data");
+
+                return httpClient(`${apiUrl}/${resource}/${params.id}`, {
+                    method: 'PUT',
+                    body: formData,
+                }).then(({ json }) => ({
+                    data: { ...params.data, id: json.id },
+                }))
+                break;
+            default: 
+                return httpClient(`${apiUrl}/${resource}/${params.id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(params.data),
+                }).then(({ json }) => ({ data: json }))
+                break;
+        }
+    },
 
     // simple-rest doesn't handle provide an updateMany route, so we fallback to calling update n times instead
     updateMany: (resource, params) =>
@@ -177,24 +209,12 @@ const dataProvider = (
 
                 for (let step of Object.values<IModule[]>(params.data.modules)) {
                     for (let module of step) {
-                        if (!module.waive_module_file && !module.files) continue;
+                        if (!module.waive_module_file) continue;
 
                         if (module.waive_module_file) {
                             formData.append(`${module.id}-${module.waive_module_file.title}`, module.waive_module_file.rawFile)
                             module.waive_module_file = `${module.id}-${module.waive_module_file.title}`
                             console.log(module.waive_module_file)
-                        }
-
-                        if (module.files) {
-                            if (module.files.length) {
-                                for (let file of module.files) {
-                                    formData.append(`${module.id}-${file.title}`, file.rawFile)
-                                    file = `${module.id}-${file.title}`
-                                }
-                            } else {
-                                formData.append(`${module.id}-${module.files.title}`, module.files.rawFile)
-                                module.files = `${module.id}-${module.files.title}`
-                            }
                         }
                     }
                 }
