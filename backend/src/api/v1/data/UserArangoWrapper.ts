@@ -1,5 +1,5 @@
 import { aql, GeneratedAqlQuery } from "arangojs/aql";
-import { ArangoWrapper, db } from "../../../database";
+import { ArangoWrapper, db, ISortOpts, IFilterOpts } from "../../../database";
 import { IUser } from "../../../lms/types";
 import { HTTPStatus } from "../../../lms/errors";
 import { IFieldData } from "../../../lms/FieldData";
@@ -14,21 +14,37 @@ export class UserArangoWrapper extends ArangoWrapper<IUser> {
 
     // Dereferences the usergroup ID and name
     protected override getAllQuery(
-        sort: GeneratedAqlQuery,
-        sortDir: GeneratedAqlQuery,
-        offset: number,
+        sort: ISortOpts,
+        offset: number, 
         count: number,
-        filterIds: string[]
+        filters: IFilterOpts[]
     ): GeneratedAqlQuery {
-        let query = aql`FOR z in ${this.collection} SORT z.${sort} ${sortDir}`;
+        let query = aql`FOR z IN ${this.collection}`
 
-        if (filterIds.length > 0) {
-            query = aql`${query} FILTER z._key IN ${filterIds}`;
+        for (const filter of filters) {
+            let k = filter.ref
+                ? aql`DOCUMENT(z.${filter.key}).${filter.ref}`
+                : aql`z.${filter.key}`
+
+            if (filter.in) {
+                query = aql`${query} FILTER ${k} IN ${filter.in}`
+            }
+
+            if (filter.q) {
+                query = aql`${query} FILTER CONTAINS(${k},${filter.q})`
+            }
         }
 
-        return aql`${query} LIMIT ${offset}, ${count}
+        query = sort.ref
+            ? aql`${query} SORT DOCUMENT(z.${sort.key}).${sort.ref}`
+            : aql`${query} SORT z.${sort.key}`
+
+        query = aql`${query} ${sort.desc ? aql`DESC` : aql`ASC`}
+            LIMIT ${offset}, ${count}
             LET a = (RETURN DOCUMENT(z.rank))[0]
-            RETURN {rank:(RETURN {id:a._key,name:a.name})[0],${this.getAllQueryFields}}`;
+            RETURN {rank:(RETURN {id:a._key,name:a.name})[0],${this.getAllQueryFields}}`
+
+        return query
     }
 
     public async getFromUsername(username: string) {

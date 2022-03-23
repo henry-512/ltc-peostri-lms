@@ -17,10 +17,6 @@ export const db = new Database({
 })
 
 export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
-    static ASC = aql`ASC`
-    static DESC = aql`DESC`
-    static KEY = aql`_key`
-
     protected collection: DocumentCollection<Type>
     protected getAllQueryFields: GeneratedAqlQuery
 
@@ -76,7 +72,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         this.getAllQueryFields = appendReturnFields(
             aql`id:z._key,`,
             fields.filter(
-                (d) => !d[1].hideGetAll
+                (d) => !d[1].hideGetAll && d[0] !== 'id'
             ).map(
                 (d) => d[0]
             )
@@ -86,19 +82,32 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 
     protected getAllQuery(
-		sort: GeneratedAqlQuery,
-		sortDir: GeneratedAqlQuery,
+		sort: ISortOpts,
 		offset: number, 
 		count: number,
-        filterIds: string[]
+        filters: IFilterOpts[]
     ): GeneratedAqlQuery {
-        let query = aql`FOR z IN ${this.collection} SORT z.${sort} ${sortDir}`
+        let query = aql`FOR z IN ${this.collection}`
 
-        if (filterIds.length > 0) {
-            query = aql`${query} FILTER z._key IN ${filterIds}`
+        for (const filter of filters) {
+            let k = filter.ref
+                ? aql`DOCUMENT(z.${filter.key}).${filter.ref}`
+                : aql`z.${filter.key}`
+            if (filter.in) {
+                query = aql`${query} FILTER ${k} IN ${filter.in}`
+            }
+            if (filter.q) {
+                query = aql`${query} FILTER CONTAINS(${k},${filter.q})`
+            }
         }
 
-        return aql`${query} LIMIT ${offset}, ${count} RETURN {${this.getAllQueryFields}}`
+        query = sort.ref
+            ? aql`${query} SORT DOCUMENT(z.${sort.key}).${sort.ref}`
+            : aql`${query} SORT z.${sort.key}`
+
+        query = aql`${query} ${sort.desc ? 'DESC' : 'ASC'} LIMIT ${offset}, ${count} RETURN {${this.getAllQueryFields}}`
+
+        return query
     }
 
     public async queryGet(
@@ -108,17 +117,20 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         size: number,
     }> {
         let query = this.getAllQuery(
-            opts.sort ? aql`${opts.sort.key}` : ArangoWrapper.KEY,
-            opts.sort?.desc ? ArangoWrapper.DESC : ArangoWrapper.ASC,
+            opts.sort ?? {desc:false, key:'_key'},
             opts.range.offset,
             opts.range.count,
-            [],
+            opts.filters || [],
         )
 
-        return {
-            cursor: await db.query(query),
-            size: (await this.collection.count()).count,
-        }
+        let cursor = await db.query(query, {
+            fullCount: true,
+        })
+
+        let size = cursor.extra.stats?.fullCount
+            ?? (await this.collection.count()).count
+
+        return { cursor, size }
     }
 
     public async tryExists(id: string) {
@@ -166,12 +178,25 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 }
 
+export interface IFilterOpts {
+    key:string,
+    // If true, REF is a key in the document referenced by key
+    // Ie. {key:rank, ref:name, q:Admin} filters users with rank 'Admin'
+    ref?:string,
+    in?:string[],
+    q?:string,
+}
+
+export interface ISortOpts {
+    desc: boolean,
+    key: string,
+    // If true, REF is a key in the document referenced by key
+    ref?: string,
+}
+
 export interface IQueryGetOpts {
-    filter?: {
-        key:string,
-        in?:any[],
-    }[],
-    sort?: {desc: boolean, key: string},
+    filters?: IFilterOpts[],
+    sort?: ISortOpts,
     range: {
         offset: number,
         count: number,

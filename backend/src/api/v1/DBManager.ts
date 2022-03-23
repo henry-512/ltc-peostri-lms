@@ -58,36 +58,58 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
             }
         }
 
-        // let filterIds:string[] = []
-        // TODO: implement generic filtering
-        // if (q.filter) {
-        //     let filter = JSON.parse(q.filter)
-        //     if (filter) {
-        //         if ('id' in filter && Array.isArray(filter.id)) {
-        //             filterIds = filter.id.map((s:string) => convertToKey(s))
-        //         }
-        //     }
-        // }
+        // Filtering
+        if (q.filter) {
+            let filter = JSON.parse(q.filter)
+            opts.filters = []
+
+            for (let [key, value] of Object.entries(filter)) {
+                // if (key === 'q') {
+                //     key = '_id'
+                // }
+
+                if (
+                    !(key in this.fieldData)
+                    || this.fieldData[key].hideGetAll
+                ) {
+                    console.warn(`Invalid filtering id ${key}`)
+                    console.warn(filter)
+                    continue
+                }
+
+                if (Array.isArray(value)) {
+                    opts.filters.push({
+                        key,
+                        in: value,
+                    })
+                } else if (typeof value === 'string') {
+                    opts.filters.push({
+                        key,
+                        q: value,
+                    })
+                }
+            }
+        }
 
         // Sorting
         if (q.sort && q.sort.length == 2) {
             let key: string = q.sort[0]
 
-            if (
-                !(key in this.fieldData)
-                || this.fieldData[key].hideGetAll
-            ) {
-                throw this.error(
-                    'query',
-                    HTTPStatus.BAD_REQUEST,
-                    'Invalid sorting query',
-                    `[${key}] is not a key of this`
-                )
+            // Remove trailing '.id'
+            if (key.endsWith('.id')) {
+                key = key.slice(0, -3)
             }
 
-            let desc = q.sort[1] === 'DESC'
+            if (
+                key in this.fieldData
+                && !(this.fieldData[key].hideGetAll)
+            ) {
+                let desc = q.sort[1] === 'DESC'
 
-            opts.sort = { key, desc }
+                opts.sort = { key, desc }
+            } else {
+                console.warn(`Invalid sorting id ${key}`)
+            }
         }
 
         if (q.range && q.range.length == 2) {
