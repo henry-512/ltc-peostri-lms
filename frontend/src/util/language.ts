@@ -122,6 +122,12 @@ const domainMessages = {
                     username: "Username",
                     email: "Email"
                 }
+            },
+            'template/projects': {
+                name: "Project Templates"
+            },
+            'template/modules': {
+                name: "Module Templates"
             }
         },
         ra: {
