@@ -7,7 +7,7 @@ import { AuthUser } from "../auth"
 export abstract class DataManager<Type> extends IErrorable {
     protected hasCUTimestamp:boolean
     protected fieldEntries:[string, IFieldData][]
-    private foreignEntries:[string, IForeignFieldData][]
+    protected foreignEntries:[string, IForeignFieldData][]
     private dataEntries:[string, IDataFieldData][]
     protected parentField: null | {
         local:string, foreign:string

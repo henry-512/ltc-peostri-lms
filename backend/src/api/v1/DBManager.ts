@@ -1,8 +1,8 @@
-import { config } from "../../config";
+import Router from "@koa/router";
 import { ArangoWrapper, IFilterOpts, IQueryGetOpts } from "../../database";
 import { APIError, HTTPStatus } from "../../lms/errors";
 import { IFieldData, IForeignFieldData } from "../../lms/FieldData";
-import { IArangoIndexes, ICreateUpdate } from "../../lms/types";
+import { IArangoIndexes } from "../../lms/types";
 import { convertToKey, isDBKey, splitId } from "../../lms/util";
 import { AuthUser } from "../auth";
 import { DataManager } from "./DataManager";
@@ -392,5 +392,128 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
 
         console.log(`${real ? 'DELETING' : 'FAKE DELETING'} ${this.className} | ${key} | ${doc}`)
         real && await this.db.removeUnsafe(key)
+    }
+
+    /**
+     * Removes all orphaned documents from this collection.
+     * A document is an orphan if:
+     * - It has a parent field that points to a document that does not exist.
+     * - It should have a parent field, but doesn't
+     * - It has an invalid parent field
+     * NOTE: VERY EXPENSIVE, don't run that often
+     */
+     private async deleteOrphans() {
+        if (!this.parentField) {
+            throw this.internal(
+                'deleteOrphans',
+                `deleteOrphans called on ${this.className}`
+            )
+        }
+        return this.db.deleteOrphans(this.parentField.local)
+    }
+
+    /**
+     * Removes all abandoned documents from this collection.
+     * A document is abandoned iff:
+     * - It has a parent field that points to a valid document
+     * - AND its parent document does not hold a reference to it
+     * NOTE: VERY EXPENSIVE, don't run that often
+     */
+    private async deleteAbandoned() {
+        // Not implemented :)
+        return
+    }
+
+    /**
+     * Removes all foreign key references for documents in this collection that no longer point to valid documents.
+     * NOTE: EXCEPTIONALLY EXPENSIVE, only run when necessary
+     */
+    private async disown() {
+        if (this.foreignEntries.length === 0) {
+            throw this.internal(
+                'disown',
+                `disown called on ${this.className}`
+            )
+        }
+
+        let cursor = await this.db.getAll()
+
+        while (cursor.hasNext) {
+            let doc = await cursor.next()
+
+            // Delete disowned children
+            doc = await this.forEachField<IForeignFieldData>(
+                doc,
+                this.foreignEntries,
+                async (p,k,d) => {
+                    let c = d.foreignApi
+                    if (!c.db.tryExists(k)) {
+                        p.doc[p.key] = <any>''
+                    }
+                },
+                async (p,a,d) => {
+                    let c = d.foreignApi
+                    for (var i = a.length - 1; i >= 0; i--) {
+                        if (!c.db.tryExists(a[i])) {
+                            a.splice(i, 1)
+                        }
+                    }
+                },
+                async (p,o,d) => {
+                    let c = d.foreignApi
+                    for (let k in o) {
+                        let sAr = o[k]
+
+                        if (!Array.isArray(sAr)) {
+                            throw this.error(
+                                'disown',
+                                HTTPStatus.INTERNAL_SERVER_ERROR,
+                                'Invalid system state',
+                                `${sAr} is not an array`
+                            )
+                        }
+                        for (var i = sAr.length - 1; i >= 0; i--) {
+                            if (!c.db.tryExists(sAr[i])) {
+                                sAr.splice(i, 1)
+                            }
+                        }
+                        // Delete empty steps
+                        if (sAr.length === 0) delete o[k]
+                    }
+                }
+            )
+
+            await this.db.updateUnsafe(doc, {
+                mergeObjects:false,
+            })
+        }
+    }
+
+    public debugRoutes(r: Router) {
+        // Orphan delete
+        if (this.parentField) {
+            r.delete('/orphan', async (ctx,next) => {
+                if (ctx.header['user-agent'] === 'backend-testing') {
+                    await this.deleteOrphans()
+                    ctx.status = HTTPStatus.OK
+                } else {
+                    await next()
+                }
+            })
+        }
+
+        // Disown update
+        if (this.foreignEntries.length !== 0) {
+            r.delete('/disown', async (ctx,next) => {
+                if (ctx.header['user-agent'] === 'backend-testing') {
+                    await this.disown()
+                    ctx.status = HTTPStatus.OK
+                } else {
+                    await next()
+                }
+            })
+        }
+
+        return r
     }
 }

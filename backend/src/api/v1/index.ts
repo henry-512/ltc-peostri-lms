@@ -15,6 +15,7 @@ import { IArangoIndexes } from "../../lms/types";
 import { DBManager } from "./DBManager";
 import { splitId } from '../../lms/util'
 import { AuthUser } from '../auth'
+import { config } from '../../config'
 
 export function routerBuilder(version: string) {
 	return new Router({prefix: `${version}/`})
@@ -57,8 +58,6 @@ export function routerBuilder(version: string) {
 					ctx.status = HTTPStatus.NOT_FOUND
 					ctx.body = `${m.className} [${id}] dne`
 				}
-				
-				next()
 			})
 		))
 		// Files
@@ -78,8 +77,6 @@ export function routerBuilder(version: string) {
 					ctx.status = HTTPStatus.NOT_FOUND
 					ctx.body = `File [${id}] dne.`
 				}
-
-				next()
 			})
 			.routes())
 }
@@ -112,6 +109,10 @@ function route<Type extends IArangoIndexes>(
 		call(r, manager)
 	}
 
+	if (config.devRoutes) {
+		r = manager.debugRoutes(r)
+	}
+
 	r.get('/', async (ctx, next) => {
 		const qdata = await manager.query(ctx.request.query)
 		let all = await qdata.cursor.all()
@@ -126,8 +127,6 @@ function route<Type extends IArangoIndexes>(
 
 		ctx.set('Content-Range', `documents ${qdata.low}-${qdata.high}/${qdata.size}`)
 		ctx.set('Access-Control-Expose-Headers', 'Content-Range')
-
-		await next()
 	})
 
 	r.get('/:id', async (ctx, next) => {
