@@ -85,23 +85,9 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
                 )
             }
 
-            let dir: 'ASC' | 'DESC'
+            let desc = q.sort[1] === 'DESC'
 
-            switch(q.sort[1]) {
-                case 'ASC':
-                case 'DESC':
-                    dir = q.sort[1]
-                    break
-                default:
-                    throw this.error(
-                        'query',
-                        HTTPStatus.BAD_REQUEST,
-                        'Invalid sorting query',
-                        `[${q.sort[1]}] is not a valid direction`
-                    )
-            }
-
-            opts.sort = { key, dir }
+            opts.sort = { key, desc }
         }
 
         if (q.range && q.range.length == 2) {

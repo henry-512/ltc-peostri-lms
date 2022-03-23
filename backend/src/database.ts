@@ -109,9 +109,9 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }> {
         let query = this.getAllQuery(
             opts.sort ? aql`${opts.sort.key}` : ArangoWrapper.KEY,
-            opts.sort?.dir === 'ASC' ? ArangoWrapper.ASC : ArangoWrapper.DESC,
-            opts.range?.offset ?? 0,
-            opts.range?.count ?? 10,
+            opts.sort?.desc ? ArangoWrapper.DESC : ArangoWrapper.ASC,
+            opts.range.offset,
+            opts.range.count,
             [],
         )
 
@@ -171,7 +171,7 @@ export interface IQueryGetOpts {
         key:string,
         in?:any[],
     }[],
-    sort?: {dir: 'ASC' | 'DESC', key: string},
+    sort?: {desc: boolean, key: string},
     range: {
         offset: number,
         count: number,
