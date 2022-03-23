@@ -12,7 +12,8 @@ class ProjectTemplate extends DBManager<IProjectTemplate> {
             {
                 'title': { type: 'string' },
                 'modules': {
-                    type: 'fkeyStep',
+                    type: 'step',
+                    instance: 'fkey',
                     foreignApi: ModuleTempManager,
                 },
                 'status': {
@@ -25,7 +26,7 @@ class ProjectTemplate extends DBManager<IProjectTemplate> {
                     default:0,
                 },
             },
-            false,
+            true,
         )
     }
 
@@ -40,18 +41,14 @@ class ProjectTemplate extends DBManager<IProjectTemplate> {
         for (let [stepName,tempArray] of Object.entries(temp.modules)) {
             mods[stepName] = await Promise.all(tempArray.map(async (i) => {
                 if (typeof i !== 'string') {
-                    throw this.error(
+                    throw this.internal(
                         'buildProjectFromTemplate',
-                        HTTPStatus.INTERNAL_SERVER_ERROR,
-                        'Invalid system state',
                         `${i} is not a string`
                     )
                 }
                 if (!isDBId(i)) {
-                    throw this.error(
+                    throw this.internal(
                         'buildProjectFromTemplate',
-                        HTTPStatus.INTERNAL_SERVER_ERROR,
-                        'Invalid system state',
                         `${i} is not a valid db id`
                     )
                 }

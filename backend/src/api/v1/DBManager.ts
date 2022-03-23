@@ -85,23 +85,9 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
                 )
             }
 
-            let dir: 'ASC' | 'DESC'
+            let desc = q.sort[1] === 'DESC'
 
-            switch(q.sort[1]) {
-                case 'ASC':
-                case 'DESC':
-                    dir = q.sort[1]
-                    break
-                default:
-                    throw this.error(
-                        'query',
-                        HTTPStatus.BAD_REQUEST,
-                        'Invalid sorting query',
-                        `[${q.sort[1]}] is not a valid direction`
-                    )
-            }
-
-            opts.sort = { key, dir }
+            opts.sort = { key, desc }
         }
 
         if (q.range && q.range.length == 2) {
@@ -176,281 +162,25 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
         })
     }
 
-    /**
-     * Validates a document reference
-     * @return The id of the new document
-     */
-     private async ref(
+    protected override async verifyAddedDocument(
         user: AuthUser,
         files: any,
-        doc:any,
-        par:string,
-        data:IFieldData,
-        map: Map<DBManager<IArangoIndexes>, IArangoIndexes[]>,
-    ) : Promise<any> {
-        if (typeof doc === 'string') {
-            // Check if foreign key reference is valid
-            if (this.db.isKeyOrId(doc)) {
-                let id = this.db.asId(doc)
-                if (await this.db.exists(id)) {
-                    // Convert from key to id
-                    return id
-                }
-            }
-
-            if (data.acceptNewDoc) {
-                let built = await this.buildFromString(user, files, doc, par)
-                if (built) {
-                    let childId = this.db.generateDBID()
-                    await this.addToReferenceMap(user, files, childId, built, map, 2)
-                    return childId
-                }
-            }
-
-            throw this.error(
-                'ref',
-                HTTPStatus.BAD_REQUEST,
-                'Invalid key reference',
-                `[${doc}] is not a valid key`
-            )
-        // Objects are fully-formed documents
-        } else if (typeof doc === 'object') {
-            // Update parent field only if it isn't already set
-            // TODO: validate existing parent keys
-            if (this.parentField && !doc[this.parentField.local]) {
-                // We're assigning the parent/module/project field
-                // of documents here, so they hold references to
-                // their parent.
-                doc[this.parentField.local] = par
-            }
-
-            // If the formed document's id is already in the DB, it
-            // is not new
-            let isNew:0|1|2 = doc.id && await this.db.exists(doc.id) ? 1 : 2
-
-            // If the document is new and allowed to be new
-            if (isNew === 2 && !data.acceptNewDoc) {
-                throw this.error(
-                    'ref',
-                    HTTPStatus.BAD_REQUEST,
-                    'New document unauthorized',
-                    `New documents [${JSON.stringify(doc)}] not acceptable for type ${JSON.stringify(data)}`
-                )
-            }
-
-            let childId = isNew === 2
-                ? this.db.generateDBID()
-                // Document exists, however it's a key
-                : this.db.keyToId(doc.id)
-
-            await this.addToReferenceMap(user, files, childId, doc, map, isNew)
-            return childId
-        }
-        throw this.error(
-            'ref',
-            HTTPStatus.BAD_REQUEST,
-            'Invalid foreign object',
-            `${doc} is not a foreign document or reference`
-        )
-    }
-
-    /**
-     * Adds the passed document, with its id, to the map
-     * @param addDocId The db id for the document
-     * @param addDoc The document to add to the map
-     * @param map The map to add to
-     */
-    private async addToReferenceMap(
-        user: AuthUser,
-        files: any,
-        addDocId: string,
         addDoc: Type,
-        map: Map<DBManager<IArangoIndexes>, IArangoIndexes[]>,
-        /**
-         * 0 - Unknown
-         * 1 - Not new
-         * 2 - New
-         */
-        isNew: 0 | 1 | 2,
-    ): Promise<void> {
+        exists: boolean,
+        map: Map<DataManager<any>, any[]>,
+        stack: string[],
+    ): Promise<Type> {
         // Used for frontend mangement, redundant in DB
-        delete addDoc.id
+        // delete addDoc.id
 
-        // Modify this document, if required
-        addDoc = await this.modifyDoc(user, files, addDoc, addDocId)
-
-        if (this.hasCUTimestamp) {
-            if (isNew === 0)
-                isNew = await this.db.exists(addDocId) ? 1 : 2
-            if (isNew === 2) {
-                (<ICreateUpdate>addDoc).createdAt = new Date().toJSON()
-            }
-            (<ICreateUpdate>addDoc).updatedAt = new Date().toJSON()
-        }
-
-        // Check for extra fields
-        for (const [pK,pV] of Object.entries(addDoc)) {
-            if (pK in this.fieldData) continue
-
-            // Developer routes
-            if (config.devRoutes) {
-                if (isNew === 0)
-                    isNew = await this.db.exists(addDocId) ? 1 : 2
-                // Clean existing documents
-                if (isNew === 1) {
-                    console.warn(`deleting key ${this.className}.${pK} from existing doc [${JSON.stringify(addDoc)}]`)
-                    delete (<any>addDoc)[pK]
-                    continue
-                }
-            }
-
-            throw this.error(
-                'addToReferenceMap',
-                HTTPStatus.BAD_REQUEST,
-                'Excess data provided',
-                `${this.className}.${pK} [${pV}] was not expected in (${JSON.stringify(addDoc)})`
-            )
-        }
-
-        // Add DB key
-        addDoc._key = convertToKey(addDocId)
-
-        for (let [k, data] of this.fieldEntries) {
-            // key of doc
-            let key = k as keyof Type
-            
-            // Check for missing fields
-            if (!(key in addDoc)) {
-                if (data.default !== undefined) {
-                    console.warn(`Using default ${data.default} for ${key}`)
-                    addDoc[key] = <any>data.default
-                    continue
-                } else if (data.optional) {
-                    console.warn(`optional key ${key} dne`)
-                    continue
-                } else {
-                    if (isNew === 0)
-                        isNew = await this.db.exists(addDocId) ? 1 : 2
-                    if (isNew !== 2) {
-                        console.warn(`key ${key} is missing in revised document`)
-                        continue
-                    }
-                    throw this.error(
-                        'addToReferenceMap',
-                        HTTPStatus.BAD_REQUEST,
-                        'Missing required field',
-                        `${key} dne in ${JSON.stringify(addDoc)}`
-                    )
-                }
-            }
-
-            // The value associated with this key
-            let value = addDoc[key]
-
-            // Validate types
-            switch(data.type) {
-                case 'boolean':
-                case 'string':
-                case 'number':
-                    if (typeof value === data.type) {
-                        continue
-                    }
-                    throw this.error(
-                        'addToReferenceMap',
-                        HTTPStatus.BAD_REQUEST,
-                        'Invalid document field type',
-                        `${this.className}.${key} ${value} expected to be ${data.type}`
-                    )
-                // TODO: array type checking
-                case 'array':
-                    if (!Array.isArray(value)) {
-                        throw this.error(
-                            'addToReferenceMap',
-                            HTTPStatus.BAD_REQUEST,
-                            'Invalid document field type',
-                            `${this.className}.${key} ${value} expected to be array`
-                        )
-                    }
-                    continue
-                // TODO: object type checking
-                case 'object':
-                    continue
-            }
-
-            // v FOREIGN OBJECTS v
-            let fdata = data as IForeignFieldData
-            const ref = (d: any) =>
-                fdata.foreignApi.ref(user, files, d, addDocId, data, map)
-            switch (fdata.type) {
-                // Ref single doc
-                case 'fkey':
-                    addDoc[key] = await ref(value)
-                    continue
-                // Ref array of docs
-                case 'fkeyArray':
-                    if (Array.isArray(value)) {
-                        addDoc[key] = <any>await Promise.all(value.map(
-                            lpDoc => ref(lpDoc)
-                        ))
-                        continue
-                    }
-                    if (typeof value === 'string') {
-                        addDoc[key] = <any>[
-                            await ref(value)
-                        ]
-                        continue
-                    }
-                    throw this.error(
-                        'addToReferenceMap',
-                        HTTPStatus.BAD_REQUEST,
-                        'Invalid document field type',
-                        `${value} expected to be an array`
-                    )
-                // Ref step obj of docs
-                case 'fkeyStep':
-                    if (typeof value === 'object') {
-                        let temp:any = {}
-                        for (let [stepId, stepAr] of Object.entries(value)) {
-                            if (Array.isArray(stepAr)) {
-                                temp[stepId] = <any>await Promise.all(
-                                    stepAr.map(lpDoc => ref(lpDoc))
-                                )
-                                continue
-                            }
-                            throw this.error(
-                                'addToReferenceMap',
-                                HTTPStatus.BAD_REQUEST,
-                                'Invalid document field type',
-                                `${value} expected to be an array`
-                            )
-                        }
-                        addDoc[key] = temp
-                        continue
-                    }
-                    throw this.error(
-                        'addToReferenceMap',
-                        HTTPStatus.BAD_REQUEST,
-                        'Invalid document field type',
-                        `${JSON.stringify(value)} expected to be an step array`
-                    )
-                case 'parent':
-                    continue
-                default:
-                    throw this.error(
-                        'forEachForeignKey',
-                        HTTPStatus.INTERNAL_SERVER_ERROR,
-                        'Invalid system state',
-                        `${JSON.stringify(data)} has invalid .type field`
-                    )
-            }
-        }
-
-        // Add the document to the map
-        if (map.has(this)) {
-            map.get(this)?.push(addDoc)
-        } else {
-            map.set(this, [addDoc])
-        }
+        return super.verifyAddedDocument(
+            user,
+            files,
+            addDoc,
+            exists,
+            map,
+            stack,
+        )
     }
 
     public async create(
@@ -460,6 +190,7 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
         real: boolean
     ) {
         let id = this.db.generateDBID()
+        user.id = id
 
         // The passed document has a parent key, so we need to
         // update the parent to include this document
@@ -469,13 +200,17 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
 
         // Turns a fully-dereferenced document into a reference
         // document
-        let map = new Map<DBManager<IArangoIndexes>, IArangoIndexes[]>()
-        await this.addToReferenceMap(user, files, id, doc, map, 2)
+        let map = new Map<DataManager<any>, any[]>()
+        let stack = [ id ]
+        await this.verifyAddedDocument(user, files, doc, false, map, stack)
 
         real || console.log('FAKING CREATE')
         // Saves each document in the map to its respective collection
         try {
             for (let [api, docs] of map) {
+                if (!(api instanceof DBManager)) {
+                    continue
+                }
                 for (let doc of docs) {
                     console.log(`Saving ${api.className} | ${JSON.stringify(doc)}`)
                     real && await api.db.saveUnsafe(doc)
@@ -485,6 +220,9 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
             // Delete malformed documents
             console.error(`Error with saving: ${err}`)
             for (let [api, docs] of map) {
+                if (!(api instanceof DBManager)) {
+                    continue
+                }
                 for (let doc of docs) {
                     if ('_key' in doc) {
                         let k = doc._key as string
@@ -527,6 +265,7 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
         real: boolean
     ) {
         let id = this.db.keyToId(key)
+        user.id = id
 
         // We dont need to update all elements, .update does that
         // automatically for us :)
@@ -536,13 +275,17 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
         //     //if ()
         // }
 
-        let map = new Map<DBManager<IArangoIndexes>, IArangoIndexes[]>()
-        await this.addToReferenceMap(user, files, id, doc, map, 1)
+        let map = new Map<DataManager<any>, any[]>()
+        let stack = [ id ]
+        await this.verifyAddedDocument(user, files, doc, false, map, stack)
 
         real || console.log('FAKING UPDATE')
         // Updates each document in the map to its respective collection
         // TODO Delete/revert malformed docs
         for (let [api, docs] of map) {
+            if (!(api instanceof DBManager)) {
+                continue
+            }
             for (let d of docs) {
                 if (!d._key || !isDBKey(d._key)) {
                     throw this.error(

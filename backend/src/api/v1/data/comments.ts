@@ -39,7 +39,6 @@ class Comment extends DBManager<IComment> {
         user: AuthUser,
         files: any,
         doc: any,
-        id: string,
     ): Promise<IComment> {
         if (!doc.author) {
             doc.author = user.getId()
@@ -54,9 +53,10 @@ class Comment extends DBManager<IComment> {
         files: any,
         str:string,
         par:string,
-    ) : Promise<IComment | null> {
+    ) : Promise<IComment | undefined> {
         // TODO: input validation
         let com: IComment = {
+            id: this.db.generateDBID(),
             content: str,
             author: user.getId(),
             parent: par
