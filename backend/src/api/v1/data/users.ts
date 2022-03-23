@@ -56,7 +56,9 @@ class User extends DBManager<IUser> {
                     hideGetRef:true,
                 }
             },
-            false,
+            {
+                defaultFilter: { key:'name' }
+            }
         )
 
         this.db = new UserArangoWrapper(this.fieldEntries)

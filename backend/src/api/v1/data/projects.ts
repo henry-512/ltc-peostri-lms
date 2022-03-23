@@ -40,7 +40,9 @@ class Project extends DBManager<IProject> {
                     foreignApi:UserManager,
                 },
             },
-            true,
+            {
+                hasCUTimestamp: true,
+            },
         )
     }
 }

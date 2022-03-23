@@ -29,7 +29,6 @@ class Waive extends DataManager<IWaiveData> {
                     foreignApi:UserManager,
                 }
             },
-            false,
         )
     }
 }
@@ -81,7 +80,6 @@ class Module extends DBManager<IModule> {
                     optional:true,
                 },
             },
-            false,
         )
     }
 

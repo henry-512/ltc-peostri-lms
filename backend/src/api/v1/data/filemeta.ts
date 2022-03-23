@@ -24,7 +24,9 @@ class Filedata extends DataManager<IFile> {
                     foreignApi: UserManager,
                 },
             },
-            true,
+            {
+                hasCUTimestamp: true,
+            },
         )
     }
 }
@@ -51,7 +53,9 @@ class Filemeta extends DBManager<IFilemeta> {
                     parentReferenceKey:'files'
                 }
             },
-            true,
+            {
+                hasCUTimestamp: true,
+            },
         )
     }
 

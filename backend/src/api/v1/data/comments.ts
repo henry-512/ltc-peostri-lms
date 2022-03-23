@@ -19,7 +19,9 @@ class Comment extends DBManager<IComment> {
                     parentReferenceKey:'comments',
                 }
             },
-            true,
+            {
+                hasCUTimestamp: true,
+            },
         )
     }
 

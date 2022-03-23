@@ -33,7 +33,6 @@ class Task extends DBManager<ITask> {
                 },
                 'type':{type:'string'}
             },
-            false,
         )
     }
 }

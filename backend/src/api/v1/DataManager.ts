@@ -5,8 +5,8 @@ import { IArangoIndexes, ICreateUpdate } from "../../lms/types"
 import { AuthUser } from "../auth"
 
 export abstract class DataManager<Type> extends IErrorable {
+    protected hasCUTimestamp:boolean
     protected fieldEntries:[string, IFieldData][]
-    private managedEntries:[string, IFieldData][]
     private foreignEntries:[string, IForeignFieldData][]
     private dataEntries:[string, IDataFieldData][]
     protected parentField: null | {
@@ -141,15 +141,9 @@ export abstract class DataManager<Type> extends IErrorable {
                     continue
                 // Object array
                 case 'array':
-                    let o: any[] = !Array.isArray(foreign)
-                        ? [ foreign ]
-                        : foreign
-                    // throw this.error(
-                    //     'forEachForeignKey',
-                    //     HTTPStatus.BAD_REQUEST,
-                    //     'Unexpected type',
-                    //     `${JSON.stringify(foreign)} was expected to be an array`
-                    // )
+                    let o: any[] = Array.isArray(foreign)
+                        ? foreign
+                        : [ foreign ]
                     await arrCall({doc,key:local},o,data)
                     continue
                 // Object step object
@@ -178,13 +172,16 @@ export abstract class DataManager<Type> extends IErrorable {
     constructor(
         className: string,
         protected fieldData: {[key:string]: IFieldData},
-        /**
-         * Create/Update timestamp
-         */
-        protected hasCUTimestamp: boolean,
+        opts?: {
+            /**
+             * Create/Update timestamp
+             */
+            hasCUTimestamp?: boolean,
+        }
     ) {
         super(className)
 
+        this.hasCUTimestamp = opts?.hasCUTimestamp ?? false
         if (this.hasCUTimestamp) {
             fieldData['createdAt'] = {type:'string'}
             fieldData['updatedAt'] = {type:'string'}
@@ -193,17 +190,14 @@ export abstract class DataManager<Type> extends IErrorable {
         this.fieldEntries = Object.entries(fieldData)
         this.foreignEntries = []
         this.dataEntries = []
-        this.managedEntries = []
         this.parentField = null
 
         for (let [key, data] of this.fieldEntries) {
             if (data.foreignApi) {
                 this.foreignEntries.push([key, data as IForeignFieldData])
-                this.managedEntries.push([key, data])
             }
             if (data.foreignData) {
                 this.dataEntries.push([key, data as IDataFieldData])
-                this.managedEntries.push([key, data])
             }
             if (data.parentReferenceKey) {
                 this.parentField = {

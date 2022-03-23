@@ -26,7 +26,9 @@ class ProjectTemplate extends DBManager<IProjectTemplate> {
                     default:0,
                 },
             },
-            true,
+            {
+                hasCUTimestamp: true,
+            },
         )
     }
 

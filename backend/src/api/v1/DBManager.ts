@@ -1,5 +1,5 @@
 import { config } from "../../config";
-import { ArangoWrapper, IQueryGetOpts } from "../../database";
+import { ArangoWrapper, IFilterOpts, IQueryGetOpts } from "../../database";
 import { APIError, HTTPStatus } from "../../lms/errors";
 import { IFieldData, IForeignFieldData } from "../../lms/FieldData";
 import { IArangoIndexes, ICreateUpdate } from "../../lms/types";
@@ -19,23 +19,28 @@ const instances: {[dbname:string]: DBManager<IArangoIndexes>} = {}
 
 export abstract class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
     public db: ArangoWrapper<Type>
+    private defaultFilter: IFilterOpts
 
     constructor(
         dbName: string,
         className: string,
         fields: {[key:string]: IFieldData},
-        /**
-         * Create/Update timestamp
-         */
-        hasCUTimestamp: boolean,
+        opts?: {
+            /**
+             * Create/Update timestamp
+             */
+            hasCUTimestamp?: boolean,
+            defaultFilter?: IFilterOpts,
+        },
     ) {
         fields['id'] = {
             type: 'string',
             optional: true,
         }
 
-        super(className, fields, hasCUTimestamp)
+        super(className, fields, opts)
 
+        this.defaultFilter = opts?.defaultFilter ?? { key: '_key' }
         this.db = new ArangoWrapper<Type>(dbName, this.fieldEntries)
     }
 
@@ -64,35 +69,38 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
             opts.filters = []
 
             for (let [key, value] of Object.entries(filter)) {
-                // if (key === 'q') {
-                //     key = '_id'
-                // }
+                let f:IFilterOpts = { key }
 
-                if (
+                if (key === 'q') {
+                    f.key = this.defaultFilter.key
+                    if (this.defaultFilter.ref) {
+                        f.ref = this.defaultFilter.ref
+                    }
+                } else if (
                     !(key in this.fieldData)
                     || this.fieldData[key].hideGetAll
                 ) {
                     console.warn(`Invalid filtering id ${key}`)
-                    console.warn(filter)
+                    console.warn(f)
                     continue
                 }
 
                 if (Array.isArray(value)) {
-                    opts.filters.push({
-                        key,
-                        in: value,
-                    })
+                    f.in = value
                 } else if (typeof value === 'string') {
-                    opts.filters.push({
-                        key,
-                        q: value,
-                    })
+                    f.q = value
+                } else {
+                    console.warn(`Invalid filtering value [${value}]`)
+                    console.warn(f)
+                    continue
                 }
+
+                opts.filters.push(f)
             }
         }
 
         // Sorting
-        if (q.sort && q.sort.length == 2) {
+        if (q.sort && q.sort.length === 2) {
             let key: string = q.sort[0]
 
             // Remove trailing '.id'

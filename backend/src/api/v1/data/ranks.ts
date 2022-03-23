@@ -12,7 +12,6 @@ class Permission extends DataManager<IPermission> {
                 'perm2': {type:'string'},
                 'perm3': {type:'string'},
             },
-            false,
         )
     }
 }
@@ -43,7 +42,6 @@ class Rank extends DBManager<IRank> {
                     hideGetRef:true,
                 }
             },
-            false,
         )
     }
 }

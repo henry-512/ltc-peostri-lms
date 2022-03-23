@@ -25,7 +25,9 @@ class TaskTemplate extends DataManager<ITaskTemplate> {
                     default:0,
                 },
             },
-            true,
+            {
+                hasCUTimestamp: true,
+            },
         )
     }
 }
@@ -57,7 +59,9 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
                     default:0,
                 },
             },
-            false,
+            {
+                hasCUTimestamp: true,
+            },
         )
     }
 

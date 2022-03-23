@@ -9,14 +9,14 @@ import { appendReturnFields, generateDBID, isDBKey, keyToId } from './lms/util'
 import { HTTPStatus, IErrorable } from './lms/errors'
 import { ArrayCursor } from 'arangojs/cursor'
 
-// Set up database
-export const db = new Database({
-    url: config.dbUrl,
-    databaseName: config.dbName,
-    auth: { username: config.dbUser, password: config.dbPass }
-})
-
 export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
+    // Set up database
+    protected static db = new Database({
+        url: config.dbUrl,
+        databaseName: config.dbName,
+        auth: { username: config.dbUser, password: config.dbPass }
+    })
+
     protected collection: DocumentCollection<Type>
     protected getAllQueryFields: GeneratedAqlQuery
 
@@ -68,7 +68,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     ) {
         super(dbName)
 
-        this.collection = db.collection(this.dbName)
+        this.collection = ArangoWrapper.db.collection(this.dbName)
         this.getAllQueryFields = appendReturnFields(
             aql`id:z._key,`,
             fields.filter(
@@ -123,7 +123,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
             opts.filters || [],
         )
 
-        let cursor = await db.query(query, {
+        let cursor = await ArangoWrapper.db.query(query, {
             fullCount: true,
         })
 
@@ -183,7 +183,9 @@ export interface IFilterOpts {
     // If true, REF is a key in the document referenced by key
     // Ie. {key:rank, ref:name, q:Admin} filters users with rank 'Admin'
     ref?:string,
+    // Complete checking
     in?:string[],
+    // Substring check
     q?:string,
 }
 

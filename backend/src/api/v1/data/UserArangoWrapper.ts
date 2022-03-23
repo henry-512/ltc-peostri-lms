@@ -1,5 +1,5 @@
 import { aql, GeneratedAqlQuery } from "arangojs/aql";
-import { ArangoWrapper, db, ISortOpts, IFilterOpts } from "../../../database";
+import { ArangoWrapper, ISortOpts, IFilterOpts } from "../../../database";
 import { IUser } from "../../../lms/types";
 import { HTTPStatus } from "../../../lms/errors";
 import { IFieldData } from "../../../lms/FieldData";
@@ -22,9 +22,11 @@ export class UserArangoWrapper extends ArangoWrapper<IUser> {
         let query = aql`FOR z IN ${this.collection}`
 
         for (const filter of filters) {
-            let k = filter.ref
-                ? aql`DOCUMENT(z.${filter.key}).${filter.ref}`
-                : aql`z.${filter.key}`
+            let k = filter.key === 'name'
+                ? aql`CONCAT(z.firstName, ' ', z.lastName)`
+                : filter.ref
+                    ? aql`DOCUMENT(z.${filter.key}).${filter.ref}`
+                    : aql`z.${filter.key}`
 
             if (filter.in) {
                 query = aql`${query} FILTER ${k} IN ${filter.in}`
@@ -33,6 +35,7 @@ export class UserArangoWrapper extends ArangoWrapper<IUser> {
             if (filter.q) {
                 query = aql`${query} FILTER CONTAINS(${k},${filter.q})`
             }
+            console.log(query)
         }
 
         query = sort.ref
@@ -50,7 +53,7 @@ export class UserArangoWrapper extends ArangoWrapper<IUser> {
     public async getFromUsername(username: string) {
         let query = aql`FOR z IN users FILTER z.username == ${username} RETURN {${this.getAllQueryFields}password:z.password}`;
 
-        let cursor = await db.query(query);
+        let cursor = await ArangoWrapper.db.query(query);
 
         if (!cursor.hasNext) {
             throw this.error(
