@@ -19,9 +19,13 @@ class TaskTemplate extends DataManager<ITaskTemplate> {
                     default: 'AWAITING',
                 },
                 'type': { type:'string' },
-                'ttc': { type:'number' },
+                'ttc': {
+                    type:'number',
+                    optional:true,
+                    default:0,
+                },
             },
-            false
+            true,
         )
     }
 }

@@ -26,7 +26,7 @@ class ProjectTemplate extends DBManager<IProjectTemplate> {
                     default:0,
                 },
             },
-            false,
+            true,
         )
     }
 
