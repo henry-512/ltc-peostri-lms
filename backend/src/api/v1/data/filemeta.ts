@@ -1,14 +1,13 @@
-import fs from 'fs';
-import path from 'path';
-
-import { IFile, IFilemeta } from "../../../lms/types";
-import { UserManager } from "./users";
-import { AuthUser } from "../../auth";
-import { generateBase64UUID } from '../../../lms/util';
-import { HTTPStatus } from '../../../lms/errors';
-import { config } from '../../../config';
-import { DBManager } from '../DBManager';
-import { DataManager } from '../DataManager';
+import fs from 'fs'
+import path from 'path'
+import { config } from '../../../config'
+import { HTTPStatus } from '../../../lms/errors'
+import { IFile, IFilemeta } from '../../../lms/types'
+import { generateBase64UUID } from '../../../lms/util'
+import { AuthUser } from '../../auth'
+import { DataManager } from '../DataManager'
+import { DBManager } from '../DBManager'
+import { UserManager } from './users'
 
 const FILE_PATH = path.resolve(config.basePath, 'fs')
 
@@ -17,16 +16,16 @@ class Filedata extends DataManager<IFile> {
         super(
             'File',
             {
-                src: {type:'string'},
-                title: {type:'string'},
+                src: { type: 'string' },
+                title: { type: 'string' },
                 author: {
-                    type:'fkey',
+                    type: 'fkey',
                     foreignApi: UserManager,
                 },
             },
             {
                 hasCUTimestamp: true,
-            },
+            }
         )
     }
 }
@@ -39,27 +38,31 @@ class Filemeta extends DBManager<IFilemeta> {
             'filemeta',
             'File Metadata',
             {
-                'latest':{
-                    type:'data',
+                latest: {
+                    type: 'data',
                     foreignData: FiledataInstance,
                 },
-                'old':{
-                    type:'array',
+                old: {
+                    type: 'array',
                     instance: 'data',
                     foreignData: FiledataInstance,
                 },
-                'module':{
-                    type:'parent',
-                    parentReferenceKey:'files'
-                }
+                module: {
+                    type: 'parent',
+                    parentReferenceKey: 'files',
+                },
             },
             {
                 hasCUTimestamp: true,
-            },
+            }
         )
     }
 
-    public override async getFromDB(user: AuthUser, depth: number, id: string) : Promise<IFilemeta> {
+    public override async getFromDB(
+        user: AuthUser,
+        depth: number,
+        id: string
+    ): Promise<IFilemeta> {
         if (depth === 0) {
             return super.getFromDB(user, depth, id)
         }
@@ -73,17 +76,11 @@ class Filemeta extends DBManager<IFilemeta> {
         } as any
     }
 
-    private async writeFile(
-        user:AuthUser,
-        file:IFileData,
-    ) : Promise<IFile> {
+    private async writeFile(user: AuthUser, file: IFileData): Promise<IFile> {
         let id = generateBase64UUID()
-        let src:string = id + '-' + file.name
+        let src: string = id + '-' + file.name
 
-        await fs.promises.rename(
-            file.path,
-            path.join(FILE_PATH, src),
-        )
+        await fs.promises.rename(file.path, path.join(FILE_PATH, src))
 
         return {
             src,
@@ -112,18 +109,18 @@ class Filemeta extends DBManager<IFilemeta> {
         user: AuthUser,
         files: any,
         str: string,
-        par: string,
+        par: string
     ): Promise<IFilemeta | undefined> {
         if (!files[str]) {
             this.error(
                 'buildFromString',
                 HTTPStatus.BAD_REQUEST,
                 'Unexpected file metadata',
-                `${str} is not a valid file reference`,
+                `${str} is not a valid file reference`
             )
         }
 
-        let fileData:IFileData = files[str] as IFileData
+        let fileData: IFileData = files[str] as IFileData
         let latest = await this.writeFile(user, fileData)
 
         return {
@@ -137,12 +134,12 @@ class Filemeta extends DBManager<IFilemeta> {
 
 interface IFileData {
     // Blob data
-    size:number,
-    path:string,
-    name:string,
+    size: number
+    path: string
+    name: string
     // MIME media type
-    type:string,
-    mtime:string | Date,
+    type: string
+    mtime: string | Date
 }
 
 export const FilemetaManager = new Filemeta()

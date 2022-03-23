@@ -1,12 +1,11 @@
 import bcrypt from 'bcrypt'
-
-import { IUser } from "../../../lms/types";
-import { RankManager } from "./ranks";
-import { isDBKey } from "../../../lms/util";
-import { HTTPStatus } from "../../../lms/errors";
-import { AuthUser } from "../../auth";
-import { DBManager } from "../DBManager";
-import { UserArangoWrapper } from "./UserArangoWrapper";
+import { HTTPStatus } from '../../../lms/errors'
+import { IUser } from '../../../lms/types'
+import { isDBKey } from '../../../lms/util'
+import { AuthUser } from '../../auth'
+import { DBManager } from '../DBManager'
+import { RankManager } from './ranks'
+import { UserArangoWrapper } from './UserArangoWrapper'
 
 export const DB_NAME = 'users'
 
@@ -28,36 +27,36 @@ class User extends DBManager<IUser> {
             DB_NAME,
             'User',
             {
-                'firstName': {type:'string'},
-                'lastName':{type:'string'},
-                'avatar':{type:'string'},
-                'rank':{
-                    type:'fkey',
-                    getIdKeepAsRef:true,
-                    foreignApi:RankManager,
+                firstName: { type: 'string' },
+                lastName: { type: 'string' },
+                avatar: { type: 'string' },
+                rank: {
+                    type: 'fkey',
+                    getIdKeepAsRef: true,
+                    foreignApi: RankManager,
                 },
-                'status':{
-                    type:'string',
-                    default:'ACTIVE',
+                status: {
+                    type: 'string',
+                    default: 'ACTIVE',
                 },
-                'email':{
-                    type:'string',
-                    optional:true
+                email: {
+                    type: 'string',
+                    optional: true,
                 },
 
-                'username':{
-                    type:'string',
-                    hideGetRef:true,
+                username: {
+                    type: 'string',
+                    hideGetRef: true,
                 },
-                'password':{
-                    type:'string',
-                    hideGetAll:true,
-                    hideGetId:true,
-                    hideGetRef:true,
-                }
+                password: {
+                    type: 'string',
+                    hideGetAll: true,
+                    hideGetId: true,
+                    hideGetRef: true,
+                },
             },
             {
-                defaultFilter: { key:'name' }
+                defaultFilter: { key: 'name' },
             }
         )
 
@@ -67,8 +66,8 @@ class User extends DBManager<IUser> {
     override async modifyDoc(
         user: AuthUser,
         files: any,
-        doc: any,
-    ) : Promise<IUser> {
+        doc: any
+    ): Promise<IUser> {
         // Hash password
         if (doc.password) {
             doc.password = await bcrypt.hash(doc.password, 5)

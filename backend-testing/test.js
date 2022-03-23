@@ -16,44 +16,36 @@ describe(`Authenticate`, () => {
     const user = require('./data/users')
 
     it('Unauthorized access', async () => {
-        let r = await agent
-            .get('v1/projects')
+        let r = await agent.get('v1/projects')
         expect(r.status).equal(401)
     })
 
     it('Auth check, no auth', async () => {
-        let r = await agent
-            .get('auth')
+        let r = await agent.get('auth')
         expect(r.status).equal(401)
     })
 
     it('Invalid username', async () => {
-        let r = await agent
-            .post('auth')
-            .send({
-                username: 'hehe :)',
-                password: authPassword
-            })
+        let r = await agent.post('auth').send({
+            username: 'hehe :)',
+            password: authPassword,
+        })
         expect(r.status).equal(400)
     })
 
     it('Invalid password', async () => {
-        let r = await agent
-            .post('auth')
-            .send({
-                username: authUserName,
-                password: 'grinning'
-            })
+        let r = await agent.post('auth').send({
+            username: authUserName,
+            password: 'grinning',
+        })
         expect(r.status).equal(400)
     })
 
     it('Valid authenticate', async () => {
-        let r = await agent
-            .post('auth')
-            .send({
-                username: authUserName,
-                password: authPassword,
-            })
+        let r = await agent.post('auth').send({
+            username: authUserName,
+            password: authPassword,
+        })
         expect(r.status).equal(200)
         expect('token')
         expect('set-cookie', /token/)
@@ -65,19 +57,15 @@ describe(`Authenticate`, () => {
     })
 
     it('Auth check, valid auth', async () => {
-        let r = await agent
-            .get('auth')
+        let r = await agent.get('auth')
         expect(r.status).equal(204)
     })
 
     it('Self user', async () => {
-        let r = await agent
-            .get(API + 'users/self')
+        let r = await agent.get(API + 'users/self')
         expect(r.status).equal(200)
-        expect(r.body).an('object')
-            .any.key('username')
-        expect(r.body).an('object')
-            .not.any.key('password')
+        expect(r.body).an('object').any.key('username')
+        expect(r.body).an('object').not.any.key('password')
     })
 })
 
@@ -86,24 +74,22 @@ function test(n) {
 
     describe(`${n} GET all`, () => {
         it('Base call', async () => {
-            let r = await agent
-                .get(API + n)
-                
+            let r = await agent.get(API + n)
+
             expect(r.status).equal(200)
-            expect(r.headers).an('object')
-                .any.keys('content-range','access-control-expose-headers')
+            expect(r.headers)
+                .an('object')
+                .any.keys('content-range', 'access-control-expose-headers')
             expect(r.body).an('array')
         })
     })
 
     describe(`${n} GET one`, () => {
         it('Filter range [0,1]', async () => {
-            let r = await agent
-                .get(API + n)
-                .query({
-                    range:[0,1],
-                })
-            
+            let r = await agent.get(API + n).query({
+                range: [0, 1],
+            })
+
             expect(r.status).equal(200)
             expect(r.body).an('array').lengthOf(1)
             let doc = r.body[0]
@@ -114,16 +100,13 @@ function test(n) {
         })
 
         it('GET/:id', async () => {
-            let r = await agent
-                .get(API + n)
-                .query({
-                    range:[0,1],
-                })
-            
+            let r = await agent.get(API + n).query({
+                range: [0, 1],
+            })
+
             let id = r.body[0].id
 
-            r = await agent
-                .get(API + n + '/' + id)
+            r = await agent.get(API + n + '/' + id)
 
             expect(r.status).equal(200)
             expect(r.body).an('object')
@@ -136,7 +119,7 @@ function test(n) {
     // This takes too long for projects
     // Refactor into multiple describe() calls?
     //if (n !== 'projects') {
-        /*
+    /*
     if (false) {
     describe(`${n} POST/GET/PUT/DELETE chain`, () => {
         it('Chain code', async () => {
@@ -190,21 +173,20 @@ function test(n) {
     */
 
     describe(`${n} POST accepts`, () => {
-        raw.acceptPost.map(d => {
+        raw.acceptPost.map((d) => {
             it(d.n, async () => {
                 let r = await agent
                     .post(API + n)
                     .set('User-Agent', 'backend-testing')
                     .send(d.d)
                 expect(r.status).equal(201)
-                expect(r.body).an('object')
-                    .any.key('id')
+                expect(r.body).an('object').any.key('id')
             })
         })
     })
 
     describe(`${n} POST fails`, () => {
-        raw.failPost.map(d => {
+        raw.failPost.map((d) => {
             it(d.n, async () => {
                 let r = await agent
                     .post(API + n)

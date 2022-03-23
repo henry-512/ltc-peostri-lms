@@ -1,71 +1,66 @@
-import { config } from "../../config"
-import { APIError, HTTPStatus, IErrorable } from "../../lms/errors"
-import { IDataFieldData, IFieldData, IForeignFieldData } from "../../lms/FieldData"
-import { IArangoIndexes, ICreateUpdate } from "../../lms/types"
-import { AuthUser } from "../auth"
+import { config } from '../../config'
+import { HTTPStatus, IErrorable } from '../../lms/errors'
+import {
+    IDataFieldData,
+    IFieldData,
+    IForeignFieldData,
+} from '../../lms/FieldData'
+import { ICreateUpdate } from '../../lms/types'
+import { AuthUser } from '../auth'
 
 export abstract class DataManager<Type> extends IErrorable {
-    protected hasCUTimestamp:boolean
-    protected fieldEntries:[string, IFieldData][]
-    protected foreignEntries:[string, IForeignFieldData][]
-    private dataEntries:[string, IDataFieldData][]
+    protected hasCUTimestamp: boolean
+    protected fieldEntries: [string, IFieldData][]
+    protected foreignEntries: [string, IForeignFieldData][]
+    private dataEntries: [string, IDataFieldData][]
     protected parentField: null | {
-        local:string, foreign:string
+        local: string
+        foreign: string
     }
 
     /**
      * Runs the passed function on each foreign key in the document
      */
     protected async mapForeignKeys(
-        doc:Type,
-        fn:(
-            value:any,
-            data:IForeignFieldData,
-        ) => Promise<any>,
-        skippable?:(
-            data:IForeignFieldData,
-        ) => boolean,
-    ) : Promise<Type> {
+        doc: Type,
+        fn: (value: any, data: IForeignFieldData) => Promise<any>,
+        skippable?: (data: IForeignFieldData) => boolean
+    ): Promise<Type> {
         return this.mapKeys<IForeignFieldData>(
-            doc, this.foreignEntries, fn, skippable
+            doc,
+            this.foreignEntries,
+            fn,
+            skippable
         )
     }
 
     protected async mapDataKeys(
-        doc:Type,
-        fn:(
-            value:any,
-            data:IDataFieldData,
-        ) => Promise<any>,
-        skippable?:(
-            data:IDataFieldData,
-        ) => boolean,
-    ) : Promise<Type> {
+        doc: Type,
+        fn: (value: any, data: IDataFieldData) => Promise<any>,
+        skippable?: (data: IDataFieldData) => boolean
+    ): Promise<Type> {
         return this.mapKeys<IDataFieldData>(
-            doc, this.dataEntries, fn, skippable
+            doc,
+            this.dataEntries,
+            fn,
+            skippable
         )
     }
 
     protected async mapKeys<T extends IFieldData>(
-        doc:Type,
-        entries:[string, T][],
-        fn:(
-            value:string,
-            data:T,
-        ) => Promise<any>,
-        skippable?:(
-            data:T,
-        ) => boolean,
-    ) : Promise<Type> {
+        doc: Type,
+        entries: [string, T][],
+        fn: (value: string, data: T) => Promise<any>,
+        skippable?: (data: T) => boolean
+    ): Promise<Type> {
         return this.forEachField<T>(
             doc,
             entries,
-            async (p,o,d) => p.doc[p.key] = <any>await fn(o,d),
-            async (p,a,d) => p.doc[p.key] = <any>await Promise.all(
-                a.map(o => fn(o,d))
-            ),
-            async (p,s,d) => {
-                let temp:any = {}
+            async (p, o, d) => (p.doc[p.key] = <any>await fn(o, d)),
+            async (p, a, d) =>
+                (p.doc[p.key] = <any>await Promise.all(a.map((o) => fn(o, d)))),
+            async (p, s, d) => {
+                let temp: any = {}
                 for (let stepId in s) {
                     let stepArray = s[stepId]
 
@@ -74,11 +69,11 @@ export abstract class DataManager<Type> extends IErrorable {
                             'mapForeignKeys',
                             HTTPStatus.BAD_REQUEST,
                             'Unexpected type',
-                            `${stepArray} is not an array`,
+                            `${stepArray} is not an array`
                         )
                     }
-                    temp[stepId] = <any>await Promise.all(
-                        stepArray.map(o => fn(o,d))
+                    temp[stepId] = <any>(
+                        await Promise.all(stepArray.map((o) => fn(o, d)))
                     )
                 }
                 p.doc[p.key] = temp
@@ -88,30 +83,28 @@ export abstract class DataManager<Type> extends IErrorable {
     }
 
     protected async forEachField<T extends IFieldData>(
-        doc:Type,
-        entries:[string, T][],
+        doc: Type,
+        entries: [string, T][],
         // Runs for each foreign key
-        keyCall:(
-            pointer:{doc:any,key:string | number | symbol}, //doc:Type
-            obj:any,
-            data:T,
+        keyCall: (
+            pointer: { doc: any; key: string | number | symbol }, //doc:Type
+            obj: any,
+            data: T
         ) => Promise<any>,
         // Runs for each foreign array
-        arrCall:(
-            pointer:{doc:any,key:string | number | symbol},
-            arr:Array<any>,
-            data:T,
+        arrCall: (
+            pointer: { doc: any; key: string | number | symbol },
+            arr: Array<any>,
+            data: T
         ) => Promise<any>,
         // Runs for each foreign step object
-        stpCall:(
-            pointer:{doc:any,key:string | number | symbol},
-            stp:{[index:string]:Array<any>},
-            data:T,
+        stpCall: (
+            pointer: { doc: any; key: string | number | symbol },
+            stp: { [index: string]: Array<any> },
+            data: T
         ) => Promise<any>,
-        skippable?:(
-            data:T,
-        ) => boolean,
-    ) : Promise<Type> {
+        skippable?: (data: T) => boolean
+    ): Promise<Type> {
         for (let [fkey, data] of entries) {
             if (skippable && skippable(data)) continue
 
@@ -137,14 +130,12 @@ export abstract class DataManager<Type> extends IErrorable {
                 // Single foreign key
                 case 'data':
                 case 'fkey':
-                    await keyCall({doc,key:local},<any>foreign,data)
+                    await keyCall({ doc, key: local }, <any>foreign, data)
                     continue
                 // Object array
                 case 'array':
-                    let o: any[] = Array.isArray(foreign)
-                        ? foreign
-                        : [ foreign ]
-                    await arrCall({doc,key:local},o,data)
+                    let o: any[] = Array.isArray(foreign) ? foreign : [foreign]
+                    await arrCall({ doc, key: local }, o, data)
                     continue
                 // Object step object
                 case 'step':
@@ -153,15 +144,19 @@ export abstract class DataManager<Type> extends IErrorable {
                             'forEachForeignKey',
                             HTTPStatus.BAD_REQUEST,
                             'Unexpected type',
-                            `${JSON.stringify(foreign)} was expected to be a step object`
+                            `${JSON.stringify(
+                                foreign
+                            )} was expected to be a step object`
                         )
                     }
-                    await stpCall({doc,key:local},<any>foreign,data)
+                    await stpCall({ doc, key: local }, <any>foreign, data)
                     continue
                 default:
                     throw this.internal(
                         'forEachForeignKey',
-                        `${JSON.stringify(data)} has invalid .type field (expected foreign key)`
+                        `${JSON.stringify(
+                            data
+                        )} has invalid .type field (expected foreign key)`
                     )
             }
         }
@@ -171,20 +166,20 @@ export abstract class DataManager<Type> extends IErrorable {
 
     constructor(
         className: string,
-        protected fieldData: {[key:string]: IFieldData},
+        protected fieldData: { [key: string]: IFieldData },
         opts?: {
             /**
              * Create/Update timestamp
              */
-            hasCUTimestamp?: boolean,
+            hasCUTimestamp?: boolean
         }
     ) {
         super(className)
 
         this.hasCUTimestamp = opts?.hasCUTimestamp ?? false
         if (this.hasCUTimestamp) {
-            fieldData['createdAt'] = {type:'string'}
-            fieldData['updatedAt'] = {type:'string'}
+            fieldData['createdAt'] = { type: 'string' }
+            fieldData['updatedAt'] = { type: 'string' }
         }
 
         this.fieldEntries = Object.entries(fieldData)
@@ -225,20 +220,24 @@ export abstract class DataManager<Type> extends IErrorable {
 
         if (this.hasCUTimestamp) {
             if (!exists) {
-                (<ICreateUpdate>doc).createdAt = new Date().toJSON()
+                ;(<ICreateUpdate>doc).createdAt = new Date().toJSON()
             }
-            (<ICreateUpdate>doc).updatedAt = new Date().toJSON()
+            ;(<ICreateUpdate>doc).updatedAt = new Date().toJSON()
         }
 
         // Check for extra fields
-        for (const [pK,pV] of Object.entries(doc)) {
+        for (const [pK, pV] of Object.entries(doc)) {
             if (pK in this.fieldData) continue
 
             // Developer routes
             if (config.devRoutes) {
                 // Clean existing documents
                 if (exists) {
-                    console.warn(`deleting key ${this.className}.${pK} from existing doc [${JSON.stringify(doc)}]`)
+                    console.warn(
+                        `deleting key ${
+                            this.className
+                        }.${pK} from existing doc [${JSON.stringify(doc)}]`
+                    )
                     delete (<any>doc)[pK]
                     continue
                 }
@@ -248,14 +247,16 @@ export abstract class DataManager<Type> extends IErrorable {
                 'addToReferenceMap',
                 HTTPStatus.BAD_REQUEST,
                 'Excess data provided',
-                `${this.className}.${pK} [${pV}] was not expected in (${JSON.stringify(doc)})`
+                `${
+                    this.className
+                }.${pK} [${pV}] was not expected in (${JSON.stringify(doc)})`
             )
         }
 
         for (let [k, data] of this.fieldEntries) {
             // key of doc
             let key = k as keyof Type
-            
+
             // Check for missing fields
             if (!(key in doc)) {
                 if (data.default !== undefined) {
@@ -267,7 +268,9 @@ export abstract class DataManager<Type> extends IErrorable {
                     continue
                 } else {
                     if (exists) {
-                        console.warn(`key ${key} is missing in revised document`)
+                        console.warn(
+                            `key ${key} is missing in revised document`
+                        )
                         continue
                     }
                     throw this.error(
@@ -301,17 +304,31 @@ export abstract class DataManager<Type> extends IErrorable {
         }
 
         // foreign keys
-        doc = await this.mapForeignKeys(doc, async (obj, data) =>
-            await data.foreignApi.parseGet(
-                user, files, obj, data, map, stack,
-            )
+        doc = await this.mapForeignKeys(
+            doc,
+            async (obj, data) =>
+                await data.foreignApi.parseGet(
+                    user,
+                    files,
+                    obj,
+                    data,
+                    map,
+                    stack
+                )
         )
 
         // data keys
-        doc = await this.mapDataKeys(doc, async (obj, data) =>
-            await data.foreignData.parseGet(
-                user, files, obj, data, map, stack,
-            )
+        doc = await this.mapDataKeys(
+            doc,
+            async (obj, data) =>
+                await data.foreignData.parseGet(
+                    user,
+                    files,
+                    obj,
+                    data,
+                    map,
+                    stack
+                )
         )
 
         // Add the document to the map
@@ -330,7 +347,7 @@ export abstract class DataManager<Type> extends IErrorable {
         doc: any,
         data: IFieldData,
         map: Map<DataManager<any>, any[]>,
-        stack: string[],
+        stack: string[]
     ): Promise<any> {
         // Doc is either a foreign key or a string to serialize
         if (typeof doc === 'string') {
@@ -347,7 +364,12 @@ export abstract class DataManager<Type> extends IErrorable {
             }
 
             if (data.acceptNewDoc) {
-                let built = await this.buildFromString(user, files, doc, stack[stack.length - 1])
+                let built = await this.buildFromString(
+                    user,
+                    files,
+                    doc,
+                    stack[stack.length - 1]
+                )
                 if (built !== undefined) {
                     if (data.foreignApi) {
                         let id = (<any>built).id
@@ -359,7 +381,14 @@ export abstract class DataManager<Type> extends IErrorable {
                         }
                         stack.push(id)
                     }
-                    await this.verifyAddedDocument(user, files, built, true, map, stack)
+                    await this.verifyAddedDocument(
+                        user,
+                        files,
+                        built,
+                        true,
+                        map,
+                        stack
+                    )
                     return data.foreignApi ? stack.pop() : built
                 }
             }
@@ -370,7 +399,7 @@ export abstract class DataManager<Type> extends IErrorable {
                 'Invalid key value',
                 `[${doc}] is not a valid string entry`
             )
-        // Objects are fully-formed documents
+            // Objects are fully-formed documents
         } else if (typeof doc === 'object') {
             // Update parent field only if it isn't already set
             // TODO: validate existing parent keys
@@ -383,7 +412,14 @@ export abstract class DataManager<Type> extends IErrorable {
 
             // Non-foreign documents are verified directly
             if (!data.foreignApi) {
-                await this.verifyAddedDocument(user, files, doc, false, map, stack)
+                await this.verifyAddedDocument(
+                    user,
+                    files,
+                    doc,
+                    false,
+                    map,
+                    stack
+                )
                 return doc
             }
 
@@ -395,7 +431,9 @@ export abstract class DataManager<Type> extends IErrorable {
                     'parseGet',
                     HTTPStatus.BAD_REQUEST,
                     'New document unauthorized',
-                    `New documents [${JSON.stringify(doc)}] not acceptable for type ${JSON.stringify(data)}`
+                    `New documents [${JSON.stringify(
+                        doc
+                    )}] not acceptable for type ${JSON.stringify(data)}`
                 )
             }
 
@@ -409,7 +447,9 @@ export abstract class DataManager<Type> extends IErrorable {
             'ref',
             HTTPStatus.BAD_REQUEST,
             'Invalid foreign object',
-            `[${JSON.stringify(doc)}] is not a foreign document or reference for data [${data.type}]`
+            `[${JSON.stringify(
+                doc
+            )}] is not a foreign document or reference for data [${data.type}]`
         )
     }
 
@@ -421,7 +461,7 @@ export abstract class DataManager<Type> extends IErrorable {
         files: any,
         str: string,
         par: string
-    ) : Promise<Type | undefined> {
+    ): Promise<Type | undefined> {
         return undefined
     }
 
@@ -430,24 +470,18 @@ export abstract class DataManager<Type> extends IErrorable {
      * and after dereferencing all keys
      */
     protected async modifyDoc(
-        user:AuthUser,
-        files:any,
-        doc:any,
-    ) : Promise<Type> {
+        user: AuthUser,
+        files: any,
+        doc: any
+    ): Promise<Type> {
         return doc
     }
 
-    protected async addReference(id:string, field:string, real:boolean) {
-        throw this.error(
-            'addReference',
-            HTTPStatus.NOT_IMPLEMENTED
-        )
+    protected async addReference(id: string, field: string, real: boolean) {
+        throw this.error('addReference', HTTPStatus.NOT_IMPLEMENTED)
     }
 
-    protected async removeReference(id:string, field:string, real:boolean) {
-        throw this.error(
-            'removeReference',
-            HTTPStatus.NOT_IMPLEMENTED
-        )
+    protected async removeReference(id: string, field: string, real: boolean) {
+        throw this.error('removeReference', HTTPStatus.NOT_IMPLEMENTED)
     }
 }

@@ -1,18 +1,15 @@
-import { IPermission, IRank } from "../../../lms/types";
-import { isDBId } from "../../../lms/util";
-import { DataManager } from "../DataManager";
-import { DBManager } from "../DBManager";
+import { IPermission, IRank } from '../../../lms/types'
+import { isDBId } from '../../../lms/util'
+import { DataManager } from '../DataManager'
+import { DBManager } from '../DBManager'
 
 class Permission extends DataManager<IPermission> {
     constructor() {
-        super(
-            'Permission',
-            {
-                'perm1': {type:'string'},
-                'perm2': {type:'string'},
-                'perm3': {type:'string'},
-            },
-        )
+        super('Permission', {
+            perm1: { type: 'string' },
+            perm2: { type: 'string' },
+            perm3: { type: 'string' },
+        })
     }
 }
 const PermissionManager = new Permission()
@@ -26,23 +23,19 @@ class Rank extends DBManager<IRank> {
     }
 
     constructor() {
-        super(
-            'ranks',
-            'Rank',
-            {
-                'name':{type:'string',default:'New Rank'},
-                'permissions':{
-                    type:'data',
-                    default:{
-                        'perm1':false,
-                        'perm2':false,
-                        'perm3':false,
-                    },
-                    foreignData: PermissionManager,
-                    hideGetRef:true,
-                }
+        super('ranks', 'Rank', {
+            name: { type: 'string', default: 'New Rank' },
+            permissions: {
+                type: 'data',
+                default: {
+                    perm1: false,
+                    perm2: false,
+                    perm3: false,
+                },
+                foreignData: PermissionManager,
+                hideGetRef: true,
             },
-        )
+        })
     }
 }
 

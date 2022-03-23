@@ -1,11 +1,11 @@
-let debugRankId    = 'ranks/0123456789012345678900'
-let debugRankKey   = '0123456789012345678900'
+let debugRankId = 'ranks/0123456789012345678900'
+let debugRankKey = '0123456789012345678900'
 
-let debugUserId         = 'users/0123456789012345678900'
-let debugUserKey        = '0123456789012345678900'
+let debugUserId = 'users/0123456789012345678900'
+let debugUserKey = '0123456789012345678900'
 
-let authUserName        = 'john-doe'
-let authPassword        = 'password'
+let authUserName = 'john-doe'
+let authPassword = 'password'
 
 function processStructure(d) {
     let gaR = []
@@ -14,7 +14,7 @@ function processStructure(d) {
     let giR = []
     let giI = []
 
-    for (const [k,data] of Object.entries(d.structure)) {
+    for (const [k, data] of Object.entries(d.structure)) {
         if (data.hideGetId) {
             giI = giI.concat(k)
         } else if (!data.optional) {
@@ -31,7 +31,7 @@ function processStructure(d) {
         required: gaR,
         invalid: gaI,
     }
-    
+
     d.getId = {
         required: giR,
         invalid: giI,

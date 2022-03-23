@@ -1,7 +1,7 @@
-import { IComment } from "../../../lms/types";
-import { UserManager } from "./users";
-import { AuthUser } from "../../auth";
-import { DBManager } from "../DBManager";
+import { IComment } from '../../../lms/types'
+import { AuthUser } from '../../auth'
+import { DBManager } from '../DBManager'
+import { UserManager } from './users'
 
 class Comment extends DBManager<IComment> {
     constructor() {
@@ -9,23 +9,27 @@ class Comment extends DBManager<IComment> {
             'comments',
             'Comment',
             {
-                'content':{type:'string'},
-                'author':{
-                    type:'fkey',
-                    foreignApi:UserManager
+                content: { type: 'string' },
+                author: {
+                    type: 'fkey',
+                    foreignApi: UserManager,
                 },
-                'parent':{
-                    type:'parent',
-                    parentReferenceKey:'comments',
-                }
+                parent: {
+                    type: 'parent',
+                    parentReferenceKey: 'comments',
+                },
             },
             {
                 hasCUTimestamp: true,
-            },
+            }
         )
     }
 
-    public override async getFromDB(user: AuthUser, depth: number, id: string): Promise<IComment> {
+    public override async getFromDB(
+        user: AuthUser,
+        depth: number,
+        id: string
+    ): Promise<IComment> {
         // Only modules have depth 1
         if (depth !== 1) {
             return super.getFromDB(user, depth, id)
@@ -40,7 +44,7 @@ class Comment extends DBManager<IComment> {
     protected override async modifyDoc(
         user: AuthUser,
         files: any,
-        doc: any,
+        doc: any
     ): Promise<IComment> {
         if (!doc.author) {
             doc.author = user.getId()
@@ -53,15 +57,15 @@ class Comment extends DBManager<IComment> {
     protected override async buildFromString(
         user: AuthUser,
         files: any,
-        str:string,
-        par:string,
-    ) : Promise<IComment | undefined> {
+        str: string,
+        par: string
+    ): Promise<IComment | undefined> {
         // TODO: input validation
         let com: IComment = {
             id: this.db.generateDBID(),
             content: str,
             author: user.getId(),
-            parent: par
+            parent: par,
         }
         return com
     }

@@ -1,20 +1,22 @@
 import { aql, Database } from 'arangojs'
 import { GeneratedAqlQuery } from 'arangojs/aql'
-import { CollectionUpdateOptions, DocumentCollection } from 'arangojs/collection'
-import { IFieldData } from './lms/FieldData'
-
+import {
+    CollectionUpdateOptions,
+    DocumentCollection,
+} from 'arangojs/collection'
+import { ArrayCursor } from 'arangojs/cursor'
 import { config } from './config'
+import { HTTPStatus, IErrorable } from './lms/errors'
+import { IFieldData } from './lms/FieldData'
 import { IArangoIndexes } from './lms/types'
 import { appendReturnFields, generateDBID, isDBKey, keyToId } from './lms/util'
-import { HTTPStatus, IErrorable } from './lms/errors'
-import { ArrayCursor } from 'arangojs/cursor'
 
 export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     // Set up database
     protected static db = new Database({
         url: config.dbUrl,
         databaseName: config.dbName,
-        auth: { username: config.dbUser, password: config.dbPass }
+        auth: { username: config.dbUser, password: config.dbPass },
     })
 
     protected collection: DocumentCollection<Type>
@@ -41,9 +43,15 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 
     private idRegex
-    public isDBId(id: string) { return this.idRegex.test(id) }
-    public keyToId(key: string) { return keyToId(key, this.dbName) }
-    public generateDBID() { return generateDBID(this.dbName) }
+    public isDBId(id: string) {
+        return this.idRegex.test(id)
+    }
+    public keyToId(key: string) {
+        return keyToId(key, this.dbName)
+    }
+    public generateDBID() {
+        return generateDBID(this.dbName)
+    }
     public isKeyOrId(idOrKey: string) {
         return isDBKey(idOrKey) || this.idRegex.test(idOrKey)
     }
@@ -57,34 +65,29 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
                 'asId',
                 HTTPStatus.BAD_REQUEST,
                 'Invalid document Id',
-                `${idOrKey} is not an ID or key`,
+                `${idOrKey} is not an ID or key`
             )
         }
     }
 
-    constructor(
-        private dbName:string,
-        fields: [string, IFieldData][]
-    ) {
+    constructor(private dbName: string, fields: [string, IFieldData][]) {
         super(dbName)
 
         this.collection = ArangoWrapper.db.collection(this.dbName)
         this.getAllQueryFields = appendReturnFields(
             aql`id:z._key,`,
-            fields.filter(
-                (d) => !d[1].hideGetAll && d[0] !== 'id'
-            ).map(
-                (d) => d[0]
-            )
+            fields
+                .filter((d) => !d[1].hideGetAll && d[0] !== 'id')
+                .map((d) => d[0])
         )
 
         this.idRegex = new RegExp(`^${dbName}\/([0-9]|[a-z]|[A-Z]|-|_)+$`)
     }
 
     protected getAllQuery(
-		sort: ISortOpts,
-		offset: number, 
-		count: number,
+        sort: ISortOpts,
+        offset: number,
+        count: number,
         filters: IFilterOpts[]
     ): GeneratedAqlQuery {
         let query = aql`FOR z IN ${this.collection}`
@@ -105,30 +108,31 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
             ? aql`${query} SORT DOCUMENT(z.${sort.key}).${sort.ref}`
             : aql`${query} SORT z.${sort.key}`
 
-        query = aql`${query} ${sort.desc ? 'DESC' : 'ASC'} LIMIT ${offset}, ${count} RETURN {${this.getAllQueryFields}}`
+        query = aql`${query} ${
+            sort.desc ? 'DESC' : 'ASC'
+        } LIMIT ${offset}, ${count} RETURN {${this.getAllQueryFields}}`
 
         return query
     }
 
-    public async queryGet(
-        opts: IQueryGetOpts
-    ): Promise<{
-        cursor: ArrayCursor<any>,
-        size: number,
+    public async queryGet(opts: IQueryGetOpts): Promise<{
+        cursor: ArrayCursor<any>
+        size: number
     }> {
         let query = this.getAllQuery(
-            opts.sort ?? {desc:false, key:'_key'},
+            opts.sort ?? { desc: false, key: '_key' },
             opts.range.offset,
             opts.range.count,
-            opts.filters || [],
+            opts.filters || []
         )
 
         let cursor = await ArangoWrapper.db.query(query, {
             fullCount: true,
         })
 
-        let size = cursor.extra.stats?.fullCount
-            ?? (await this.collection.count()).count
+        let size =
+            cursor.extra.stats?.fullCount ??
+            (await this.collection.count()).count
 
         return { cursor, size }
     }
@@ -158,7 +162,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
                 `[${id}] is not a valid id for this collection`
             )
         }
-        if (!await this.existsUnsafe(id)) {
+        if (!(await this.existsUnsafe(id))) {
             throw this.error(
                 'get',
                 HTTPStatus.NOT_FOUND,
@@ -180,7 +184,9 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     public async deleteOrphans(parentFieldLocal: string) {
         // Filters documents with parent fields that cannot be properly
         // dereferenced [DOCUMENT(d.parent) === null]
-        return ArangoWrapper.db.query(aql`FOR d IN ${this.collection} FILTER DOCUMENT(d.${parentFieldLocal})._id == null REMOVE d IN ${this.collection}`)
+        return ArangoWrapper.db.query(
+            aql`FOR d IN ${this.collection} FILTER DOCUMENT(d.${parentFieldLocal})._id == null REMOVE d IN ${this.collection}`
+        )
     }
 
     public async getAll() {
@@ -189,28 +195,28 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
 }
 
 export interface IFilterOpts {
-    key:string,
+    key: string
     // If true, REF is a key in the document referenced by key
     // Ie. {key:rank, ref:name, q:Admin} filters users with rank 'Admin'
-    ref?:string,
+    ref?: string
     // Complete checking
-    in?:string[],
+    in?: string[]
     // Substring check
-    q?:string,
+    q?: string
 }
 
 export interface ISortOpts {
-    desc: boolean,
-    key: string,
+    desc: boolean
+    key: string
     // If true, REF is a key in the document referenced by key
-    ref?: string,
+    ref?: string
 }
 
 export interface IQueryGetOpts {
-    filters?: IFilterOpts[],
-    sort?: ISortOpts,
+    filters?: IFilterOpts[]
+    sort?: ISortOpts
     range: {
-        offset: number,
-        count: number,
+        offset: number
+        count: number
     }
 }

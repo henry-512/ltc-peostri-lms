@@ -4,7 +4,7 @@ import path from 'path'
 
 export async function apiRouter() {
     const apiRouter = new Router({
-        prefix: '/api/'
+        prefix: '/api/',
     })
 
     // API directory

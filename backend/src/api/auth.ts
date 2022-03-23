@@ -1,18 +1,17 @@
-import Router from "@koa/router"
+import Router from '@koa/router'
 import bcrypt from 'bcrypt'
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken'
-
-import { config } from "../config"
-import { APIError, HTTPStatus } from "../lms/errors"
-import { IRank, IUser } from "../lms/types"
-import { RankManager } from "./v1/data/ranks"
-import { UserManager } from "./v1/data/users"
-import { isDBKey } from "../lms/util"
+import { config } from '../config'
+import { APIError, HTTPStatus } from '../lms/errors'
+import { IRank, IUser } from '../lms/types'
+import { isDBKey } from '../lms/util'
+import { RankManager } from './v1/data/ranks'
+import { UserManager } from './v1/data/users'
 
 /**
  * An authenticated user instance, associated with their user id
  */
- export class AuthUser {
+export class AuthUser {
     private rank?: IRank
     private user?: IUser
     public key
@@ -22,21 +21,15 @@ import { isDBKey } from "../lms/util"
      * Builds an error with the provided fields
      */
     private static error(
-        fn:string,
-        status:HTTPStatus,
-        message?:string,
-        verbose?:string
+        fn: string,
+        status: HTTPStatus,
+        message?: string,
+        verbose?: string
     ): APIError {
-        return new APIError(
-            'AuthUser',
-            fn,
-            status,
-            message,
-            verbose
-        )
+        return new APIError('AuthUser', fn, status, message, verbose)
     }
 
-    public static async validate(auth?:string) {
+    public static async validate(auth?: string) {
         if (!auth || typeof auth !== 'string') {
             throw AuthUser.error(
                 'validate',
@@ -47,7 +40,7 @@ import { isDBKey } from "../lms/util"
         }
 
         let usr = new AuthUser(auth)
-        if (!await UserManager.exists(usr.id)) {
+        if (!(await UserManager.exists(usr.id))) {
             throw AuthUser.error(
                 'authRouter.get',
                 HTTPStatus.UNAUTHORIZED,
@@ -59,8 +52,8 @@ import { isDBKey } from "../lms/util"
         return usr
     }
 
-    private constructor(auth:string) {
-        let jwt:JwtPayload = {}
+    private constructor(auth: string) {
+        let jwt: JwtPayload = {}
 
         try {
             let ver = jsonwebtoken.verify(auth, config.secret)
@@ -89,7 +82,9 @@ import { isDBKey } from "../lms/util"
         }
     }
 
-    getId() { return UserManager.db.keyToId(this.key) }
+    getId() {
+        return UserManager.db.keyToId(this.key)
+    }
 
     async getUser() {
         if (!this.user) this.user = await UserManager.getUser(this.key)
@@ -98,67 +93,76 @@ import { isDBKey } from "../lms/util"
 
     async getRank() {
         if (!this.user) this.user = await UserManager.getUser(this.key)
-        if (!this.rank) this.rank = await RankManager
-            .getRank(this.user.rank as string)
-        
+        if (!this.rank)
+            this.rank = await RankManager.getRank(this.user.rank as string)
+
         return this.rank
     }
 
-    public static authRouter() { return new Router({prefix: '/api/auth'})
-        // Validate login and create JWT cookie
-        .post('/', async (ctx, next) => {
-            let reqUN = ctx.request.body.username
-            let reqPass = ctx.request.body.password
+    public static authRouter() {
+        return (
+            new Router({ prefix: '/api/auth' })
+                // Validate login and create JWT cookie
+                .post('/', async (ctx, next) => {
+                    let reqUN = ctx.request.body.username
+                    let reqPass = ctx.request.body.password
 
-            if (!reqUN || typeof reqUN !== 'string') {
-                throw AuthUser.error(
-                    'authRouter.post',
-                    HTTPStatus.BAD_REQUEST,
-                    'Login information invalid',
-                    `Username [${reqUN}] is not a string`
-                )
-            }
+                    if (!reqUN || typeof reqUN !== 'string') {
+                        throw AuthUser.error(
+                            'authRouter.post',
+                            HTTPStatus.BAD_REQUEST,
+                            'Login information invalid',
+                            `Username [${reqUN}] is not a string`
+                        )
+                    }
 
-            let dbUser = await (<any>UserManager.db).getFromUsername(reqUN)
+                    let dbUser = await (<any>UserManager.db).getFromUsername(
+                        reqUN
+                    )
 
-            const {
-                password,
-                ...dbUserWOPass
-            } = dbUser
+                    const { password, ...dbUserWOPass } = dbUser
 
-            if (!reqPass || typeof reqPass !== 'string' || !(await bcrypt.compare(reqPass,password))) {
-                throw AuthUser.error(
-                    'authRouter.post',
-                    HTTPStatus.BAD_REQUEST,
-                    'Login information invalid',
-                    `Password [${reqPass}] is not valid`
-                )
-            }
+                    if (
+                        !reqPass ||
+                        typeof reqPass !== 'string' ||
+                        !(await bcrypt.compare(reqPass, password))
+                    ) {
+                        throw AuthUser.error(
+                            'authRouter.post',
+                            HTTPStatus.BAD_REQUEST,
+                            'Login information invalid',
+                            `Password [${reqPass}] is not valid`
+                        )
+                    }
 
-            let token = jsonwebtoken.sign({
-                    user: dbUserWOPass.id,
-                    exp: Math.floor(Date.now() / 1000) + 3600
-                }, config.secret)
+                    let token = jsonwebtoken.sign(
+                        {
+                            user: dbUserWOPass.id,
+                            exp: Math.floor(Date.now() / 1000) + 3600,
+                        },
+                        config.secret
+                    )
 
-            ctx.cookies.set('token', token, {
-                httpOnly: true,
-                maxAge: 3600 * 1000
-            })
-            ctx.response.body = {
-                ...dbUserWOPass
-            }
-            ctx.status = HTTPStatus.OK
-        })
-        // Verifies the current login
-        .get('/', async (ctx, next) => {
-            // Runs the authentication routes
-            await next()
+                    ctx.cookies.set('token', token, {
+                        httpOnly: true,
+                        maxAge: 3600 * 1000,
+                    })
+                    ctx.response.body = {
+                        ...dbUserWOPass,
+                    }
+                    ctx.status = HTTPStatus.OK
+                })
+                // Verifies the current login
+                .get('/', async (ctx, next) => {
+                    // Runs the authentication routes
+                    await next()
 
-            ctx.status = HTTPStatus.NO_CONTENT
-        })
-        .post('/logout', async (ctx, next) => {
-            ctx.cookies.set('token', '')
-            ctx.status = HTTPStatus.NO_CONTENT
-        })
+                    ctx.status = HTTPStatus.NO_CONTENT
+                })
+                .post('/logout', async (ctx, next) => {
+                    ctx.cookies.set('token', '')
+                    ctx.status = HTTPStatus.NO_CONTENT
+                })
+        )
     }
 }

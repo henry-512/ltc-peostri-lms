@@ -1,5 +1,5 @@
-import { aql, GeneratedAqlQuery } from 'arangojs/aql';
-import { v4, parse } from 'uuid';
+import { aql, GeneratedAqlQuery } from 'arangojs/aql'
+import { parse, v4 } from 'uuid'
 import { APIError, HTTPStatus } from './errors'
 
 // RFC4648 Chapter 5 standard: URL/file-safe base64 encoding lookup string
@@ -18,10 +18,10 @@ export function generateBase64UUID(): string {
     // "base64" "conversion" (doesnt actually
     //   convert into base64)
     let key = ''
-    for (let it = 0; it < 15; it+=3) {
+    for (let it = 0; it < 15; it += 3) {
         let rem = 0
         for (let i = 0; i < 3; i++) {
-            let byte = bytes[it+i]
+            let byte = bytes[it + i]
             // Append the lowest 2 bits to rem
             rem = (rem << 2) | (byte & 3)
             // Rightshift byte
@@ -49,13 +49,13 @@ export function generateDBID(name: string) {
  * @param api An ApiRoute (or some other object with a name field)
  * @return An ID
  */
-export function keyToId(key: string, name:string) {
+export function keyToId(key: string, name: string) {
     return `${name}/${key}`
 }
 
-export function convertToKey(str:string) {
+export function convertToKey(str: string) {
     if (isDBKey(str)) {
-        return str 
+        return str
     } else if (isDBId(str)) {
         return splitId(str).key
     } else {
@@ -74,11 +74,11 @@ export function convertToKey(str:string) {
  * @param id A valid database id
  * @return col: The collection name, key: the key
  */
-export function splitId(id:string) {
+export function splitId(id: string) {
     let splice = id.split('/')
     return {
         col: splice[0],
-        key: splice[1]
+        key: splice[1],
     }
 }
 
@@ -115,7 +115,7 @@ export function isDBKey(str: string): boolean {
  * @param fields An array of string keys
  * @return A new AQL query
  */
- export function appendReturnFields(q:GeneratedAqlQuery, fields: string[]) {
+export function appendReturnFields(q: GeneratedAqlQuery, fields: string[]) {
     fields.forEach((s, i) => {
         q = aql`${q}${s}:z.${s},`
     })

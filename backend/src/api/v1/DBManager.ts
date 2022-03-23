@@ -1,11 +1,11 @@
-import Router from "@koa/router";
-import { ArangoWrapper, IFilterOpts, IQueryGetOpts } from "../../database";
-import { APIError, HTTPStatus } from "../../lms/errors";
-import { IFieldData, IForeignFieldData } from "../../lms/FieldData";
-import { IArangoIndexes } from "../../lms/types";
-import { convertToKey, isDBKey, splitId } from "../../lms/util";
-import { AuthUser } from "../auth";
-import { DataManager } from "./DataManager";
+import Router from '@koa/router'
+import { ArangoWrapper, IFilterOpts, IQueryGetOpts } from '../../database'
+import { APIError, HTTPStatus } from '../../lms/errors'
+import { IFieldData, IForeignFieldData } from '../../lms/FieldData'
+import { IArangoIndexes } from '../../lms/types'
+import { convertToKey, isDBKey, splitId } from '../../lms/util'
+import { AuthUser } from '../auth'
+import { DataManager } from './DataManager'
 
 /**
  * Returns the ApiRoute instance corresponding to a database id
@@ -15,23 +15,25 @@ import { DataManager } from "./DataManager";
 export function getApiInstanceFromId(id: string): DBManager<IArangoIndexes> {
     return instances[splitId(id).col]
 }
-const instances: {[dbname:string]: DBManager<IArangoIndexes>} = {}
+const instances: { [dbname: string]: DBManager<IArangoIndexes> } = {}
 
-export abstract class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
+export abstract class DBManager<
+    Type extends IArangoIndexes
+> extends DataManager<Type> {
     public db: ArangoWrapper<Type>
     private defaultFilter: IFilterOpts
 
     constructor(
         dbName: string,
         className: string,
-        fields: {[key:string]: IFieldData},
+        fields: { [key: string]: IFieldData },
         opts?: {
             /**
              * Create/Update timestamp
              */
-            hasCUTimestamp?: boolean,
-            defaultFilter?: IFilterOpts,
-        },
+            hasCUTimestamp?: boolean
+            defaultFilter?: IFilterOpts
+        }
     ) {
         fields['id'] = {
             type: 'string',
@@ -53,14 +55,14 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
      * @param q An object with query fields.
      *  - sort [id, ASC/DESC]
      *  - range [offset, count]
-     * @return A cursor representing all db objects that fit the query 
+     * @return A cursor representing all db objects that fit the query
      */
     public async query(q: any) {
         let opts: IQueryGetOpts = {
             range: {
                 offset: 0,
                 count: 10,
-            }
+            },
         }
 
         // Filtering
@@ -69,7 +71,7 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
             opts.filters = []
 
             for (let [key, value] of Object.entries(filter)) {
-                let f:IFilterOpts = { key }
+                let f: IFilterOpts = { key }
 
                 if (key === 'q') {
                     f.key = this.defaultFilter.key
@@ -77,8 +79,8 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
                         f.ref = this.defaultFilter.ref
                     }
                 } else if (
-                    !(key in this.fieldData)
-                    || this.fieldData[key].hideGetAll
+                    !(key in this.fieldData) ||
+                    this.fieldData[key].hideGetAll
                 ) {
                     console.warn(`Invalid filtering id ${key}`)
                     console.warn(f)
@@ -108,10 +110,7 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
                 key = key.slice(0, -3)
             }
 
-            if (
-                key in this.fieldData
-                && !(this.fieldData[key].hideGetAll)
-            ) {
+            if (key in this.fieldData && !this.fieldData[key].hideGetAll) {
                 let desc = q.sort[1] === 'DESC'
 
                 opts.sort = { key, desc }
@@ -138,7 +137,7 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
     }
 
     public convertIds(doc: Type) {
-        return this.mapForeignKeys(doc, async (k,d) => {
+        return this.mapForeignKeys(doc, async (k, d) => {
             if (typeof k === 'string' && d.foreignApi.db.isDBId(k)) {
                 return splitId(k).key
             } else if (typeof k === 'object') {
@@ -161,8 +160,8 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
     public async getFromDB(
         user: AuthUser,
         depth: number,
-        id: string,
-    ) : Promise<Type> {
+        id: string
+    ): Promise<Type> {
         let doc = await this.db.get(id)
 
         for (let [k, data] of this.fieldEntries) {
@@ -170,15 +169,15 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
                 delete (<any>doc)[k]
             } else if (data.default !== undefined) {
                 // Put default value in
-                (<any>doc)[k] = data.default
+                ;(<any>doc)[k] = data.default
             }
         }
 
-        return this.mapForeignKeys(doc, async (k,data) => {
+        return this.mapForeignKeys(doc, async (k, data) => {
             if (typeof k === 'string') {
                 if (data.getIdKeepAsRef) {
                     return convertToKey(k)
-                // Dereference the id into an object
+                    // Dereference the id into an object
                 } else if (this.db.isDBId(k)) {
                     // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
                     // TODO: perfect spot to intercept calls
@@ -198,7 +197,7 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
         addDoc: Type,
         exists: boolean,
         map: Map<DataManager<any>, any[]>,
-        stack: string[],
+        stack: string[]
     ): Promise<Type> {
         // Used for frontend mangement, redundant in DB
         // delete addDoc.id
@@ -209,16 +208,11 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
             addDoc,
             exists,
             map,
-            stack,
+            stack
         )
     }
 
-    public async create(
-        user: AuthUser,
-        files: any,
-        doc: Type,
-        real: boolean
-    ) {
+    public async create(user: AuthUser, files: any, doc: Type, real: boolean) {
         let id = this.db.generateDBID()
         user.id = id
 
@@ -231,7 +225,7 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
         // Turns a fully-dereferenced document into a reference
         // document
         let map = new Map<DataManager<any>, any[]>()
-        let stack = [ id ]
+        let stack = [id]
         await this.verifyAddedDocument(user, files, doc, false, map, stack)
 
         real || console.log('FAKING CREATE')
@@ -242,11 +236,13 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
                     continue
                 }
                 for (let doc of docs) {
-                    console.log(`Saving ${api.className} | ${JSON.stringify(doc)}`)
-                    real && await api.db.saveUnsafe(doc)
+                    console.log(
+                        `Saving ${api.className} | ${JSON.stringify(doc)}`
+                    )
+                    real && (await api.db.saveUnsafe(doc))
                 }
             }
-        } catch (err:any) {
+        } catch (err: any) {
             // Delete malformed documents
             console.error(`Error with saving: ${err}`)
             for (let [api, docs] of map) {
@@ -306,7 +302,7 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
         // }
 
         let map = new Map<DataManager<any>, any[]>()
-        let stack = [ id ]
+        let stack = [id]
         await this.verifyAddedDocument(user, files, doc, false, map, stack)
 
         real || console.log('FAKING UPDATE')
@@ -326,13 +322,18 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
                     )
                 }
                 if (await api.db.exists(d._key)) {
-                    console.log(`Updating ${api.className} | ${JSON.stringify(d)}`)
-                    real && await api.db.updateUnsafe(d, {
-                        mergeObjects: false
-                    })
+                    console.log(
+                        `Updating ${api.className} | ${JSON.stringify(d)}`
+                    )
+                    real &&
+                        (await api.db.updateUnsafe(d, {
+                            mergeObjects: false,
+                        }))
                 } else {
-                    console.log(`Saving ${api.className} | ${JSON.stringify(d)}`)
-                    real && await api.db.saveUnsafe(d)
+                    console.log(
+                        `Saving ${api.className} | ${JSON.stringify(d)}`
+                    )
+                    real && (await api.db.saveUnsafe(d))
                 }
             }
         }
@@ -343,21 +344,30 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
      * @param base True if this is the base call (ie the call that should
      *  update parent fields)
      */
-    public async delete(user: AuthUser, key: string, real: boolean, base: boolean) {
+    public async delete(
+        user: AuthUser,
+        key: string,
+        real: boolean,
+        base: boolean
+    ) {
         let doc = await this.db.get(key)
 
         // Delete children
-        doc = await this.mapForeignKeys(doc, async(k,data) => {
-            if (typeof k !== 'string') {
-                throw this.error(
-                    'delete.mapForeignKeys',
-                    HTTPStatus.INTERNAL_SERVER_ERROR,
-                    'Invalid system state',
-                    `[${k}] is not a string`
-                )
-            }
-            return data.foreignApi.delete(user, k, real, false)
-        }, (data) => !data.freeable)
+        doc = await this.mapForeignKeys(
+            doc,
+            async (k, data) => {
+                if (typeof k !== 'string') {
+                    throw this.error(
+                        'delete.mapForeignKeys',
+                        HTTPStatus.INTERNAL_SERVER_ERROR,
+                        'Invalid system state',
+                        `[${k}] is not a string`
+                    )
+                }
+                return data.foreignApi.delete(user, k, real, false)
+            },
+            (data) => !data.freeable
+        )
 
         // Update parent
         // The original call is the only one that should update
@@ -374,12 +384,11 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
                         `Parent id [${parentId}] invalid`
                     )
                 }
-                await getApiInstanceFromId(parentId)
-                    .removeReference(
-                        doc._id as string,
-                        this.parentField.foreign,
-                        real
-                    )
+                await getApiInstanceFromId(parentId).removeReference(
+                    doc._id as string,
+                    this.parentField.foreign,
+                    real
+                )
             } else {
                 throw this.error(
                     'delete',
@@ -390,8 +399,12 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
             }
         }
 
-        console.log(`${real ? 'DELETING' : 'FAKE DELETING'} ${this.className} | ${key} | ${doc}`)
-        real && await this.db.removeUnsafe(key)
+        console.log(
+            `${real ? 'DELETING' : 'FAKE DELETING'} ${
+                this.className
+            } | ${key} | ${doc}`
+        )
+        real && (await this.db.removeUnsafe(key))
     }
 
     /**
@@ -402,7 +415,7 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
      * - It has an invalid parent field
      * NOTE: VERY EXPENSIVE, don't run that often
      */
-     private async deleteOrphans() {
+    private async deleteOrphans() {
         if (!this.parentField) {
             throw this.internal(
                 'deleteOrphans',
@@ -430,10 +443,7 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
      */
     private async disown() {
         if (this.foreignEntries.length === 0) {
-            throw this.internal(
-                'disown',
-                `disown called on ${this.className}`
-            )
+            throw this.internal('disown', `disown called on ${this.className}`)
         }
 
         let cursor = await this.db.getAll()
@@ -445,13 +455,13 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
             doc = await this.forEachField<IForeignFieldData>(
                 doc,
                 this.foreignEntries,
-                async (p,k,d) => {
+                async (p, k, d) => {
                     let c = d.foreignApi
                     if (!c.db.tryExists(k)) {
                         p.doc[p.key] = <any>''
                     }
                 },
-                async (p,a,d) => {
+                async (p, a, d) => {
                     let c = d.foreignApi
                     for (var i = a.length - 1; i >= 0; i--) {
                         if (!c.db.tryExists(a[i])) {
@@ -459,7 +469,7 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
                         }
                     }
                 },
-                async (p,o,d) => {
+                async (p, o, d) => {
                     let c = d.foreignApi
                     for (let k in o) {
                         let sAr = o[k]
@@ -484,7 +494,7 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
             )
 
             await this.db.updateUnsafe(doc, {
-                mergeObjects:false,
+                mergeObjects: false,
             })
         }
     }
@@ -492,7 +502,7 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
     public debugRoutes(r: Router) {
         // Orphan delete
         if (this.parentField) {
-            r.delete('/orphan', async (ctx,next) => {
+            r.delete('/orphan', async (ctx, next) => {
                 if (ctx.header['user-agent'] === 'backend-testing') {
                     await this.deleteOrphans()
                     ctx.status = HTTPStatus.OK
@@ -504,7 +514,7 @@ export abstract class DBManager<Type extends IArangoIndexes> extends DataManager
 
         // Disown update
         if (this.foreignEntries.length !== 0) {
-            r.delete('/disown', async (ctx,next) => {
+            r.delete('/disown', async (ctx, next) => {
                 if (ctx.header['user-agent'] === 'backend-testing') {
                     await this.disown()
                     ctx.status = HTTPStatus.OK
