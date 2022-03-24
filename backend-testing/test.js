@@ -238,6 +238,12 @@ describe('Disowned', function () {
             .delete(API + 'comments/disown')
         expect(r.status).equal(200)
     })
+    it('del Disown projectTemplates', async () => {
+        let r = await agent
+            .set('User-Agent', 'backend-testing')
+            .delete(API + 'template/projects/disown')
+        expect(r.status).equal(200)
+    })
 })
 
 // Delete orphaned data
@@ -257,16 +263,16 @@ describe('Orphans', function () {
             .delete(API + 'tasks/orphan')
         expect(r.status).equal(200)
     })
-    it('del Orphan moduleTemplates', async () => {
-        let r = await agent
-            .set('User-Agent', 'backend-testing')
-            .delete(API + 'template/modules/orphan')
-        expect(r.status).equal(200)
-    })
     it('del Orphan Filemetas', async () => {
         let r = await agent
             .set('User-Agent', 'backend-testing')
             .delete(API + 'filemeta/orphan')
+        expect(r.status).equal(200)
+    })
+    it('del Orphan Comments', async () => {
+        let r = await agent
+            .set('User-Agent', 'backend-testing')
+            .delete(API + 'comments/orphan')
         expect(r.status).equal(200)
     })
 })

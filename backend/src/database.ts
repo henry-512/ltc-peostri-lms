@@ -273,7 +273,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         // Filters documents with parent fields that cannot be properly
         // dereferenced [DOCUMENT(d.parent) === null]
         return ArangoWrapper.db.query(
-            aql`FOR d IN ${this.collection} FILTER DOCUMENT(d.${parentFieldLocal})._id == null REMOVE d IN ${this.collection}`
+            aql`FOR d IN ${this.collection} FILTER DOCUMENT(d.${parentFieldLocal}) == null REMOVE d IN ${this.collection}`
         )
     }
 
