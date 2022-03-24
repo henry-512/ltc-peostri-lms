@@ -59,7 +59,8 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
             {
                 title: { type: 'string' },
                 tasks: {
-                    type: 'data',
+                    type: 'step',
+                    instance: 'data',
                     foreignData: TaskTempManager,
                 },
                 status: {
