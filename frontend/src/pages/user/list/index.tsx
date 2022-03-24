@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core';
 import React from 'react';
-import { BulkDeleteButton, Datagrid, FieldProps, List, ListProps, ReferenceField, ReferenceInput, SearchInput, SelectInput, TextField, TextInput } from 'react-admin';
+import { BulkDeleteButton, Datagrid, DateField, FieldProps, List, ListProps, ReferenceField, ReferenceInput, SearchInput, SelectInput, TextField, TextInput } from 'react-admin';
 import { AvatarField } from 'src/components/users';
 import { IUser } from 'src/util/types';
 
@@ -96,10 +96,13 @@ const UserList = (props: UserListProps) => {
                     <AvatarField className={classes.avatar} />
                     <TextField source="firstName" label="user.info.first_name" />
                     <TextField source="lastName" label="user.info.last_name" />
+                    <DateField source="firstVisited" locales="en-US" options={{ timeZone: 'UTC' }} label="user.info.first_visited" />
+                    <DateField source="lastVisited" locales="en-US" options={{ timeZone: 'UTC' }} label="user.info.last_visited" />
                     <ReferenceField source="rank.id" reference="ranks" label="user.info.rank" >
                         <TextField source="name" />
                     </ReferenceField>
                     <TextField source="username" label="user.info.username" />
+                    <TextField source="status" label="user.info.status" />
                     <TextField source="email" label="user.info.email" />
                 </Datagrid>
             </List>

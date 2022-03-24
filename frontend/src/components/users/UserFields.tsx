@@ -64,7 +64,7 @@ export default function UserFields(props: any) {
                         />
                     </Box>
                 </Box>
-                <Box width="calc(50% - 16px)">
+                <Box width="calc(50% - 16px)" display="flex" flexDirection="column">
                     <SectionTitle label="user.layout.permissions" />
                     <ReferenceInput
                         label="project.fields.rank"
@@ -80,6 +80,23 @@ export default function UserFields(props: any) {
                             helperText=" "
                         />
                     </ReferenceInput>
+                    <SelectInput
+                        source="status"
+                        choices={[
+                            { id: 'ACTIVE', name: 'ACTIVE' },
+                            { id: 'LOCKED', name: 'LOCKED' },
+                            { id: 'INACTIVE', name: 'INACTIVE' },
+                            { id: 'SUSPENDED', name: 'SUSPENDED' }
+                        ]}
+                        optionText={choice => `${choice.name}`}
+                        optionValue="id"
+                        disabled={false}
+                        initialValue="ACTIVE"
+                        helperText=" "
+                        style={{
+                            width: '50%'
+                        }}
+                    />
                 </Box>
             </Box>
             <Separator />
