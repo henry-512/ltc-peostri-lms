@@ -41,7 +41,7 @@ export function routerBuilder(version: string) {
                 route('template/modules', ModuleTempManager, (r, m) =>
                     r.get('/instance/:id', async (ctx, next) => {
                         let id = m.db.keyToId(ctx.params.id)
-                        if (!m.exists(id)) {
+                        if (await m.exists(id)) {
                             ctx.body =
                                 await ModuleTempManager.buildModuleFromId(id)
                             ctx.status = HTTPStatus.OK
@@ -60,7 +60,7 @@ export function routerBuilder(version: string) {
                     (r, m) =>
                         r.get('/instance/:id', async (ctx, next) => {
                             let id = m.db.keyToId(ctx.params.id)
-                            if (!m.exists(id)) {
+                            if (await m.exists(id)) {
                                 ctx.body =
                                     await ProjectTempManager.buildProjectFromId(
                                         id

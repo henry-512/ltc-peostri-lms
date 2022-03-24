@@ -80,8 +80,8 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
         for (let [stepName, tempArray] of Object.entries(temp.tasks)) {
             tasks[stepName] = tempArray.map((t) => {
                 return {
-                    title: '',
-                    status: 'AWAITING',
+                    title: t.title,
+                    status: t.status,
                     users: [],
                     rank: t.rank,
                     type: t.type,
