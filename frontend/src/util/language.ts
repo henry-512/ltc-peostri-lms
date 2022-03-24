@@ -69,7 +69,9 @@ const domainMessages = {
                 task_title: "Task Management",
                 no_tasks: "Add a Task to this Module",
                 edit_module: "Editing Module: %{title}",
-                edit_task: "Editing Task: %{title}"
+                edit_task: "Editing Task: %{title}",
+                add_module_template: "Add Module Template",
+                select_module_template: "Select a Module Template"
             }
         },
         tasks: {
