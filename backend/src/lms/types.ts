@@ -114,4 +114,6 @@ export interface IUser extends IArangoIndexes {
 
     username: string
     password: string
+    firstVisited: string
+    lastVisited: string
 }

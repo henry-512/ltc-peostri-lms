@@ -113,7 +113,7 @@ function route<Type extends IArangoIndexes>(
     }
 
     r.get('/', async (ctx) => {
-        let results = await manager.getAll(ctx.request.query)
+        let results = await manager.query(ctx.request.query)
 
         ctx.status = HTTPStatus.OK
         ctx.body = results.all

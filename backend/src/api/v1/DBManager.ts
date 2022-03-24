@@ -22,7 +22,7 @@ export function getApiInstanceFromId(id: string): DBManager<IArangoIndexes> {
 }
 const instances: { [dbname: string]: DBManager<IArangoIndexes> } = {}
 
-export abstract class DBManager<
+export class DBManager<
     Type extends IArangoIndexes
 > extends DataManager<Type> {
     public db: ArangoWrapper<Type>
@@ -56,17 +56,6 @@ export abstract class DBManager<
      * @param query An object with queryable fields.
      * @return A cursor representing all db objects that fit the query
      */
-    public async getAll(query: any) {
-        const results = await this.query(query)
-
-        // Convert all document foreign ids to keys
-        await Promise.all(
-            results.all.map(async (doc) => this.convertIdsToKeys(doc))
-        )
-
-        return results
-    }
-
     public async query(q: any): Promise<IGetAllQueryResults> {
         let opts: IQueryGetOpts = {
             range: {

@@ -9,7 +9,7 @@ import { ICreateUpdate } from '../../lms/types'
 import { PTR } from '../../lms/util'
 import { AuthUser } from '../auth'
 
-export abstract class DataManager<Type> extends IErrorable {
+export class DataManager<Type> extends IErrorable {
     protected hasCUTimestamp: boolean
     protected fieldEntries: [string, IFieldData][]
     protected foreignEntries: [string, IForeignFieldData][]

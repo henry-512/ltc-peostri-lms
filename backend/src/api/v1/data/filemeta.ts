@@ -11,26 +11,20 @@ import { UserManager } from './users'
 
 const FILE_PATH = path.resolve(config.basePath, 'fs')
 
-class Filedata extends DataManager<IFile> {
-    constructor() {
-        super(
-            'File',
-            {
-                src: { type: 'string' },
-                title: { type: 'string' },
-                author: {
-                    type: 'fkey',
-                    foreignApi: UserManager,
-                },
-            },
-            {
-                hasCUTimestamp: true,
-            }
-        )
+const FiledataInstance = new DataManager<IFile>(
+    'File',
+    {
+        src: { type: 'string' },
+        title: { type: 'string' },
+        author: {
+            type: 'fkey',
+            foreignApi: UserManager,
+        },
+    },
+    {
+        hasCUTimestamp: true,
     }
-}
-
-const FiledataInstance = new Filedata()
+)
 
 class Filemeta extends DBManager<IFilemeta> {
     constructor() {
@@ -57,24 +51,6 @@ class Filemeta extends DBManager<IFilemeta> {
             }
         )
     }
-
-    // public override async getFromDB(
-    //     user: AuthUser,
-    //     depth: number,
-    //     id: string
-    // ): Promise<IFilemeta> {
-    //     if (depth === 0) {
-    //         return super.getFromDB(user, depth, id)
-    //     }
-
-    //     let doc = await this.db.get(id)
-
-    //     // :)
-    //     return {
-    //         src: `api/v1/files/${id}`,
-    //         title: doc.latest.title,
-    //     } as any
-    // }
 
     private async writeFile(user: AuthUser, file: IFileData): Promise<IFile> {
         let id = generateBase64UUID()

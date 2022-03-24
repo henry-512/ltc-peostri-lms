@@ -73,9 +73,22 @@ class User extends DBManager<IUser> {
         return doc
     }
 
-    // Update the first/lastVisited fields
-    public async updateForNewLogin(id: string) {
+    public async getFromUsername(username: string) {
+        return (<UserArangoWrapper>this.db).getFromUsername(username)
+    }
 
+    // Update the first/lastVisited fields
+    public async updateForNewLogin(key: string) {
+        let id = this.db.keyToId(key)
+        let user = await this.db.get(id)
+
+        if (!user.firstVisited) {
+            user.firstVisited = new Date().toJSON()
+        }
+        user.lastVisited = new Date().toJSON()
+        user._key = key
+
+        return this.db.updateUnsafe(user, { mergeObjects: false })
     }
 }
 

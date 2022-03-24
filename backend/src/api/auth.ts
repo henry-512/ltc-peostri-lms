@@ -94,7 +94,7 @@ export class AuthUser {
     async getRank() {
         if (!this.user) this.user = await UserManager.getUser(this.key)
         if (!this.rank)
-            this.rank = await RankManager.getRank(this.user.rank as string)
+            this.rank = await RankManager.db.get(this.user.rank as string)
 
         return this.rank
     }
@@ -104,9 +104,11 @@ export class AuthUser {
             new Router({ prefix: '/api/auth' })
                 // Validate login and create JWT cookie
                 .post('/', async (ctx) => {
+                    // Collect username and password
                     let reqUN = ctx.request.body.username
                     let reqPass = ctx.request.body.password
 
+                    // Ensure username is a string
                     if (!reqUN || typeof reqUN !== 'string') {
                         throw AuthUser.error(
                             'authRouter.post',
@@ -116,12 +118,11 @@ export class AuthUser {
                         )
                     }
 
-                    let dbUser = await (<any>UserManager.db).getFromUsername(
-                        reqUN
-                    )
+                    // Get the user
+                    const { password, ...dbUserWOPass } =
+                        await UserManager.getFromUsername(reqUN)
 
-                    const { password, ...dbUserWOPass } = dbUser
-
+                    // Validate password against database password
                     if (
                         !reqPass ||
                         typeof reqPass !== 'string' ||
@@ -135,6 +136,7 @@ export class AuthUser {
                         )
                     }
 
+                    // Create new JWT
                     let token = jsonwebtoken.sign(
                         {
                             user: dbUserWOPass.id,
@@ -142,14 +144,16 @@ export class AuthUser {
                         },
                         config.secret
                     )
+                    
+                    // Update fields
+                    await UserManager.updateForNewLogin(dbUserWOPass.id)
 
-                    // ASYNC can be called on a different thread
-                    // UserManager.updateForNewLogin(usr.id)
-
+                    // Set cookies and status
                     ctx.cookies.set('token', token, {
                         httpOnly: true,
                         maxAge: 3600 * 1000,
                     })
+                    // This contains different values from get/:id
                     ctx.response.body = {
                         ...dbUserWOPass,
                     }

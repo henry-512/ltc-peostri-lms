@@ -13,6 +13,7 @@ class Waive extends DataManager<IWaiveData> {
             comment: {
                 type: 'fkey',
                 foreignApi: CommentManager,
+                optional: true,
                 freeable: true,
                 acceptNewDoc: true,
                 distortOnGet: (doc: any) => doc.content,
@@ -97,6 +98,9 @@ class Module extends DBManager<IModule> {
         files: any,
         doc: any
     ): Promise<IModule> {
+        // Remove front-end waive_module
+        delete doc.waive_module
+
         // Convert a single file into a file array
         if (doc.file) {
             if (doc.files) {
