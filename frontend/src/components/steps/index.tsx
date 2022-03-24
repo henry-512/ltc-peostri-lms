@@ -33,6 +33,7 @@ const useStyles = makeStyles(theme => ({
         width: '100%',
         background: '#f5f5f5',
         transition: 'all .3s ease',
+        alignItems: 'center',
         '&.isDraggingOver': {
             backgroundColor: '#e0e0e3',
             transition: 'all .3s ease',

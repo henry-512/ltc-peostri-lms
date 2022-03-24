@@ -11,7 +11,8 @@ import ModuleFields from "./ModuleFields";
 
 const useStyles = makeStyles(theme => ({
     root: {
-        marginBottom: theme.spacing(1),
+        marginBottom: '0',
+        height: 'auto'
     },
     cardContent: {
         padding: theme.spacing(1),
@@ -19,7 +20,7 @@ const useStyles = makeStyles(theme => ({
         flexDirection: 'column'
     },
     cardText: {
-        marginLeft: theme.spacing(1),
+        margin: '0',
     }
 }));
 type ModuleCardProps = {
@@ -90,7 +91,7 @@ const ModuleCard = ({ info, index, stepKey, fixKey, fields }: ModuleCardProps) =
                         >
                             <div className={classes.cardContent}>
                                 <div className={classes.cardText}>
-                                    <Typography variant="body2" gutterBottom>
+                                    <Typography variant="body2">
                                         {info?.title}
                                     </Typography>
                                 </div>

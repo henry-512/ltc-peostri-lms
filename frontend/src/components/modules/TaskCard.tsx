@@ -11,7 +11,8 @@ import TaskFields from "./TaskFields";
 
 const useStyles = makeStyles(theme => ({
     root: {
-        marginBottom: theme.spacing(1),
+        marginBottom: '0',
+        height: 'auto'
     },
     cardContent: {
         padding: theme.spacing(1),
@@ -19,7 +20,7 @@ const useStyles = makeStyles(theme => ({
         flexDirection: 'column'
     },
     cardText: {
-        marginLeft: theme.spacing(1),
+        margin: '0',
     }
 }));
 
@@ -89,7 +90,7 @@ const TaskCard = ({ info, index, stepKey, baseSource, fixKey, fields }: TaskCard
                         >
                             <div className={classes.cardContent}>
                                 <div className={classes.cardText}>
-                                    <Typography variant="body2" gutterBottom>
+                                    <Typography variant="body2">
                                         {info?.title}
                                     </Typography>
                                 </div>
