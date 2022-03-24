@@ -129,12 +129,12 @@ export class DataManager<Type> extends IErrorable {
                     if (data.foreignApi) {
                         let d = data as IForeignFieldData
                         doc[key] = await Promise.all(
-                            value.map((o: any) => foreignFn(o, d))
+                            value.map(async (o: any) => foreignFn(o, d))
                         )
                     } else if (data.foreignData) {
                         let d = data as IDataFieldData
                         doc[key] = await Promise.all(
-                            value.map((o: any) => dataFn(o, d))
+                            value.map(async (o: any) => dataFn(o, d))
                         )
                     } else {
                         throw this.internal(
@@ -147,7 +147,7 @@ export class DataManager<Type> extends IErrorable {
                     let dF = data as IForeignFieldData
                     let dD = data as IDataFieldData
 
-                    let temp: any = {}
+                    let stepper: any = {}
                     for (let stepId in value) {
                         let stepArray = value[stepId]
 
@@ -161,11 +161,11 @@ export class DataManager<Type> extends IErrorable {
                         }
 
                         if (data.foreignApi) {
-                            temp[stepId] = await Promise.all(
+                            stepper[stepId] = await Promise.all(
                                 stepArray.map((o: any) => foreignFn(o, dF))
                             )
                         } else if (data.foreignData) {
-                            temp[stepId] = await Promise.all(
+                            stepper[stepId] = await Promise.all(
                                 stepArray.map((o: any) => dataFn(o, dD))
                             )
                         } else {
@@ -175,7 +175,7 @@ export class DataManager<Type> extends IErrorable {
                             )
                         }
                     }
-                    doc[key] = temp
+                    doc[key] = stepper
             }
         }
 
@@ -347,7 +347,7 @@ export class DataManager<Type> extends IErrorable {
             )
         }
 
-        this.mapEachField(
+        doc = await this.mapEachField(
             doc,
             // all
             (pointer, data) => {
@@ -501,27 +501,41 @@ export class DataManager<Type> extends IErrorable {
             }
 
             let db = data.foreignApi.db
-            let exists = await db.tryExists(doc.id)
+            let id = doc.id
+            let exists = false
 
-            if (exists) {
-                throw this.error(
-                    'parseGet',
-                    HTTPStatus.BAD_REQUEST,
-                    'New document unauthorized',
-                    `New documents [${JSON.stringify(
-                        doc
-                    )}] not acceptable for type ${JSON.stringify(data)}`
-                )
+            // doc.id is either null (new document) or KEY
+            if (id) {
+                if (!isDBKey(id)) {
+                    throw this.internal(
+                        'parseGet',
+                        `${id} is not a KEY ${JSON.stringify(doc)}`
+                    )
+                }
+
+                id = db.keyToId(doc.id)
+                exists = await db.exists(id)
+
+                if (!exists) {
+                    if (data.acceptNewDoc) {
+                        throw this.error(
+                            'parseGet',
+                            HTTPStatus.BAD_REQUEST,
+                            'New document unauthorized',
+                            `New documents [${JSON.stringify(
+                                doc
+                            )}] not acceptable for type ${JSON.stringify(data)}`
+                        )
+                    }
+
+                    // Generate new id
+                    id = db.generateDBID()
+                }
+            } else {
+                id = db.generateDBID()
             }
 
-            if (!isDBKey(doc.id)) {
-                throw this.internal(
-                    'parseGet',
-                    `${doc.id} is not a KEY ${JSON.stringify(doc)}`
-                )
-            }
-
-            let id = exists ? db.keyToId(doc.id) : db.generateDBID()
+            // Set new/modified id
             doc.id = id
             stack.push(id)
             await this.verifyAddedDocument(user, files, doc, exists, map, stack)

@@ -37,7 +37,9 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 
     private async saveUnsafe(doc: Type) {
-        return this.collection.save(doc)
+        return this.collection.save(doc, {
+            overwriteMode: 'replace',
+        })
     }
 
     private async updateUnsafe(doc: Type, opt: CollectionUpdateOptions) {

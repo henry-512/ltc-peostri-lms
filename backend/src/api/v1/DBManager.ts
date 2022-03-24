@@ -188,7 +188,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                 if (typeof v === 'string') {
                     if (data.getIdKeepAsRef) {
                         return convertToKey(v)
-                    } else if (this.db.isDBId(v)) {
+                    } else if (data.foreignApi.db.isDBId(v)) {
                         // Dereference the id into an object
                         let subdoc = await data.foreignApi.getFromDB(
                             user,
@@ -244,10 +244,10 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
     //     )
     // }
 
-    public async create(user: AuthUser, files: any, doc: Type, real: boolean) {
+    public async create(user: AuthUser, files: any, d: Type, real: boolean) {
         // Generate a new ID for this document
         let id = this.db.generateDBID()
-        doc.id = id
+        d.id = id
 
         // The passed document has a parent key, so we need to
         // update the parent to include this document
@@ -259,7 +259,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         // document
         let map = new Map<DataManager<any>, any[]>()
         let stack = [id]
-        await this.verifyAddedDocument(user, files, doc, false, map, stack)
+        await this.verifyAddedDocument(user, files, d, false, map, stack)
 
         real || console.log('FAKING CREATE')
         // Saves each document in the map to its respective collection
@@ -474,14 +474,14 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                 this.foreignEntries,
                 async (p, k, d) => {
                     let c = d.foreignApi
-                    if (!await c.db.tryExists(k)) {
+                    if (!(await c.db.tryExists(k))) {
                         p.obj[p.key] = <any>''
                     }
                 },
                 async (p, a, d) => {
                     let c = d.foreignApi
                     for (var i = a.length - 1; i >= 0; i--) {
-                        if (!await c.db.tryExists(a[i])) {
+                        if (!(await c.db.tryExists(a[i]))) {
                             a.splice(i, 1)
                         }
                     }
@@ -498,7 +498,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                             )
                         }
                         for (var i = sAr.length - 1; i >= 0; i--) {
-                            if (!await c.db.tryExists(sAr[i])) {
+                            if (!(await c.db.tryExists(sAr[i]))) {
                                 sAr.splice(i, 1)
                             }
                         }
