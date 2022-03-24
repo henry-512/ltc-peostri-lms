@@ -51,7 +51,12 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
     const form = useForm();
 
     const updateForm = ({ data }: any) => {
-        if (!props.isTemplate) delete data.id;
+        if (!props.isTemplate) {
+            delete data.id;
+        } else {
+            delete data.createdAt;
+            delete data.updatedAt;
+        }
         form.change(props.getSource(), data);
     }
     
@@ -70,6 +75,7 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
             props.submitAction();
         }
         props.setOpen(false);
+        form.change('module_template_id', '');
     }
 
     const handleClose = () => {
@@ -77,6 +83,7 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
             props.cancelAction();
         }
         props.setOpen(false);
+        form.change('module_template_id', '');
     }
 
     return (

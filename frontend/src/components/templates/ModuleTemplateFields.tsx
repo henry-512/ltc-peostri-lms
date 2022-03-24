@@ -7,6 +7,7 @@ import { ModuleTemplateTaskFields } from ".";
 import { useEffect } from "react";
 import { useForm, useFormState } from "react-final-form";
 import { ITaskTemplate } from "src/util/types";
+import get from "lodash.get";
 
 const useStyles = makeStyles(theme => ({
     modulesForm: {
@@ -30,21 +31,23 @@ const useStyles = makeStyles(theme => ({
 }))
 
 type ModuleTemplateFieldsProps = {
-    getSource: Function,
-    initialValues?: any
+    getSource?: Function,
+    initialValues?: any,
+    calculateTTC?: Function
 }
-
+let count = 0
 const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
     const { getSource } = props;
     const validateTitle = [required(), minLength(2), maxLength(150)];
-    const formData = useFormState().values;
     const form = useForm();
 
-    useEffect(() => {
-        if (!formData.tasks) return;
+    const recalculateTTC = (data: any) => {
+        console.log(count++);
+        const formData = form.getState().values;
+        if (!get(formData, getSource?.('tasks') || "")) return;
 
         let module_ttc = 0;
-        for (let [stepKey, step] of Object.entries<ITaskTemplate[]>(formData.tasks)) {
+        for (let [stepKey, step] of Object.entries<ITaskTemplate[]>(get(formData, getSource?.('tasks') || ""))) {
             let stepTTC: number = 0;
             for (let [taskKey, task] of Object.entries<ITaskTemplate>(step)) {
                 if (task.ttc < stepTTC) continue;
@@ -53,10 +56,12 @@ const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
             module_ttc += stepTTC;
         }
 
-        if (module_ttc == formData.ttc) return;
+        if (module_ttc == get(formData, getSource?.('ttc') || "")) return;
 
-        form.change('ttc', module_ttc);
-    }, [formData.tasks])
+        form.change(getSource?.('ttc'), module_ttc);
+    }
+
+    useEffect(() => (props.calculateTTC) ? props.calculateTTC() : null, [get(form.getState().values, getSource?.('ttc'))])
 
     return (
         <>
@@ -64,9 +69,9 @@ const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
                 <SectionTitle label="template.module.layout.general" />
                 <Grid container spacing={4}>
                     <Grid item xs={5}>
-                        <IDField source={getSource('id') || ""} id={props.initialValues?.id} />
+                        <IDField source={getSource?.('id') || ""} id={props.initialValues?.id} />
                         <TextInput
-                            source={getSource('title') || ""}
+                            source={getSource?.('title') || ""}
                             label="template.module.fields.title"
                             fullWidth
                             helperText=" "
@@ -75,7 +80,7 @@ const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
                     </Grid>
                     <Grid item xs={4}>
                         <SelectInput
-                            source={getSource('status') || ""}
+                            source={getSource?.('status') || ""}
                             choices={[
                                 { id: 'AWAITING', name: 'AWAITING' },
                                 { id: 'IN_PROGRESS', name: 'IN PROGRESS' },
@@ -94,16 +99,16 @@ const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
                     
                     <Grid item xs={3}>
                         <NumberInput
-                            source="ttc"
+                            source={getSource?.('ttc') || ""}
                             label="template.module.fields.ttc"
                             fullWidth
-                            helperText="Calculated Based on Tasks"
+                            helperText="template.module.fields.ttc_help"
                             validate={[required()]}
                             disabled
                         />
                     </Grid>
                 </Grid>
-                <TaskManager source="tasks" fields={<ModuleTemplateTaskFields />}/>
+                <TaskManager source={getSource?.('tasks') || ""} fields={<ModuleTemplateTaskFields calculateTTC={recalculateTTC} />}/>
             </Box>
         </>
     )

@@ -1,6 +1,11 @@
-import { Grid, makeStyles, Typography } from "@material-ui/core";
-import { NumberInput, TextInput, useTranslate } from "react-admin";
+import { Box, Grid, makeStyles } from "@material-ui/core";
+import { useEffect } from "react";
+import { maxLength, minLength, NumberInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
+import { useForm, useFormState } from "react-final-form";
+import { IModuleTemplate } from "src/util/types";
+import { SectionTitle } from "../misc";
 import { ModuleManager } from "../modules";
+import ModuleTemplateFields from "./ModuleTemplateFields";
 
 const useStyles = makeStyles(theme => ({
     root: {},
@@ -31,43 +36,75 @@ interface ProjectTemplateFieldsProps {
 }
 
 const ProjectTemplateFields = (props: ProjectTemplateFieldsProps) => {
-    const translate = useTranslate();
-    const classes = useStyles();
+    const validateTitle = [required(), minLength(2), maxLength(150)];
+    const formData = useFormState().values;
+    const form = useForm();
+
+    const recalculateTTC = () => {
+        const formData = form.getState().values;
+        if (!formData.modules) return;
+
+        let project_ttc = 0;
+        for (let [stepKey, step] of Object.entries<IModuleTemplate[]>(formData.modules)) {
+            let stepTTC: number = 0;
+            for (let [moduleKey, module] of Object.entries<IModuleTemplate>(step)) {
+                if (module.ttc < stepTTC) continue;
+                stepTTC = module.ttc;
+            }
+            project_ttc += stepTTC;
+        }
+
+        if (project_ttc == formData.ttc) return;
+
+        form.change('ttc', project_ttc);
+    }
 
     return (
         <>
-            <Grid container spacing={0} className={classes.content}>
-                <Grid item xs={12}>
-                    <Grid container>
-                        <Grid item xs={6} className={classes.usersTitle}>
-                            <Typography variant="h6" className={classes.fieldTitle}>
-                                {translate('project.layout.general')}
-                            </Typography>
-                        </Grid>
+            <Box display="flex" width="100%" flexDirection="column">
+                <SectionTitle label="template.project.layout.general" />
+                <Grid container spacing={4}>
+                    <Grid item xs={5}>
+                        <TextInput
+                            source="title"
+                            label="template.project.fields.title"
+                            fullWidth
+                            helperText=" "
+                            validate={validateTitle}
+                        />
                     </Grid>
-                    <Grid container spacing={2}>
-                        <Grid item xs={6}>
-                            <TextInput
-                                label={translate('project.fields.title')}
-                                source="title"
-                                required
-                                fullWidth
-                                helperText=" "
-                            />
-                        </Grid>
-                        <Grid item xs={3}>
-                            <NumberInput
-                                label={translate('project.fields.start')}
-                                source="start"
-                                required
-                                fullWidth
-                                helperText=" "
-                            />
-                        </Grid>
+                    <Grid item xs={4}>
+                        <SelectInput
+                            source="status"
+                            choices={[
+                                { id: 'AWAITING', name: 'AWAITING' },
+                                { id: 'IN_PROGRESS', name: 'IN PROGRESS' },
+                                { id: 'COMPLETED', name: 'COMPLETED' },
+                                { id: 'WAIVED', name: 'WAIVED' },
+                                { id: 'ARCHIVED', name: 'ARCHIVED' }
+                            ]}
+                            optionText={choice => `${choice.name}`}
+                            optionValue="id"
+                            initialValue="AWAITING"
+                            label="template.project.fields.status"
+                            fullWidth
+                            helperText=" "
+                        />
+                    </Grid>
+                    
+                    <Grid item xs={3}>
+                        <NumberInput
+                            source="ttc"
+                            label="template.project.fields.ttc"
+                            fullWidth
+                            helperText="template.project.fields.ttc_help"
+                            validate={[required()]}
+                            disabled
+                        />
                     </Grid>
                 </Grid>
-            </Grid>
-            <ModuleManager />
+            </Box>
+            <ModuleManager fields={<ModuleTemplateFields calculateTTC={recalculateTTC} />} isTemplate={true} />
         </>
     )
 }

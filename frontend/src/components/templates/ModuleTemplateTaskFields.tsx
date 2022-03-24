@@ -1,5 +1,8 @@
 import { Grid, makeStyles } from "@material-ui/core"
+import get from "lodash.get";
+import { useEffect } from "react";
 import { maxLength, minLength, NumberInput, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
+import { useForm, useFormState } from "react-final-form";
 import AutoAssignArrayInput from "../modules/AutoAssignArrayInput";
 import IDField from "../modules/IDField";
 
@@ -28,7 +31,8 @@ const useStyles = makeStyles(theme => ({
 
 type ModuleTemplateTaskFieldsProps = {
     getSource?: Function,
-    initialValues?: any
+    initialValues?: any,
+    calculateTTC: any
 }
 
 const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
@@ -36,6 +40,10 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
     const classes = useStyles();
     const translate = useTranslate();
     const validateTitle = [required(), minLength(2), maxLength(150)];
+    const formData = useFormState().values
+    const form = useForm();
+
+    useEffect(() => props.calculateTTC(), [get(form.getState().values, getSource?.('ttc'))]);
 
     return (
         <>

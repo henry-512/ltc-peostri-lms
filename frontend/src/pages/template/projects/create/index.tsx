@@ -35,7 +35,7 @@ export default function ProjectTemplateCreate(props: any) {
     const search = new URLSearchParams(props.location.search);
 
     return (
-        <Create title={translate('project.create.title')} {...props} transform={transformer}>
+        <Create title={translate('template.project.layout.create_title')} {...props} transform={transformer}>
             <SimpleForm
                 validate={validateProjectTemplate}
                 toolbar={

@@ -8,10 +8,12 @@ import { useTranslate } from "react-admin";
 import ModuleFields from "./ModuleFields";
 import AddTemplateModuleButton from "./AddNewTemplateModuleButton";
 import AddTemplateModuleDialog from "./AddNewTemplateModuleDialog";
+import React from "react";
 
 type ModuleManagerProps = {
     initialValue?: IModuleStep;
-    isTemplate?: boolean
+    isTemplate?: boolean;
+    fields?: JSX.Element;
 }
 
 const ModuleManager = (props: ModuleManagerProps) => {
@@ -111,7 +113,7 @@ const ModuleManager = (props: ModuleManagerProps) => {
                     />
                 ]}
             >
-                <ModuleCard fixKey={setCurKey} />
+                <ModuleCard fixKey={setCurKey} fields={props.fields} />
             </Steps>
             <Creator
                 label={translate('project.layout.create_module')}
@@ -122,7 +124,7 @@ const ModuleManager = (props: ModuleManagerProps) => {
                 submitAction={submitCreator}
                 create
             >
-                <ModuleFields getSource={getNewSource} />
+                {(props.fields) ? React.cloneElement(props.fields, {getSource: getNewSource}) : <ModuleFields getSource={getNewSource} />}
             </Creator>
         </>
     )
