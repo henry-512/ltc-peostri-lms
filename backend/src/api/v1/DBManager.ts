@@ -470,6 +470,8 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
 
         while (cursor.hasNext) {
             let doc = await cursor.next()
+            // db.getAll returns _key's
+            doc.id = doc._key
 
             // Delete disowned children
             doc = await this.forEachField<IForeignFieldData>(
@@ -477,14 +479,14 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                 this.foreignEntries,
                 async (p, k, d) => {
                     let c = d.foreignApi
-                    if (!c.db.tryExists(k)) {
+                    if (!await c.db.tryExists(k)) {
                         p.obj[p.key] = <any>''
                     }
                 },
                 async (p, a, d) => {
                     let c = d.foreignApi
                     for (var i = a.length - 1; i >= 0; i--) {
-                        if (!c.db.tryExists(a[i])) {
+                        if (!await c.db.tryExists(a[i])) {
                             a.splice(i, 1)
                         }
                     }
@@ -501,7 +503,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                             )
                         }
                         for (var i = sAr.length - 1; i >= 0; i--) {
-                            if (!c.db.tryExists(sAr[i])) {
+                            if (!await c.db.tryExists(sAr[i])) {
                                 sAr.splice(i, 1)
                             }
                         }
