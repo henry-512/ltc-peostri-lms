@@ -15,12 +15,17 @@ class Waive extends DataManager<IWaiveData> {
                 foreignApi: CommentManager,
                 freeable: true,
                 acceptNewDoc: true,
+                distortOnGet: (doc: any) => doc.content,
             },
             file: {
                 type: 'fkey',
                 foreignApi: FilemetaManager,
                 optional: true,
                 acceptNewDoc: true,
+                distortOnGet: (doc: any) => ({
+                    src: `api/v1/files/${doc.id}`,
+                    title: doc.latest.title,
+                }),
             },
             author: {
                 type: 'fkey',

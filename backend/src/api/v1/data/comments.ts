@@ -25,22 +25,6 @@ class Comment extends DBManager<IComment> {
         )
     }
 
-    public override async getFromDB(
-        user: AuthUser,
-        depth: number,
-        id: string
-    ): Promise<IComment> {
-        // Only modules have depth 1
-        if (depth !== 1) {
-            return super.getFromDB(user, depth, id)
-        }
-
-        let doc = await this.db.get(id)
-
-        // :)
-        return doc.content as any
-    }
-
     protected override async modifyDoc(
         user: AuthUser,
         files: any,

@@ -121,3 +121,11 @@ export function appendReturnFields(q: GeneratedAqlQuery, fields: string[]) {
     })
     return q
 }
+
+/**
+ * "Pointer". obj[key]
+ */
+export interface PTR<T> {
+    key: string | number | symbol,
+    obj: T
+}

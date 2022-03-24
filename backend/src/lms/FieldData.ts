@@ -7,11 +7,11 @@ export interface IFieldData {
         | 'string'
         | 'boolean'
         | 'number'
-        | 'data'
         | 'parent'
+        | 'data'
         | 'fkey'
-        | 'step'
         | 'array'
+        | 'step'
     // If type is an array or step, this is the type of that array or step
     instance?: 'fkey' | 'data'
     optional?: boolean
@@ -35,6 +35,8 @@ export interface IFieldData {
     parentReferenceKey?: string
     // True if this foreign object reference can be freely deleted
     freeable?: boolean
+    // If set, distort this field's value on GET
+    distortOnGet?: (doc: any) => any
 }
 
 export interface IForeignFieldData extends IFieldData {
