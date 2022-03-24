@@ -12,6 +12,8 @@ export interface IFieldData {
         | 'fkey'
         | 'array'
         | 'step'
+    // Name of this field
+    name?: string
     // If type is an array or step, this is the type of that array or step
     instance?: 'fkey' | 'data'
     optional?: boolean

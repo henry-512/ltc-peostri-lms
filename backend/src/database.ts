@@ -9,7 +9,13 @@ import { config } from './config'
 import { HTTPStatus, IErrorable } from './lms/errors'
 import { IFieldData } from './lms/FieldData'
 import { IArangoIndexes } from './lms/types'
-import { appendReturnFields, generateDBID, isDBKey, keyToId, splitId } from './lms/util'
+import {
+    appendReturnFields,
+    generateDBID,
+    isDBKey,
+    keyToId,
+    splitId,
+} from './lms/util'
 
 export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     // Set up database
@@ -38,7 +44,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         return this.collection.update(doc._key as string, doc, opt)
     }
 
-    public async removeUnsafe(id: string) {
+    private async removeUnsafe(id: string) {
         await this.collection.remove(id)
     }
 
@@ -267,6 +273,13 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         }
 
         throw this.internal('save', `${JSON.stringify(doc)} lacks id key`)
+    }
+
+    public async remove(id: string) {
+        if (this.isDBId(id)) {
+            return this.removeUnsafe(id)
+        }
+        throw this.internal('delete', `${id} is not a valid Id`)
     }
 
     public async deleteOrphans(parentFieldLocal: string) {

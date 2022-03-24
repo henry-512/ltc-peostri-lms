@@ -35,7 +35,7 @@ class Waive extends DataManager<IWaiveData> {
         })
     }
 
-    protected override rebuildDoc(
+    protected override modifyDoc(
         user: AuthUser,
         files: any,
         doc: any
@@ -77,6 +77,10 @@ class Module extends DBManager<IModule> {
                 type: 'string',
                 default: 'AWAITING',
             },
+            suspenseDate: {
+                type: 'string',
+                optional: true,
+            },
             files: {
                 type: 'array',
                 instance: 'fkey',
@@ -93,7 +97,7 @@ class Module extends DBManager<IModule> {
         })
     }
 
-    protected override rebuildDoc(
+    protected override modifyDoc(
         user: AuthUser,
         files: any,
         doc: any

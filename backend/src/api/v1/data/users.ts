@@ -60,7 +60,7 @@ class User extends DBManager<IUser> {
         this.db = new UserArangoWrapper(this.fieldEntries)
     }
 
-    override async rebuildDoc(
+    override async modifyDoc(
         user: AuthUser,
         files: any,
         doc: any

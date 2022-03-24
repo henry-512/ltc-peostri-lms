@@ -6,7 +6,7 @@ import {
     IForeignFieldData,
 } from '../../lms/FieldData'
 import { ICreateUpdate } from '../../lms/types'
-import { PTR } from '../../lms/util'
+import { isDBId, isDBKey, PTR } from '../../lms/util'
 import { AuthUser } from '../auth'
 
 export class DataManager<Type> extends IErrorable {
@@ -280,6 +280,8 @@ export class DataManager<Type> extends IErrorable {
         this.parentField = null
 
         for (let [key, data] of this.fieldEntries) {
+            // Set data names
+            data.name = key
             if (data.foreignApi) {
                 this.foreignEntries.push([key, data as IForeignFieldData])
             }
@@ -308,7 +310,7 @@ export class DataManager<Type> extends IErrorable {
         stack: string[]
     ): Promise<Type> {
         // Modify this document, if required
-        let doc = await this.rebuildDoc(user, files, a)
+        let doc = await this.modifyDoc(user, files, a)
 
         if (this.hasCUTimestamp) {
             if (!exists) {
@@ -345,86 +347,67 @@ export class DataManager<Type> extends IErrorable {
             )
         }
 
-        for (let [k, data] of this.fieldEntries) {
-            // key of doc
-            let key = k as keyof Type
-
-            // Check for missing fields
-            if (!(key in doc)) {
-                if (data.default !== undefined) {
-                    console.warn(`Using default ${data.default} for ${key}`)
-                    doc[key] = <any>data.default
-                    continue
-                } else if (data.optional) {
-                    console.warn(`optional key ${key} dne`)
-                    continue
-                } else {
-                    if (exists) {
-                        console.warn(
-                            `key ${key} is missing in revised document`
-                        )
-                        continue
-                    }
-                    throw this.error(
-                        'addToReferenceMap',
-                        HTTPStatus.BAD_REQUEST,
-                        'Missing required field',
-                        `${key} dne in ${JSON.stringify(doc)}`
-                    )
+        this.mapEachField(
+            doc,
+            // all
+            (pointer, data) => {
+                let k = pointer.key
+                let o = pointer.obj
+                // Check for missing fields
+                if (k in o) {
+                    return false
                 }
-            }
-
-            // Validate types
-            switch (data.type) {
-                case 'boolean':
-                case 'string':
-                case 'number':
-                    // The value associated with this key
-                    let value = doc[key]
-
-                    if (typeof value === data.type) {
-                        continue
-                    }
-                    throw this.error(
-                        'addToReferenceMap',
-                        HTTPStatus.BAD_REQUEST,
-                        'Invalid document field type',
-                        `${this.className}.${key} ${value} expected to be ${data.type}`
+                if (data.default !== undefined) {
+                    console.warn(
+                        `Using default ${data.default} for ${String(k)}`
                     )
-                // Other key types don't need validation here
+                    o[k] = data.default
+                    return false
+                } else if (data.optional) {
+                    console.warn(`optional key ${String(k)} dne`)
+                    return true
+                } else if (exists) {
+                    console.warn(
+                        `key ${String(k)} is missing in revised document`
+                    )
+                    return true
+                }
+                throw this.error(
+                    'verifyAddedDocument.mapEachField',
+                    HTTPStatus.BAD_REQUEST,
+                    'Missing required field',
+                    `${String(k)} dne in ${JSON.stringify(o)}`
+                )
+            },
+            // foreign
+            async (v, d) =>
+                d.foreignApi.parseGet(user, files, v, d, map, stack),
+            // data
+            async (v, d) =>
+                d.foreignData.parseGet(user, files, v, d, map, stack),
+            // other
+            async (value, data) => {
+                if (typeof value === data.type) {
+                    return value
+                }
+                throw this.error(
+                    'verifyAddedDocument.mapEachField',
+                    HTTPStatus.BAD_REQUEST,
+                    'Invalid document field type',
+                    `${this.className}.${data.name} ${value} expected to be ${data.type}`
+                )
+            },
+            // parent
+            async (value, data) => {
+                if (typeof value === 'string' && isDBId(value)) {
+                    return value
+                }
+                throw this.internal(
+                    'verifyAddedDocument.mapEachField',
+                    `${value} ${data} not a valid parent id`
+                )
             }
-        }
-
-        // foreign keys
-        doc = await this.mapForeignKeys(
-            doc,
-            async (obj, data) =>
-                await data.foreignApi.parseGet(
-                    user,
-                    files,
-                    obj,
-                    data,
-                    map,
-                    stack
-                )
         )
-
-        // data keys
-        doc = await this.mapDataKeys(
-            doc,
-            async (obj, data) =>
-                await data.foreignData.parseGet(
-                    user,
-                    files,
-                    obj,
-                    data,
-                    map,
-                    stack
-                )
-        )
-
-        // modify final document
-        await this.modifyDoc(doc)
 
         // Add the document to the map
         if (map.has(this)) {
@@ -446,18 +429,16 @@ export class DataManager<Type> extends IErrorable {
     ): Promise<any> {
         // Doc is either a foreign key or a string to serialize
         if (typeof doc === 'string') {
+            // Verify foreign reference
             if (data.foreignApi) {
                 let db = data.foreignApi.db
                 // Check if foreign key reference is valid
-                if (db.isKeyOrId(doc)) {
-                    let id = db.asId(doc)
-                    if (await db.exists(id)) {
-                        // Convert from key to id
-                        return id
-                    }
+                if (await db.tryExists(doc)) {
+                    return doc
                 }
             }
 
+            // Build a new document from a string
             if (data.acceptNewDoc) {
                 let built = await this.buildFromString(
                     user,
@@ -466,17 +447,18 @@ export class DataManager<Type> extends IErrorable {
                     stack[stack.length - 1]
                 )
                 if (built !== undefined) {
+                    // Verify id and add to call stack
                     if (data.foreignApi) {
                         let id = (<any>built).id
-                        if (!id) {
+                        if (!id || !data.foreignApi.db.isDBId(id)) {
                             throw this.internal(
                                 'parseGet',
-                                `buildFromString returns document without id field`
+                                `buildFromString on ${this.className} returns document without id field`
                             )
                         }
                         stack.push(id)
                     }
-                    await this.verifyAddedDocument(
+                    built = await this.verifyAddedDocument(
                         user,
                         files,
                         built,
@@ -484,6 +466,7 @@ export class DataManager<Type> extends IErrorable {
                         map,
                         stack
                     )
+                    // Return either the id reference or the built object
                     return data.foreignApi ? stack.pop() : built
                 }
             }
@@ -507,7 +490,7 @@ export class DataManager<Type> extends IErrorable {
 
             // Non-foreign documents are verified directly
             if (!data.foreignApi) {
-                await this.verifyAddedDocument(
+                return this.verifyAddedDocument(
                     user,
                     files,
                     doc,
@@ -515,7 +498,6 @@ export class DataManager<Type> extends IErrorable {
                     map,
                     stack
                 )
-                return doc
             }
 
             let db = data.foreignApi.db
@@ -529,6 +511,13 @@ export class DataManager<Type> extends IErrorable {
                     `New documents [${JSON.stringify(
                         doc
                     )}] not acceptable for type ${JSON.stringify(data)}`
+                )
+            }
+
+            if (!isDBKey(doc.id)) {
+                throw this.internal(
+                    'parseGet',
+                    `${doc.id} is not a KEY ${JSON.stringify(doc)}`
                 )
             }
 
@@ -563,19 +552,13 @@ export class DataManager<Type> extends IErrorable {
     /**
      * Rebuilds a doc, if required. Called before verifying any fields.
      */
-    protected async rebuildDoc(
+    protected async modifyDoc(
         user: AuthUser,
         files: any,
         doc: any
     ): Promise<Type> {
         return doc
     }
-
-    /**
-     * Modifies a document. Called after verifying all fields exist,
-     * and after dereferencing all keys
-     */
-    protected async modifyDoc(doc: any) {}
 
     protected async addReference(id: string, field: string, real: boolean) {
         throw this.error('addReference', HTTPStatus.NOT_IMPLEMENTED)

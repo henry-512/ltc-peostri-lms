@@ -144,7 +144,7 @@ export class AuthUser {
                         },
                         config.secret
                     )
-                    
+
                     // Update fields
                     await UserManager.updateForNewLogin(dbUserWOPass.id)
 

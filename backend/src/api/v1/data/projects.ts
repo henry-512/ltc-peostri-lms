@@ -24,6 +24,10 @@ export const ProjectManager = new DBManager<IProject>(
             acceptNewDoc: true,
             foreignApi: CommentManager,
         },
+        suspenseDate: {
+            type: 'string',
+            optional: true,
+        },
         modules: {
             type: 'step',
             instance: 'fkey',

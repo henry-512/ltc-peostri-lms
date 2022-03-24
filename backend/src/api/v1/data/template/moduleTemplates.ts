@@ -19,6 +19,7 @@ class TaskTemplate extends DataManager<ITaskTemplate> {
                 rank: {
                     type: 'fkey',
                     foreignApi: RankManager,
+                    optional: true,
                 },
                 status: {
                     type: 'string',
@@ -37,7 +38,7 @@ class TaskTemplate extends DataManager<ITaskTemplate> {
 
     // Tasks have ids appended as part of the frontend process
     // These are completely useless in the db, and should be removed
-    protected override rebuildDoc(
+    protected override modifyDoc(
         user: AuthUser,
         files: any,
         doc: any
@@ -80,17 +81,6 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
             { hasCUTimestamp: true }
         )
     }
-
-    // Calculate ttc value
-    // protected override async rebuildDoc(
-    //     user: AuthUser,
-    //     files: any,
-    //     doc: any
-    // ): Promise<IModuleTemplate> {
-        
-
-    //     return doc
-    // }
 
     public async buildModuleFromId(id: string): Promise<IModule> {
         let template = await this.db.get(id)

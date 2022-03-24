@@ -137,18 +137,30 @@ Takes the document in the body and uploads it to the collection. Accepts derefer
 
 ### Body
 
-# TODO
+# Keys and Ids Oh My
 
-## Modifications
+## `KEY`
 
-- Proper error responses from the DB
-  - 409 on POST
-- Actual logger
+A 22-character base-64 string randomly-generated UUID. Looks like `dSc_0eu4RojyvNZJT-P2AA`.
 
-## Known oversights
+## `ID`
 
-- `PUT` can remove foreign keys without warning, creating a memory leak
+An `key` associated with a collection, separated with a `/`. Looks like `users/dSc_0eu4RojyvNZJT-P2AA`.
 
-## thinking
+## Ok but why?
 
-- Multithread db upload?
+ArangoDB uses `KEY`-format as a primary key for documents. However, these are useless for indexing documents from collections. `DOCUMENT(...)` (used for generic document retrieval) requires an `ID`, not a `KEY`. This means documents from unknown locations at compile-time (such as a comment's parent field) cannot be properly referenced.
+
+Database objects also require an `id` field (not to be confused with the `id` type) that is a `KEY`. This is used for indexing on the frontend. This `id` field must be a `KEY`, since the `ID` type is not url-safe (due to the `/`). 
+
+## Solution
+
+- The database stores all references in documents (such as a user's rank) as `ID`.
+- All references are converted into `KEY` on GET routes (except for parent fields, which must remain as `ID`)
+
+## Technical
+
+- `database`
+    - `get`: Expects `ID`, returns doc.id as `KEY`. Does not modify references.
+    - `save`: Expects doc.id as `ID`.
+    - `update`: Expects doc.id as `ID`.

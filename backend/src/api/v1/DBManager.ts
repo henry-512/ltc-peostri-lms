@@ -223,30 +223,31 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         )
     }
 
-    protected override async verifyAddedDocument(
-        user: AuthUser,
-        files: any,
-        addDoc: Type,
-        exists: boolean,
-        map: Map<DataManager<any>, any[]>,
-        stack: string[]
-    ): Promise<Type> {
-        // Used for frontend mangement, redundant in DB
-        // delete addDoc.id
+    // protected override async verifyAddedDocument(
+    //     user: AuthUser,
+    //     files: any,
+    //     addDoc: Type,
+    //     exists: boolean,
+    //     map: Map<DataManager<any>, any[]>,
+    //     stack: string[]
+    // ): Promise<Type> {
+    //     // Used for frontend mangement, redundant in DB
+    //     // delete addDoc.id
 
-        return super.verifyAddedDocument(
-            user,
-            files,
-            addDoc,
-            exists,
-            map,
-            stack
-        )
-    }
+    //     return super.verifyAddedDocument(
+    //         user,
+    //         files,
+    //         addDoc,
+    //         exists,
+    //         map,
+    //         stack
+    //     )
+    // }
 
     public async create(user: AuthUser, files: any, doc: Type, real: boolean) {
+        // Generate a new ID for this document
         let id = this.db.generateDBID()
-        user.id = id
+        doc.id = id
 
         // The passed document has a parent key, so we need to
         // update the parent to include this document
@@ -293,7 +294,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
 
                     if (await api.db.exists(id)) {
                         console.log(`Removing malformed doc w/ id ${id}`)
-                        await api.db.removeUnsafe(id)
+                        await api.db.remove(id)
                     }
                 }
             }
@@ -316,7 +317,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         doc: Type,
         real: boolean
     ) {
-        user.id = id
+        // user.id = id
 
         // We dont need to update all elements, .update does that
         // automatically for us :)
@@ -366,25 +367,23 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
      */
     public async delete(
         user: AuthUser,
-        key: string,
+        id: string,
         real: boolean,
         base: boolean
     ) {
-        let doc = await this.db.get(key)
+        let doc = await this.db.get(id)
 
         // Delete children
         doc = await this.mapForeignKeys(
             doc,
-            async (k, data) => {
-                if (typeof k !== 'string') {
-                    throw this.error(
+            async (v, data) => {
+                if (typeof v !== 'string') {
+                    throw this.internal(
                         'delete.mapForeignKeys',
-                        HTTPStatus.INTERNAL_SERVER_ERROR,
-                        'Invalid system state',
-                        `[${k}] is not a string`
+                        `[${v}] is not a string`
                     )
                 }
-                return data.foreignApi.delete(user, k, real, false)
+                return data.foreignApi.delete(user, v, real, false)
             },
             (data) => !data.freeable
         )
@@ -397,10 +396,8 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             if (localId in doc) {
                 let parentId = (<any>doc)[localId]
                 if (!this.db.isDBId(parentId)) {
-                    throw this.error(
+                    throw this.internal(
                         'delete',
-                        HTTPStatus.INTERNAL_SERVER_ERROR,
-                        'Invalid system state',
                         `Parent id [${parentId}] invalid`
                     )
                 }
@@ -410,10 +407,8 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                     real
                 )
             } else {
-                throw this.error(
+                throw this.internal(
                     'delete',
-                    HTTPStatus.INTERNAL_SERVER_ERROR,
-                    'Invalid system state',
                     `Parent id key ${this.className}.${localId} dne in ${doc}`
                 )
             }
@@ -422,9 +417,9 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         console.log(
             `${real ? 'DELETING' : 'FAKE DELETING'} ${
                 this.className
-            } | ${key} | ${doc}`
+            } | ${id} | ${doc}`
         )
-        real && (await this.db.removeUnsafe(key))
+        real && (await this.db.remove(id))
     }
 
     /**

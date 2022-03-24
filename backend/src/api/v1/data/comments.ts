@@ -24,7 +24,7 @@ class Comment extends DBManager<IComment> {
         )
     }
 
-    protected override async rebuildDoc(
+    protected override async modifyDoc(
         user: AuthUser,
         files: any,
         doc: any
