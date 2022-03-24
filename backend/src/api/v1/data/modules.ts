@@ -28,6 +28,17 @@ class Waive extends DataManager<IWaiveData> {
             },
         })
     }
+
+    protected override modifyDoc(
+        user: AuthUser,
+        files: any,
+        doc: any
+    ): Promise<IWaiveData> {
+        if (!doc.author) {
+            doc.author = user.getId()
+        }
+        return doc
+    }
 }
 
 const WaiveManager = new Waive()
