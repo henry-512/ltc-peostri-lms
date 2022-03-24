@@ -101,6 +101,7 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
                     users: [],
                     rank: t.rank,
                     type: t.type,
+                    ttc: temp.ttc,
                 } as ITask
             })
         }
@@ -111,6 +112,7 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
             tasks: tasks,
             comments: [],
             status: 'AWAITING',
+            ttc: temp.ttc,
         }
     }
 }

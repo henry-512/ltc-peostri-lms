@@ -16,7 +16,7 @@ export const TaskManager = new DBManager<ITask>('tasks', 'Task', 'title', {
         getIdKeepAsRef: true,
         foreignApi: UserManager,
     },
-    suspenseDate: {
+    suspense: {
         type: 'string',
         optional: true,
     },

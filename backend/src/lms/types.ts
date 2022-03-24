@@ -42,6 +42,7 @@ export interface IFilemeta extends IArangoIndexes, ICreateUpdate {
 }
 
 export interface IModuleTemplate extends IArangoIndexes {
+    ttc?: number
     title: string
     tasks: IStepper<ITaskTemplate>
     status: Status | 'WAIVED'
@@ -54,6 +55,7 @@ export interface IWaiveData {
 }
 
 export interface IModule extends IArangoIndexes {
+    ttc?: number
     title: string
     tasks: IStepper<ITask> | IStepper<string>
     comments: Array<string> | Array<IComment>
@@ -63,6 +65,7 @@ export interface IModule extends IArangoIndexes {
 }
 
 export interface IProjectTemplate extends IArangoIndexes, ICreateUpdate {
+    ttc?: number
     title: string
     status: Status
     modules: IStepper<IModuleTemplate> | IStepper<string>
@@ -71,7 +74,8 @@ export interface IProjectTemplate extends IArangoIndexes, ICreateUpdate {
 export interface IProject extends IArangoIndexes, ICreateUpdate {
     title: string
     start: string | Date
-    end: string | Date
+    suspense: string | Date
+    ttc?: number
     status: Status
     comments: Array<string> | Array<IComment>
     modules: IStepper<IModule> | IStepper<string>
@@ -97,6 +101,8 @@ export interface ITaskTemplate extends IArangoIndexes {
 }
 
 export interface ITask extends IArangoIndexes {
+    suspense?: string | Date
+    ttc?: number
     title: string
     status: Status
     users: Array<string> | Array<IUser>

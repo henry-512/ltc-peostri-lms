@@ -77,7 +77,7 @@ class Module extends DBManager<IModule> {
                 type: 'string',
                 default: 'AWAITING',
             },
-            suspenseDate: {
+            suspense: {
                 type: 'string',
                 optional: true,
             },
@@ -108,12 +108,13 @@ class Module extends DBManager<IModule> {
         // Convert a single file into a file array
         if (doc.file) {
             if (doc.files) {
-                doc.files.append(doc.file)
+                doc.files.concat(doc.file)
             } else {
                 doc.files = [doc.file]
             }
             delete doc.file
         }
+
         return doc
     }
 }

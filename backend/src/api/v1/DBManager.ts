@@ -212,11 +212,10 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             (v, data) => (data.distortOnGet ? data.distortOnGet(v) : v),
             // other
             async (v, data) => {
-                if (typeof v === data.type) {
-                    return v
-                } else {
+                if (typeof v !== data.type) {
                     console.warn(`${v} is of incorrect type ${data}`)
                 }
+                return v
             },
             // parent
             (v) => v

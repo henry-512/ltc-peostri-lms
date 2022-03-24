@@ -65,11 +65,12 @@ class ProjectTemplate extends DBManager<IProjectTemplate> {
             id,
             title: temp.title,
             start: new Date().toJSON(),
-            end: new Date().toJSON(),
+            suspense: new Date().toJSON(),
             status: temp.status,
             comments: [],
             modules: mods,
             users: [],
+            ttc: temp.ttc,
         }
     }
 }
