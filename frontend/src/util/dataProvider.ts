@@ -1,6 +1,6 @@
 import { stringify } from 'query-string';
 import { fetchUtils, DataProvider } from 'ra-core';
-import { IModule } from './types';
+import { IModule, IProject } from './types';
 
 /**
  * Maps react-admin queries to a simple REST API
@@ -43,6 +43,31 @@ type HTTPClientPromiseReturn = {
 const client = (url: any, options: fetchUtils.Options = {}) => {
     options.credentials = 'include'
     return fetchUtils.fetchJson(url, options);
+}
+
+const convertProjectToFormData = (data: IProject) => {
+    let formData = new FormData();
+
+    for (let step of Object.values<IModule[]>(data.modules)) {
+        for (let module of step) {
+            if (!module.waive_module) continue;
+            if (!module.waive) continue;
+            if (!module.waive.file) continue;
+
+            if (module.waive.file) {
+                formData.append(`${module.id}-${module.waive.file.title}`, module.waive.file.rawFile)
+                module.waive.file = `${module.id}-${module.waive.file.title}`
+            }
+        }
+    }
+
+    let jsonData = new Blob([JSON.stringify(data)], {
+        type: 'application/json'
+    })
+
+    formData.append('json', jsonData, "data");
+
+    return formData;
 }
 
 const dataProvider = (
@@ -156,24 +181,7 @@ const dataProvider = (
     update: (resource, params) => {
         switch(resource) {
             case 'projects':
-                let formData = new FormData();
-
-                for (let step of Object.values<IModule[]>(params.data.modules)) {
-                    for (let module of step) {
-                        if (!module.waive_module_file) continue;
-
-                        if (module.waive_module_file && module.waive_module) {
-                            formData.append(`${module.id}-${module.waive_module_file.title}`, module.waive_module_file.rawFile)
-                            module.waive_module_file = `${module.id}-${module.waive_module_file.title}`
-                        }
-                    }
-                }
-
-                let jsonData = new Blob([JSON.stringify(params.data)], {
-                    type: 'application/json'
-                })
-
-                formData.append('json', jsonData, "data");
+                const formData = convertProjectToFormData(params.data);
 
                 return httpClient(`${apiUrl}/${resource}/${params.id}`, {
                     method: 'PUT',
@@ -203,25 +211,7 @@ const dataProvider = (
     create: async (resource, params) => {
         switch(resource) {
             case 'projects':
-                let formData = new FormData();
-
-                for (let step of Object.values<IModule[]>(params.data.modules)) {
-                    for (let module of step) {
-                        if (!module.waive_module_file) continue;
-
-                        if (module.waive_module_file) {
-                            formData.append(`${module.id}-${module.waive_module_file.title}`, module.waive_module_file.rawFile)
-                            module.waive_module_file = `${module.id}-${module.waive_module_file.title}`
-                            console.log(module.waive_module_file)
-                        }
-                    }
-                }
-
-                let jsonData = new Blob([JSON.stringify(params.data)], {
-                    type: 'application/json'
-                })
-
-                formData.append('json', jsonData, "data");
+                const formData = convertProjectToFormData(params.data);
 
                 return httpClient(`${apiUrl}/${resource}`, {
                     method: 'POST',

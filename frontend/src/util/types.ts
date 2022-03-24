@@ -93,7 +93,11 @@ export interface IModule extends IArangoIndexes {
     project?: string | IProject;
     status: Status | "WAIVED";
     waive_module?: boolean;
-    waive_module_file?: any;
+    waive?: {
+        author?: string | IUser;
+        file: any;
+        comment: string;
+    };
     file?: any;
 }
 
