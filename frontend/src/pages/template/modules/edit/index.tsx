@@ -12,7 +12,7 @@ const ModuleTemplateEdit = (props: any) => {
                 validate={validateModuleTemplate}
                 toolbar={
                     <TemplateToolbar
-                        create={true}
+                        create={false}
                     />
                 }
             >

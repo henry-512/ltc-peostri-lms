@@ -35,14 +35,13 @@ type ModuleTemplateFieldsProps = {
     initialValues?: any,
     calculateTTC?: Function
 }
-let count = 0
+
 const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
     const { getSource } = props;
     const validateTitle = [required(), minLength(2), maxLength(150)];
     const form = useForm();
 
     const recalculateTTC = (data: any) => {
-        console.log(count++);
         const formData = form.getState().values;
         if (!get(formData, getSource?.('tasks') || "")) return;
 

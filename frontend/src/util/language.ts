@@ -30,6 +30,7 @@ const domainMessages = {
             },
             create: {
                 title: "Creating Project",
+                from_template: "Create From Template"
             },
             steps: {
                 general: "General Information",
@@ -72,7 +73,8 @@ const domainMessages = {
                 edit_task: "Editing Task: %{title}",
                 add_module_template: "Add Module Template",
                 add_module_template_button: "Add Template",
-                select_module_template: "Select a Module Template"
+                select_module_template: "Select a Module Template",
+                select_template: "Select a Project Template"
             }
         },
         tasks: {
@@ -109,6 +111,7 @@ const domainMessages = {
                 layout: {
                     general: "General Information",
                     create_title: "Create Module Template",
+                    edit_title: "Editing Project Template",
                 },
                 fields: {
                     ttc: "Est. Time to Completion (in days)",
@@ -121,6 +124,7 @@ const domainMessages = {
                 layout: {
                     general: "General Information",
                     create_title: "Create Project Template",
+                    edit_title: "Editing Project Template",
                 },
                 fields: {
                     ttc: "Est. Time to Completion (in days)",

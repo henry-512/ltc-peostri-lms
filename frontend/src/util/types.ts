@@ -152,6 +152,7 @@ export interface IProjectTemplate extends IArangoIndexes, ICreateUpdate {
     title: string;
     ttc: number;
     modules: Array<IModule>;
+    module_template_id?: string;
 }
 
 export interface IGetListQuery {

@@ -1,5 +1,6 @@
 import { makeStyles } from '@material-ui/core';
-import { Datagrid, DateField, List, ListProps, TextField } from 'react-admin';
+import { Datagrid, DateField, Empty, List, ListProps, TextField } from 'react-admin';
+import { ProjectEmptyList } from 'src/components/project';
 
 const useListStyles = makeStyles({
     headerRow: {
@@ -28,6 +29,7 @@ const ProjectList = (props: ListProps) => {
           <>
                <List {...props}
                     perPage={25}
+                    empty={<ProjectEmptyList />}
                >
                     <Datagrid
                         classes={{

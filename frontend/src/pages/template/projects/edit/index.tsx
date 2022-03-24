@@ -1,6 +1,8 @@
 import { makeStyles } from "@material-ui/core";
-import { Edit, useTranslate } from "react-admin";
+import { Edit, SimpleForm, useTranslate } from "react-admin";
+import { ModuleTemplateFields, TemplateToolbar } from "src/components/templates";
 import transformer from "../transformer";
+import validateProjectTemplate from "../validation";
 import validateProject from "../validation";
 
 const useStyles = makeStyles(theme => ({
@@ -32,8 +34,17 @@ const ProjectTemplateEdit = (props: any) => {
     const classes = useStyles();
 
     return (
-        <Edit title={translate('project.edit.title')} {...props} transform={transformer}>
-
+        <Edit title={translate('template.project.layout.edit_title')} {...props} transform={transformer}>
+            <SimpleForm
+                validate={validateProjectTemplate}
+                toolbar={
+                    <TemplateToolbar
+                        create={false}
+                    />
+                }
+            >
+                <ModuleTemplateFields getSource={(src: string) => src} />
+            </SimpleForm>
         </Edit>
     )
 }
