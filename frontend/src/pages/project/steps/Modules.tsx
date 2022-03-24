@@ -21,9 +21,7 @@ const Modules = (props: any) => {
             project_ttc += stepTTC;
         }
 
-        console.log('project-recreation')
         if (project_ttc == formData.ttc) return;
-        console.log('project-recreation3')
 
         form.change('ttc', project_ttc);
     }

@@ -1,4 +1,4 @@
-import { FormGroupContextProvider, ReferenceInput, required, AutocompleteInput, useDataProvider, useFormGroup, useTranslate, SimpleForm, FormWithRedirect } from "react-admin";
+import { FormGroupContextProvider, ReferenceInput, required, AutocompleteInput, useDataProvider, useFormGroup, useTranslate, SimpleForm, FormWithRedirect, useRedirect } from "react-admin";
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, makeStyles } from "@material-ui/core";
 import { useForm } from "react-final-form";
 import { useHistory } from "react-router";
@@ -37,6 +37,11 @@ type CreateProjectFromTemplateDialogProps = {
     setOpen: Function;
 }
 
+const omitID = (data: any) => {
+    delete data.id;
+    return data;
+}
+
 const CreateProjectFromTemplateDialog = (props: CreateProjectFromTemplateDialogProps) => {
     const dialogStyles = useDialogStyles();
     const dialogActionStyles = useDialogActionsStyles();
@@ -45,16 +50,15 @@ const CreateProjectFromTemplateDialog = (props: CreateProjectFromTemplateDialogP
     const translate = useTranslate();
     const dataProvider = useDataProvider();
     const form = useForm();
-    const history = useHistory();
+    const redirect = useRedirect();
     
     const handleSubmit = async () => {
         const template_id = form.getState().values.project_template_id;
         
         dataProvider.getOne('template/projects/instance', { id: template_id })
         .then(response => {
-            history.push('/projects/create', {
-                record: response
-            })
+            console.log(response.data);
+            redirect('create', '/projects', undefined, {}, { record: {...omitID(response.data)}});
         });
 
         props.setOpen(false);

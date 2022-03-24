@@ -47,7 +47,6 @@ const ModuleFields = (props: ModuleFieldsProps) => {
     const form = useForm();
 
     const recalculateTTC = (data: any) => {
-        console.log('module-recreation')
         const formData = form.getState().values;
         if (!get(formData, getSource?.('tasks') || "")) return;
 
