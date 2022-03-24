@@ -31,9 +31,7 @@ class TaskTemplate extends DataManager<ITaskTemplate> {
                     default: 0,
                 },
             },
-            {
-                hasCUTimestamp: true,
-            }
+            { hasCUTimestamp: true }
         )
     }
 
@@ -57,6 +55,7 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
         super(
             'moduleTemplates',
             'Module Template',
+            'title',
             {
                 title: { type: 'string' },
                 tasks: {
@@ -77,9 +76,7 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
                     default: 0,
                 },
             },
-            {
-                hasCUTimestamp: true,
-            }
+            { hasCUTimestamp: true }
         )
     }
 

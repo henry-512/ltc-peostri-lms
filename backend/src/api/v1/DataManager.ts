@@ -3,7 +3,7 @@ import { HTTPStatus, IErrorable } from '../../lms/errors'
 import {
     IDataFieldData,
     IFieldData,
-    IForeignFieldData,
+    IForeignFieldData
 } from '../../lms/FieldData'
 import { ICreateUpdate } from '../../lms/types'
 import { PTR } from '../../lms/util'
@@ -104,26 +104,26 @@ export class DataManager<Type> extends IErrorable {
         parentFn: (value: any, data: IFieldData) => Promise<any>
     ) {
         for (let [key, data] of this.fieldEntries) {
-            let value = doc[key]
-
             if (allFn({ obj: doc, key }, data)) {
                 continue
             }
+
+            let value = doc[key]
 
             switch (data.type) {
                 case 'string':
                 case 'boolean':
                 case 'number':
-                    doc[key] = otherFn(value, data)
+                    doc[key] = await otherFn(value, data)
                     break
                 case 'parent':
-                    doc[key] = parentFn(value, data)
+                    doc[key] = await parentFn(value, data)
                     break
                 case 'data':
-                    doc[key] = dataFn(value, data as IDataFieldData)
+                    doc[key] = await dataFn(value, data as IDataFieldData)
                     break
                 case 'fkey':
-                    doc[key] = foreignFn(value, data as IForeignFieldData)
+                    doc[key] = await foreignFn(value, data as IForeignFieldData)
                     break
                 case 'array':
                     if (data.foreignApi) {

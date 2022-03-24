@@ -8,7 +8,7 @@ const PermissionManager = new DataManager<IPermission>('Permission', {
     perm3: { type: 'string' },
 })
 
-export const RankManager = new DBManager<IRank>('ranks', 'Rank', {
+export const RankManager = new DBManager<IRank>('ranks', 'Rank', 'name', {
     name: { type: 'string', default: 'New Rank' },
     permissions: {
         type: 'data',

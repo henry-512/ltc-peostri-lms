@@ -51,7 +51,7 @@ const WaiveManager = new Waive()
 
 class Module extends DBManager<IModule> {
     constructor() {
-        super('modules', 'Module', {
+        super('modules', 'Module', 'title', {
             title: { type: 'string' },
             tasks: {
                 type: 'step',

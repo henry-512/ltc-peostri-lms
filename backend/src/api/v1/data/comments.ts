@@ -8,6 +8,7 @@ class Comment extends DBManager<IComment> {
         super(
             'comments',
             'Comment',
+            'content',
             {
                 content: { type: 'string' },
                 author: {
@@ -19,9 +20,7 @@ class Comment extends DBManager<IComment> {
                     parentReferenceKey: 'comments',
                 },
             },
-            {
-                hasCUTimestamp: true,
-            }
+            { hasCUTimestamp: true }
         )
     }
 

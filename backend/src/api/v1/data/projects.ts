@@ -7,6 +7,7 @@ import { UserManager } from './users'
 export const ProjectManager = new DBManager<IProject>(
     'projects',
     'Project',
+    'title',
     {
         title: { type: 'string' },
         start: { type: 'string' },
@@ -38,7 +39,5 @@ export const ProjectManager = new DBManager<IProject>(
             foreignApi: UserManager,
         },
     },
-    {
-        hasCUTimestamp: true,
-    }
+    { hasCUTimestamp: true }
 )

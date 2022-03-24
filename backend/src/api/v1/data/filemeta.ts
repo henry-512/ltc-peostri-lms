@@ -31,6 +31,7 @@ class Filemeta extends DBManager<IFilemeta> {
         super(
             'filemeta',
             'File Metadata',
+            '_key',
             {
                 latest: {
                     type: 'data',
@@ -46,9 +47,7 @@ class Filemeta extends DBManager<IFilemeta> {
                     parentReferenceKey: 'files',
                 },
             },
-            {
-                hasCUTimestamp: true,
-            }
+            { hasCUTimestamp: true }
         )
     }
 

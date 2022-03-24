@@ -16,6 +16,8 @@ class User extends DBManager<IUser> {
         super(
             DB_NAME,
             'User',
+            // This has custom functionality in UserArangoWrapper
+            'name',
             {
                 firstName: { type: 'string' },
                 lastName: { type: 'string' },
@@ -52,9 +54,6 @@ class User extends DBManager<IUser> {
                     type: 'string',
                     optional: true,
                 },
-            },
-            {
-                defaultFilter: { key: 'name' },
             }
         )
 

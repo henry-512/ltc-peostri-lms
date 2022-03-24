@@ -8,7 +8,7 @@ import {
 import { APIError, HTTPStatus } from '../../lms/errors'
 import { IFieldData, IForeignFieldData } from '../../lms/FieldData'
 import { IArangoIndexes } from '../../lms/types'
-import { convertToKey, isDBKey, splitId } from '../../lms/util'
+import { convertToKey, isDBKey, IStepper, splitId } from '../../lms/util'
 import { AuthUser } from '../auth'
 import { DataManager } from './DataManager'
 
@@ -22,22 +22,20 @@ export function getApiInstanceFromId(id: string): DBManager<IArangoIndexes> {
 }
 const instances: { [dbname: string]: DBManager<IArangoIndexes> } = {}
 
-export class DBManager<
-    Type extends IArangoIndexes
-> extends DataManager<Type> {
+export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
     public db: ArangoWrapper<Type>
-    private defaultFilter: IFilterOpts
+    private defaultFilter: string
 
     constructor(
         dbName: string,
         className: string,
+        defaultFilter: string,
         fields: { [key: string]: IFieldData },
         opts?: {
             /**
              * Create/Update timestamp
              */
             hasCUTimestamp?: boolean
-            defaultFilter?: IFilterOpts
         }
     ) {
         fields['id'] = {
@@ -47,8 +45,11 @@ export class DBManager<
 
         super(className, fields, opts)
 
-        this.defaultFilter = opts?.defaultFilter ?? { key: '_key' }
+        this.defaultFilter = defaultFilter
         this.db = new ArangoWrapper<Type>(dbName, this.fieldEntries)
+
+        // Add this to the lookup table
+        instances[dbName] = this
     }
 
     /**
@@ -73,10 +74,7 @@ export class DBManager<
                 let f: IFilterOpts = { key }
 
                 if (key === 'q') {
-                    f.key = this.defaultFilter.key
-                    if (this.defaultFilter.ref) {
-                        f.ref = this.defaultFilter.ref
-                    }
+                    f.key = this.defaultFilter
                 } else if (
                     !(key in this.fieldData) ||
                     this.fieldData[key].hideGetAll
@@ -221,9 +219,7 @@ export class DBManager<
                 }
             },
             // parent
-            (v, data) => {
-                return v
-            }
+            (v) => v
         )
 
         return doc

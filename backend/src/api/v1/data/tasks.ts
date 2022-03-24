@@ -3,7 +3,7 @@ import { DBManager } from '../DBManager'
 import { RankManager } from './ranks'
 import { UserManager } from './users'
 
-export const TaskManager = new DBManager<ITask>('tasks', 'Task', {
+export const TaskManager = new DBManager<ITask>('tasks', 'Task', 'title', {
     title: { type: 'string' },
     status: {
         type: 'string',
