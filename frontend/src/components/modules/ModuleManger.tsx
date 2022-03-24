@@ -13,7 +13,9 @@ import React from "react";
 type ModuleManagerProps = {
     initialValue?: IModuleStep;
     isTemplate?: boolean;
+    isCreate?: boolean;
     fields?: JSX.Element;
+    calculateTTC?: Function
 }
 
 const ModuleManager = (props: ModuleManagerProps) => {
@@ -113,7 +115,7 @@ const ModuleManager = (props: ModuleManagerProps) => {
                     />
                 ]}
             >
-                <ModuleCard fixKey={setCurKey} fields={props.fields} />
+                <ModuleCard fixKey={setCurKey} fields={props.fields} isCreate={props.isCreate} />
             </Steps>
             <Creator
                 label={translate('project.layout.create_module')}
@@ -124,7 +126,7 @@ const ModuleManager = (props: ModuleManagerProps) => {
                 submitAction={submitCreator}
                 create
             >
-                {(props.fields) ? React.cloneElement(props.fields, {getSource: getNewSource}) : <ModuleFields getSource={getNewSource} />}
+                {(props.fields) ? React.cloneElement(props.fields, {getSource: getNewSource}) : <ModuleFields getSource={getNewSource} isCreate={props.isCreate} calculateTTC={props.calculateTTC} />}
             </Creator>
         </>
     )

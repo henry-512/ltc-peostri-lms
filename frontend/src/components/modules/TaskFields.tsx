@@ -1,5 +1,8 @@
 import { Grid, makeStyles } from "@material-ui/core"
-import { maxLength, minLength, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
+import get from "lodash.get";
+import { useEffect } from "react";
+import { maxLength, minLength, NumberInput, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
+import { useForm } from "react-final-form";
 import AutoAssignArrayInput from "./AutoAssignArrayInput";
 import IDField from "./IDField";
 
@@ -28,7 +31,9 @@ const useStyles = makeStyles(theme => ({
 
 type TaskFieldsProps = {
     getSource: Function,
-    initialValues?: any
+    initialValues?: any,
+    calculateTTC?: Function
+    isCreate?: boolean
 }
 
 const TaskFields = (props: TaskFieldsProps) => {
@@ -36,6 +41,9 @@ const TaskFields = (props: TaskFieldsProps) => {
     const classes = useStyles();
     const translate = useTranslate();
     const validateTitle = [required(), minLength(2), maxLength(150)];
+    const form = useForm();
+
+    useEffect(() => props.calculateTTC?.(), [get(form.getState().values, getSource?.('ttc'))]);
 
     return (
         <>
@@ -88,7 +96,7 @@ const TaskFields = (props: TaskFieldsProps) => {
                     />
                 </Grid>
 
-                <Grid item xs={3} style={{ marginTop: '-32px' }}>
+                <Grid item xs={(props.isCreate) ? 6 : 4} style={{ marginTop: '-32px' }}>
                     <ReferenceInput
                         label="project.fields.rank"
                         reference="ranks"
@@ -103,7 +111,19 @@ const TaskFields = (props: TaskFieldsProps) => {
                     </ReferenceInput>
                 </Grid>
 
-                <Grid item xs={9} style={{ marginTop: '-32px' }}>
+                {(props.isCreate) ?
+                    <Grid item xs={6} style={{ marginTop: '-32px' }}>
+                        <NumberInput
+                            source={getSource?.('ttc') || ""}
+                            label="template.module.fields.ttc"
+                            fullWidth
+                            helperText=" "
+                            validate={[required()]}
+                        />
+                    </Grid>
+                : null }
+
+                <Grid item xs={(props.isCreate) ? 12 : 8 } style={{ marginTop: '-32px' }}>
                     <ReferenceArrayInput
                         label="project.fields.member"
                         reference="users"

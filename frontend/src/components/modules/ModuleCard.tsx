@@ -32,9 +32,11 @@ type ModuleCardProps = {
     getSource?: string,
     fixKey: Function,
     fields?: JSX.Element
+    isCreate?: boolean,
+    calculateTTC?: Function
 }
 
-const ModuleCard = ({ info, index, stepKey, fixKey, fields }: ModuleCardProps) => {
+const ModuleCard = ({ info, index, stepKey, fixKey, fields, isCreate, calculateTTC }: ModuleCardProps) => {
     const translate = useTranslate();
     const classes = useStyles();
 
@@ -106,7 +108,7 @@ const ModuleCard = ({ info, index, stepKey, fixKey, fields }: ModuleCardProps) =
                             submitAction={submitCreator}
                             deleteAction={deleteCreator}
                         >
-                            {(fields) ? React.cloneElement(fields, { getSource: getSource, initialValues: info }) : <ModuleFields getSource={getSource} initialValues={info} />}
+                            {(fields) ? React.cloneElement(fields, { getSource: getSource, initialValues: info }) : <ModuleFields getSource={getSource} initialValues={info} isCreate={isCreate} calculateTTC={calculateTTC} />}
                         </Creator>
                     </div>
                 )}

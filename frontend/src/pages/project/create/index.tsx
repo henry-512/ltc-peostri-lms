@@ -33,15 +33,14 @@ const useStyles = makeStyles(theme => ({
 export default function ProjectCreate(props: any) {
      const translate = useTranslate();
      const classes = useStyles();
-     const search = new URLSearchParams(props.location.search);
 
      return (
           <Create title={translate('project.create.title')} {...props} transform={transformer}>
                <Stepper validate={validateProject} create>
 
-                    <General classes={classes} title={translate('project.steps.general')} style={{ width: "100%" }} isTemplate={(typeof search.get('template') == 'string')} validator="general" {...props}/>
+                    <General classes={classes} title={translate('project.steps.general')} style={{ width: "100%" }} validator="general" {...props} isCreate={true}/>
 
-                    <Modules classes={classes} title={translate('project.steps.modules')} className={classes.content} validator="modules" {...props}/>
+                    <Modules classes={classes} title={translate('project.steps.modules')} className={classes.content} validator="modules" {...props} isCreate={true}/>
 
                     {/*<Review classes={classes} title={translate('project.steps.review')} className={classes.content} validator="" {...props}/>*/}
                     

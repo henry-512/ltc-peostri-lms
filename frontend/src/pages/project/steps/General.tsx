@@ -1,10 +1,13 @@
-import { Grid, Typography } from "@material-ui/core"
-import { AutocompleteArrayInput, BooleanInput, DateInput, FormGroupContextProvider, ReferenceArrayInput, TextInput, useTranslate } from "react-admin"
+import { Grid } from "@material-ui/core"
+import { AutocompleteArrayInput, BooleanInput, DateInput, FormGroupContextProvider, NumberInput, ReferenceArrayInput, TextInput, useTranslate } from "react-admin"
+import { useForm } from "react-final-form";
 import { SectionTitle } from "src/components/misc";
 import { Step } from "src/components/stepper/Step"
 
 const General = (props: any) => {
     const translate = useTranslate();
+    const form = useForm();
+
     return (
         <Step validator={props.validator} {...props}>
             <FormGroupContextProvider name={props.validator}>
@@ -35,13 +38,23 @@ const General = (props: any) => {
                                 />
                             </Grid>
                             <Grid item xs={3}>
-                                <DateInput
-                                    label={translate('project.fields.end')}
-                                    source="end"
-                                    required
-                                    fullWidth
-                                    helperText=" "
-                                />
+                                {(props.isCreate) ?
+                                    <NumberInput
+                                        source="ttc"
+                                        label="template.project.fields.ttc"
+                                        fullWidth
+                                        helperText="template.project.fields.ttc_help"
+                                        disabled
+                                    />
+                                :
+                                    <DateInput
+                                        label={translate('project.fields.end')}
+                                        source="end"
+                                        required
+                                        fullWidth
+                                        helperText=" "
+                                    />
+                                }
                             </Grid>
                         </Grid>
                     </Grid>

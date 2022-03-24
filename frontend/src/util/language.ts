@@ -49,7 +49,8 @@ const domainMessages = {
                 task_type: "Task Type",
                 task_status: "Task Status",
                 rank: "Rank",
-                waiver_file: "Drop a File Here, or Click Here to Browse Files"
+                waiver_file: "Drop a File Here, or Click Here to Browse Files",
+                suspense: "Suspense Date"
             },
             layout: {
                 general: "Project Information",

@@ -3,9 +3,12 @@ import IDField from "./IDField";
 import WaiverInput from "./WaiverInput";
 import classNames from "classnames";
 import RichTextInput from "ra-input-rich-text";
-import { FileField, FileInput, maxLength, minLength, required, SelectInput, TextInput, useTranslate } from "react-admin";
-import { useState } from "react";
+import { DateInput, FileField, FileInput, maxLength, minLength, NumberInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
+import { useEffect, useState } from "react";
 import TaskManager from "./TaskManager";
+import { useForm } from "react-final-form";
+import get from "lodash.get";
+import { ITaskTemplate } from "src/util/types";
 
 const useStyles = makeStyles(theme => ({
     modulesForm: {
@@ -30,7 +33,9 @@ const useStyles = makeStyles(theme => ({
 
 type ModuleFieldsProps = {
     getSource: Function,
-    initialValues?: any
+    initialValues?: any,
+    isCreate?: boolean,
+    calculateTTC?: Function
 }
 
 const ModuleFields = (props: ModuleFieldsProps) => {
@@ -40,13 +45,37 @@ const ModuleFields = (props: ModuleFieldsProps) => {
     const validateTitle = [required(), minLength(2), maxLength(150)];
     const [showFileUpload, setShowFileUpload] = useState(initialValues?.waive_module || false);
 
+    const form = useForm();
+
+    const recalculateTTC = (data: any) => {
+        console.log('module-recreation')
+        const formData = form.getState().values;
+        if (!get(formData, getSource?.('tasks') || "")) return;
+
+        let module_ttc = 0;
+        for (let [stepKey, step] of Object.entries<ITaskTemplate[]>(get(formData, getSource?.('tasks') || ""))) {
+            let stepTTC: number = 0;
+            for (let [taskKey, task] of Object.entries<ITaskTemplate>(step)) {
+                if (task.ttc < stepTTC) continue;
+                stepTTC = task.ttc;
+            }
+            module_ttc += stepTTC;
+        }
+
+        if (module_ttc == get(formData, getSource?.('ttc') || "")) return;
+
+        form.change(getSource?.('ttc'), module_ttc);
+    }
+
+    useEffect(() => (props.calculateTTC) ? props.calculateTTC() : null, [get(form.getState().values, getSource?.('ttc'))])
+
     return (
         <>
             <Grid container spacing={2} style={{
                 marginTop: '.1rem'
             }}>
                 <IDField source={getSource('id') || ""} id={props.initialValues?.id} />
-                <Grid item xs={5}>
+                <Grid item xs={4}>
                     <TextInput
                         source={getSource('title') || ""}
                         label="project.fields.module_title"
@@ -56,7 +85,7 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                     />
                 </Grid>
 
-                <Grid item xs={4}>
+                <Grid item xs={3}>
                     <SelectInput
                         source={getSource('status') || ""}
                         choices={[
@@ -76,7 +105,25 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                     />
                 </Grid>
 
-                <Grid item xs={1}></Grid>
+                <Grid item xs={3}>
+                    {(props.isCreate) ?
+                        <NumberInput
+                            source={getSource?.('ttc') || ""}
+                            label="template.module.fields.ttc"
+                            fullWidth
+                            helperText="template.module.fields.ttc_help"
+                            disabled
+                        />
+                    :
+                        <DateInput
+                            label={translate('project.fields.suspense')}
+                            source={getSource?.('suspense') || ""}
+                            required
+                            fullWidth
+                            helperText=" "
+                        />
+                    }
+                </Grid>
 
                 <Grid item xs={2} style={{
                     display: 'flex',
@@ -108,7 +155,7 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                 marginTop: '.5rem'
             }}>
                 <Grid item xs={12}>
-                    <TaskManager source={getSource?.('tasks') || ""} />
+                    <TaskManager source={getSource?.('tasks') || ""} isCreate={props.isCreate} calculateTTC={recalculateTTC} />
                 </Grid>
             </Grid>
         </>

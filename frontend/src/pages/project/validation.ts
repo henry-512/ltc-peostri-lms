@@ -11,9 +11,9 @@ export default function validateProject(project: IProject) {
         errors.start = 'The start date is required';
     }
 
-    if (!project.end) {
+    /*if (!project.end) {
         errors.end = 'The end date is required';
-    }
+    }*/
 
     if (project.start && project.end) {
         if (new Date(project.start).getTime() > new Date(project.end).getTime()) {
