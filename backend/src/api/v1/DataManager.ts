@@ -3,7 +3,7 @@ import { HTTPStatus, IErrorable } from '../../lms/errors'
 import {
     IDataFieldData,
     IFieldData,
-    IForeignFieldData
+    IForeignFieldData,
 } from '../../lms/FieldData'
 import { ICreateUpdate } from '../../lms/types'
 import { PTR } from '../../lms/util'
@@ -102,7 +102,7 @@ export class DataManager<Type> extends IErrorable {
         otherFn: (value: any, data: IFieldData) => Promise<any>,
         // Runs for parent keys
         parentFn: (value: any, data: IFieldData) => Promise<any>
-    ) {
+    ): Promise<any> {
         for (let [key, data] of this.fieldEntries) {
             if (allFn({ obj: doc, key }, data)) {
                 continue
@@ -308,7 +308,7 @@ export class DataManager<Type> extends IErrorable {
         stack: string[]
     ): Promise<Type> {
         // Modify this document, if required
-        let doc = await this.modifyDoc(user, files, a)
+        let doc = await this.rebuildDoc(user, files, a)
 
         if (this.hasCUTimestamp) {
             if (!exists) {
@@ -422,6 +422,9 @@ export class DataManager<Type> extends IErrorable {
                     stack
                 )
         )
+
+        // modify final document
+        await this.modifyDoc(doc)
 
         // Add the document to the map
         if (map.has(this)) {
@@ -558,16 +561,21 @@ export class DataManager<Type> extends IErrorable {
     }
 
     /**
-     * Modifies a document. Called after verifying all fields exist,
-     * and after dereferencing all keys
+     * Rebuilds a doc, if required. Called before verifying any fields.
      */
-    protected async modifyDoc(
+    protected async rebuildDoc(
         user: AuthUser,
         files: any,
         doc: any
     ): Promise<Type> {
         return doc
     }
+
+    /**
+     * Modifies a document. Called after verifying all fields exist,
+     * and after dereferencing all keys
+     */
+    protected async modifyDoc(doc: any) {}
 
     protected async addReference(id: string, field: string, real: boolean) {
         throw this.error('addReference', HTTPStatus.NOT_IMPLEMENTED)

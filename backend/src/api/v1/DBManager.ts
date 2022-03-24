@@ -165,7 +165,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
     ): Promise<Type> {
         let doc = await this.db.get(id)
 
-        this.mapEachField(
+        return this.mapEachField(
             doc,
             // all
             (p, data) => {
@@ -221,8 +221,6 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             // parent
             (v) => v
         )
-
-        return doc
     }
 
     protected override async verifyAddedDocument(
@@ -273,7 +271,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                     console.log(
                         `Saving ${api.className} | ${JSON.stringify(doc)}`
                     )
-                    real && (await api.db.saveUnsafe(doc))
+                    real && (await api.db.save(doc))
                 }
             }
         } catch (err: any) {
@@ -284,19 +282,18 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                     continue
                 }
                 for (let doc of docs) {
-                    if ('_key' in doc) {
-                        let k = doc._key as string
-                        if (await api.db.exists(k)) {
-                            console.log(`Removing malformed doc w/ id ${k}`)
-                            await api.db.removeUnsafe(k)
-                        }
-                    } else {
-                        throw this.error(
+                    let id = doc.id
+
+                    if (!id || !api.db.isDBId(id)) {
+                        throw this.internal(
                             'create',
-                            HTTPStatus.INTERNAL_SERVER_ERROR,
-                            'Invalid system state',
-                            `${JSON.stringify(doc)} lacks _key field`
+                            `${JSON.stringify(doc)} lacks id field`
                         )
+                    }
+
+                    if (await api.db.exists(id)) {
+                        console.log(`Removing malformed doc w/ id ${id}`)
+                        await api.db.removeUnsafe(id)
                     }
                 }
             }
@@ -306,12 +303,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                 throw err
             }
             // Some other error type
-            throw this.error(
-                'create',
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                'Invalid system state',
-                JSON.stringify(err)
-            )
+            throw this.internal('create', JSON.stringify(err))
         }
 
         return id
@@ -346,27 +338,22 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                 continue
             }
             for (let d of docs) {
-                if (!d._key || !isDBKey(d._key)) {
-                    throw this.error(
-                        'create',
-                        HTTPStatus.INTERNAL_SERVER_ERROR,
-                        'Invalid system state',
-                        `${d._key} invalid`
-                    )
+                if (!d.id || !this.db.isDBId(d.id)) {
+                    throw this.internal('create', `${d.id} invalid`)
                 }
-                if (await api.db.exists(d._key)) {
+                if (await api.db.exists(d.id)) {
                     console.log(
                         `Updating ${api.className} | ${JSON.stringify(d)}`
                     )
                     real &&
-                        (await api.db.updateUnsafe(d, {
+                        (await api.db.update(d, {
                             mergeObjects: false,
                         }))
                 } else {
                     console.log(
                         `Saving ${api.className} | ${JSON.stringify(d)}`
                     )
-                    real && (await api.db.saveUnsafe(d))
+                    real && (await api.db.save(d))
                 }
             }
         }
@@ -508,10 +495,8 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                         let sAr = o[k]
 
                         if (!Array.isArray(sAr)) {
-                            throw this.error(
+                            throw this.internal(
                                 'disown',
-                                HTTPStatus.INTERNAL_SERVER_ERROR,
-                                'Invalid system state',
                                 `${sAr} is not an array`
                             )
                         }
@@ -526,7 +511,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                 }
             )
 
-            await this.db.updateUnsafe(doc, {
+            await this.db.update(doc, {
                 mergeObjects: false,
             })
         }

@@ -9,7 +9,7 @@ import { config } from './config'
 import { HTTPStatus, IErrorable } from './lms/errors'
 import { IFieldData } from './lms/FieldData'
 import { IArangoIndexes } from './lms/types'
-import { appendReturnFields, generateDBID, isDBKey, keyToId } from './lms/util'
+import { appendReturnFields, generateDBID, isDBKey, keyToId, splitId } from './lms/util'
 
 export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     // Set up database
@@ -30,11 +30,11 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         return this.collection.document(id)
     }
 
-    public async saveUnsafe(doc: Type) {
+    private async saveUnsafe(doc: Type) {
         return this.collection.save(doc)
     }
 
-    public async updateUnsafe(doc: Type, opt: CollectionUpdateOptions) {
+    private async updateUnsafe(doc: Type, opt: CollectionUpdateOptions) {
         return this.collection.update(doc._key as string, doc, opt)
     }
 
@@ -63,6 +63,20 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         } else {
             throw this.error(
                 'asId',
+                HTTPStatus.BAD_REQUEST,
+                'Invalid document Id',
+                `${idOrKey} is not an ID or key`
+            )
+        }
+    }
+    public asKey(idOrKey: string) {
+        if (isDBKey(idOrKey)) {
+            return idOrKey
+        } else if (this.isDBId(idOrKey)) {
+            return splitId(idOrKey).key
+        } else {
+            throw this.error(
+                'asKey',
                 HTTPStatus.BAD_REQUEST,
                 'Invalid document Id',
                 `${idOrKey} is not an ID or key`
@@ -153,6 +167,18 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         return this.existsUnsafe(id)
     }
 
+    public keyExists(key: string) {
+        if (!isDBKey(key)) {
+            throw this.error(
+                'keyExists',
+                HTTPStatus.NOT_FOUND,
+                'Document not found',
+                `[${key}] is not a valid key for this collection`
+            )
+        }
+        return this.existsUnsafe(key)
+    }
+
     public async assertKeyExists(key: string) {
         if (!isDBKey(key)) {
             throw this.error(
@@ -219,6 +245,28 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         delete doc._rev
 
         return doc
+    }
+
+    public async save(doc: Type) {
+        if (doc.id) {
+            doc._key = this.asKey(doc.id)
+            delete doc.id
+
+            return this.saveUnsafe(doc)
+        }
+
+        throw this.internal('save', `${JSON.stringify(doc)} lacks id key`)
+    }
+
+    public async update(doc: Type, opt: CollectionUpdateOptions) {
+        if (doc.id) {
+            doc._key = this.asKey(doc.id)
+            delete doc.id
+
+            return this.updateUnsafe(doc, opt)
+        }
+
+        throw this.internal('save', `${JSON.stringify(doc)} lacks id key`)
     }
 
     public async deleteOrphans(parentFieldLocal: string) {

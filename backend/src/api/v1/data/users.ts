@@ -60,7 +60,7 @@ class User extends DBManager<IUser> {
         this.db = new UserArangoWrapper(this.fieldEntries)
     }
 
-    override async modifyDoc(
+    override async rebuildDoc(
         user: AuthUser,
         files: any,
         doc: any
@@ -85,9 +85,8 @@ class User extends DBManager<IUser> {
             user.firstVisited = new Date().toJSON()
         }
         user.lastVisited = new Date().toJSON()
-        user._key = key
 
-        return this.db.updateUnsafe(user, { mergeObjects: false })
+        return this.db.update(user, { mergeObjects: false })
     }
 }
 

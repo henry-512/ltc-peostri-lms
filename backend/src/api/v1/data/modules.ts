@@ -35,7 +35,7 @@ class Waive extends DataManager<IWaiveData> {
         })
     }
 
-    protected override modifyDoc(
+    protected override rebuildDoc(
         user: AuthUser,
         files: any,
         doc: any
@@ -93,7 +93,7 @@ class Module extends DBManager<IModule> {
         })
     }
 
-    protected override modifyDoc(
+    protected override rebuildDoc(
         user: AuthUser,
         files: any,
         doc: any
