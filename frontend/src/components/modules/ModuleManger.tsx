@@ -60,6 +60,26 @@ const ModuleManager = (props: ModuleManagerProps) => {
         setCurKey(Object.keys(formData.modules || {}).length);
     }
 
+    const openTemplate = () => {
+        form.change('modules', {
+            ...modules,
+            [`key-${curKey}`]: [{} as IModule]
+        });
+        setTemplateSelectorOpen(true);
+
+        setNewSource(`modules[key-${curKey}][0]`);
+    }
+
+    const cancelTemplate = () => {
+        let cacheModules = modules;
+        delete cacheModules[`key-${curKey}`];
+        form.change('modules', cacheModules);
+    }
+
+    const submitTemplate = () => {
+        setCurKey(Object.keys(formData.modules || {}).length);
+    }
+
     const getNewSource = (key: string) => {
         if (key) return `${newSource}.${key}`.toString();
         return newSource.toString();
@@ -78,12 +98,15 @@ const ModuleManager = (props: ModuleManagerProps) => {
                 renderData={modules}
                 emptyText={translate('project.layout.no_modules')}
                 actions={[
-                    <AddTemplateModuleButton label="project.layout.add_module_template" onClick={() => setTemplateSelectorOpen(true)} />, 
+                    <AddTemplateModuleButton label="project.layout.add_module_template_button" onClick={openTemplate} />, 
                     <AddTemplateModuleDialog 
                         ariaLabel='module_template_selection'
                         label={translate('project.layout.add_module_template')} 
                         open={templateSelectorOpen}
                         setOpen={setTemplateSelectorOpen}
+                        cancelAction={cancelTemplate}
+                        submitAction={submitTemplate}
+                        getSource={getNewSource}
                         isTemplate={props.isTemplate}
                     />
                 ]}

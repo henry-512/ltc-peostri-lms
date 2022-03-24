@@ -1,7 +1,5 @@
-import { useState } from "react";
-import { FormGroupContext, FormGroupContextProvider, ReferenceInput, required, SelectInput, useDataProvider, useFormGroup, useTranslate } from "react-admin";
+import { FormGroupContextProvider, ReferenceInput, required, AutocompleteInput, useDataProvider, useFormGroup, useTranslate } from "react-admin";
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, makeStyles } from "@material-ui/core";
-import dataProvider from "src/util/dataProvider";
 import { useForm } from "react-final-form";
 
 const useDialogStyles = makeStyles(theme => ({
@@ -36,6 +34,9 @@ type AddTemplateModuleDialogProps = {
     label: string;
     open: boolean;
     setOpen: Function;
+    cancelAction?: Function;
+    submitAction?: Function;
+    getSource: Function;
     isTemplate?: boolean;
 }
 
@@ -48,21 +49,35 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
     const formGroupState = useFormGroup(props.ariaLabel);
     const dataProvider = useDataProvider();
     const form = useForm();
+
+    const updateForm = ({ data }: any) => {
+        if (!props.isTemplate) delete data.id;
+        form.change(props.getSource(), data);
+    }
     
     const handleSubmit = async () => {
         const template_id = form.getState().values.module_template_id
 
         if (props.isTemplate) {
             dataProvider.getOne('template/modules', { id: template_id })
-            .then(response => console.log(response));
-            return;
+            .then(response => updateForm(response));
+        } else {
+            dataProvider.getOne('template/modules/instance', { id: template_id })
+            .then(response  => updateForm(response));
         }
 
-        dataProvider.getOne('template/modules/instance', { id: template_id })
-        .then(response => console.log(response));
+        if (props.submitAction) {
+            props.submitAction();
+        }
+        props.setOpen(false);
     }
 
-    const handleClose = () => props.setOpen(false);
+    const handleClose = () => {
+        if (props.cancelAction) {
+            props.cancelAction();
+        }
+        props.setOpen(false);
+    }
 
     return (
         <>
@@ -71,7 +86,7 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
                 <DialogContent classes={dialogContentStyles}>
                     <FormGroupContextProvider name={props.ariaLabel} >
                         <ReferenceInput label="project.layout.select_module_template" source="module_template_id" reference="template/modules">
-                            <SelectInput optionText="title" optionValue="id" fullWidth validate={[required()]} helperText=" " />
+                            <AutocompleteInput optionText="title" optionValue="id" fullWidth validate={[required()]} helperText=" " />
                         </ReferenceInput>
                     </FormGroupContextProvider>
                 </DialogContent>
