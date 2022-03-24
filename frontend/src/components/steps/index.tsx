@@ -213,8 +213,10 @@ const Steps = (props: StepsProps) => {
                             </Typography>
                             <Box width="35%" display="flex" justifyContent="flex-end" gridGap={10}>
                                 {
-                                    actions?.map(element => {
-                                        return React.cloneElement(element);
+                                    actions?.map((element, i) => {
+                                        return React.cloneElement(element, {
+                                            key: i
+                                        });
                                     })
                                 }
                                 <AddNewButton label={createLabel} onClick={createAction} />
