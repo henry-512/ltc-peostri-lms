@@ -71,6 +71,7 @@ const domainMessages = {
                 edit_module: "Editing Module: %{title}",
                 edit_task: "Editing Task: %{title}",
                 add_module_template: "Add Module Template",
+                add_module_template_button: "Add Template",
                 select_module_template: "Select a Module Template"
             }
         },
@@ -89,7 +90,10 @@ const domainMessages = {
                 last_name: "Last Name",
                 rank: "Rank",
                 username: "Username",
-                email: "Email"
+                email: "Email",
+                first_visited: "First Login",
+                last_visited: "Last Login",
+                status: "Status"
             },
             layout: {
                 identity: "Identity",
@@ -122,7 +126,8 @@ const domainMessages = {
                     last_name: "Last Name",
                     rank: "Rank",
                     username: "Username",
-                    email: "Email"
+                    email: "Email",
+                    status: "Status"
                 }
             },
             'template/projects': {

@@ -13,6 +13,7 @@ export interface LoginInformation {
 
 export type Status = "IN_PROGRESS" | "COMPLETED" | "ARCHIVED" | "AWAITING";
 export type TaskTypes = "DOCUMENT_UPLOAD" | "DOCUMENT_REVIEW" | "MODULE_WAIVER" | "MODULE_WAIVER_APPROVAL" | "DOCUMENT_APPROVE"
+export type UserStatus = 'ACTIVE' | 'LOCKED' | 'INACTIVE' | 'SUSPENDED'
 
 // All are optional
 export interface IArangoIndexes {
@@ -44,6 +45,9 @@ export interface IUser extends Record {
     useEmail?: boolean;
     password?: string;
     email?: string;
+    firstVisited?: string;
+    lastVisited?: string;
+    status?: UserStatus;
 }
 
 export interface IComment extends IArangoIndexes, ICreateUpdate {
@@ -111,6 +115,7 @@ export interface IProject extends IArangoIndexes, ICreateUpdate {
     users: Array<string> | Array<IUser>;
     auto_assign?: boolean;
     author?: IUser | string;
+    module_template_id?: string;
 }
 
 export interface IRank extends IArangoIndexes {
