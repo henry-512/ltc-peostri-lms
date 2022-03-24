@@ -41,7 +41,7 @@ export function routerBuilder(version: string) {
                 route('template/modules', ModuleTempManager, (r, m) =>
                     r.get('/instance/:id', async (ctx, next) => {
                         let id = m.db.keyToId(ctx.params.id)
-                        if (!m.exists(id)) {
+                        if (await m.exists(id)) {
                             ctx.body =
                                 await ModuleTempManager.buildModuleFromId(id)
                             ctx.status = HTTPStatus.OK
@@ -60,7 +60,7 @@ export function routerBuilder(version: string) {
                     (r, m) =>
                         r.get('/instance/:id', async (ctx, next) => {
                             let id = m.db.keyToId(ctx.params.id)
-                            if (!m.exists(id)) {
+                            if (await m.exists(id)) {
                                 ctx.body =
                                     await ProjectTempManager.buildProjectFromId(
                                         id
@@ -128,18 +128,14 @@ function route<Type extends IArangoIndexes>(
     }
 
     r.get('/', async (ctx, next) => {
-        const qdata = await manager.query(ctx.request.query)
-        let all = await qdata.cursor.all()
-
-        // Convert all document foreign ids to keys
-        await Promise.all(all.map(async (doc) => manager.convertIds(doc)))
+        let results = await manager.getAll(ctx.request.query)
 
         ctx.status = HTTPStatus.OK
-        ctx.body = all
+        ctx.body = results.all
 
         ctx.set(
             'Content-Range',
-            `documents ${qdata.low}-${qdata.high}/${qdata.size}`
+            `documents ${results.low}-${results.high}/${results.size}`
         )
         ctx.set('Access-Control-Expose-Headers', 'Content-Range')
     })

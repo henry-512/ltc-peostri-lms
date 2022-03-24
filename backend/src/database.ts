@@ -220,3 +220,10 @@ export interface IQueryGetOpts {
         count: number
     }
 }
+
+export interface IGetAllQueryResults {
+    all: any[]
+    size: number
+    low: number
+    high: number
+}

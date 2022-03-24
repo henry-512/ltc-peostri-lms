@@ -6,6 +6,7 @@ import {
     IForeignFieldData,
 } from '../../lms/FieldData'
 import { ICreateUpdate } from '../../lms/types'
+import { PTR } from '../../lms/util'
 import { AuthUser } from '../auth'
 
 export abstract class DataManager<Type> extends IErrorable {
@@ -56,9 +57,9 @@ export abstract class DataManager<Type> extends IErrorable {
         return this.forEachField<T>(
             doc,
             entries,
-            async (p, o, d) => (p.doc[p.key] = <any>await fn(o, d)),
+            async (p, o, d) => (p.obj[p.key] = <any>await fn(o, d)),
             async (p, a, d) =>
-                (p.doc[p.key] = <any>await Promise.all(a.map((o) => fn(o, d)))),
+                (p.obj[p.key] = <any>await Promise.all(a.map((o) => fn(o, d)))),
             async (p, s, d) => {
                 let temp: any = {}
                 for (let stepId in s) {
@@ -76,30 +77,121 @@ export abstract class DataManager<Type> extends IErrorable {
                         await Promise.all(stepArray.map((o) => fn(o, d)))
                     )
                 }
-                p.doc[p.key] = temp
+                p.obj[p.key] = temp
             },
             skippable
         )
+    }
+
+    /**
+     * @param allFn
+     * @param foreignFn
+     * @param dataFn
+     * @param otherFn
+     * @param parentFn
+     */
+    protected async mapEachField(
+        doc: any,
+        // Runs for all keys. Returns true if this key should be skipped
+        allFn: (pointer: PTR<any>, data: IFieldData) => boolean,
+        // Runs for each foreign key
+        foreignFn: (value: any, data: IForeignFieldData) => Promise<any>,
+        // Runs for each data key
+        dataFn: (value: any, data: IDataFieldData) => Promise<any>,
+        // Runs for each other key
+        otherFn: (value: any, data: IFieldData) => Promise<any>,
+        // Runs for parent keys
+        parentFn: (value: any, data: IFieldData) => Promise<any>
+    ) {
+        for (let [key, data] of this.fieldEntries) {
+            let value = doc[key]
+
+            if (allFn({ obj: doc, key }, data)) {
+                continue
+            }
+
+            switch (data.type) {
+                case 'string':
+                case 'boolean':
+                case 'number':
+                    doc[key] = otherFn(value, data)
+                    break
+                case 'parent':
+                    doc[key] = parentFn(value, data)
+                    break
+                case 'data':
+                    doc[key] = dataFn(value, data as IDataFieldData)
+                    break
+                case 'fkey':
+                    doc[key] = foreignFn(value, data as IForeignFieldData)
+                    break
+                case 'array':
+                    if (data.foreignApi) {
+                        let d = data as IForeignFieldData
+                        doc[key] = await Promise.all(
+                            value.map((o: any) => foreignFn(o, d))
+                        )
+                    } else if (data.foreignData) {
+                        let d = data as IDataFieldData
+                        doc[key] = await Promise.all(
+                            value.map((o: any) => dataFn(o, d))
+                        )
+                    } else {
+                        throw this.internal(
+                            'mapEachField',
+                            `${data} has array type but neither reference.`
+                        )
+                    }
+                    break
+                case 'step':
+                    let dF = data as IForeignFieldData
+                    let dD = data as IDataFieldData
+
+                    let temp: any = {}
+                    for (let stepId in value) {
+                        let stepArray = value[stepId]
+
+                        if (!Array.isArray(stepArray)) {
+                            throw this.error(
+                                'mapForeignKeys',
+                                HTTPStatus.BAD_REQUEST,
+                                'Unexpected type',
+                                `${stepArray} is not an array`
+                            )
+                        }
+
+                        if (data.foreignApi) {
+                            temp[stepId] = await Promise.all(
+                                stepArray.map((o: any) => foreignFn(o, dF))
+                            )
+                        } else if (data.foreignData) {
+                            temp[stepId] = await Promise.all(
+                                stepArray.map((o: any) => dataFn(o, dD))
+                            )
+                        } else {
+                            throw this.internal(
+                                'mapEachField',
+                                `${data} has step type but neither reference.`
+                            )
+                        }
+                    }
+                    doc[key] = temp
+            }
+        }
+
+        return doc
     }
 
     protected async forEachField<T extends IFieldData>(
         doc: Type,
         entries: [string, T][],
         // Runs for each foreign key
-        keyCall: (
-            pointer: { doc: any; key: string | number | symbol }, //doc:Type
-            obj: any,
-            data: T
-        ) => Promise<any>,
+        keyCall: (pointer: PTR<any>, obj: any, data: T) => Promise<any>,
         // Runs for each foreign array
-        arrCall: (
-            pointer: { doc: any; key: string | number | symbol },
-            arr: Array<any>,
-            data: T
-        ) => Promise<any>,
+        arrCall: (pointer: PTR<any>, arr: Array<any>, data: T) => Promise<any>,
         // Runs for each foreign step object
         stpCall: (
-            pointer: { doc: any; key: string | number | symbol },
+            pointer: PTR<any>,
             stp: { [index: string]: Array<any> },
             data: T
         ) => Promise<any>,
@@ -130,12 +222,12 @@ export abstract class DataManager<Type> extends IErrorable {
                 // Single foreign key
                 case 'data':
                 case 'fkey':
-                    await keyCall({ doc, key: local }, <any>foreign, data)
+                    await keyCall({ obj: doc, key: local }, <any>foreign, data)
                     continue
                 // Object array
                 case 'array':
                     let o: any[] = Array.isArray(foreign) ? foreign : [foreign]
-                    await arrCall({ doc, key: local }, o, data)
+                    await arrCall({ obj: doc, key: local }, o, data)
                     continue
                 // Object step object
                 case 'step':
@@ -149,7 +241,7 @@ export abstract class DataManager<Type> extends IErrorable {
                             )} was expected to be a step object`
                         )
                     }
-                    await stpCall({ doc, key: local }, <any>foreign, data)
+                    await stpCall({ obj: doc, key: local }, <any>foreign, data)
                     continue
                 default:
                     throw this.internal(

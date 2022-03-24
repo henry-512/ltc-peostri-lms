@@ -1,5 +1,10 @@
 import Router from '@koa/router'
-import { ArangoWrapper, IFilterOpts, IQueryGetOpts } from '../../database'
+import {
+    ArangoWrapper,
+    IFilterOpts,
+    IGetAllQueryResults,
+    IQueryGetOpts,
+} from '../../database'
 import { APIError, HTTPStatus } from '../../lms/errors'
 import { IFieldData, IForeignFieldData } from '../../lms/FieldData'
 import { IArangoIndexes } from '../../lms/types'
@@ -52,12 +57,21 @@ export abstract class DBManager<
 
     /**
      * Retrieves a query from the server, following the passed parameters.
-     * @param q An object with query fields.
-     *  - sort [id, ASC/DESC]
-     *  - range [offset, count]
+     * @param query An object with queryable fields.
      * @return A cursor representing all db objects that fit the query
      */
-    public async query(q: any) {
+    public async getAll(query: any) {
+        const results = await this.query(query)
+
+        // Convert all document foreign ids to keys
+        await Promise.all(
+            results.all.map(async (doc) => this.convertIdsToKeys(doc))
+        )
+
+        return results
+    }
+
+    public async query(q: any): Promise<IGetAllQueryResults> {
         let opts: IQueryGetOpts = {
             range: {
                 offset: 0,
@@ -127,16 +141,20 @@ export abstract class DBManager<
         }
 
         let query = await this.db.queryGet(opts)
+        let all = await query.cursor.all()
+
+        // Convert all document foreign ids to keys
+        await Promise.all(all.map(async (doc) => this.convertIdsToKeys(doc)))
 
         return {
-            cursor: query.cursor,
+            all: all,
             size: query.size,
             low: opts.range.offset,
             high: opts.range.offset + opts.range.count,
         }
     }
 
-    public convertIds(doc: Type) {
+    public convertIdsToKeys(doc: Type) {
         return this.mapForeignKeys(doc, async (k, d) => {
             if (typeof k === 'string' && d.foreignApi.db.isDBId(k)) {
                 return splitId(k).key
@@ -164,31 +182,66 @@ export abstract class DBManager<
     ): Promise<Type> {
         let doc = await this.db.get(id)
 
-        for (let [k, data] of this.fieldEntries) {
-            if (data.hideGetId) {
-                delete (<any>doc)[k]
-            } else if (data.default !== undefined) {
-                // Put default value in
-                ;(<any>doc)[k] = data.default
-            }
-        }
-
-        return this.mapForeignKeys(doc, async (k, data) => {
-            if (typeof k === 'string') {
-                if (data.getIdKeepAsRef) {
-                    return convertToKey(k)
-                    // Dereference the id into an object
-                } else if (this.db.isDBId(k)) {
-                    // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-                    // TODO: perfect spot to intercept calls
-                    return data.foreignApi.getFromDB(user, depth++, k)
+        this.mapEachField(
+            doc,
+            // all
+            (p, data) => {
+                if (data.hideGetId) {
+                    delete p.obj[p.key]
+                    return true
+                } else if (!(p.key in p.obj)) {
+                    if (data.default !== undefined) {
+                        // Put default value in
+                        p.obj[p.key] = data.default
+                    } else {
+                        console.warn(`${String(p.key)} missing in ${doc}`)
+                    }
+                    return true
                 }
+                return false
+            },
+            // foreign
+            async (v, data) => {
+                if (typeof v === 'string') {
+                    if (data.getIdKeepAsRef) {
+                        return convertToKey(v)
+                    } else if (this.db.isDBId(v)) {
+                        // Dereference the id into an object
+                        let subdoc = await data.foreignApi.getFromDB(
+                            user,
+                            depth++,
+                            v
+                        )
+                        // Warps return values
+                        if (data.distortOnGet) {
+                            subdoc = data.distortOnGet(subdoc)
+                        }
+                        return subdoc
+                    }
+                }
+                throw this.internal(
+                    'getFromDB.mapForeignKeys',
+                    `[${v}] expected to be a valid DB id`
+                )
+            },
+            // data
+            // Warp return values
+            (v, data) => (data.distortOnGet ? data.distortOnGet(v) : v),
+            // other
+            async (v, data) => {
+                if (typeof v === data.type) {
+                    return v
+                } else {
+                    console.warn(`${v} is of incorrect type ${data}`)
+                }
+            },
+            // parent
+            (v, data) => {
+                return v
             }
-            throw this.internal(
-                'getFromDB.mapForeignKeys',
-                `[${k}] expected to be a valid DB id`
-            )
-        })
+        )
+
+        return doc
     }
 
     protected override async verifyAddedDocument(
@@ -458,7 +511,7 @@ export abstract class DBManager<
                 async (p, k, d) => {
                     let c = d.foreignApi
                     if (!c.db.tryExists(k)) {
-                        p.doc[p.key] = <any>''
+                        p.obj[p.key] = <any>''
                     }
                 },
                 async (p, a, d) => {

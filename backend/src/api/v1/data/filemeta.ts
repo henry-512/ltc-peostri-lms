@@ -58,23 +58,23 @@ class Filemeta extends DBManager<IFilemeta> {
         )
     }
 
-    public override async getFromDB(
-        user: AuthUser,
-        depth: number,
-        id: string
-    ): Promise<IFilemeta> {
-        if (depth === 0) {
-            return super.getFromDB(user, depth, id)
-        }
+    // public override async getFromDB(
+    //     user: AuthUser,
+    //     depth: number,
+    //     id: string
+    // ): Promise<IFilemeta> {
+    //     if (depth === 0) {
+    //         return super.getFromDB(user, depth, id)
+    //     }
 
-        let doc = await this.db.get(id)
+    //     let doc = await this.db.get(id)
 
-        // :)
-        return {
-            src: `api/v1/files/${id}`,
-            title: doc.latest.title,
-        } as any
-    }
+    //     // :)
+    //     return {
+    //         src: `api/v1/files/${id}`,
+    //         title: doc.latest.title,
+    //     } as any
+    // }
 
     private async writeFile(user: AuthUser, file: IFileData): Promise<IFile> {
         let id = generateBase64UUID()
