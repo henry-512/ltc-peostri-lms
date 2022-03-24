@@ -40,7 +40,7 @@ export class AuthUser {
         }
 
         let usr = new AuthUser(auth)
-        if (!(await UserManager.exists(usr.id))) {
+        if (!(await UserManager.db.exists(usr.id))) {
             throw AuthUser.error(
                 'authRouter.get',
                 HTTPStatus.UNAUTHORIZED,
@@ -103,7 +103,7 @@ export class AuthUser {
         return (
             new Router({ prefix: '/api/auth' })
                 // Validate login and create JWT cookie
-                .post('/', async (ctx, next) => {
+                .post('/', async (ctx) => {
                     let reqUN = ctx.request.body.username
                     let reqPass = ctx.request.body.password
 
@@ -143,6 +143,9 @@ export class AuthUser {
                         config.secret
                     )
 
+                    // ASYNC can be called on a different thread
+                    // UserManager.updateForNewLogin(usr.id)
+
                     ctx.cookies.set('token', token, {
                         httpOnly: true,
                         maxAge: 3600 * 1000,
@@ -159,7 +162,8 @@ export class AuthUser {
 
                     ctx.status = HTTPStatus.NO_CONTENT
                 })
-                .post('/logout', async (ctx, next) => {
+                // Removes login cookie
+                .post('/logout', async (ctx) => {
                     ctx.cookies.set('token', '')
                     ctx.status = HTTPStatus.NO_CONTENT
                 })

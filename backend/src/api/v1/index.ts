@@ -4,7 +4,6 @@ import { config } from '../../config'
 import { HTTPStatus } from '../../lms/errors'
 import { IArangoIndexes } from '../../lms/types'
 import { splitId } from '../../lms/util'
-import { AuthUser } from '../auth'
 import { CommentManager } from './data/comments'
 import { FilemetaManager } from './data/filemeta'
 import { ModuleManager } from './data/modules'
@@ -21,10 +20,8 @@ export function routerBuilder(version: string) {
         new Router({ prefix: `${version}/` })
             .use(
                 route('users', UserManager, (r, m) =>
-                    r.get('/self', async (ctx, next) => {
-                        let user = await AuthUser.validate(
-                            ctx.cookies.get('token')
-                        )
+                    r.get('/self', async (ctx) => {
+                        let user = ctx.state.user
 
                         ctx.body = await m.getFromDB(user, 0, user.getId())
                         ctx.status = HTTPStatus.OK
@@ -39,16 +36,11 @@ export function routerBuilder(version: string) {
             // Templates
             .use(
                 route('template/modules', ModuleTempManager, (r, m) =>
-                    r.get('/instance/:id', async (ctx, next) => {
-                        let id = m.db.keyToId(ctx.params.id)
-                        if (await m.exists(id)) {
-                            ctx.body =
-                                await ModuleTempManager.buildModuleFromId(id)
-                            ctx.status = HTTPStatus.OK
-                        } else {
-                            ctx.status = HTTPStatus.NOT_FOUND
-                            ctx.body = `${m.className} [${id}] dne`
-                        }
+                    r.get('/instance/:id', async (ctx) => {
+                        let id = await m.db.assertKeyExists(ctx.params.id)
+
+                        ctx.body = await ModuleTempManager.buildModuleFromId(id)
+                        ctx.status = HTTPStatus.OK
                     })
                 )
             )
@@ -59,17 +51,11 @@ export function routerBuilder(version: string) {
                     // Builds a project matching the passed project template ID
                     (r, m) =>
                         r.get('/instance/:id', async (ctx, next) => {
-                            let id = m.db.keyToId(ctx.params.id)
-                            if (await m.exists(id)) {
-                                ctx.body =
-                                    await ProjectTempManager.buildProjectFromId(
-                                        id
-                                    )
-                                ctx.status = HTTPStatus.OK
-                            } else {
-                                ctx.status = HTTPStatus.NOT_FOUND
-                                ctx.body = `${m.className} [${id}] dne`
-                            }
+                            let id = await m.db.assertKeyExists(ctx.params.id)
+
+                            ctx.body =
+                                await ProjectTempManager.buildProjectFromId(id)
+                            ctx.status = HTTPStatus.OK
                         })
                 )
             )
@@ -77,20 +63,19 @@ export function routerBuilder(version: string) {
             .use(route('filemeta', FilemetaManager))
             .use(
                 new Router({ prefix: 'files' })
-                    .get('/:id', async (ctx, next) => {
-                        let id = FilemetaManager.db.keyToId(ctx.params.id)
-                        if (await FilemetaManager.exists(id)) {
-                            let meta = await FilemetaManager.getFromDB(
-                                ctx.state.user,
-                                0,
-                                id
-                            )
-                            let buffer = await FilemetaManager.readLatest(meta)
-                            ctx.ok(buffer)
-                        } else {
-                            ctx.status = HTTPStatus.NOT_FOUND
-                            ctx.body = `File [${id}] dne.`
-                        }
+                    .get('/:id', async (ctx) => {
+                        let id = await FilemetaManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
+
+                        let meta = await FilemetaManager.getFromDB(
+                            ctx.state.user,
+                            0,
+                            id
+                        )
+                        let buffer = await FilemetaManager.readLatest(meta)
+
+                        ctx.ok(buffer)
                     })
                     .routes()
             )
@@ -127,7 +112,7 @@ function route<Type extends IArangoIndexes>(
         r = manager.debugRoutes(r)
     }
 
-    r.get('/', async (ctx, next) => {
+    r.get('/', async (ctx) => {
         let results = await manager.getAll(ctx.request.query)
 
         ctx.status = HTTPStatus.OK
@@ -140,18 +125,14 @@ function route<Type extends IArangoIndexes>(
         ctx.set('Access-Control-Expose-Headers', 'Content-Range')
     })
 
-    r.get('/:id', async (ctx, next) => {
-        let id = manager.db.keyToId(ctx.params.id)
-        if (await manager.exists(id)) {
-            ctx.body = await manager.getFromDB(ctx.state.user, 0, id)
-            ctx.status = HTTPStatus.OK
-        } else {
-            ctx.status = HTTPStatus.NOT_FOUND
-            ctx.body = `${manager.className} [${id}] dne.`
-        }
+    r.get('/:id', async (ctx) => {
+        let id = await manager.db.assertKeyExists(ctx.params.id)
+
+        ctx.body = await manager.getFromDB(ctx.state.user, 0, id)
+        ctx.status = HTTPStatus.OK
     })
 
-    r.post('/', async (ctx, next) => {
+    r.post('/', async (ctx) => {
         let doc: Type = await parseBody<Type>(ctx.request)
 
         let id = await manager.create(
@@ -168,44 +149,34 @@ function route<Type extends IArangoIndexes>(
         }
     })
 
-    r.put('/:id', async (ctx, next) => {
+    r.put('/:id', async (ctx) => {
         let id = manager.db.keyToId(ctx.params.id)
-        if (await manager.exists(id)) {
-            let doc: Type = await parseBody<Type>(ctx.request)
+        let doc: Type = await parseBody<Type>(ctx.request)
 
-            await manager.update(
-                ctx.state.user,
-                ctx.request.files,
-                ctx.params.id,
-                doc,
-                ctx.header['user-agent'] !== 'backend-testing'
-            )
+        await manager.update(
+            ctx.state.user,
+            ctx.request.files,
+            id,
+            doc,
+            ctx.header['user-agent'] !== 'backend-testing'
+        )
 
-            ctx.body = await manager.getFromDB(ctx.state.user, 0, ctx.params.id)
-            ctx.status = HTTPStatus.OK
-        } else {
-            ctx.status = HTTPStatus.CONFLICT
-            ctx.body = `${manager.className} [${id}] dne`
-        }
+        ctx.body = await manager.getFromDB(ctx.state.user, 0, ctx.params.id)
+        ctx.status = HTTPStatus.OK
     })
 
-    r.delete('/:id', async (ctx, next) => {
-        let id = manager.db.keyToId(ctx.params.id)
-        if (await manager.exists(id)) {
-            await manager.delete(
-                ctx.state.user,
-                id,
-                ctx.header['user-agent'] !== 'backend-testing',
-                true
-            )
-            ctx.status = HTTPStatus.OK
-            ctx.body = {
-                id: id,
-                message: `${manager.className} deleted`,
-            }
-        } else {
-            ctx.status = HTTPStatus.NOT_FOUND
-            ctx.body = `${manager.className} [${id}] dne`
+    r.delete('/:id', async (ctx) => {
+        let id = await manager.db.assertKeyExists(ctx.params.id)
+        await manager.delete(
+            ctx.state.user,
+            id,
+            ctx.header['user-agent'] !== 'backend-testing',
+            true
+        )
+        ctx.status = HTTPStatus.OK
+        ctx.body = {
+            id: id,
+            message: `${manager.className} deleted`,
         }
     })
 

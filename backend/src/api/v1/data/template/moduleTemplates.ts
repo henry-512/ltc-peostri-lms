@@ -4,6 +4,8 @@ import {
     ITask,
     ITaskTemplate,
 } from '../../../../lms/types'
+import { IStepper } from '../../../../lms/util'
+import { AuthUser } from '../../../auth'
 import { DataManager } from '../../DataManager'
 import { DBManager } from '../../DBManager'
 import { RankManager } from '../ranks'
@@ -33,6 +35,18 @@ class TaskTemplate extends DataManager<ITaskTemplate> {
                 hasCUTimestamp: true,
             }
         )
+    }
+
+    // Tasks have ids appended as part of the frontend process
+    // These are completely useless in the db, and should be removed
+    protected override modifyDoc(
+        user: AuthUser,
+        files: any,
+        doc: any
+    ): Promise<ITaskTemplate> {
+        delete doc.id
+
+        return doc
     }
 }
 
@@ -71,11 +85,14 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
 
     public async buildModuleFromId(id: string): Promise<IModule> {
         let template = await this.db.get(id)
-        return this.buildModuleFromTemplate(template)
+        return this.buildModuleFromTemplate(template, id)
     }
 
-    private buildModuleFromTemplate(temp: IModuleTemplate): IModule {
-        let tasks: { [key: string]: ITask[] } = {}
+    private buildModuleFromTemplate(
+        temp: IModuleTemplate,
+        id: string
+    ): IModule {
+        let tasks: IStepper<ITask> = {}
 
         for (let [stepName, tempArray] of Object.entries(temp.tasks)) {
             tasks[stepName] = tempArray.map((t) => {
@@ -90,11 +107,11 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
         }
 
         return {
+            id,
             title: temp.title,
             tasks: tasks,
             comments: [],
             status: 'AWAITING',
-            waive_module: temp.waive_module,
         }
     }
 }

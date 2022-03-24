@@ -51,10 +51,6 @@ export abstract class DBManager<
         this.db = new ArangoWrapper<Type>(dbName, this.fieldEntries)
     }
 
-    public async exists(id: string) {
-        return this.db.exists(id)
-    }
-
     /**
      * Retrieves a query from the server, following the passed parameters.
      * @param query An object with queryable fields.
@@ -339,11 +335,10 @@ export abstract class DBManager<
     public async update(
         user: AuthUser,
         files: any,
-        key: string,
+        id: string,
         doc: Type,
         real: boolean
     ) {
-        let id = this.db.keyToId(key)
         user.id = id
 
         // We dont need to update all elements, .update does that

@@ -16,10 +16,7 @@ const PermissionManager = new Permission()
 
 class Rank extends DBManager<IRank> {
     public async getRank(id: string): Promise<IRank> {
-        if (id && isDBId(id) && this.exists(id)) {
-            return this.db.get(id)
-        }
-        throw new TypeError(`${id} not a valid key`)
+        return this.db.get(id)
     }
 
     constructor() {

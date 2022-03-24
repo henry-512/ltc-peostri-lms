@@ -153,6 +153,46 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         return this.existsUnsafe(id)
     }
 
+    public async assertKeyExists(key: string) {
+        if (!isDBKey(key)) {
+            throw this.error(
+                'keyExists',
+                HTTPStatus.NOT_FOUND,
+                'Document not found',
+                `[${key}] is not a valid key for this collection`
+            )
+        }
+        let id = this.keyToId(key)
+        if (!this.existsUnsafe(id)) {
+            throw this.error(
+                'assertKeyExists',
+                HTTPStatus.NOT_FOUND,
+                'Document not found',
+                `[${key}] dne in this collection`
+            )
+        }
+        return id
+    }
+
+    public async assertIdExists(id: string) {
+        if (!isDBKey(id)) {
+            throw this.error(
+                'keyExists',
+                HTTPStatus.NOT_FOUND,
+                'Document not found',
+                `[${id}] is not a valid key for this collection`
+            )
+        }
+        if (!this.existsUnsafe(id)) {
+            throw this.error(
+                'assertKeyExists',
+                HTTPStatus.NOT_FOUND,
+                'Document not found',
+                `[${id}] dne in this collection`
+            )
+        }
+    }
+
     public async get(id: string) {
         if (!this.isDBId(id)) {
             throw this.error(

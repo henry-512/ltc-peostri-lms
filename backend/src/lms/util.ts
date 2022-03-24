@@ -126,6 +126,13 @@ export function appendReturnFields(q: GeneratedAqlQuery, fields: string[]) {
  * "Pointer". obj[key]
  */
 export interface PTR<T> {
-    key: string | number | symbol,
+    key: string | number | symbol
     obj: T
+}
+
+/**
+ * Arrays of T, indexed by strings
+ */
+export interface IStepper<T> {
+    [key: string]: T[]
 }

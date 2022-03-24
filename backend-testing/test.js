@@ -202,9 +202,8 @@ function test(n) {
 test('users')
 test('projects')
 
-/*
 // Clean disowned data
-describe('Disowned', function() {
+describe('Disowned', function () {
     // These are beefy functions and need beefy runtimes
     this.timeout(10000)
 
@@ -241,7 +240,10 @@ describe('Disowned', function() {
 })
 
 // Delete orphaned data
-describe('Orphans', () => {
+describe('Orphans', function () {
+    // These are beefy functions and need beefy runtimes
+    this.timeout(10000)
+
     it('del Orphan Modules', async () => {
         let r = await agent
             .set('User-Agent', 'backend-testing')
@@ -254,5 +256,16 @@ describe('Orphans', () => {
             .delete(API + 'tasks/orphan')
         expect(r.status).equal(200)
     })
+    it('del Orphan moduleTemplates', async () => {
+        let r = await agent
+            .set('User-Agent', 'backend-testing')
+            .delete(API + 'template/modules/orphan')
+        expect(r.status).equal(200)
+    })
+    it('del Orphan Filemetas', async () => {
+        let r = await agent
+            .set('User-Agent', 'backend-testing')
+            .delete(API + 'filemeta/orphan')
+        expect(r.status).equal(200)
+    })
 })
-*/

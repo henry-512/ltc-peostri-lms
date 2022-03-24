@@ -1,7 +1,5 @@
 import bcrypt from 'bcrypt'
-import { HTTPStatus } from '../../../lms/errors'
 import { IUser } from '../../../lms/types'
-import { isDBKey } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { RankManager } from './ranks'
@@ -11,15 +9,7 @@ export const DB_NAME = 'users'
 
 class User extends DBManager<IUser> {
     public async getUser(id: string): Promise<IUser> {
-        if (id && isDBKey(id) && this.exists(id)) {
-            return this.db.get(id)
-        }
-        throw this.error(
-            'getUser',
-            HTTPStatus.BAD_REQUEST,
-            'Invalid user id',
-            `${id} not a valid id`
-        )
+        return this.db.get(id)
     }
 
     constructor() {
@@ -43,7 +33,7 @@ class User extends DBManager<IUser> {
                     type: 'string',
                     optional: true,
                 },
-
+                // Auth data
                 username: {
                     type: 'string',
                     hideGetRef: true,
@@ -53,6 +43,14 @@ class User extends DBManager<IUser> {
                     hideGetAll: true,
                     hideGetId: true,
                     hideGetRef: true,
+                },
+                firstVisited: {
+                    type: 'string',
+                    optional: true,
+                },
+                lastVisited: {
+                    type: 'string',
+                    optional: true,
                 },
             },
             {
@@ -73,6 +71,11 @@ class User extends DBManager<IUser> {
             doc.password = await bcrypt.hash(doc.password, 5)
         }
         return doc
+    }
+
+    // Update the first/lastVisited fields
+    public async updateForNewLogin(id: string) {
+
     }
 }
 

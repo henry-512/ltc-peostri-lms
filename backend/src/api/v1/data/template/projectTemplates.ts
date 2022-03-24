@@ -1,5 +1,5 @@
 import { IModule, IProject, IProjectTemplate } from '../../../../lms/types'
-import { isDBId } from '../../../../lms/util'
+import { isDBId, IStepper } from '../../../../lms/util'
 import { DBManager } from '../../DBManager'
 import { ModuleTempManager } from './moduleTemplates'
 
@@ -33,17 +33,18 @@ class ProjectTemplate extends DBManager<IProjectTemplate> {
 
     public async buildProjectFromId(id: string) {
         let template = await this.db.get(id)
-        return this.buildProjectFromTemplate(template)
+        return this.buildProjectFromTemplate(template, id)
     }
 
     private async buildProjectFromTemplate(
-        temp: IProjectTemplate
+        temp: IProjectTemplate,
+        id: string
     ): Promise<IProject> {
-        let mods: { [id: string]: IModule[] } = {}
+        let mods: IStepper<IModule> = {}
 
         for (let [stepName, tempArray] of Object.entries(temp.modules)) {
             mods[stepName] = await Promise.all(
-                tempArray.map(async (i) => {
+                tempArray.map(async (i: any) => {
                     if (typeof i !== 'string') {
                         throw this.internal(
                             'buildProjectFromTemplate',
@@ -62,10 +63,11 @@ class ProjectTemplate extends DBManager<IProjectTemplate> {
         }
 
         return {
+            id,
             title: temp.title,
             start: new Date().toJSON(),
             end: new Date().toJSON(),
-            status: 'AWAITING',
+            status: temp.status,
             comments: [],
             modules: mods,
             users: [],

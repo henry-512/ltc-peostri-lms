@@ -1,3 +1,5 @@
+import { IStepper } from "./util"
+
 export type Status = 'IN_PROGRESS' | 'COMPLETED' | 'ARCHIVED' | 'AWAITING'
 export type TaskTypes =
     | 'DOCUMENT_UPLOAD'
@@ -41,9 +43,8 @@ export interface IFilemeta extends IArangoIndexes, ICreateUpdate {
 
 export interface IModuleTemplate extends IArangoIndexes {
     title: string
-    tasks: { [id: string]: ITaskTemplate[] }
+    tasks: IStepper<ITaskTemplate>
     status: Status | 'WAIVED'
-    waive_module: boolean
 }
 
 export interface IWaiveData {
@@ -54,18 +55,17 @@ export interface IWaiveData {
 
 export interface IModule extends IArangoIndexes {
     title: string
-    tasks: { [id: string]: ITask[] | string[] }
+    tasks: IStepper<ITask> | IStepper<string>
     comments: Array<string> | Array<IComment>
     project?: string
     status: Status | 'WAIVED'
-    waive_module: boolean
     files?: string[] | IFilemeta[]
 }
 
 export interface IProjectTemplate extends IArangoIndexes, ICreateUpdate {
     title: string
     status: Status
-    modules: { [id: string]: IModule[] | string[] }
+    modules: IStepper<IModuleTemplate> | IStepper<string>
 }
 
 export interface IProject extends IArangoIndexes, ICreateUpdate {
@@ -74,7 +74,7 @@ export interface IProject extends IArangoIndexes, ICreateUpdate {
     end: string | Date
     status: Status
     comments: Array<string> | Array<IComment>
-    modules: { [id: string]: IModule[] | string[] }
+    modules: IStepper<IModule> | IStepper<string>
     users: Array<string> | Array<IUser>
 }
 

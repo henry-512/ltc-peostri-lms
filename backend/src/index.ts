@@ -40,17 +40,16 @@ apiRouter().then(
             } catch (e: any) {
                 // The error is not an API error
                 if (e instanceof APIError) {
-                    let err = e as APIError
-                    err.path = ctx.request.url
-                    err.method = ctx.request.method
+                    e.path = ctx.request.url
+                    e.method = ctx.request.method
 
                     console.log(
-                        `ERROR: ${err.method}:${err.path} ${err.apiName}.${err.fn} ${err.status}:\n  Message: ${err.message}\n  Verbose: ${err.verbose}\n${err.stack}`
+                        `ERROR: ${e.method}:${e.path} ${e.apiName}.${e.fn} ${e.status}:\n  Message: ${e.message}\n  Verbose: ${e.verbose}\n${e.stack}`
                     )
 
-                    ctx.status = err.status
+                    ctx.status = e.status
                     ctx.body = {
-                        error: err.message,
+                        error: e.message,
                     }
                 } else {
                     console.log('Non-api error thrown:')
