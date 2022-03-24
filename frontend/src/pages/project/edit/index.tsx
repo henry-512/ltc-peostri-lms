@@ -38,9 +38,9 @@ const ProjectEdit = (props: any) => {
           <Edit title={translate('project.edit.title')} {...props} transform={transformer}>
                <Stepper validate={validateProject} {...props}>
 
-                    <General classes={classes} title={translate('project.steps.general')} style={{ width: "100%" }} validator="general" {...props} isCreate={false}/>
+                    <General classes={classes} title={translate('project.steps.general')} style={{ width: "100%" }} validator="general" {...props}/>
 
-                    <Modules classes={classes} title={translate('project.steps.modules')} className={classes.content} validator="modules" {...props} isCreate={false}/>
+                    <Modules classes={classes} title={translate('project.steps.modules')} className={classes.content} validator="modules" {...props}/>
 
                     {/*<Review classes={classes} title={translate('project.steps.review')} className={classes.content} validator="" {...props}/>*/}
 

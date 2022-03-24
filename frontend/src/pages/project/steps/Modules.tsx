@@ -32,7 +32,7 @@ const Modules = (props: any) => {
         <>
             <Step validator={props.validator} {...props}>
                 <FormGroupContextProvider name={props.validator}>    
-                    <ModuleManager isCreate={props.isCreate} calculateTTC={recalculateTTC} />         
+                    <ModuleManager calculateTTC={recalculateTTC} />         
                 </FormGroupContextProvider>
             </Step>
         </>

@@ -38,9 +38,9 @@ export default function ProjectCreate(props: any) {
           <Create title={translate('project.create.title')} {...props} transform={transformer}>
                <Stepper validate={validateProject} create>
 
-                    <General classes={classes} title={translate('project.steps.general')} style={{ width: "100%" }} validator="general" {...props} isCreate={true}/>
+                    <General classes={classes} title={translate('project.steps.general')} style={{ width: "100%" }} validator="general" {...props}/>
 
-                    <Modules classes={classes} title={translate('project.steps.modules')} className={classes.content} validator="modules" {...props} isCreate={true}/>
+                    <Modules classes={classes} title={translate('project.steps.modules')} className={classes.content} validator="modules" {...props}/>
 
                     {/*<Review classes={classes} title={translate('project.steps.review')} className={classes.content} validator="" {...props}/>*/}
                     

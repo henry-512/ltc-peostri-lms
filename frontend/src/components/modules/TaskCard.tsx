@@ -31,11 +31,10 @@ type TaskCardProps = {
     baseSource?: string,
     fixKey: Function,
     fields?: JSX.Element,
-    isCreate?: boolean,
     calculateTTC?: Function
 }
 
-const TaskCard = ({ info, index, stepKey, baseSource, fixKey, fields, isCreate, calculateTTC }: TaskCardProps) => {
+const TaskCard = ({ info, index, stepKey, baseSource, fixKey, fields, calculateTTC }: TaskCardProps) => {
     const translate = useTranslate();
     const classes = useStyles();
 
@@ -108,7 +107,7 @@ const TaskCard = ({ info, index, stepKey, baseSource, fixKey, fields, isCreate, 
                             deleteAction={deleteCreator}
                             maxWidth="md"
                         >
-                            {(fields) ? React.cloneElement(fields, { getSource: getSource, initialValues: info }) : <TaskFields getSource={getSource} initialValues={info} isCreate={isCreate} calculateTTC={calculateTTC} />}
+                            {(fields) ? React.cloneElement(fields, { getSource: getSource, initialValues: info }) : <TaskFields getSource={getSource} initialValues={info} calculateTTC={calculateTTC} />}
                         </Creator>
                     </div>
                 )}

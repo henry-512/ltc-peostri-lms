@@ -38,23 +38,13 @@ const General = (props: any) => {
                                 />
                             </Grid>
                             <Grid item xs={3}>
-                                {(props.isCreate) ?
-                                    <NumberInput
-                                        source="ttc"
-                                        label="template.project.fields.ttc"
-                                        fullWidth
-                                        helperText="template.project.fields.ttc_help"
-                                        disabled
-                                    />
-                                :
-                                    <DateInput
-                                        label={translate('project.fields.end')}
-                                        source="end"
-                                        required
-                                        fullWidth
-                                        helperText=" "
-                                    />
-                                }
+                                <NumberInput
+                                    source="ttc"
+                                    label="template.project.fields.ttc"
+                                    fullWidth
+                                    helperText="template.project.fields.ttc_help"
+                                    disabled
+                                />
                             </Grid>
                         </Grid>
                     </Grid>

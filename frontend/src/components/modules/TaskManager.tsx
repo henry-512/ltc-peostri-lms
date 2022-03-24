@@ -12,7 +12,6 @@ import React from 'react';
 type TaskManagerProps = {
     source: string,
     fields?: JSX.Element,
-    isCreate?: boolean
     calculateTTC?: Function
 }
 
@@ -84,7 +83,7 @@ const TaskManager = (props: TaskManagerProps) => {
                 changeOnAction={false}
                 updateForm={updateStep}
             >
-                <TaskCard baseSource={props.source} fixKey={setCurKey} fields={props.fields} calculateTTC={props.calculateTTC} isCreate={props.isCreate}/>
+                <TaskCard baseSource={props.source} fixKey={setCurKey} fields={props.fields} calculateTTC={props.calculateTTC}/>
             </Steps>
             <Creator
                 label={translate('project.layout.create_task')}
@@ -96,7 +95,7 @@ const TaskManager = (props: TaskManagerProps) => {
                 create
                 maxWidth="md"
             >
-                {(props.fields) ? React.cloneElement(props.fields, {getSource: getNewSource}) : <TaskFields getSource={getNewSource} calculateTTC={props.calculateTTC} isCreate={props.isCreate} />}
+                {(props.fields) ? React.cloneElement(props.fields, {getSource: getNewSource}) : <TaskFields getSource={getNewSource} calculateTTC={props.calculateTTC} />}
             </Creator>
         </>
     )

@@ -34,7 +34,6 @@ const useStyles = makeStyles(theme => ({
 type ModuleFieldsProps = {
     getSource: Function,
     initialValues?: any,
-    isCreate?: boolean,
     calculateTTC?: Function
 }
 
@@ -106,23 +105,13 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                 </Grid>
 
                 <Grid item xs={3}>
-                    {(props.isCreate) ?
-                        <NumberInput
-                            source={getSource?.('ttc') || ""}
-                            label="template.module.fields.ttc"
-                            fullWidth
-                            helperText="template.module.fields.ttc_help"
-                            disabled
-                        />
-                    :
-                        <DateInput
-                            label={translate('project.fields.suspense')}
-                            source={getSource?.('suspense') || ""}
-                            required
-                            fullWidth
-                            helperText=" "
-                        />
-                    }
+                    <NumberInput
+                        source={getSource?.('ttc') || ""}
+                        label="template.module.fields.ttc"
+                        fullWidth
+                        helperText="template.module.fields.ttc_help"
+                        disabled
+                    />
                 </Grid>
 
                 <Grid item xs={2} style={{
@@ -155,7 +144,7 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                 marginTop: '.5rem'
             }}>
                 <Grid item xs={12}>
-                    <TaskManager source={getSource?.('tasks') || ""} isCreate={props.isCreate} calculateTTC={recalculateTTC} />
+                    <TaskManager source={getSource?.('tasks') || ""} calculateTTC={recalculateTTC} />
                 </Grid>
             </Grid>
         </>

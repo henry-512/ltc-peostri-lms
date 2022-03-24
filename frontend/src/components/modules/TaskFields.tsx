@@ -33,7 +33,6 @@ type TaskFieldsProps = {
     getSource: Function,
     initialValues?: any,
     calculateTTC?: Function
-    isCreate?: boolean
 }
 
 const TaskFields = (props: TaskFieldsProps) => {
@@ -96,7 +95,7 @@ const TaskFields = (props: TaskFieldsProps) => {
                     />
                 </Grid>
 
-                <Grid item xs={(props.isCreate) ? 6 : 4} style={{ marginTop: '-32px' }}>
+                <Grid item xs={6} style={{ marginTop: '-32px' }}>
                     <ReferenceInput
                         label="project.fields.rank"
                         reference="ranks"
@@ -111,19 +110,17 @@ const TaskFields = (props: TaskFieldsProps) => {
                     </ReferenceInput>
                 </Grid>
 
-                {(props.isCreate) ?
-                    <Grid item xs={6} style={{ marginTop: '-32px' }}>
-                        <NumberInput
-                            source={getSource?.('ttc') || ""}
-                            label="template.module.fields.ttc"
-                            fullWidth
-                            helperText=" "
-                            validate={[required()]}
-                        />
-                    </Grid>
-                : null }
+                <Grid item xs={6} style={{ marginTop: '-32px' }}>
+                    <NumberInput
+                        source={getSource?.('ttc') || ""}
+                        label="template.module.fields.ttc"
+                        fullWidth
+                        helperText=" "
+                        validate={[required()]}
+                    />
+                </Grid>
 
-                <Grid item xs={(props.isCreate) ? 12 : 8 } style={{ marginTop: '-32px' }}>
+                <Grid item xs={12} style={{ marginTop: '-32px' }}>
                     <ReferenceArrayInput
                         label="project.fields.member"
                         reference="users"
