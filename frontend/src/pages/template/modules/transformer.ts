@@ -4,7 +4,7 @@ const transformer = (data: IModuleTemplate) => {
 
     //Remove empty steps.
     for (let [stepKey, step] of Object.entries<ITaskTemplate[]>(data.tasks)) {
-        console.log(stepKey)
+        //console.log(stepKey)
         if (step.length <= 0) {
             delete data.tasks[stepKey];
         }
