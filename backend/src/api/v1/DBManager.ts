@@ -226,7 +226,7 @@ export abstract class DBManager<
             },
             // data
             // Warp return values
-            (v, data) => data.distortOnGet ? data.distortOnGet(v) : v,
+            (v, data) => (data.distortOnGet ? data.distortOnGet(v) : v),
             // other
             async (v, data) => {
                 if (typeof v === data.type) {
