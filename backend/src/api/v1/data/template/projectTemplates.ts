@@ -32,12 +32,11 @@ class ProjectTemplate extends DBManager<IProjectTemplate> {
 
     public async buildProjectFromId(id: string) {
         let template = await this.db.get(id)
-        return this.buildProjectFromTemplate(template, id)
+        return this.buildProjectFromTemplate(template)
     }
 
     private async buildProjectFromTemplate(
-        temp: IProjectTemplate,
-        id: string
+        temp: IProjectTemplate
     ): Promise<IProject> {
         let mods: IStepper<IModule> = {}
 
@@ -62,7 +61,7 @@ class ProjectTemplate extends DBManager<IProjectTemplate> {
         }
 
         return {
-            id,
+            id: 'PraygeDeleteThis',
             title: temp.title,
             start: new Date().toJSON(),
             suspense: new Date().toJSON(),

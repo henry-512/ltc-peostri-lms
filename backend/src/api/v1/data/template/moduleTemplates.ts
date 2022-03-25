@@ -80,13 +80,10 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
 
     public async buildModuleFromId(id: string): Promise<IModule> {
         let template = await this.db.get(id)
-        return this.buildModuleFromTemplate(template, id)
+        return this.buildModuleFromTemplate(template)
     }
 
-    private buildModuleFromTemplate(
-        temp: IModuleTemplate,
-        id: string
-    ): IModule {
+    private buildModuleFromTemplate(temp: IModuleTemplate): IModule {
         let tasks: IStepper<ITask> = {}
 
         for (let [stepName, tempArray] of Object.entries(temp.tasks)) {
@@ -103,7 +100,7 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
         }
 
         return {
-            id,
+            id: 'PraygeDeleteThis',
             title: temp.title,
             tasks: tasks,
             comments: [],
