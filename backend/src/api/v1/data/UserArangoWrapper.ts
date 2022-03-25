@@ -34,7 +34,6 @@ export class UserArangoWrapper extends ArangoWrapper<IUser> {
             if (filter.q) {
                 query = aql`${query} FILTER CONTAINS(${k},${filter.q})`
             }
-            console.log(query)
         }
 
         query = sort.ref

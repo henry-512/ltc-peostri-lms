@@ -302,7 +302,8 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         doc: Type,
         real: boolean
     ) {
-        // user.id = id
+        // doc.id is a KEY here and needs to be converted
+        doc.id = id
 
         // We dont need to update all elements, .update does that
         // automatically for us :)
@@ -325,7 +326,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             }
             for (let d of docs) {
                 if (!d.id || !this.db.isDBId(d.id)) {
-                    throw this.internal('create', `${d.id} invalid`)
+                    throw this.internal('create', `ID ${d.id} invalid in document ${JSON.stringify(d)}`)
                 }
                 if (await api.db.exists(d.id)) {
                     console.log(

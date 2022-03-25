@@ -130,7 +130,6 @@ export class DataManager<Type> extends IErrorable {
                     value = Array.isArray(value) ? value : [value]
 
                     if (value.length === 0) {
-                        console.log(`${str(data)} empty array passed`)
                         break
                     }
 

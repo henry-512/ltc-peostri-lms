@@ -68,14 +68,7 @@ class Project extends DBManager<IProject> {
         doc: any
     ): Promise<IProject> {
         if (typeof doc.ttc !== 'number') {
-            delete doc.ttc
-            return doc
-            // throw this.error(
-            //     'modifyDoc',
-            //     HTTPStatus.BAD_REQUEST,
-            //     'Unexpected type',
-            //     `${doc.ttc} ttc missing`
-            // )
+            doc.ttc = 1
         }
 
         // Calculate start dates from TTC values
@@ -127,8 +120,7 @@ class Project extends DBManager<IProject> {
         let max = 0
         for (let mod of modules) {
             if (typeof mod.ttc !== 'number') {
-                console.log(mod.ttc)
-                continue
+                mod.ttc = 1
             }
 
             if (typeof mod.tasks !== 'object') {
@@ -179,12 +171,7 @@ class Project extends DBManager<IProject> {
         let max = 0
         for (let task of tasks) {
             if (typeof task.ttc !== 'number') {
-                throw this.error(
-                    'getTaskTTCMax',
-                    HTTPStatus.BAD_REQUEST,
-                    'Invalid type',
-                    `${task.ttc} expected number`
-                )
+                task.ttc = 1
             }
 
             max = Math.max(max, task.ttc)
