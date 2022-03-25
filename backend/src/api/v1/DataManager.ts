@@ -310,7 +310,8 @@ export class DataManager<Type> extends IErrorable {
         files: any,
         a: Type,
         exists: boolean,
-        map: Map<DataManager<any>, any[]>
+        map: Map<DataManager<any>, any[]>,
+        lastDBId: string
     ): Promise<Type> {
         // Modify this document, if required
         let doc = await this.modifyDoc(user, files, a)
@@ -352,7 +353,7 @@ export class DataManager<Type> extends IErrorable {
 
         // The doucment currently in the DB with this ID
         let fetched: any
-        // Id
+        // Id. Either a valid ID if this is a foreign document or undefined
         let id = (<any>doc).id
 
         doc = await this.mapEachField(
@@ -411,7 +412,7 @@ export class DataManager<Type> extends IErrorable {
             // foreign
             async (v, d) => d.foreignApi.parseGet(user, files, v, d, map, id),
             // data
-            async (v, d) => d.foreignData.parseGet(user, files, v, d, map, id),
+            async (v, d) => d.foreignData.parseGet(user, files, v, d, map, id ?? lastDBId),
             // other
             async (value, data) => {
                 if (typeof value === data.type) {
@@ -477,8 +478,8 @@ export class DataManager<Type> extends IErrorable {
                 let built = await this.buildFromString(user, files, doc, par)
                 if (built !== undefined) {
                     // Verify id and add to call stack
+                    let id = (<any>built).id
                     if (data.foreignApi) {
-                        let id = (<any>built).id
                         if (!id || !data.foreignApi.db.isDBId(id)) {
                             throw this.internal(
                                 'parseGet',
@@ -491,10 +492,11 @@ export class DataManager<Type> extends IErrorable {
                         files,
                         built,
                         false,
-                        map
+                        map,
+                        id ?? par
                     )
                     // Return either the id reference or the built object
-                    return data.foreignApi ? (<any>built).id : built
+                    return data.foreignApi ? id : built
                 }
             }
 
@@ -517,7 +519,7 @@ export class DataManager<Type> extends IErrorable {
 
             // Non-foreign documents are verified directly
             if (!data.foreignApi) {
-                return this.verifyAddedDocument(user, files, doc, false, map)
+                return this.verifyAddedDocument(user, files, doc, false, map, par)
             }
 
             let db = data.foreignApi.db
@@ -559,7 +561,7 @@ export class DataManager<Type> extends IErrorable {
 
             // Set new/modified id
             doc.id = id
-            await this.verifyAddedDocument(user, files, doc, exists, map)
+            await this.verifyAddedDocument(user, files, doc, exists, map, id)
             return id
         }
         throw this.error(

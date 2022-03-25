@@ -236,7 +236,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         // Turns a fully-dereferenced document into a reference
         // document
         let map = new Map<DataManager<any>, any[]>()
-        await this.verifyAddedDocument(user, files, d, false, map)
+        await this.verifyAddedDocument(user, files, d, false, map, id)
 
         real || console.log('FAKING CREATE')
         // Saves each document in the map to its respective collection
@@ -313,7 +313,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         // }
 
         let map = new Map<DataManager<any>, any[]>()
-        await this.verifyAddedDocument(user, files, doc, true, map)
+        await this.verifyAddedDocument(user, files, doc, true, map, id)
 
         real || console.log('FAKING UPDATE')
         // Updates each document in the map to its respective collection
