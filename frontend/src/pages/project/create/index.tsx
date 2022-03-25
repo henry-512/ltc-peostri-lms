@@ -34,11 +34,9 @@ export default function ProjectCreate(props: any) {
     const translate = useTranslate();
     const classes = useStyles();
 
-    console.log(props);
-
     return (
         <Create title={translate('project.create.title')} {...props} transform={transformer}>
-            <Stepper validate={validateProject} create={true} initialValues={props.history.location.state.record}>
+            <Stepper validate={validateProject} create={true} initialValues={props.history?.location?.state?.record || {}}>
 
                 <General classes={classes} title={translate('project.steps.general')} style={{ width: "100%" }} validator="general" {...props} />
 

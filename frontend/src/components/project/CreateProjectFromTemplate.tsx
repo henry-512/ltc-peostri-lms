@@ -4,7 +4,7 @@ import CreateProjectFromTemplateButton from "./CreateProjectFromTemplateButton";
 import CreateProjectFromTemplateDialog from "./CreateProjectFromTemplateDialog";
 
 type CreateProjectFromTemplateProps = {
-
+    variant?: 'contained' | 'outlined' | 'text'
 }
 
 const CreateProjectFromTemplate = (props: CreateProjectFromTemplateProps) => {
@@ -13,7 +13,7 @@ const CreateProjectFromTemplate = (props: CreateProjectFromTemplateProps) => {
 
     return (
         <>
-            <CreateProjectFromTemplateButton label="project.create.from_template" onClick={() => setDialogOpen(true)} />
+            <CreateProjectFromTemplateButton label="project.create.from_template" onClick={() => setDialogOpen(true)} variant={(props.variant) ? props.variant : undefined} />
             <SimpleForm 
                 hidden
                 toolbar={<></>}

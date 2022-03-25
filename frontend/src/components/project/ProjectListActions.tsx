@@ -66,7 +66,7 @@ const ProjectListActions: FC<ListActionsProps> = props => {
                         context: 'button',
                     })
                 }
-                <CreateProjectFromTemplate />
+                <CreateProjectFromTemplate variant="text" />
                 {hasCreate && <CreateButton basePath={basePath} />}
                 {exporter !== false && (
                     <ExportButton
