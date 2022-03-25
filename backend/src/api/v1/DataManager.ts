@@ -1,4 +1,3 @@
-import { stringify } from 'uuid'
 import { config } from '../../config'
 import { HTTPStatus, IErrorable } from '../../lms/errors'
 import {
@@ -9,6 +8,7 @@ import {
 import { ICreateUpdate } from '../../lms/types'
 import { isDBId, isDBKey, PTR, str } from '../../lms/util'
 import { AuthUser } from '../auth'
+import { DBManager } from './DBManager'
 
 export class DataManager<Type> extends IErrorable {
     protected hasCUTimestamp: boolean
@@ -94,7 +94,7 @@ export class DataManager<Type> extends IErrorable {
     protected async mapEachField(
         doc: any,
         // Runs for all keys. Returns true if this key should be skipped
-        allFn: (pointer: PTR<any>, data: IFieldData) => boolean,
+        allFn: (pointer: PTR<any>, data: IFieldData) => Promise<boolean>,
         // Runs for each foreign key
         foreignFn: (value: any, data: IForeignFieldData) => Promise<any>,
         // Runs for each data key
@@ -105,7 +105,7 @@ export class DataManager<Type> extends IErrorable {
         parentFn: (value: any, data: IFieldData) => Promise<any>
     ): Promise<any> {
         for (let [key, data] of this.fieldEntries) {
-            if (allFn({ obj: doc, key }, data)) {
+            if (await allFn({ obj: doc, key }, data)) {
                 continue
             }
 
@@ -352,11 +352,13 @@ export class DataManager<Type> extends IErrorable {
             )
         }
 
-        console.log(doc)
+        // The doucment currently in the DB with this ID
+        let fetched: any
+
         doc = await this.mapEachField(
             doc,
             // all
-            (pointer, data) => {
+            async (pointer, data) => {
                 let k = pointer.key
                 let o = pointer.obj
                 // Check for missing fields
@@ -370,12 +372,23 @@ export class DataManager<Type> extends IErrorable {
                     o[k] = data.default
                     return false
                 } else if (data.optional) {
-                    console.warn(`optional key ${String(k)} dne`)
+                    console.warn(
+                        `optional key ${String(k)} for ${str(data)} dne`
+                    )
                     return true
                 } else if (exists) {
-                    console.warn(
-                        `key ${String(k)} is missing in revised document`
-                    )
+                    // Pull missing elements from the database
+                    if (!fetched) {
+                        if (!(<any>this).db) {
+                            throw this.internal(
+                                'verifyAddedDocument.mapEachField',
+                                `${this.className} is not a DBManager, yet contains a missing element and exists in the DB.`
+                            )
+                        }
+                        fetched = await (<any>this).db.get(user.id)
+                    }
+                    o[k] = fetched[k]
+                    // Elements in the db are assumed to be valid
                     return true
                 }
                 throw this.error(

@@ -83,10 +83,13 @@ class Project extends DBManager<IProject> {
             )
         }
 
+        // Start date of the project
         let start = new Date(doc.start)
 
+        // Calculate total time for all modules
         let total = this.getModuleTTCTotal(modules, start, 0)
 
+        // Calculate suspense date
         doc.suspense = addDays(start, total + doc.ttc).toJSON()
 
         return doc
@@ -110,6 +113,7 @@ class Project extends DBManager<IProject> {
                 )
             }
 
+            // Add the maximum-length task for this module step
             total += this.getModuleTTCMax(modStep, start, total + offset)
         }
         return total

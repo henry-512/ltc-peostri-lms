@@ -3,12 +3,12 @@ import {
     ArangoWrapper,
     IFilterOpts,
     IGetAllQueryResults,
-    IQueryGetOpts,
+    IQueryGetOpts
 } from '../../database'
 import { APIError, HTTPStatus } from '../../lms/errors'
 import { IFieldData, IForeignFieldData } from '../../lms/FieldData'
 import { IArangoIndexes } from '../../lms/types'
-import { convertToKey, isDBKey, IStepper, splitId } from '../../lms/util'
+import { convertToKey, splitId } from '../../lms/util'
 import { AuthUser } from '../auth'
 import { DataManager } from './DataManager'
 
@@ -168,7 +168,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         return this.mapEachField(
             doc,
             // all
-            (p, data) => {
+            async (p, data) => {
                 if (data.hideGetId) {
                     delete p.obj[p.key]
                     return true
@@ -226,8 +226,6 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         // Generate a new ID for this document
         let id = this.db.generateDBID()
         d.id = id
-
-        console.log(JSON.stringify(d,null,2))
 
         // The passed document has a parent key, so we need to
         // update the parent to include this document
@@ -315,7 +313,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
 
         let map = new Map<DataManager<any>, any[]>()
         let stack = [id]
-        await this.verifyAddedDocument(user, files, doc, false, map, stack)
+        await this.verifyAddedDocument(user, files, doc, true, map, stack)
 
         real || console.log('FAKING UPDATE')
         // Updates each document in the map to its respective collection
