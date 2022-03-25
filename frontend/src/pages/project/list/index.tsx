@@ -45,7 +45,7 @@ const ProjectList = (props: ListProps) => {
                         <DateField source="createdAt" showTime />
                         <DateField source="updatedAt" showTime />
                         <DateField source="start" locales="en-US" options={{ timeZone: 'UTC' }} />
-                        <DateField source="end" locales="en-US" options={{ timeZone: 'UTC' }} />
+                        <DateField source="suspense" locales="en-US" options={{ timeZone: 'UTC' }} />
                         <TextField source="status" />
                     </Datagrid>
                </List>
