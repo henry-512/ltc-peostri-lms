@@ -94,6 +94,11 @@ class Module extends DBManager<IModule> {
                 foreignData: WaiveManager,
                 optional: true,
             },
+            ttc: {
+                type: 'number',
+                optional: true,
+                hideGetAll: true,
+            },
         })
     }
 

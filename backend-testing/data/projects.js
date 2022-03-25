@@ -4,7 +4,7 @@ let d = {
     structure: {
         title: { type: 'string' },
         start: { type: 'string' },
-        end: { type: 'string' },
+        suspense: { type: 'string' },
         status: { type: 'string', default: 'AWAITING' },
         comments: {
             type: 'fkeyArray',
@@ -35,7 +35,6 @@ let d = {
                 title: 'Project',
                 users: [debugUserId],
                 start: '2022-11-11',
-                end: '2022-11-11',
                 modules: {
                     'key-0': [
                         {
@@ -59,7 +58,6 @@ let d = {
                 title: 'Project',
                 users: [debugUserId],
                 start: '2022-11-11',
-                end: '2022-11-11',
                 comments: 'Some comment',
                 modules: {
                     'key-0': [
@@ -84,7 +82,6 @@ let d = {
                 title: 'Project',
                 users: [debugUserId],
                 start: '2022-11-11',
-                end: '2022-11-11',
                 modules: {
                     'key-0': [
                         {
@@ -109,7 +106,6 @@ let d = {
                 title: 'Project',
                 users: [debugUserId],
                 start: '2022-11-11',
-                end: '2022-11-11',
                 modules: {
                     'key-0': [
                         {
@@ -207,7 +203,6 @@ let d = {
                 title: 'Project',
                 users: [debugUserId],
                 start: '2022-11-11',
-                end: '2022-11-11',
                 modules: {
                     'key-0': [
                         {
@@ -236,7 +231,6 @@ let d = {
             d: {
                 users: [debugUserId],
                 start: '2022-11-11',
-                end: '2022-11-11',
                 modules: {
                     'key-0': [
                         {
@@ -260,7 +254,6 @@ let d = {
                 title: 'Project',
                 users: [debugUserId],
                 start: '2022-11-11',
-                end: '2022-11-11',
             },
         },
         {
@@ -269,7 +262,6 @@ let d = {
                 title: 'Project',
                 users: [debugUserId],
                 start: '2022-11-11',
-                end: '2022-11-11',
                 modules: {
                     title: 'Module 0-0',
                     tasks: {
@@ -289,7 +281,6 @@ let d = {
                 title: 'Project',
                 users: [debugUserId],
                 start: '2022-11-11',
-                end: '2022-11-11',
                 modules: [
                     {
                         title: 'Module 0-0',
@@ -311,7 +302,6 @@ let d = {
                 title: 'Project',
                 users: [debugUserId],
                 start: '2022-11-11',
-                end: '2022-11-11',
                 modules: {
                     'key-0': [
                         {
@@ -334,7 +324,6 @@ let d = {
                 title: 'Project',
                 users: [debugUserId],
                 start: '2022-11-11',
-                end: '2022-11-11',
                 modules: {
                     'key-0': [
                         {
@@ -357,7 +346,6 @@ let d = {
                 title: 'Project',
                 users: [':)'],
                 start: '2022-11-11',
-                end: '2022-11-11',
                 modules: {
                     'key-0': [
                         {

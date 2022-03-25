@@ -56,6 +56,7 @@ export interface IWaiveData {
 
 export interface IModule extends IArangoIndexes {
     ttc?: number
+    suspense?: string | Date
     title: string
     tasks: IStepper<ITask> | IStepper<string>
     comments: Array<string> | Array<IComment>

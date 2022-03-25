@@ -222,31 +222,12 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         )
     }
 
-    // protected override async verifyAddedDocument(
-    //     user: AuthUser,
-    //     files: any,
-    //     addDoc: Type,
-    //     exists: boolean,
-    //     map: Map<DataManager<any>, any[]>,
-    //     stack: string[]
-    // ): Promise<Type> {
-    //     // Used for frontend mangement, redundant in DB
-    //     // delete addDoc.id
-
-    //     return super.verifyAddedDocument(
-    //         user,
-    //         files,
-    //         addDoc,
-    //         exists,
-    //         map,
-    //         stack
-    //     )
-    // }
-
     public async create(user: AuthUser, files: any, d: Type, real: boolean) {
         // Generate a new ID for this document
         let id = this.db.generateDBID()
         d.id = id
+
+        console.log(JSON.stringify(d,null,2))
 
         // The passed document has a parent key, so we need to
         // update the parent to include this document
@@ -282,6 +263,11 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                     continue
                 }
                 for (let doc of docs) {
+                    if (doc._key) {
+                        doc.id = doc._key
+                        delete doc._key
+                    }
+
                     let id = doc.id
 
                     if (!id || !api.db.isDBId(id)) {

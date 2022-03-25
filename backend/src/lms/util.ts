@@ -136,3 +136,8 @@ export interface PTR<T> {
 export interface IStepper<T> {
     [key: string]: T[]
 }
+
+export const str = (obj: any) =>
+    JSON.stringify(obj, function (k, v) {
+        return k && v && typeof v !== 'number' ? '' + v : v
+    })

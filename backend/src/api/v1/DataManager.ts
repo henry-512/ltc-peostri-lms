@@ -1,3 +1,4 @@
+import { stringify } from 'uuid'
 import { config } from '../../config'
 import { HTTPStatus, IErrorable } from '../../lms/errors'
 import {
@@ -6,7 +7,7 @@ import {
     IForeignFieldData,
 } from '../../lms/FieldData'
 import { ICreateUpdate } from '../../lms/types'
-import { isDBId, isDBKey, PTR } from '../../lms/util'
+import { isDBId, isDBKey, PTR, str } from '../../lms/util'
 import { AuthUser } from '../auth'
 
 export class DataManager<Type> extends IErrorable {
@@ -126,6 +127,13 @@ export class DataManager<Type> extends IErrorable {
                     doc[key] = await foreignFn(value, data as IForeignFieldData)
                     break
                 case 'array':
+                    value = Array.isArray(value) ? value : [value]
+
+                    if (value.length === 0) {
+                        console.log(`${str(data)} empty array passed`)
+                        break
+                    }
+
                     if (data.foreignApi) {
                         let d = data as IForeignFieldData
                         doc[key] = await Promise.all(
@@ -246,9 +254,7 @@ export class DataManager<Type> extends IErrorable {
                 default:
                     throw this.internal(
                         'forEachForeignKey',
-                        `${JSON.stringify(
-                            data
-                        )} has invalid .type field (expected foreign key)`
+                        `${data} has invalid .type field (expected foreign key)`
                     )
             }
         }
@@ -347,6 +353,7 @@ export class DataManager<Type> extends IErrorable {
             )
         }
 
+        console.log(doc)
         doc = await this.mapEachField(
             doc,
             // all
@@ -433,9 +440,13 @@ export class DataManager<Type> extends IErrorable {
             if (data.foreignApi) {
                 let db = data.foreignApi.db
                 // Check if foreign key reference is valid
-                if (await db.tryExists(doc)) {
-                    return doc
+                if (db.isKeyOrId(doc)) {
+                    let id = db.asId(doc)
+                    if (await db.tryExists(id)) {
+                        return id
+                    }
                 }
+                console.warn(`expected key, got ${doc}, trying bfs`)
             }
 
             // Build a new document from a string
@@ -456,16 +467,20 @@ export class DataManager<Type> extends IErrorable {
                                 `buildFromString on ${this.className} returns document without id field`
                             )
                         }
+                        console.log('aaaaaaa')
+                        console.log(id)
                         stack.push(id)
                     }
                     built = await this.verifyAddedDocument(
                         user,
                         files,
                         built,
-                        true,
+                        false,
                         map,
                         stack
                     )
+                    console.log('zzzzzzzzz')
+                    console.log(built)
                     // Return either the id reference or the built object
                     return data.foreignApi ? stack.pop() : built
                 }
@@ -516,15 +531,17 @@ export class DataManager<Type> extends IErrorable {
                 id = db.keyToId(doc.id)
                 exists = await db.exists(id)
 
+                // If this is new
                 if (!exists) {
-                    if (data.acceptNewDoc) {
+                    // And we allow new documents
+                    if (!data.acceptNewDoc) {
                         throw this.error(
                             'parseGet',
                             HTTPStatus.BAD_REQUEST,
                             'New document unauthorized',
                             `New documents [${JSON.stringify(
                                 doc
-                            )}] not acceptable for type ${JSON.stringify(data)}`
+                            )}] not acceptable for type ${str(data)}`
                         )
                     }
 
@@ -547,7 +564,7 @@ export class DataManager<Type> extends IErrorable {
             'Invalid foreign object',
             `[${JSON.stringify(
                 doc
-            )}] is not a foreign document or reference for data [${data.type}]`
+            )}] is not a foreign document or reference for data [${str(data)}]`
         )
     }
 
@@ -564,7 +581,7 @@ export class DataManager<Type> extends IErrorable {
     }
 
     /**
-     * Rebuilds a doc, if required. Called before verifying any fields.
+     * Modifies a doc, if required. Called before verifying any fields.
      */
     protected async modifyDoc(
         user: AuthUser,

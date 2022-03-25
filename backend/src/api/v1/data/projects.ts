@@ -52,6 +52,11 @@ class Project extends DBManager<IProject> {
                     getIdKeepAsRef: true,
                     foreignApi: UserManager,
                 },
+                ttc: {
+                    type: 'number',
+                    optional: true,
+                    hideGetAll: true,
+                },
             },
             { hasCUTimestamp: true }
         )
@@ -65,6 +70,12 @@ class Project extends DBManager<IProject> {
         if (typeof doc.ttc !== 'number') {
             delete doc.ttc
             return doc
+            // throw this.error(
+            //     'modifyDoc',
+            //     HTTPStatus.BAD_REQUEST,
+            //     'Unexpected type',
+            //     `${doc.ttc} ttc missing`
+            // )
         }
 
         // Calculate start dates from TTC values
@@ -79,12 +90,21 @@ class Project extends DBManager<IProject> {
             )
         }
 
-        // Current offset (in days)
-        let offset = 0
         let start = new Date(doc.start)
 
-        // Current time to complete this project
-        let maxModuleTTC = 0
+        let total = this.getModuleTTCTotal(modules, start, 0)
+
+        doc.suspense = addDays(start, total + doc.ttc).toJSON()
+
+        return doc
+    }
+
+    public getModuleTTCTotal(
+        modules: IStepper<IModule>,
+        start: Date,
+        offset: number
+    ) {
+        let total = 0
         for (let modStepId in modules) {
             let modStep = modules[modStepId]
 
@@ -97,36 +117,9 @@ class Project extends DBManager<IProject> {
                 )
             }
 
-            for (let mod of modules) {
-                if (typeof mod.ttc !== 'number') {
-                    delete mod.ttc
-                    continue
-                }
-
-                let tasks = mod.tasks
-                if (typeof tasks !== 'object') {
-                    throw this.error(
-                        'modifyDoc',
-                        HTTPStatus.BAD_REQUEST,
-                        'Unexpected type',
-                        `${tasks} is not a task step object`
-                    )
-                }
-
-                // Total time to complete this module's tasks
-                let taskTTC = this.getTaskTTCTotal(mod.tasks, start, offset)
-
-                mod.suspense = addDays(start, offset + mod.ttc)
-
-                delete mod.ttc
-            }
+            total += this.getModuleTTCMax(modStep, start, total + offset)
         }
-        maxModuleTTC += doc.ttc
-
-        console.log(maxModuleTTC)
-
-        delete doc.ttc
-        return doc
+        return total
     }
 
     // current maximum time to complete modules in this step
@@ -135,12 +128,23 @@ class Project extends DBManager<IProject> {
         for (let mod of modules) {
             if (typeof mod.ttc !== 'number') {
                 console.log(mod.ttc)
-                delete mod.ttc
                 continue
             }
 
+            if (typeof mod.tasks !== 'object') {
+                throw this.error(
+                    'modifyDoc',
+                    HTTPStatus.BAD_REQUEST,
+                    'Unexpected type',
+                    `${mod.tasks} is not a task step object`
+                )
+            }
+
+            // Total task time for this module
             let taskTTC = this.getTaskTTCTotal(<any>mod.tasks, start, offset)
             max = Math.max(max, taskTTC + mod.ttc)
+            // Set suspense date
+            mod.suspense = addDays(start, offset + mod.ttc).toJSON()
         }
         return max
     }
@@ -164,7 +168,7 @@ class Project extends DBManager<IProject> {
             }
 
             // The weight of the task array is the longest element
-            // Appending total 
+            // Appending total
             total += this.getTaskTTCMax(taskStep, start, total + offset)
         }
         return total
@@ -175,15 +179,16 @@ class Project extends DBManager<IProject> {
         let max = 0
         for (let task of tasks) {
             if (typeof task.ttc !== 'number') {
-                console.log(task.ttc)
-                delete task.ttc
-                continue
+                throw this.error(
+                    'getTaskTTCMax',
+                    HTTPStatus.BAD_REQUEST,
+                    'Invalid type',
+                    `${task.ttc} expected number`
+                )
             }
 
             max = Math.max(max, task.ttc)
-            task.suspense = addDays(start, offset + task.ttc)
-
-            delete task.ttc
+            task.suspense = addDays(start, offset + task.ttc).toJSON()
         }
 
         return max

@@ -31,4 +31,9 @@ export const TaskManager = new DBManager<ITask>('tasks', 'Task', 'title', {
         parentReferenceKey: 'tasks',
     },
     type: { type: 'string' },
+    ttc: {
+        type: 'number',
+        optional: true,
+        hideGetAll: true,
+    },
 })
