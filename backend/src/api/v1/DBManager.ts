@@ -323,7 +323,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                 continue
             }
             for (let d of docs) {
-                if (!d.id || !this.db.isDBId(d.id)) {
+                if (!d.id || !api.db.isDBId(d.id)) {
                     throw this.internal('create', `ID ${d.id} invalid in document ${JSON.stringify(d)}`)
                 }
                 if (await api.db.exists(d.id)) {

@@ -463,8 +463,9 @@ export class DataManager<Type> extends IErrorable {
                     if (await db.tryExists(id)) {
                         return id
                     }
+                    console.warn(`key ${doc} is a KEY or ID but DNE`)
                 }
-                console.warn(`expected key, got ${doc}, trying bfs`)
+                console.warn(`expected key of ${str(data)}, got ${doc}, trying bfs`)
             }
 
             // Build a new document from a string
