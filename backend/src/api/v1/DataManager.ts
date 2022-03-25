@@ -8,7 +8,6 @@ import {
 import { ICreateUpdate } from '../../lms/types'
 import { isDBId, isDBKey, PTR, str } from '../../lms/util'
 import { AuthUser } from '../auth'
-import { DBManager } from './DBManager'
 
 export class DataManager<Type> extends IErrorable {
     protected hasCUTimestamp: boolean
@@ -311,8 +310,7 @@ export class DataManager<Type> extends IErrorable {
         files: any,
         a: Type,
         exists: boolean,
-        map: Map<DataManager<any>, any[]>,
-        stack: string[]
+        map: Map<DataManager<any>, any[]>
     ): Promise<Type> {
         // Modify this document, if required
         let doc = await this.modifyDoc(user, files, a)
@@ -354,6 +352,8 @@ export class DataManager<Type> extends IErrorable {
 
         // The doucment currently in the DB with this ID
         let fetched: any
+        // Id
+        let id = (<any>doc).id
 
         doc = await this.mapEachField(
             doc,
@@ -386,8 +386,12 @@ export class DataManager<Type> extends IErrorable {
                             )
                         }
                         try {
-                            console.log(`Missing field ${String(k)} in ${o}, checking DB`)
-                            fetched = await (<any>this).db.get((<any>doc).id)
+                            console.log(
+                                `Missing field ${String(
+                                    k
+                                )} in ${o}, checking DB`
+                            )
+                            fetched = await (<any>this).db.get(id)
                         } catch (e) {
                             console.warn('Error with check')
                             return false
@@ -405,11 +409,9 @@ export class DataManager<Type> extends IErrorable {
                 )
             },
             // foreign
-            async (v, d) =>
-                d.foreignApi.parseGet(user, files, v, d, map, stack),
+            async (v, d) => d.foreignApi.parseGet(user, files, v, d, map, id),
             // data
-            async (v, d) =>
-                d.foreignData.parseGet(user, files, v, d, map, stack),
+            async (v, d) => d.foreignData.parseGet(user, files, v, d, map, id),
             // other
             async (value, data) => {
                 if (typeof value === data.type) {
@@ -450,7 +452,7 @@ export class DataManager<Type> extends IErrorable {
         doc: any,
         data: IFieldData,
         map: Map<DataManager<any>, any[]>,
-        stack: string[]
+        par: string
     ): Promise<any> {
         // Doc is either a foreign key or a string to serialize
         if (typeof doc === 'string') {
@@ -465,17 +467,14 @@ export class DataManager<Type> extends IErrorable {
                     }
                     console.warn(`key ${doc} is a KEY or ID but DNE`)
                 }
-                console.warn(`expected key of ${str(data)}, got ${doc}, trying bfs`)
+                console.warn(
+                    `expected key of ${str(data)}, got ${doc}, trying bfs`
+                )
             }
 
             // Build a new document from a string
             if (data.acceptNewDoc) {
-                let built = await this.buildFromString(
-                    user,
-                    files,
-                    doc,
-                    stack[stack.length - 1]
-                )
+                let built = await this.buildFromString(user, files, doc, par)
                 if (built !== undefined) {
                     // Verify id and add to call stack
                     if (data.foreignApi) {
@@ -486,22 +485,16 @@ export class DataManager<Type> extends IErrorable {
                                 `buildFromString on ${this.className} returns document without id field`
                             )
                         }
-                        console.log('aaaaaaa')
-                        console.log(id)
-                        stack.push(id)
                     }
                     built = await this.verifyAddedDocument(
                         user,
                         files,
                         built,
                         false,
-                        map,
-                        stack
+                        map
                     )
-                    console.log('zzzzzzzzz')
-                    console.log(built)
                     // Return either the id reference or the built object
-                    return data.foreignApi ? stack.pop() : built
+                    return data.foreignApi ? (<any>built).id : built
                 }
             }
 
@@ -519,19 +512,12 @@ export class DataManager<Type> extends IErrorable {
                 // We're assigning the parent/module/project field
                 // of documents here, so they hold references to
                 // their parent.
-                doc[this.parentField.local] = stack[stack.length - 1]
+                doc[this.parentField.local] = par
             }
 
             // Non-foreign documents are verified directly
             if (!data.foreignApi) {
-                return this.verifyAddedDocument(
-                    user,
-                    files,
-                    doc,
-                    false,
-                    map,
-                    stack
-                )
+                return this.verifyAddedDocument(user, files, doc, false, map)
             }
 
             let db = data.foreignApi.db
@@ -573,9 +559,8 @@ export class DataManager<Type> extends IErrorable {
 
             // Set new/modified id
             doc.id = id
-            stack.push(id)
-            await this.verifyAddedDocument(user, files, doc, exists, map, stack)
-            return stack.pop()
+            await this.verifyAddedDocument(user, files, doc, exists, map)
+            return id
         }
         throw this.error(
             'ref',

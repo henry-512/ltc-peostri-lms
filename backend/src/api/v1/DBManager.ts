@@ -8,7 +8,7 @@ import {
 import { APIError, HTTPStatus } from '../../lms/errors'
 import { IFieldData, IForeignFieldData } from '../../lms/FieldData'
 import { IArangoIndexes } from '../../lms/types'
-import { convertToKey, splitId } from '../../lms/util'
+import { convertToKey, splitId, str } from '../../lms/util'
 import { AuthUser } from '../auth'
 import { DataManager } from './DataManager'
 
@@ -204,7 +204,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                 }
                 throw this.internal(
                     'getFromDB.mapForeignKeys',
-                    `[${v}] expected to be a valid DB id`
+                    `[${v}] expected to be a valid DB id for ${str(data)}`
                 )
             },
             // data
@@ -236,8 +236,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         // Turns a fully-dereferenced document into a reference
         // document
         let map = new Map<DataManager<any>, any[]>()
-        let stack = [id]
-        await this.verifyAddedDocument(user, files, d, false, map, stack)
+        await this.verifyAddedDocument(user, files, d, false, map)
 
         real || console.log('FAKING CREATE')
         // Saves each document in the map to its respective collection
@@ -300,6 +299,8 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         doc: Type,
         real: boolean
     ) {
+        // console.log(JSON.stringify(doc, null, 2))
+
         // doc.id is a KEY here and needs to be converted
         doc.id = id
 
@@ -312,8 +313,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         // }
 
         let map = new Map<DataManager<any>, any[]>()
-        let stack = [id]
-        await this.verifyAddedDocument(user, files, doc, true, map, stack)
+        await this.verifyAddedDocument(user, files, doc, true, map)
 
         real || console.log('FAKING UPDATE')
         // Updates each document in the map to its respective collection
