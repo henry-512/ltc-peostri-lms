@@ -68,10 +68,6 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
                     type: 'string',
                     default: 'AWAITING',
                 },
-                waive_module: {
-                    type: 'boolean',
-                    optional: true,
-                },
                 ttc: {
                     type: 'number',
                     optional: true,

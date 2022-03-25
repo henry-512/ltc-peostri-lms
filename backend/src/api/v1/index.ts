@@ -161,7 +161,7 @@ function route<Type extends IArangoIndexes>(
             ctx.header['user-agent'] !== 'backend-testing'
         )
 
-        ctx.body = await manager.getFromDB(ctx.state.user, 0, ctx.params.id)
+        ctx.body = await manager.getFromDB(ctx.state.user, 0, id)
         ctx.status = HTTPStatus.OK
     })
 
