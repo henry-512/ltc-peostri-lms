@@ -385,7 +385,13 @@ export class DataManager<Type> extends IErrorable {
                                 `${this.className} is not a DBManager, yet contains a missing element and exists in the DB.`
                             )
                         }
-                        fetched = await (<any>this).db.get(user.id)
+                        try {
+                            console.log(`Missing field ${String(k)} in ${o}, checking DB`)
+                            fetched = await (<any>this).db.get((<any>doc).id)
+                        } catch (e) {
+                            console.warn('Error with check')
+                            return false
+                        }
                     }
                     o[k] = fetched[k]
                     // Elements in the db are assumed to be valid

@@ -15,6 +15,7 @@ class ProjectTemplate extends DBManager<IProjectTemplate> {
                     type: 'step',
                     instance: 'fkey',
                     foreignApi: ModuleTempManager,
+                    acceptNewDoc: true,
                 },
                 status: {
                     type: 'string',
