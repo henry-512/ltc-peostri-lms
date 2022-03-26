@@ -1,9 +1,9 @@
-const {
-    processStructure,
-    debugRankKey,
+import {
     debugRankId,
+    debugRankKey,
     debugUserId,
-} = require('.')
+    processStructure,
+} from './index.js'
 
 let d = {
     structure: {
@@ -166,4 +166,4 @@ let d = {
     ],
 }
 
-module.exports = processStructure(d)
+export default processStructure(d)

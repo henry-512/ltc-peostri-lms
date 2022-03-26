@@ -1,13 +1,13 @@
-let debugRankId = 'ranks/0123456789012345678900'
-let debugRankKey = '0123456789012345678900'
+export const debugRankId = 'ranks/0123456789012345678900'
+export const debugRankKey = '0123456789012345678900'
 
-let debugUserId = 'users/0123456789012345678900'
-let debugUserKey = '0123456789012345678900'
+export const debugUserId = 'users/0123456789012345678900'
+export const debugUserKey = '0123456789012345678900'
 
-let authUserName = 'john-doe'
-let authPassword = 'password'
+export const authUserName = 'john-doe'
+export const authPassword = 'password'
 
-function processStructure(d) {
+export function processStructure(d) {
     let gaR = []
     let gaI = []
 
@@ -38,16 +38,4 @@ function processStructure(d) {
     }
 
     return d
-}
-
-// console.log(module.exports.GET_SUCCESS.type)
-module.exports = {
-    processStructure,
-
-    debugRankId,
-    debugRankKey,
-    debugUserId,
-    debugUserKey,
-    authUserName,
-    authPassword,
 }

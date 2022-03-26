@@ -1,7 +1,8 @@
-let supertest = require('supertest')
-const { expect } = require('chai')
-const { authUserName, authPassword } = require('./data')
-require('dotenv').config()
+import supertest from 'supertest'
+import { expect } from 'chai'
+import { authUserName, authPassword } from './data/index.js'
+import dotenv, { config } from 'dotenv'
+dotenv.config()
 
 // .query('range=1..5')
 // .send('{}')
@@ -12,8 +13,9 @@ var API = 'v1/'
 var agent = supertest.agent(`localhost:${process.env.PORT || 5000}/api/`)
 
 // Authentication testing
-describe(`Authenticate`, () => {
-    const user = require('./data/users')
+describe(`Authenticate`, async () => {
+    // const user = require('./data/users')
+    const { user } = await import('./data/users.js')
 
     it('Unauthorized access', async () => {
         let r = await agent.get('v1/projects')
@@ -69,8 +71,8 @@ describe(`Authenticate`, () => {
     })
 })
 
-function test(n) {
-    let raw = require(`./data/${n}`)
+async function test(n) {
+    let raw = (await import(`./data/${n}.js`)).default
 
     describe(`${n} GET all`, () => {
         it('Base call', async () => {
@@ -199,81 +201,81 @@ function test(n) {
 }
 
 // Load dynamic test data
-test('users')
-test('projects')
+await test('users')
+await test('projects')
 
-/*
-// Clean disowned data
-describe('Disowned', function () {
-    // These are beefy functions and need beefy runtimes
-    this.timeout(10000)
+if (process.env.clean) {
+    // Clean disowned data
+    describe('Disowned', function () {
+        // These are beefy functions and need beefy runtimes
+        this.timeout(10000)
 
-    it('Disown Projects', async () => {
-        let r = await agent
-            .set('User-Agent', 'backend-testing')
-            .delete(API + 'projects/disown')
-        expect(r.status).equal(200)
+        it('Disown Projects', async () => {
+            let r = await agent
+                .set('User-Agent', 'backend-testing')
+                .delete(API + 'projects/disown')
+            expect(r.status).equal(200)
+        })
+        it('Disown Modules', async () => {
+            let r = await agent
+                .set('User-Agent', 'backend-testing')
+                .delete(API + 'modules/disown')
+            expect(r.status).equal(200)
+        })
+        it('Disown Tasks', async () => {
+            let r = await agent
+                .set('User-Agent', 'backend-testing')
+                .delete(API + 'tasks/disown')
+            expect(r.status).equal(200)
+        })
+        it('Disown Users', async () => {
+            let r = await agent
+                .set('User-Agent', 'backend-testing')
+                .delete(API + 'users/disown')
+            expect(r.status).equal(200)
+        })
+        it('Disown Comments', async () => {
+            let r = await agent
+                .set('User-Agent', 'backend-testing')
+                .delete(API + 'comments/disown')
+            expect(r.status).equal(200)
+        })
+        it('del Disown projectTemplates', async () => {
+            let r = await agent
+                .set('User-Agent', 'backend-testing')
+                .delete(API + 'template/projects/disown')
+            expect(r.status).equal(200)
+        })
     })
-    it('Disown Modules', async () => {
-        let r = await agent
-            .set('User-Agent', 'backend-testing')
-            .delete(API + 'modules/disown')
-        expect(r.status).equal(200)
-    })
-    it('Disown Tasks', async () => {
-        let r = await agent
-            .set('User-Agent', 'backend-testing')
-            .delete(API + 'tasks/disown')
-        expect(r.status).equal(200)
-    })
-    it('Disown Users', async () => {
-        let r = await agent
-            .set('User-Agent', 'backend-testing')
-            .delete(API + 'users/disown')
-        expect(r.status).equal(200)
-    })
-    it('Disown Comments', async () => {
-        let r = await agent
-            .set('User-Agent', 'backend-testing')
-            .delete(API + 'comments/disown')
-        expect(r.status).equal(200)
-    })
-    it('del Disown projectTemplates', async () => {
-        let r = await agent
-            .set('User-Agent', 'backend-testing')
-            .delete(API + 'template/projects/disown')
-        expect(r.status).equal(200)
-    })
-})
 
-// Delete orphaned data
-describe('Orphans', function () {
-    // These are beefy functions and need beefy runtimes
-    this.timeout(10000)
+    // Delete orphaned data
+    describe('Orphans', function () {
+        // These are beefy functions and need beefy runtimes
+        this.timeout(10000)
 
-    it('del Orphan Modules', async () => {
-        let r = await agent
-            .set('User-Agent', 'backend-testing')
-            .delete(API + 'modules/orphan')
-        expect(r.status).equal(200)
+        it('Orphan Modules', async () => {
+            let r = await agent
+                .set('User-Agent', 'backend-testing')
+                .delete(API + 'modules/orphan')
+            expect(r.status).equal(200)
+        })
+        it('Orphan Tasks', async () => {
+            let r = await agent
+                .set('User-Agent', 'backend-testing')
+                .delete(API + 'tasks/orphan')
+            expect(r.status).equal(200)
+        })
+        it('Orphan Filemetas', async () => {
+            let r = await agent
+                .set('User-Agent', 'backend-testing')
+                .delete(API + 'filemeta/orphan')
+            expect(r.status).equal(200)
+        })
+        it('Orphan Comments', async () => {
+            let r = await agent
+                .set('User-Agent', 'backend-testing')
+                .delete(API + 'comments/orphan')
+            expect(r.status).equal(200)
+        })
     })
-    it('del Orphan Tasks', async () => {
-        let r = await agent
-            .set('User-Agent', 'backend-testing')
-            .delete(API + 'tasks/orphan')
-        expect(r.status).equal(200)
-    })
-    it('del Orphan Filemetas', async () => {
-        let r = await agent
-            .set('User-Agent', 'backend-testing')
-            .delete(API + 'filemeta/orphan')
-        expect(r.status).equal(200)
-    })
-    it('del Orphan Comments', async () => {
-        let r = await agent
-            .set('User-Agent', 'backend-testing')
-            .delete(API + 'comments/orphan')
-        expect(r.status).equal(200)
-    })
-})
-*/
+}
