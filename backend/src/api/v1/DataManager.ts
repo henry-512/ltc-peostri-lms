@@ -647,7 +647,6 @@ export class DataManager<Type> extends IErrorable {
             doc,
             undefined,
             (v, d) => {
-                console.log(doc)
                 if (typeof v === 'string' && d.foreignApi.db.isDBId(v)) {
                     return splitId(v).key
                 } else if (typeof v === 'object') {
