@@ -379,7 +379,11 @@ export class DataManager<Type> extends IErrorable {
                 let o = pointer.obj
                 // Check for missing fields
                 if (k in o) {
-                    return false
+                    if (o[k] === undefined || o[k] === null) {
+                        delete o[k]
+                    } else {
+                        return false
+                    }
                 }
                 if (data.default !== undefined) {
                     console.warn(
