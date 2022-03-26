@@ -1,6 +1,6 @@
 import { makeStyles } from "@material-ui/core";
 import { Create, useTranslate } from "react-admin";
-import FormStepper from "../../../components/FormStepper";
+import FormStepper from "../../../packages/FormStepper";
 import General from "../steps/General";
 import Modules from "../steps/Modules";
 import transformer from "../transformer";

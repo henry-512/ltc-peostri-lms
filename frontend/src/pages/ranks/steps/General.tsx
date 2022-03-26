@@ -1,6 +1,6 @@
 import { Grid, Typography } from "@material-ui/core"
 import { AutocompleteArrayInput, BooleanInput, DateInput, FormGroupContextProvider, ReferenceArrayInput, TextInput, useTranslate } from "react-admin"
-import { Step } from "src/components/FormStepper/Step"
+import { Step } from "src/packages/FormStepper/Step"
 
 const General = (props: any) => {
 const translate = useTranslate();
