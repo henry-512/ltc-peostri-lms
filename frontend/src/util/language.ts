@@ -9,6 +9,8 @@ const domainMessages = {
                 projects: "Projects",
                 modules: "Modules",
                 templates: "Templates",
+                project_templates: "Project Templates",
+                module_templates: "Module Templates",
                 users: "Users",
                 permissions: "Permissions"
             },
@@ -130,7 +132,8 @@ const domainMessages = {
                 fields: {
                     ttc: "Est. Time to Completion (in days)",
                     ttc_help: "Calculated Based on Modules",
-                    title: "Project Name"
+                    title: "Project Name",
+                    status: "Status"
                 }
             }
         },

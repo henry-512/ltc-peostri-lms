@@ -18,7 +18,7 @@ import { ProjectIcon } from '../../pages/project';
 import { ProjectTemplateIcon } from '../../pages/template/projects';
 import { ModuleTemplateIcon } from '../../pages/template/modules';
 import { UserIcon } from '../../pages/user';
-import { PermissionIcon } from 'src/pages/permission';
+import { PermissionIcon } from 'src/pages/ranks';
 
 type MenuName = 'menuAdmin' | 'menuTemplate';
 
@@ -86,19 +86,19 @@ const Menu = ({ dense = false }: MenuProps) => {
             >
                 <MenuItemLink
                     to={{
-                        pathname: '/template/modules',
-                        state: { _scrollToTop: true },
-                    }}
-                    primaryText={translate("layout.menu.modules")}
-                    leftIcon={<ModuleTemplateIcon />}
-                />
-                <MenuItemLink
-                    to={{
                         pathname: '/template/projects',
                         state: { _scrollToTop: true },
                     }}
-                    primaryText={translate("layout.menu.projects")}
+                    primaryText={translate("layout.menu.project_templates")}
                     leftIcon={<ProjectTemplateIcon />}
+                />
+                <MenuItemLink
+                    to={{
+                        pathname: '/template/modules',
+                        state: { _scrollToTop: true },
+                    }}
+                    primaryText={translate("layout.menu.module_templates")}
+                    leftIcon={<ModuleTemplateIcon />}
                 />
             </SubMenu>
         </div>
@@ -115,7 +115,7 @@ const useStyles = makeStyles(theme => ({
         }),
     },
     open: {
-        width: 200
+        width: 220
     },
     closed: {
         width: 55,

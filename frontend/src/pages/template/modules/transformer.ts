@@ -3,11 +3,19 @@ import { IModuleTemplate, ITaskTemplate } from "src/util/types";
 const transformer = (data: IModuleTemplate) => {
 
     //Remove empty steps.
+    let stepCounter = 0;
     for (let [stepKey, step] of Object.entries<ITaskTemplate[]>(data.tasks)) {
-        //console.log(stepKey)
         if (step.length <= 0) {
             delete data.tasks[stepKey];
+            continue;
         }
+
+        let stepKeyInt = parseInt(stepKey.split('-')[1]);
+        if (stepCounter != stepKeyInt) {
+            data.tasks["key-" + stepCounter] = data.tasks[stepKey];
+            delete data.tasks[stepKey];
+        }
+        stepCounter++;
     }
 
     return {

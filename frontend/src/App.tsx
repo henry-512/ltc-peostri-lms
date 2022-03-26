@@ -1,4 +1,4 @@
-import { Admin, Resource } from 'react-admin';
+import { Admin, EditGuesser, ListGuesser, Resource, ShowGuesser } from 'react-admin';
 import dataProvider from './util/dataProvider';
 import { ProjectList, ProjectCreate, ProjectEdit } from './pages/project';
 import routes from './util/routes';
@@ -36,11 +36,11 @@ const App = () => {
             i18nProvider={i18nProvider}
             disableTelemetry
         >
-            <Resource name='projects' list={ProjectList} create={ProjectCreate} edit={ProjectEdit} />
-            <Resource name='template/projects' list={ProjectTemplateList} create={ProjectTemplateCreate} edit={ProjectTemplateEdit} />
-            <Resource name='template/modules' list={ModuleTemplateList} create={ModuleTemplateCreate} edit={ModuleTemplateEdit} />
-            <Resource name="users" list={UserList} create={UserCreate} edit={UserEdit} />
-            <Resource name="ranks" options={{ label: "layout.menu.ranks" }} />
+            <Resource name='projects' list={ProjectList} create={ProjectCreate} edit={ProjectEdit} show={ShowGuesser} />
+            <Resource name='template/projects' list={ProjectTemplateList} create={ProjectTemplateCreate} edit={ProjectTemplateEdit} show={ShowGuesser} />
+            <Resource name='template/modules' list={ModuleTemplateList} create={ModuleTemplateCreate} edit={ModuleTemplateEdit} show={ShowGuesser} />
+            <Resource name="users" list={UserList} create={UserCreate} edit={UserEdit} show={ShowGuesser} />
+            <Resource name="ranks" options={{ label: "layout.menu.ranks" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
         </Admin>
     );
 }

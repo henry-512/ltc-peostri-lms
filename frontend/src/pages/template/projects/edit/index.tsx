@@ -31,7 +31,6 @@ const useStyles = makeStyles(theme => ({
 
 const ProjectTemplateEdit = (props: any) => {
     const translate = useTranslate();
-    const classes = useStyles();
 
     return (
         <Edit title={translate('template.project.layout.edit_title')} {...props} transform={transformer}>

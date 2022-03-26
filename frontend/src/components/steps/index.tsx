@@ -150,7 +150,7 @@ const Steps = (props: StepsProps) => {
         });
     }
 
-    const switchModuleList = (sourceID: string, sourceIndex: number, destinationID: string, destinationIndex: number) => {
+    const switchCardList = (sourceID: string, sourceIndex: number, destinationID: string, destinationIndex: number) => {
         let cachedSteps = renderData;
         cachedSteps[destinationID].splice(destinationIndex, 0, cachedSteps[sourceID][sourceIndex]);
         cachedSteps[sourceID].splice(sourceIndex, 1);
@@ -160,7 +160,7 @@ const Steps = (props: StepsProps) => {
         });
     }
 
-    const alterModuleLocation = (sourceID: string, sourceIndex: number, destinationIndex: number) => {
+    const alterCardLocation = (sourceID: string, sourceIndex: number, destinationIndex: number) => {
         let cachedSteps = renderData;
         let oldValue = cachedSteps[sourceID][sourceIndex];
         let newValue = cachedSteps[sourceID][destinationIndex];
@@ -188,12 +188,12 @@ const Steps = (props: StepsProps) => {
         }
 
         if (destination.droppableId === source.droppableId) {
-            alterModuleLocation(source.droppableId, source.index, destination.index);
+            alterCardLocation(source.droppableId, source.index, destination.index);
             return;
         }
 
         if (destination.droppableId !== source.droppableId) {
-            switchModuleList(source.droppableId, source.index, destination.droppableId, destination.index);
+            switchCardList(source.droppableId, source.index, destination.droppableId, destination.index);
             return;
         }
     }

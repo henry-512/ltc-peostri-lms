@@ -74,7 +74,7 @@ export const lightTheme = {
         borderRadius: 10,
     },
     sidebar: {
-        width: 200,
+        width: 220,
     },
     overrides: {
         RaMenuItemLink: {

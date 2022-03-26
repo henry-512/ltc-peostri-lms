@@ -102,7 +102,6 @@ const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
                             label="template.module.fields.ttc"
                             fullWidth
                             helperText="template.module.fields.ttc_help"
-                            validate={[required()]}
                             disabled
                         />
                     </Grid>
