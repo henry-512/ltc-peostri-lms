@@ -43,9 +43,9 @@ apiRouter().then(
                     e.path = ctx.request.url
                     e.method = ctx.request.method
 
-                    console.log(
-                        `ERROR: ${e.method}:${e.path} ${e.apiName}.${e.fn} ${e.status}:\n  Message: ${e.message}\n  Verbose: ${e.verbose}\n${e.stack}`
-                    )
+                    let message = `ERROR: ${e.method}:${e.path} ${e.apiName}.${e.fn} ${e.status}:\n  Message: ${e.message}\n  Verbose: ${e.verbose}\n${e.stack}`
+
+                    console.log(message)
 
                     ctx.status = e.status
                     ctx.body = {
@@ -74,6 +74,7 @@ apiRouter().then(
             // console.log('AUTH')
             // Validates user login, given a valid jwt token
             ctx.state.user = await AuthUser.validate(ctx.cookies.get('token'))
+
             // Run next middleware
             await next()
         })

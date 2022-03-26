@@ -7,16 +7,15 @@ const b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'
 
 /**
  * Generates a v4 (randomly generated) UUID, converted
- * into a 21-character long "base64" format ([A-Z][a-z][0-9]-_)
+ * into a 22-character long "base64" format ([A-Z][a-z][0-9]-_)
  */
 export function generateBase64UUID(): string {
     // Generate UUID v4
     // bytes is a 16 length byte array
     const bytes = parse(v4())
 
-    // Compress from 36 bytes to 21
-    // "base64" "conversion" (doesnt actually
-    //   convert into base64)
+    // Compress from 36 bytes to 22
+    // "base64" "conversion" (doesnt actually convert into base64)
     let key = ''
     for (let it = 0; it < 15; it += 3) {
         let rem = 0
@@ -35,7 +34,7 @@ export function generateBase64UUID(): string {
     }
     // move last character to start, so index 0 can only be A-D
     // 1 byte is left remaining
-    return b64.charAt(bytes[16] >> 6).concat(key, b64.charAt(bytes[16] & 63))
+    return b64.charAt(bytes[15] >> 6).concat(key, b64.charAt(bytes[15] & 63))
 }
 
 export function generateDBID(name: string) {
@@ -46,7 +45,6 @@ export function generateDBID(name: string) {
  * Converts a key to an id associated with the passed ApiRoute.
  * DOES NOT CHECK IF KEY IS A VALID KEY.
  * @param key The key to convert
- * @param api An ApiRoute (or some other object with a name field)
  * @return An ID
  */
 export function keyToId(key: string, name: string) {

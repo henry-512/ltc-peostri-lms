@@ -1,7 +1,7 @@
-import supertest from 'supertest'
 import { expect } from 'chai'
-import { authUserName, authPassword } from './data/index.js'
-import dotenv, { config } from 'dotenv'
+import dotenv from 'dotenv'
+import supertest from 'supertest'
+import { authPassword, authUserName, checkFields, imp } from './data/index.js'
 dotenv.config()
 
 // .query('range=1..5')
@@ -12,11 +12,10 @@ dotenv.config()
 var API = 'v1/'
 var agent = supertest.agent(`localhost:${process.env.PORT || 5000}/api/`)
 
-// Authentication testing
-describe(`Authenticate`, async () => {
-    // const user = require('./data/users')
-    const { user } = await import('./data/users.js')
+const user = await imp('users')
 
+// Authentication testing
+describe('Authenticate', () => {
     it('Unauthorized access', async () => {
         let r = await agent.get('v1/projects')
         expect(r.status).equal(401)
@@ -48,14 +47,11 @@ describe(`Authenticate`, async () => {
             username: authUserName,
             password: authPassword,
         })
-        expect(r.status).equal(200)
         expect('token')
         expect('set-cookie', /token/)
+        expect(r.status).equal(200)
         // Should return a user object
-        expect(r.body).an('object')
-        expect(r.body).include.all.keys(user.getId.required)
-        if (user.getAll.invalid.length !== 0)
-            expect(r.body).not.any.keys(user.getId.invalid)
+        checkFields(user.getId, r.body)
     })
 
     it('Auth check, valid auth', async () => {
@@ -66,27 +62,27 @@ describe(`Authenticate`, async () => {
     it('Self user', async () => {
         let r = await agent.get(API + 'users/self')
         expect(r.status).equal(200)
-        expect(r.body).an('object').any.key('username')
-        expect(r.body).an('object').not.any.key('password')
+        // Should return a user object
+        checkFields(user.getId, r.body)
     })
 })
 
 async function test(n) {
-    let raw = (await import(`./data/${n}.js`)).default
+    let raw = await imp(n)
 
     describe(`${n} GET all`, () => {
         it('Base call', async () => {
             let r = await agent.get(API + n)
 
-            expect(r.status).equal(200)
             expect(r.headers)
                 .an('object')
                 .any.keys('content-range', 'access-control-expose-headers')
+            expect(r.status).equal(200)
             expect(r.body).an('array')
         })
     })
 
-    describe(`${n} GET one`, () => {
+    describe(`${n} GET all filter one`, () => {
         it('Filter range [0,1]', async () => {
             let r = await agent.get(API + n).query({
                 range: [0, 1],
@@ -94,11 +90,7 @@ async function test(n) {
 
             expect(r.status).equal(200)
             expect(r.body).an('array').lengthOf(1)
-            let doc = r.body[0]
-            expect(doc).an('object')
-            expect(doc).include.all.keys(raw.getAll.required)
-            if (raw.getAll.invalid.length !== 0)
-                expect(doc).not.any.keys(raw.getAll.invalid)
+            checkFields(raw.getAll, r.body[0])
         })
 
         it('GET/:id', async () => {
@@ -111,10 +103,7 @@ async function test(n) {
             r = await agent.get(API + n + '/' + id)
 
             expect(r.status).equal(200)
-            expect(r.body).an('object')
-            expect(r.body).include.all.keys(raw.getId.required)
-            if (raw.getId.invalid.length !== 0)
-                expect(r.body).not.any.keys(raw.getId.invalid)
+            checkFields(raw.getId, r.body)
         })
     })
 

@@ -1,87 +1,84 @@
-import { processStructure, debugUserId } from './index.js'
+import { debugUserId } from './index.js'
 
-let d = {
+export default {
     structure: {
         title: { type: 'string' },
         start: { type: 'string' },
-        suspense: { type: 'string' },
-        status: { type: 'string', default: 'AWAITING' },
+        status: {
+            type: 'string',
+            default: 'AWAITING',
+        },
         comments: {
-            type: 'fkeyArray',
+            type: 'array',
+            instance: 'fkey',
             default: [],
             freeable: true,
             acceptNewDoc: true,
-            isForeign: true,
+        },
+        suspense: {
+            type: 'string',
+            optional: true,
         },
         modules: {
-            type: 'fkeyStep',
+            type: 'step',
+            instance: 'fkey',
             freeable: true,
             acceptNewDoc: true,
-            isForeign: true,
         },
         users: {
-            type: 'fkeyArray',
+            type: 'array',
+            instance: 'fkey',
             default: [],
             getIdKeepAsRef: true,
-            isForeign: true,
+        },
+        ttc: {
+            type: 'number',
+            optional: true,
+            hideGetAll: true,
         },
         createdAt: { type: 'string' },
         updatedAt: { type: 'string' },
     },
+    default: {
+        title: 'Project',
+        start: '2022-11-11',
+        users: [debugUserId],
+        modules: {
+            'key-0': [
+                {
+                    title: 'Module 0-0',
+                    tasks: {
+                        'key-0': [
+                            {
+                                title: 'Task 0-0-0-0',
+                                type: 'DOCUMENT_REVIEW',
+                            },
+                        ],
+                    },
+                },
+            ],
+        },
+    },
     acceptPost: [
         {
             n: 'Base Case',
+            d: {},
+        },
+        {
+            n: 'Single text comment on project',
             d: {
-                title: 'Project',
-                users: [debugUserId],
-                start: '2022-11-11',
-                modules: {
-                    'key-0': [
-                        {
-                            title: 'Module 0-0',
-                            tasks: {
-                                'key-0': [
-                                    {
-                                        title: 'Task 0-0-0-0',
-                                        type: 'DOCUMENT_REVIEW',
-                                    },
-                                ],
-                            },
-                        },
-                    ],
-                },
+                comments: 'Some comment',
             },
         },
         {
-            n: 'Text comment on project',
+            n: 'Multiple text comment on project',
             d: {
-                title: 'Project',
-                users: [debugUserId],
-                start: '2022-11-11',
-                comments: 'Some comment',
-                modules: {
-                    'key-0': [
-                        {
-                            title: 'Module 0-0',
-                            tasks: {
-                                'key-0': [
-                                    {
-                                        title: 'Task 0-0-0-0',
-                                        type: 'DOCUMENT_REVIEW',
-                                    },
-                                ],
-                            },
-                        },
-                    ],
-                },
+                comments: ['Some comment', 'Comment 2'],
             },
         },
         {
             n: 'Text comment on module',
             d: {
-                title: 'Project',
-                users: [debugUserId],
-                start: '2022-11-11',
                 modules: {
                     'key-0': [
                         {
@@ -103,9 +100,6 @@ let d = {
         {
             n: 'Large project',
             d: {
-                title: 'Project',
-                users: [debugUserId],
-                start: '2022-11-11',
                 modules: {
                     'key-0': [
                         {
@@ -200,9 +194,6 @@ let d = {
         {
             n: 'Waived module base',
             d: {
-                title: 'Project',
-                users: [debugUserId],
-                start: '2022-11-11',
                 modules: {
                     'key-0': [
                         {
@@ -229,39 +220,18 @@ let d = {
         {
             n: 'Missing field',
             d: {
-                users: [debugUserId],
-                start: '2022-11-11',
-                modules: {
-                    'key-0': [
-                        {
-                            title: 'Module 0-0',
-                            tasks: {
-                                'key-0': [
-                                    {
-                                        title: 'Task 0-0-0-0',
-                                        type: 'DOCUMENT_REVIEW',
-                                    },
-                                ],
-                            },
-                        },
-                    ],
-                },
+                title: undefined,
             },
         },
         {
             n: 'Missing modules',
             d: {
-                title: 'Project',
-                users: [debugUserId],
-                start: '2022-11-11',
+                modules: undefined,
             },
         },
         {
             n: 'Defined module, not step object',
             d: {
-                title: 'Project',
-                users: [debugUserId],
-                start: '2022-11-11',
                 modules: {
                     title: 'Module 0-0',
                     tasks: {
@@ -278,9 +248,6 @@ let d = {
         {
             n: 'Module array, not step object',
             d: {
-                title: 'Project',
-                users: [debugUserId],
-                start: '2022-11-11',
                 modules: [
                     {
                         title: 'Module 0-0',
@@ -299,9 +266,6 @@ let d = {
         {
             n: 'Missing field on module',
             d: {
-                title: 'Project',
-                users: [debugUserId],
-                start: '2022-11-11',
                 modules: {
                     'key-0': [
                         {
@@ -321,9 +285,6 @@ let d = {
         {
             n: 'Missing field on task',
             d: {
-                title: 'Project',
-                users: [debugUserId],
-                start: '2022-11-11',
                 modules: {
                     'key-0': [
                         {
@@ -343,27 +304,8 @@ let d = {
         {
             n: 'Invalid user key',
             d: {
-                title: 'Project',
                 users: [':)'],
-                start: '2022-11-11',
-                modules: {
-                    'key-0': [
-                        {
-                            title: 'Module 0-0',
-                            tasks: {
-                                'key-0': [
-                                    {
-                                        title: 'Task 0-0-0-0',
-                                        type: 'DOCUMENT_REVIEW',
-                                    },
-                                ],
-                            },
-                        },
-                    ],
-                },
             },
         },
     ],
 }
-
-export default processStructure(d)
