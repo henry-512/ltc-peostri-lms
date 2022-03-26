@@ -23,7 +23,7 @@ export function routerBuilder(version: string) {
                     r.get('/self', async (ctx) => {
                         let user = ctx.state.user
 
-                        ctx.body = await m.getFromDB(user, 0, user.getId())
+                        ctx.body = await m.getFromDB(user, user.getId())
                         ctx.status = HTTPStatus.OK
                     })
                 )
@@ -70,7 +70,6 @@ export function routerBuilder(version: string) {
 
                         let meta = await FilemetaManager.getFromDB(
                             ctx.state.user,
-                            0,
                             id
                         )
                         let buffer = await FilemetaManager.readLatest(meta)
@@ -128,7 +127,7 @@ function route<Type extends IArangoIndexes>(
     r.get('/:id', async (ctx) => {
         let id = await manager.db.assertKeyExists(ctx.params.id)
 
-        ctx.body = await manager.getFromDB(ctx.state.user, 0, id)
+        ctx.body = await manager.getFromDB(ctx.state.user, id)
         ctx.status = HTTPStatus.OK
     })
 
@@ -161,7 +160,7 @@ function route<Type extends IArangoIndexes>(
             ctx.header['user-agent'] !== 'backend-testing'
         )
 
-        ctx.body = await manager.getFromDB(ctx.state.user, 0, id)
+        ctx.body = await manager.getFromDB(ctx.state.user, id)
         ctx.status = HTTPStatus.OK
     })
 

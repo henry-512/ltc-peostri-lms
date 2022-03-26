@@ -189,10 +189,10 @@ async function test(n) {
 }
 
 // Load dynamic test data
-// await test('users')
-// await test('projects')
+await test('users')
+await test('projects')
 await test('template/modules')
-// await test('template/projects')
+await test('template/projects')
 
 if (process.env.CLEAN) {
     // Clean disowned data

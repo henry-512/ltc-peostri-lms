@@ -6,7 +6,7 @@ import {
     IForeignFieldData,
 } from '../../lms/FieldData'
 import { ICreateUpdate } from '../../lms/types'
-import { isDBId, isDBKey, PTR, str } from '../../lms/util'
+import { isDBId, isDBKey, PTR, splitId, str } from '../../lms/util'
 import { AuthUser } from '../auth'
 
 export class DataManager<Type> extends IErrorable {
@@ -22,7 +22,7 @@ export class DataManager<Type> extends IErrorable {
     /**
      * Runs the passed function on each foreign key in the document
      */
-    protected async mapForeignKeys(
+    public async mapForeignKeys(
         doc: Type,
         fn: (value: any, data: IForeignFieldData) => Promise<any>,
         skippable?: (data: IForeignFieldData) => boolean
@@ -93,18 +93,18 @@ export class DataManager<Type> extends IErrorable {
     protected async mapEachField(
         doc: any,
         // Runs for all keys. Returns true if this key should be skipped
-        allFn: (pointer: PTR<any>, data: IFieldData) => Promise<boolean>,
+        allFn?: (pointer: PTR<any>, data: IFieldData) => Promise<boolean>,
         // Runs for each foreign key
-        foreignFn: (value: any, data: IForeignFieldData) => Promise<any>,
+        foreignFn?: (value: any, data: IForeignFieldData) => Promise<any>,
         // Runs for each data key
-        dataFn: (value: any, data: IDataFieldData) => Promise<any>,
+        dataFn?: (value: any, data: IDataFieldData) => Promise<any>,
         // Runs for each other key
-        otherFn: (value: any, data: IFieldData) => Promise<any>,
+        otherFn?: (value: any, data: IFieldData) => Promise<any>,
         // Runs for parent keys
-        parentFn: (value: any, data: IFieldData) => Promise<any>
+        parentFn?: (value: any, data: IFieldData) => Promise<any>
     ): Promise<any> {
         for (let [key, data] of this.fieldEntries) {
-            if (await allFn({ obj: doc, key }, data)) {
+            if (allFn && (await allFn({ obj: doc, key }, data))) {
                 continue
             }
 
@@ -114,16 +114,21 @@ export class DataManager<Type> extends IErrorable {
                 case 'string':
                 case 'boolean':
                 case 'number':
-                    doc[key] = await otherFn(value, data)
+                    if (otherFn) doc[key] = await otherFn(value, data)
                     break
                 case 'parent':
-                    doc[key] = await parentFn(value, data)
+                    if (parentFn) doc[key] = await parentFn(value, data)
                     break
                 case 'data':
-                    doc[key] = await dataFn(value, data as IDataFieldData)
+                    if (dataFn)
+                        doc[key] = await dataFn(value, data as IDataFieldData)
                     break
                 case 'fkey':
-                    doc[key] = await foreignFn(value, data as IForeignFieldData)
+                    if (foreignFn)
+                        doc[key] = await foreignFn(
+                            value,
+                            data as IForeignFieldData
+                        )
                     break
                 case 'array':
                     value = Array.isArray(value) ? value : [value]
@@ -133,15 +138,19 @@ export class DataManager<Type> extends IErrorable {
                     }
 
                     if (data.foreignApi) {
-                        let d = data as IForeignFieldData
-                        doc[key] = await Promise.all(
-                            value.map(async (o: any) => foreignFn(o, d))
-                        )
+                        if (foreignFn) {
+                            let d = data as IForeignFieldData
+                            doc[key] = await Promise.all(
+                                value.map(async (o: any) => foreignFn(o, d))
+                            )
+                        }
                     } else if (data.foreignData) {
-                        let d = data as IDataFieldData
-                        doc[key] = await Promise.all(
-                            value.map(async (o: any) => dataFn(o, d))
-                        )
+                        if (dataFn) {
+                            let d = data as IDataFieldData
+                            doc[key] = await Promise.all(
+                                value.map(async (o: any) => dataFn(o, d))
+                            )
+                        }
                     } else {
                         throw this.internal(
                             'mapEachField',
@@ -167,10 +176,16 @@ export class DataManager<Type> extends IErrorable {
                         }
 
                         if (data.foreignApi) {
+                            if (!foreignFn) {
+                                break
+                            }
                             stepper[stepId] = await Promise.all(
                                 stepArray.map((o: any) => foreignFn(o, dF))
                             )
                         } else if (data.foreignData) {
+                            if (!dataFn) {
+                                break
+                            }
                             stepper[stepId] = await Promise.all(
                                 stepArray.map((o: any) => dataFn(o, dD))
                             )
@@ -624,5 +639,35 @@ export class DataManager<Type> extends IErrorable {
 
     protected async removeReference(id: string, field: string, real: boolean) {
         throw this.error('removeReference', HTTPStatus.NOT_IMPLEMENTED)
+    }
+
+    // Called by GET-ALL and GET-ID
+    public async convertIDtoKEY(doc: Type): Promise<Type> {
+        return this.mapEachField(
+            doc,
+            undefined,
+            (v, d) => {
+                console.log(doc)
+                if (typeof v === 'string' && d.foreignApi.db.isDBId(v)) {
+                    return splitId(v).key
+                } else if (typeof v === 'object') {
+                    // d.distortOnGet(v)
+                    return v
+                }
+                throw this.internal(
+                    'convertIds',
+                    `${this.className} [${v}] expected to be a DB id`
+                )
+            },
+            (v, d) => {
+                if (typeof v === 'object') {
+                    return d.foreignData.convertIDtoKEY(v)
+                }
+                throw this.internal(
+                    'convertIds',
+                    `${this.className} [${v}] expected to be an object`
+                )
+            }
+        )
     }
 }

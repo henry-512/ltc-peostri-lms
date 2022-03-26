@@ -3,7 +3,7 @@ import {
     ArangoWrapper,
     IFilterOpts,
     IGetAllQueryResults,
-    IQueryGetOpts
+    IQueryGetOpts,
 } from '../../database'
 import { APIError, HTTPStatus } from '../../lms/errors'
 import { IFieldData, IForeignFieldData } from '../../lms/FieldData'
@@ -127,7 +127,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         let all = await query.cursor.all()
 
         // Convert all document foreign ids to keys
-        await Promise.all(all.map(async (doc) => this.convertIdsToKeys(doc)))
+        await Promise.all(all.map(async (doc) => this.convertIDtoKEY(doc)))
 
         return {
             all: all,
@@ -137,32 +137,12 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         }
     }
 
-    public convertIdsToKeys(doc: Type) {
-        return this.mapForeignKeys(doc, async (k, d) => {
-            if (typeof k === 'string' && d.foreignApi.db.isDBId(k)) {
-                return splitId(k).key
-            } else if (typeof k === 'object') {
-                return k
-            }
-            throw this.error(
-                'convertIds',
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                'Invalid document status',
-                `${this.className} [${k}] expected to be a DB id`
-            )
-        })
-    }
-
     /**
      * Gets the document with the passed key from the database
      * @param id A (valid) db id for the document
      * @return A Type representing a document with key, with .id set and ._* removed
      */
-    public async getFromDB(
-        user: AuthUser,
-        depth: number,
-        id: string
-    ): Promise<Type> {
+    public async getFromDB(user: AuthUser, id: string): Promise<Type> {
         let doc = await this.db.get(id)
 
         return this.mapEachField(
@@ -190,11 +170,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                         return convertToKey(v)
                     } else if (data.foreignApi.db.isDBId(v)) {
                         // Dereference the id into an object
-                        let subdoc = await data.foreignApi.getFromDB(
-                            user,
-                            depth++,
-                            v
-                        )
+                        let subdoc = await data.foreignApi.getFromDB(user, v)
                         // Warps return values
                         if (data.distortOnGet) {
                             subdoc = data.distortOnGet(subdoc)
@@ -208,8 +184,11 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                 )
             },
             // data
-            // Warp return values
-            (v, data) => (data.distortOnGet ? data.distortOnGet(v) : v),
+            // Warp return values and convert foreign keys
+            async (v, data) => {
+                await data.foreignData.convertIDtoKEY(v)
+                return data.distortOnGet ? data.distortOnGet(v) : v
+            },
             // other
             async (v, data) => {
                 if (typeof v !== data.type) {
@@ -218,7 +197,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                 return v
             },
             // parent
-            (v) => v
+            undefined
         )
     }
 
@@ -324,7 +303,10 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             }
             for (let d of docs) {
                 if (!d.id || !api.db.isDBId(d.id)) {
-                    throw this.internal('create', `ID ${d.id} invalid in document ${JSON.stringify(d)}`)
+                    throw this.internal(
+                        'create',
+                        `ID ${d.id} invalid in document ${JSON.stringify(d)}`
+                    )
                 }
                 if (await api.db.exists(d.id)) {
                     console.log(
