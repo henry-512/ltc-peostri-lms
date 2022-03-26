@@ -192,7 +192,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             // other
             async (v, data) => {
                 if (typeof v !== data.type) {
-                    console.warn(`${v} is of incorrect type ${data}`)
+                    console.warn(`${v} is of incorrect type ${str(data)}`)
                 }
                 return v
             },
