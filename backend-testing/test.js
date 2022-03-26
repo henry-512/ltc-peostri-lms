@@ -1,15 +1,23 @@
 import { expect } from 'chai'
 import dotenv from 'dotenv'
 import supertest from 'supertest'
-import { authPassword, authUserName, checkFields, imp } from './data/index.js'
+import {
+    authPassword,
+    authUserName,
+    checkFields,
+    disown,
+    imp,
+    orphan,
+} from './data/index.js'
 dotenv.config()
+
+process.env.API = process.env.API ?? 'v1/'
 
 // .query('range=1..5')
 // .send('{}')
 // .send(jsonObj)
 //https://visionmedia.github.io/superagent/
 
-var API = 'v1/'
 var agent = supertest.agent(`localhost:${process.env.PORT || 5000}/api/`)
 
 const user = await imp('users')
@@ -60,7 +68,7 @@ describe('Authenticate', () => {
     })
 
     it('Self user', async () => {
-        let r = await agent.get(API + 'users/self')
+        let r = await agent.get(process.env.API + 'users/self')
         expect(r.status).equal(200)
         // Should return a user object
         checkFields(user.getId, r.body)
@@ -72,7 +80,7 @@ async function test(n) {
 
     describe(`${n} GET all`, () => {
         it('Base call', async () => {
-            let r = await agent.get(API + n)
+            let r = await agent.get(process.env.API + n)
 
             expect(r.headers)
                 .an('object')
@@ -84,7 +92,7 @@ async function test(n) {
 
     describe(`${n} GET one`, () => {
         it('Filter range [0,1]', async () => {
-            let r = await agent.get(API + n).query({
+            let r = await agent.get(process.env.API + n).query({
                 range: [0, 1],
             })
 
@@ -94,80 +102,24 @@ async function test(n) {
         })
 
         it('GET/:id', async () => {
-            let r = await agent.get(API + n).query({
+            let r = await agent.get(process.env.API + n).query({
                 range: [0, 1],
             })
 
             let id = r.body[0].id
 
-            r = await agent.get(API + n + '/' + id)
+            r = await agent.get(process.env.API + n + '/' + id)
 
             expect(r.status).equal(200)
             checkFields(raw.getId, r.body)
         })
     })
 
-    // This takes too long for projects
-    // Refactor into multiple describe() calls?
-    //if (n !== 'projects') {
-    /*
-    if (false) {
-    describe(`${n} POST/GET/PUT/DELETE chain`, () => {
-        it('Chain code', async () => {
-            let r = await request
-                .post(n)
-                .send(raw.chain.post || raw.acceptPost[0].d)
-            expect(r.status).equal(201)
-            expect(r.body).an('object')
-                .any.key('id')
-            
-            let key = r.body.id
-            let route = `${n}/${key}`
-
-            r = await request
-                .get(route)
-            expect(r.status).equal(200)
-            expect(r.body).an('object')
-            expect(r.body.id).equal(key)
-
-            // PUT
-            // Try to upload POST-acceptable data
-            for (let data of raw.acceptPost) {
-                r = await request
-                    .put(route)
-                    .send(data.d)
-                expect(r.status).equal(200)
-                expect(r.body).an('object')
-                expect(r.body.id).equal(key)
-            }
-            // Try to upload POST-unacceptable data
-            for (let data of raw.failPost) {
-                r = await request
-                    .post(n)
-                    .set('User-Agent', 'backend-testing')
-                    .send(data.d)
-                expect(r.status).not.equal(201)
-            }
-
-            // Delete test document
-            r = await request
-                .delete(route)
-            expect(r.status).equal(200)
-
-            // Verify actually deleted
-            r = await request
-                .get(route)
-            expect(r.status).equal(404)
-        })
-    })
-    }
-    */
-
     describe(`${n} POST accepts`, () => {
         raw.acceptPost.map((d) => {
             it(d.n, async () => {
                 let r = await agent
-                    .post(API + n)
+                    .post(process.env.API + n)
                     .set('User-Agent', 'backend-testing')
                     .send(d.d)
                 expect(r.status).equal(201)
@@ -180,91 +132,88 @@ async function test(n) {
         raw.failPost.map((d) => {
             it(d.n, async () => {
                 let r = await agent
-                    .post(API + n)
+                    .post(process.env.API + n)
                     .set('User-Agent', 'backend-testing')
                     .send(d.d)
                 expect(r.status).not.equal(201)
             })
         })
     })
+
+    describe(`${n} PUT`, () => {
+        let testData = { id: undefined, doc: undefined }
+
+        it('Base case', async () => {
+            let r = await agent
+                .post(process.env.API + n)
+                .send(raw.default)
+            expect(r.status).equal(201)
+            expect(r.body).an('object').any.key('id')
+            testData.id = r.body.id
+        })
+
+        it('GET from DB', async () => {
+            let r = await agent
+                .get(`${process.env.API}${n}/${testData.id}`)
+            expect(r.status).equal(200)
+            checkFields(raw.getId, r.body)
+            testData.doc = r.body
+        })
+
+        it('PUT valid data', async () => {
+            expect(testData.id, 'Initial POST fault').a('string')
+            let r = await agent
+                .put(`${process.env.API}${n}/${testData.id}`)
+                .send(raw.acceptPost[1].d)
+            expect(r.status).equal(200)
+            checkFields(raw.getId, r.body)
+            expect(r.body.id).equal(testData.id)
+        })
+
+        it('PUT invalid data', async () => {
+            expect(testData.id, 'Initial POST fault').a('string')
+            let r = await agent
+                .put(`${process.env.API}${n}/${testData.id}`)
+                .send(raw.failPost[0].d)
+            expect(r.status).not.equal(200)
+        })
+
+        it('DELETE data', async () => {
+            expect(testData.id, 'Initial POST fault').a('string')
+            let r = await agent
+                .delete(`${process.env.API}${n}/${testData.id}`)
+            expect(r.status).equal(200)
+            expect(r.body.id).equal(testData.id)
+        })
+    })
 }
 
 // Load dynamic test data
-await test('users')
-await test('projects')
+// await test('users')
+// await test('projects')
+await test('template/modules')
+// await test('template/projects')
 
-if (process.env.clean) {
+if (process.env.CLEAN) {
     // Clean disowned data
     describe('Disowned', function () {
         // These are beefy functions and need beefy runtimes
         this.timeout(10000)
-
-        it('Disown Projects', async () => {
-            let r = await agent
-                .set('User-Agent', 'backend-testing')
-                .delete(API + 'projects/disown')
-            expect(r.status).equal(200)
-        })
-        it('Disown Modules', async () => {
-            let r = await agent
-                .set('User-Agent', 'backend-testing')
-                .delete(API + 'modules/disown')
-            expect(r.status).equal(200)
-        })
-        it('Disown Tasks', async () => {
-            let r = await agent
-                .set('User-Agent', 'backend-testing')
-                .delete(API + 'tasks/disown')
-            expect(r.status).equal(200)
-        })
-        it('Disown Users', async () => {
-            let r = await agent
-                .set('User-Agent', 'backend-testing')
-                .delete(API + 'users/disown')
-            expect(r.status).equal(200)
-        })
-        it('Disown Comments', async () => {
-            let r = await agent
-                .set('User-Agent', 'backend-testing')
-                .delete(API + 'comments/disown')
-            expect(r.status).equal(200)
-        })
-        it('del Disown projectTemplates', async () => {
-            let r = await agent
-                .set('User-Agent', 'backend-testing')
-                .delete(API + 'template/projects/disown')
-            expect(r.status).equal(200)
-        })
+        disown('projects', agent)
+        disown('modules', agent)
+        disown('tasks', agent)
+        disown('users', agent)
+        disown('comments', agent)
+        disown('template/projects', agent)
     })
 
     // Delete orphaned data
     describe('Orphans', function () {
         // These are beefy functions and need beefy runtimes
         this.timeout(10000)
-
-        it('Orphan Modules', async () => {
-            let r = await agent
-                .set('User-Agent', 'backend-testing')
-                .delete(API + 'modules/orphan')
-            expect(r.status).equal(200)
-        })
-        it('Orphan Tasks', async () => {
-            let r = await agent
-                .set('User-Agent', 'backend-testing')
-                .delete(API + 'tasks/orphan')
-            expect(r.status).equal(200)
-        })
-        it('Orphan Filemetas', async () => {
-            let r = await agent
-                .set('User-Agent', 'backend-testing')
-                .delete(API + 'filemeta/orphan')
-            expect(r.status).equal(200)
-        })
-        it('Orphan Comments', async () => {
-            let r = await agent
-                .set('User-Agent', 'backend-testing')
-                .delete(API + 'comments/orphan')
-            expect(r.status).equal(200)
-        })
+        orphan('modules', agent)
+        orphan('tasks', agent)
+        orphan('filemeta', agent)
+        orphan('comments', agent)
     })
 }

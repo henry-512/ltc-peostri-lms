@@ -67,10 +67,6 @@ class Project extends DBManager<IProject> {
         files: any,
         doc: any
     ): Promise<IProject> {
-        if (typeof doc.ttc !== 'number') {
-            doc.ttc = 1
-        }
-
         // Calculate start dates from TTC values
         let modules = doc.modules
 
@@ -90,7 +86,11 @@ class Project extends DBManager<IProject> {
         let total = this.getModuleTTCTotal(modules, start, 0)
 
         // Calculate suspense date
-        doc.suspense = addDays(start, total + doc.ttc).toJSON()
+        doc.suspense = addDays(start, total).toJSON()
+        // doc.suspense = addDays(start, total + doc.ttc).toJSON()
+
+        // set TTC
+        doc.ttc = total
 
         return doc
     }
@@ -123,10 +123,6 @@ class Project extends DBManager<IProject> {
     public getModuleTTCMax(modules: IModule[], start: Date, offset: number) {
         let max = 0
         for (let mod of modules) {
-            if (typeof mod.ttc !== 'number') {
-                mod.ttc = 1
-            }
-
             if (typeof mod.tasks !== 'object') {
                 throw this.error(
                     'modifyDoc',
@@ -138,9 +134,11 @@ class Project extends DBManager<IProject> {
 
             // Total task time for this module
             let taskTTC = this.getTaskTTCTotal(<any>mod.tasks, start, offset)
-            max = Math.max(max, taskTTC + mod.ttc)
+            // max = Math.max(max, taskTTC + mod.ttc)
+            max = Math.max(max, taskTTC)
             // Set suspense date
-            mod.suspense = addDays(start, offset + mod.ttc).toJSON()
+            mod.suspense = addDays(start, offset).toJSON()
+            // mod.suspense = addDays(start, offset + mod.ttc).toJSON()
         }
         return max
     }

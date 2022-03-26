@@ -173,9 +173,10 @@ function route<Type extends IArangoIndexes>(
             ctx.header['user-agent'] !== 'backend-testing',
             true
         )
+
         ctx.status = HTTPStatus.OK
         ctx.body = {
-            id: id,
+            id: ctx.params.id,
             message: `${manager.className} deleted`,
         }
     })

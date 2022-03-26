@@ -78,3 +78,21 @@ export async function imp(n) {
     processStructure(data)
     return data
 }
+
+export function disown(n, agent) {
+    it('Disown ' + n, async () => {
+        let r = await agent
+            .set('User-Agent', 'backend-testing')
+            .delete(`${process.env.API}${n}/disown`)
+        expect(r.status).equal(200)
+    })
+}
+
+export function orphan(n, agent) {
+    it('Orphan ' + n, async () => {
+        let r = await agent
+            .set('User-Agent', 'backend-testing')
+            .delete(`${process.env.API}${n}/orphan`)
+        expect(r.status).equal(200)
+    })
+}
