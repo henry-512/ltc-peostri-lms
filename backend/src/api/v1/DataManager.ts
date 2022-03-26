@@ -410,9 +410,11 @@ export class DataManager<Type> extends IErrorable {
                 )
             },
             // foreign
-            async (v, d) => d.foreignApi.parseGet(user, files, v, d, map, id),
+            async (v, d) =>
+                d.foreignApi.parseGet(user, files, v, d, map, id ?? lastDBId),
             // data
-            async (v, d) => d.foreignData.parseGet(user, files, v, d, map, id ?? lastDBId),
+            async (v, d) =>
+                d.foreignData.parseGet(user, files, v, d, map, id ?? lastDBId),
             // other
             async (value, data) => {
                 if (typeof value === data.type) {
@@ -432,7 +434,7 @@ export class DataManager<Type> extends IErrorable {
                 }
                 throw this.internal(
                     'verifyAddedDocument.mapEachField',
-                    `${value} ${data} not a valid parent id`
+                    `${value} ${str(data)} not a valid parent id`
                 )
             }
         )
@@ -510,16 +512,24 @@ export class DataManager<Type> extends IErrorable {
         } else if (typeof doc === 'object') {
             // Update parent field only if it isn't already set
             // TODO: validate existing parent keys
-            if (this.parentField && !doc[this.parentField.local]) {
-                // We're assigning the parent/module/project field
-                // of documents here, so they hold references to
-                // their parent.
-                doc[this.parentField.local] = par
+            if (this.parentField) {
+                let local = this.parentField.local
+                if (!doc[local]) {
+                    // We're assigning the parent/module/project fieldof documents here, so they hold references to their parent.
+                    doc[local] = par
+                }
             }
 
             // Non-foreign documents are verified directly
             if (!data.foreignApi) {
-                return this.verifyAddedDocument(user, files, doc, false, map, par)
+                return this.verifyAddedDocument(
+                    user,
+                    files,
+                    doc,
+                    false,
+                    map,
+                    par
+                )
             }
 
             let db = data.foreignApi.db
@@ -556,6 +566,17 @@ export class DataManager<Type> extends IErrorable {
                     id = db.generateDBID()
                 }
             } else {
+                // If there is no id field, it is assumed to not exist
+                if (!data.acceptNewDoc) {
+                    throw this.error(
+                        'parseGet',
+                        HTTPStatus.BAD_REQUEST,
+                        'New document unauthorized',
+                        `New documents [${JSON.stringify(
+                            doc
+                        )}] not acceptable for type ${str(data)}`
+                    )
+                }
                 id = db.generateDBID()
             }
 

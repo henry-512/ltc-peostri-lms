@@ -82,7 +82,7 @@ async function test(n) {
         })
     })
 
-    describe(`${n} GET all filter one`, () => {
+    describe(`${n} GET one`, () => {
         it('Filter range [0,1]', async () => {
             let r = await agent.get(API + n).query({
                 range: [0, 1],

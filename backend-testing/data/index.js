@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 
-export const debugRankId = 'ranks/0123456789012345678900'
-export const debugRankKey = '0123456789012345678900'
+export const debugRankId = 'ranks/AJlWdxMyLTsp_rn1fwlxCA'
+export const debugRankKey = 'AJlWdxMyLTsp_rn1fwlxCA'
 
 export const debugUserId = 'users/0123456789012345678900'
 export const debugUserKey = '0123456789012345678900'
@@ -22,7 +22,7 @@ function addDefaults(cases, def) {
         if ('_CUSTOM' in data) {
             continue
         }
-        for (const [k,v] of Object.entries(def)) {
+        for (const [k, v] of Object.entries(def)) {
             if (k in data) {
                 if (v === undefined) {
                     delete k[v]
@@ -70,7 +70,7 @@ function addGetFields(d) {
 export function checkFields(schema, obj) {
     expect(obj).an('object')
     expect(obj).include.all.keys(schema.required)
-    expect(obj).not.any.keys(schema.invalid)
+    if (schema.invalid.length !== 0) expect(obj).not.any.keys(schema.invalid)
 }
 
 export async function imp(n) {

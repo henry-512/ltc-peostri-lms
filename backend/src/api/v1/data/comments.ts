@@ -43,7 +43,6 @@ class Comment extends DBManager<IComment> {
         str: string,
         par: string
     ): Promise<IComment | undefined> {
-        console.log(user.getId())
         // TODO: input validation
         let com: IComment = {
             id: this.db.generateDBID(),

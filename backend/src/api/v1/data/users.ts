@@ -24,8 +24,9 @@ class User extends DBManager<IUser> {
                 avatar: { type: 'string' },
                 rank: {
                     type: 'fkey',
-                    getIdKeepAsRef: true,
                     foreignApi: RankManager,
+                    getIdKeepAsRef: true,
+                    acceptNewDoc: false,
                 },
                 status: {
                     type: 'string',
