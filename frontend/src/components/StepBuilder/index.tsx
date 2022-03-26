@@ -66,7 +66,7 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-type StepsProps = {
+type StepBuilderProps = {
     title: string,
     help: string,
     children: JSX.Element | JSX.Element[],
@@ -82,7 +82,7 @@ type StepsProps = {
     actions?: JSX.Element[]
 }
 
-const Steps = (props: StepsProps) => {
+const StepBuilder = (props: StepBuilderProps) => {
     const { title, help, save, children, changeOnAction, updateForm, createLabel, createAction, initialValue, renderData, fixKey, emptyText, actions } = props;
     const classes = useStyles();
     const form = useForm();
@@ -278,4 +278,4 @@ const Steps = (props: StepsProps) => {
     )
 }
 
-export default Steps;
+export default StepBuilder;

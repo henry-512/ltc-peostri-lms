@@ -2,7 +2,7 @@ import { Grid } from "@material-ui/core"
 import { AutocompleteArrayInput, BooleanInput, DateInput, FormGroupContextProvider, NumberInput, ReferenceArrayInput, TextInput, useTranslate } from "react-admin"
 import { useForm } from "react-final-form";
 import { SectionTitle } from "src/components/misc";
-import { Step } from "src/components/stepper/Step"
+import { Step } from "src/components/FormStepper/Step"
 
 const General = (props: any) => {
     const translate = useTranslate();

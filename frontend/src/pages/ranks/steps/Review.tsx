@@ -1,5 +1,5 @@
 import { FormDataConsumer } from "react-admin";
-import { Step } from "src/components/stepper/Step";
+import { Step } from "src/components/FormStepper/Step";
 
 const Review = (props: any) => {
 return (

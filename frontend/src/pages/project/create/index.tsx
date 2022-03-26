@@ -1,6 +1,6 @@
 import { makeStyles } from "@material-ui/core";
 import { Create, useTranslate } from "react-admin";
-import Stepper from "../../../components/stepper/Stepper";
+import FormStepper from "../../../components/FormStepper";
 import General from "../steps/General";
 import Modules from "../steps/Modules";
 import transformer from "../transformer";
@@ -36,7 +36,7 @@ export default function ProjectCreate(props: any) {
 
     return (
         <Create title={translate('project.create.title')} {...props} transform={transformer}>
-            <Stepper validate={validateProject} create={true} initialValues={props.history?.location?.state?.record || {}}>
+            <FormStepper validate={validateProject} create={true} initialValues={props.history?.location?.state?.record || {}}>
 
                 <General classes={classes} title={translate('project.steps.general')} style={{ width: "100%" }} validator="general" {...props} />
 
@@ -44,7 +44,7 @@ export default function ProjectCreate(props: any) {
 
                 {/*<Review classes={classes} title={translate('project.steps.review')} className={classes.content} validator="" {...props}/>*/}
 
-            </Stepper>
+            </FormStepper>
         </Create>
     )
 }
