@@ -218,18 +218,6 @@ export default {
     ],
     failPost: [
         {
-            n: 'Missing field',
-            d: {
-                title: undefined,
-            },
-        },
-        {
-            n: 'Missing modules',
-            d: {
-                modules: undefined,
-            },
-        },
-        {
             n: 'Defined module, not step object',
             d: {
                 modules: {
@@ -243,6 +231,18 @@ export default {
                         ],
                     },
                 },
+            },
+        },
+        {
+            n: 'Missing field',
+            d: {
+                title: undefined,
+            },
+        },
+        {
+            n: 'Missing modules',
+            d: {
+                modules: undefined,
             },
         },
         {

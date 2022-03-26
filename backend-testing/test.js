@@ -153,6 +153,7 @@ async function test(n) {
         })
 
         it('GET from DB', async () => {
+            expect(testData.id, 'Initial POST fault').a('string')
             let r = await agent
                 .get(`${process.env.API}${n}/${testData.id}`)
             expect(r.status).equal(200)

@@ -171,7 +171,7 @@ export class DataManager<Type> extends IErrorable {
                                 'mapForeignKeys',
                                 HTTPStatus.BAD_REQUEST,
                                 'Unexpected type',
-                                `${stepArray} is not an array`
+                                `${JSON.stringify(stepArray)} is not an array`
                             )
                         }
 
@@ -645,7 +645,19 @@ export class DataManager<Type> extends IErrorable {
     public async convertIDtoKEY(doc: Type): Promise<Type> {
         return this.mapEachField(
             doc,
-            undefined,
+            // all
+            async (p, data) => {
+                if (!(p.key in p.obj)) {
+                    if (data.default !== undefined) {
+                        // Put default value in
+                        p.obj[p.key] = data.default
+                    } else {
+                        console.warn(`${String(p.key)} missing in GET/ ${doc}`)
+                    }
+                    return true
+                }
+                return false
+            },
             (v, d) => {
                 if (typeof v === 'string' && d.foreignApi.db.isDBId(v)) {
                     return splitId(v).key
