@@ -1,6 +1,6 @@
 import { makeStyles } from "@material-ui/core";
 import { Edit, useTranslate } from "react-admin";
-import Stepper from "../../../packages/FormStepper/Stepper";
+import FormStepper from "../../../packages/FormStepper";
 import General from "../steps/General";
 import Modules from "../steps/Modules";
 import transformer from "../transformer";
@@ -37,7 +37,7 @@ const ProjectEdit = (props: any) => {
 
     return (
         <Edit title={translate('project.edit.title')} {...props} transform={transformer}>
-            <Stepper validate={validateProject} {...props}>
+            <FormStepper validate={validateProject} {...props}>
 
                 <General classes={classes} title={translate('project.steps.general')} style={{ width: "100%" }} validator="general" {...props} />
 
@@ -45,7 +45,7 @@ const ProjectEdit = (props: any) => {
 
                 {/*<Review classes={classes} title={translate('project.steps.review')} className={classes.content} validator="" {...props}/>*/}
 
-            </Stepper>
+            </FormStepper>
         </Edit>
     )
 }

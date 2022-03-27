@@ -18,7 +18,7 @@ import { ProjectIcon } from '../../pages/project';
 import { ProjectTemplateIcon } from '../../pages/template/projects';
 import { ModuleTemplateIcon } from '../../pages/template/modules';
 import { UserIcon } from '../../pages/user';
-import { PermissionIcon } from 'src/pages/ranks';
+import PermissionIcon from '@material-ui/icons/Security';
 
 type MenuName = 'menuAdmin' | 'menuTemplate';
 
