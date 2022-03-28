@@ -3,11 +3,11 @@
 Logistics Management Software for PEO STRI.
 
 ## Installation and Startup
-## Startup - Database
+### Database
 - Download and Install ArangoDB (https://www.arangodb.com/download-major/)
 - Import Database DUMP file located in the "database" directory.
-- - 
-## Startup - Backend
+-- 
+### Backend
 In the "backend" directory:
 - Create ```.env``` file with the following contents:
 ```
@@ -20,7 +20,7 @@ DB_PASS = "password"          # Password of the user to connect to the database 
 - Run command ```npm install```
 - Run command ```npm run build```
 - Run command ```npm run start```
-## Startup - Frontend
+### Frontend
 In the "frontend" directory:
 - Create ```.env``` file with the following contents:
 ```
