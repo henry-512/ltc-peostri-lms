@@ -14,7 +14,8 @@
     "wipe": "rm -r ./build/*",
     "winwipe": "DEL /S %CD%\\build\\*",
     "sweep": "npm run wipe; npm run build && npm run start",
-    "winsweep": ".\\winsweep.bat"
+    "winsweep": ".\\winsweep.bat",
+    "docs": "npx typedoc"
   },
   "author": "",
   "license": "ISC",
@@ -28,7 +29,8 @@
     "@types/koa-logger": "^3.1.2",
     "@types/uuid": "^8.3.4",
     "koa-logger": "^3.2.1",
-    "typescript": "^4.5.5"
+    "typescript": "^4.5.5",
+    "typedoc": "^0.22.13"
   },
   "dependencies": {
     "@koa/cors": "^3.1.0",
