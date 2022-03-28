@@ -111,6 +111,7 @@ const ModuleManager = (props: ModuleManagerProps) => {
                         submitAction={submitTemplate}
                         getSource={getNewSource}
                         isTemplate={props.isTemplate}
+                        calculateTTC={props.calculateTTC}
                     />
                 ]}
             >
