@@ -119,6 +119,7 @@ const domainMessages = {
                 fields: {
                     ttc: "Est. Time to Completion (in days)",
                     ttc_help: "Calculated Based on Tasks",
+                    ttc_short: "TTC",
                     title: "Module Name",
                     status: "Status"
                 }
@@ -132,6 +133,7 @@ const domainMessages = {
                 fields: {
                     ttc: "Est. Time to Completion (in days)",
                     ttc_help: "Calculated Based on Modules",
+                    ttc_short: "TTC",
                     title: "Project Name",
                     status: "Status"
                 }

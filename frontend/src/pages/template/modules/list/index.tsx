@@ -55,7 +55,7 @@ const ModuleTemplateList = (props: ListProps) => {
                         <DateField source="createdAt" showTime />
                         <DateField source="updatedAt" showTime />
                         <TextField source="status" />
-                        <NumberField source="ttc" />
+                        <NumberField source="ttc" label="template.module.fields.ttc_short" />
                         <FunctionField label="Steps" render={(record: Record<string, IModuleTemplate> | undefined) => `${Object.keys(record?.tasks || {}).length}`} />
                         <FunctionField label="Tasks" render={(record: Record<string, IModuleTemplate> | undefined) => `${getTaskCount(record)}`} />
                     </Datagrid>

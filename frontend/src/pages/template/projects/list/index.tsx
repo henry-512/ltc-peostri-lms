@@ -43,7 +43,7 @@ const ProjectTemplateList = (props: ListProps) => {
                     <DateField source="createdAt" showTime />
                     <DateField source="updatedAt" showTime />
                     <TextField source="status" />
-                    <NumberField source="ttc" />
+                    <NumberField source="ttc" label="template.project.fields.ttc_short" />
                     <FunctionField label="Steps" render={(record: Record<string, IModuleTemplate> | undefined) => `${Object.keys(record?.modules || {}).length}`} />
                 </Datagrid>
             </List>

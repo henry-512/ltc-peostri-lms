@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core';
-import { Datagrid, DateField, Empty, List, ListProps, TextField } from 'react-admin';
+import { Datagrid, DateField, List, ListProps, TextField } from 'react-admin';
 import { ProjectEmptyList, ProjectListActions } from 'src/components/project';
 
 const useListStyles = makeStyles({
