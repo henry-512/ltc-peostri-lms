@@ -55,7 +55,6 @@ class Project extends DBManager<IProject> {
                 ttc: {
                     type: 'number',
                     optional: true,
-                    hideGetAll: true,
                 },
             },
             { hasCUTimestamp: true }

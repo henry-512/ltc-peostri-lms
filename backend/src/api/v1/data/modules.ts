@@ -97,7 +97,6 @@ class Module extends DBManager<IModule> {
             ttc: {
                 type: 'number',
                 optional: true,
-                hideGetAll: true,
             },
         })
     }
