@@ -1,6 +1,7 @@
 {
     "typedocOptions": {
-        "entryPoints": ["expand"],
+        "entryPoints": ["src"],
+        "entryPointStrategy": "expand",
         "out": "docs",
     },
      "compilerOptions": {
