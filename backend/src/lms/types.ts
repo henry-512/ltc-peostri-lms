@@ -30,15 +30,18 @@ export interface IComment extends IArangoIndexes, ICreateUpdate {
 }
 
 export interface IFile extends IArangoIndexes, ICreateUpdate {
-    src: string
     title: string
     author: string | IUser
+    src?: string
+    path?: string
 }
 
 export interface IFilemeta extends IArangoIndexes, ICreateUpdate {
-    latest: IFile
-    old: IFile[]
-    module: string | IModule
+    latest: string | IFile
+    reviews: string[] | IFile[]
+    old: string[] | IFile[]
+    oldReviews: string[] | IFile[]
+    module: string
 }
 
 export interface IModuleTemplate extends IArangoIndexes {
@@ -60,9 +63,9 @@ export interface IModule extends IArangoIndexes {
     title: string
     tasks: IStepper<ITask> | IStepper<string>
     comments: Array<string> | Array<IComment>
-    project?: string
     status: Status | 'WAIVED'
-    files?: string[] | IFilemeta[]
+    file?: string | IFilemeta
+    project?: string
 }
 
 export interface IProjectTemplate extends IArangoIndexes, ICreateUpdate {

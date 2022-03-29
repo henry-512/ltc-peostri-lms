@@ -6,10 +6,9 @@ import { IArangoIndexes } from '../../lms/types'
 import { splitId } from '../../lms/util'
 import { CommentManager } from './data/comments'
 import { FilemetaManager } from './data/filemeta'
-import { ModuleManager } from './data/modules'
+import { FiledataManager } from './data/files'
 import { ProjectManager } from './data/projects'
 import { RankManager } from './data/ranks'
-import { TaskManager } from './data/tasks'
 import { ModuleTempManager } from './data/template/moduleTemplates'
 import { ProjectTempManager } from './data/template/projectTemplates'
 import { UserManager } from './data/users'
@@ -29,8 +28,8 @@ export function routerBuilder(version: string) {
                 )
             )
             .use(route('ranks', RankManager))
-            .use(route('tasks', TaskManager))
-            .use(route('modules', ModuleManager))
+            // .use(route('tasks', TaskManager))
+            // .use(route('modules', ModuleManager))
             .use(route('comments', CommentManager))
             .use(route('projects', ProjectManager))
             // Templates
@@ -72,7 +71,7 @@ export function routerBuilder(version: string) {
                             ctx.state.user,
                             id
                         )
-                        let buffer = await FilemetaManager.readLatest(meta)
+                        let buffer = await FiledataManager.readLatest(meta)
 
                         ctx.ok(buffer)
                     })
@@ -111,7 +110,7 @@ function route<Type extends IArangoIndexes>(
         r = manager.debugRoutes(r)
     }
 
-    r.get('/', async (ctx) => {
+    r.get('/list', async (ctx) => {
         let results = await manager.query(ctx.request.query)
 
         ctx.status = HTTPStatus.OK
@@ -124,14 +123,14 @@ function route<Type extends IArangoIndexes>(
         ctx.set('Access-Control-Expose-Headers', 'Content-Range')
     })
 
-    r.get('/:id', async (ctx) => {
+    r.get('/list/:id', async (ctx) => {
         let id = await manager.db.assertKeyExists(ctx.params.id)
 
         ctx.body = await manager.getFromDB(ctx.state.user, id)
         ctx.status = HTTPStatus.OK
     })
 
-    r.post('/', async (ctx) => {
+    r.post('/list', async (ctx) => {
         let doc: Type = await parseBody<Type>(ctx.request)
 
         let id = await manager.create(
@@ -148,7 +147,7 @@ function route<Type extends IArangoIndexes>(
         }
     })
 
-    r.put('/:id', async (ctx) => {
+    r.put('/list/:id', async (ctx) => {
         let id = manager.db.keyToId(ctx.params.id)
         let doc: Type = await parseBody<Type>(ctx.request)
 
@@ -164,7 +163,7 @@ function route<Type extends IArangoIndexes>(
         ctx.status = HTTPStatus.OK
     })
 
-    r.delete('/:id', async (ctx) => {
+    r.delete('/list/:id', async (ctx) => {
         let id = await manager.db.assertKeyExists(ctx.params.id)
         await manager.delete(
             ctx.state.user,

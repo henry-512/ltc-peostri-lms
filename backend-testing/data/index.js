@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 
-export const debugRankId = 'ranks/AJlWdxMyLTsp_rn1fwlxCA'
-export const debugRankKey = 'AJlWdxMyLTsp_rn1fwlxCA'
+export const debugRankId = 'ranks/0123456789012345678900'
+export const debugRankKey = '0123456789012345678900'
 
 export const debugUserId = 'users/0123456789012345678900'
 export const debugUserKey = '0123456789012345678900'

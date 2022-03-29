@@ -1,30 +1,8 @@
-import fs from 'fs'
-import path from 'path'
-import { config } from '../../../config'
 import { HTTPStatus } from '../../../lms/errors'
-import { IFile, IFilemeta } from '../../../lms/types'
-import { generateBase64UUID } from '../../../lms/util'
+import { IFilemeta } from '../../../lms/types'
 import { AuthUser } from '../../auth'
-import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
-import { UserManager } from './users'
-
-const FILE_PATH = path.resolve(config.basePath, 'fs')
-
-const FiledataInstance = new DataManager<IFile>(
-    'File',
-    {
-        src: { type: 'string' },
-        title: { type: 'string' },
-        author: {
-            type: 'fkey',
-            foreignApi: UserManager,
-        },
-    },
-    {
-        hasCUTimestamp: true,
-    }
-)
+import { FiledataManager } from './files'
 
 class Filemeta extends DBManager<IFilemeta> {
     constructor() {
@@ -34,13 +12,23 @@ class Filemeta extends DBManager<IFilemeta> {
             '_key',
             {
                 latest: {
-                    type: 'data',
-                    foreignData: FiledataInstance,
+                    type: 'fkey',
+                    foreignApi: FiledataManager,
                 },
                 old: {
                     type: 'array',
-                    instance: 'data',
-                    foreignData: FiledataInstance,
+                    instance: 'fkey',
+                    foreignApi: FiledataManager,
+                },
+                reviews: {
+                    type: 'array',
+                    instance: 'fkey',
+                    foreignApi: FiledataManager,
+                },
+                oldReviews: {
+                    type: 'array',
+                    instance: 'fkey',
+                    foreignApi: FiledataManager,
                 },
                 module: {
                     type: 'parent',
@@ -49,34 +37,6 @@ class Filemeta extends DBManager<IFilemeta> {
             },
             { hasCUTimestamp: true }
         )
-    }
-
-    private async writeFile(user: AuthUser, file: IFileData): Promise<IFile> {
-        let id = generateBase64UUID()
-        let src: string = id + '-' + file.name
-
-        await fs.promises.rename(file.path, path.join(FILE_PATH, src))
-
-        return {
-            src,
-            title: file.name,
-            author: user.getId(),
-        }
-    }
-
-    public async readLatest(doc: IFilemeta) {
-        let src = path.join(FILE_PATH, doc.latest.src)
-        let stat = await fs.promises.stat(src)
-        if (!stat.isFile) {
-            this.error(
-                'readLatest',
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                'Invalid system state',
-                `${src} is not a file`
-            )
-        }
-
-        return fs.promises.readFile(src)
     }
 
     // Stores the passed file into the database
@@ -96,18 +56,20 @@ class Filemeta extends DBManager<IFilemeta> {
         }
 
         let fileData: IFileData = files[str] as IFileData
-        let latest = await this.writeFile(user, fileData)
+        let latest = await FiledataManager.writeFile(user, fileData)
 
         return {
             id: this.db.generateDBID(),
             latest,
+            reviews: [],
             old: [],
+            oldReviews: [],
             module: par,
         }
     }
 }
 
-interface IFileData {
+export interface IFileData {
     // Blob data
     size: number
     path: string
