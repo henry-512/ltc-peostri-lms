@@ -299,6 +299,12 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     public async getAll() {
         return ArangoWrapper.db.query(aql`FOR d in ${this.collection} RETURN d`)
     }
+
+    public async getDocumentsContainingId(id: string, field: string) {
+        return ArangoWrapper.db.query(
+            aql`FOR d in ${this.collection} FILTER ${id} IN d.${field} RETURN d`
+        )
+    }
 }
 
 export interface IFilterOpts {

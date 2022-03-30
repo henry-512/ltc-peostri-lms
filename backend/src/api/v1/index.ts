@@ -4,11 +4,14 @@ import { config } from '../../config'
 import { HTTPStatus } from '../../lms/errors'
 import { IArangoIndexes } from '../../lms/types'
 import { splitId } from '../../lms/util'
+import { AuthUser } from '../auth'
 import { CommentManager } from './data/comments'
 import { FilemetaManager } from './data/filemeta'
 import { FiledataManager } from './data/files'
+import { ModuleManager } from './data/modules'
 import { ProjectManager } from './data/projects'
 import { RankManager } from './data/ranks'
+import { TaskManager } from './data/tasks'
 import { ModuleTempManager } from './data/template/moduleTemplates'
 import { ProjectTempManager } from './data/template/projectTemplates'
 import { UserManager } from './data/users'
@@ -28,8 +31,8 @@ export function routerBuilder(version: string) {
                 )
             )
             .use(route('ranks', RankManager))
-            // .use(route('tasks', TaskManager))
-            // .use(route('modules', ModuleManager))
+            .use(route('tasks', TaskManager))
+            .use(route('modules', ModuleManager))
             .use(route('comments', CommentManager))
             .use(route('projects', ProjectManager))
             // Templates
@@ -74,6 +77,41 @@ export function routerBuilder(version: string) {
                         let buffer = await FiledataManager.readLatest(meta)
 
                         ctx.ok(buffer)
+                    })
+                    .routes()
+            )
+            // Assigned user routes
+            .use(
+                new Router({ prefix: 'users/' })
+                    .get('tasks', async (ctx) => {
+                        let user: AuthUser = ctx.state.user
+                        let id = user.getId()
+
+                        await TaskManager.db.assertIdExists(id)
+
+                        ctx.body = await TaskManager.getTasksAssignedToUser(id)
+                        ctx.status = HTTPStatus.OK
+                    })
+                    .get('tasks/:id', async (ctx) => {
+                        let id = await TaskManager.db.assertKeyExists(ctx.params.id)
+
+                        ctx.body = await TaskManager.getTasksAssignedToUser(id)
+                        ctx.status = HTTPStatus.OK
+                    })
+                    .get('projects', async (ctx) => {
+                        let user: AuthUser = ctx.state.user
+                        let id = user.getId()
+
+                        await ProjectManager.db.assertIdExists(id)
+
+                        ctx.body = await ProjectManager.getProjectsAssignedToUser(id)
+                        ctx.status = HTTPStatus.OK
+                    })
+                    .get('projects/:id', async (ctx) => {
+                        let id = await ProjectManager.db.assertKeyExists(ctx.params.id)
+
+                        ctx.body = await ProjectManager.getProjectsAssignedToUser(id)
+                        ctx.status = HTTPStatus.OK
                     })
                     .routes()
             )

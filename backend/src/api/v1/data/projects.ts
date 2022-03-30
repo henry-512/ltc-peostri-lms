@@ -26,14 +26,6 @@ class Project extends DBManager<IProject> {
                     type: 'string',
                     default: 'AWAITING',
                 },
-                comments: {
-                    type: 'array',
-                    instance: 'fkey',
-                    default: [],
-                    freeable: true,
-                    acceptNewDoc: true,
-                    foreignApi: CommentManager,
-                },
                 suspense: {
                     type: 'string',
                     optional: true,
@@ -59,6 +51,12 @@ class Project extends DBManager<IProject> {
             },
             { hasCUTimestamp: true }
         )
+    }
+
+    async getProjectsAssignedToUser(id: string) {
+        let cursor = await this.db.getDocumentsContainingId(id, 'users')
+
+        return cursor.all()
     }
 
     protected override async modifyDoc(
