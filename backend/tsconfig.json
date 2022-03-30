@@ -1,4 +1,9 @@
 {
+    "typedocOptions": {
+        "entryPoints": ["src"],
+        "entryPointStrategy": "expand",
+        "out": "docs",
+    },
      "compilerOptions": {
           "target": "es2017",
           "module": "commonjs",

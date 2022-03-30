@@ -25,7 +25,7 @@ const user = await imp('users')
 // Authentication testing
 describe('Authenticate', () => {
     it('Unauthorized access', async () => {
-        let r = await agent.get('v1/projects')
+        let r = await agent.get('v1/projects/list')
         expect(r.status).equal(401)
     })
 
@@ -80,19 +80,19 @@ async function test(n) {
 
     describe(`${n} GET all`, () => {
         it('Base call', async () => {
-            let r = await agent.get(process.env.API + n)
+            let r = await agent.get(process.env.API + n + '/list')
 
+            expect(r.status).equal(200)
+            expect(r.body).an('array')
             expect(r.headers)
                 .an('object')
                 .any.keys('content-range', 'access-control-expose-headers')
-            expect(r.status).equal(200)
-            expect(r.body).an('array')
         })
     })
 
     describe(`${n} GET one`, () => {
         it('Filter range [0,1]', async () => {
-            let r = await agent.get(process.env.API + n).query({
+            let r = await agent.get(process.env.API + n + '/list').query({
                 range: [0, 1],
             })
 
@@ -102,13 +102,13 @@ async function test(n) {
         })
 
         it('GET/:id', async () => {
-            let r = await agent.get(process.env.API + n).query({
+            let r = await agent.get(process.env.API + n + '/list').query({
                 range: [0, 1],
             })
 
             let id = r.body[0].id
 
-            r = await agent.get(process.env.API + n + '/' + id)
+            r = await agent.get(process.env.API + n + '/list/' + id)
 
             expect(r.status).equal(200)
             checkFields(raw.getId, r.body)
@@ -119,7 +119,7 @@ async function test(n) {
         raw.acceptPost.map((d) => {
             it(d.n, async () => {
                 let r = await agent
-                    .post(process.env.API + n)
+                    .post(process.env.API + n + '/list')
                     .set('User-Agent', 'backend-testing')
                     .send(d.d)
                 expect(r.status).equal(201)
@@ -132,7 +132,7 @@ async function test(n) {
         raw.failPost.map((d) => {
             it(d.n, async () => {
                 let r = await agent
-                    .post(process.env.API + n)
+                    .post(process.env.API + n + '/list')
                     .set('User-Agent', 'backend-testing')
                     .send(d.d)
                 expect(r.status).not.equal(201)
@@ -145,7 +145,7 @@ async function test(n) {
 
         it('Base case', async () => {
             let r = await agent
-                .post(process.env.API + n)
+                .post(process.env.API + n + '/list')
                 .send(raw.default)
             expect(r.status).equal(201)
             expect(r.body).an('object').any.key('id')
@@ -155,7 +155,7 @@ async function test(n) {
         it('GET from DB', async () => {
             expect(testData.id, 'Initial POST fault').a('string')
             let r = await agent
-                .get(`${process.env.API}${n}/${testData.id}`)
+                .get(`${process.env.API}${n}/list/${testData.id}`)
             expect(r.status).equal(200)
             checkFields(raw.getId, r.body)
             testData.doc = r.body
@@ -164,7 +164,7 @@ async function test(n) {
         it('PUT valid data', async () => {
             expect(testData.id, 'Initial POST fault').a('string')
             let r = await agent
-                .put(`${process.env.API}${n}/${testData.id}`)
+                .put(`${process.env.API}${n}/list/${testData.id}`)
                 .send(raw.acceptPost[1].d)
             expect(r.status).equal(200)
             checkFields(raw.getId, r.body)
@@ -174,7 +174,7 @@ async function test(n) {
         it('PUT invalid data', async () => {
             expect(testData.id, 'Initial POST fault').a('string')
             let r = await agent
-                .put(`${process.env.API}${n}/${testData.id}`)
+                .put(`${process.env.API}${n}/list/${testData.id}`)
                 .send(raw.failPost[0].d)
             expect(r.status).not.equal(200)
         })
@@ -182,7 +182,7 @@ async function test(n) {
         it('DELETE data', async () => {
             expect(testData.id, 'Initial POST fault').a('string')
             let r = await agent
-                .delete(`${process.env.API}${n}/${testData.id}`)
+                .delete(`${process.env.API}${n}/list/${testData.id}`)
             expect(r.status).equal(200)
             expect(r.body.id).equal(testData.id)
         })

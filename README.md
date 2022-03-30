@@ -13,7 +13,7 @@ Requires NodeJS, NPM, and Typescript
 - Start up the database server by running:
 ```
 arangod --server.endpoint "tcp://0.0.0.0:3000"
-# Replace 0.0.0.0:300 with the specifed IP and Port.
+# Replace 0.0.0.0:3000 with the specifed IP and Port.
 ```
 - Import the database data, by running:
 ```

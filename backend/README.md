@@ -145,7 +145,7 @@ A 22-character base-64 string randomly-generated UUID. Looks like `dSc_0eu4Rojyv
 
 ## `ID`
 
-An `key` associated with a collection, separated with a `/`. Looks like `users/dSc_0eu4RojyvNZJT-P2AA`.
+A `KEY` associated with a collection, separated with a `/`. Looks like `users/dSc_0eu4RojyvNZJT-P2AA`.
 
 ## Ok but why?
 
