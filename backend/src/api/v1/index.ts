@@ -93,7 +93,9 @@ export function routerBuilder(version: string) {
                         ctx.status = HTTPStatus.OK
                     })
                     .get('tasks/:id', async (ctx) => {
-                        let id = await TaskManager.db.assertKeyExists(ctx.params.id)
+                        let id = await TaskManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
 
                         ctx.body = await TaskManager.getTasksAssignedToUser(id)
                         ctx.status = HTTPStatus.OK
@@ -104,13 +106,17 @@ export function routerBuilder(version: string) {
 
                         await ProjectManager.db.assertIdExists(id)
 
-                        ctx.body = await ProjectManager.getProjectsAssignedToUser(id)
+                        ctx.body =
+                            await ProjectManager.getProjectsAssignedToUser(id)
                         ctx.status = HTTPStatus.OK
                     })
                     .get('projects/:id', async (ctx) => {
-                        let id = await ProjectManager.db.assertKeyExists(ctx.params.id)
+                        let id = await ProjectManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
 
-                        ctx.body = await ProjectManager.getProjectsAssignedToUser(id)
+                        ctx.body =
+                            await ProjectManager.getProjectsAssignedToUser(id)
                         ctx.status = HTTPStatus.OK
                     })
                     .routes()

@@ -1,4 +1,4 @@
-import { IStepper } from "./util"
+import { IStepper } from './util'
 
 export type Status = 'IN_PROGRESS' | 'COMPLETED' | 'ARCHIVED' | 'AWAITING'
 export type TaskTypes =
