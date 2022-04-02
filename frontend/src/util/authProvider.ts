@@ -15,6 +15,9 @@ const authProvider: AuthProvider = {
                 throw new Error(response.statusText);
             }
             return response.json();
+        }).then((data) => {
+            localStorage.setItem('user_id', data.id);
+            return data;
         })
     },
     logout: () => {
@@ -28,6 +31,7 @@ const authProvider: AuthProvider = {
             if (response.status < 200 || response.status >= 300) {
                 throw new Error(response.statusText);
             }
+            localStorage.removeItem('user_id');
             return;
         })
     },
@@ -56,7 +60,7 @@ const authProvider: AuthProvider = {
     getPermissions: () => Promise.reject('Unknown method'),
     getIdentity: () => {
         const request = new Request(`${process.env.REACT_APP_API_URL}/auth`, {
-            method: 'POST',
+            method: 'GET',
             headers: new Headers({ 'Content-Type': 'application/json' }),
             credentials: 'include'
         });
