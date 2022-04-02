@@ -110,7 +110,6 @@ export interface IProject extends IArangoIndexes, ICreateUpdate {
     start: Date;
     end: Date;
     status: Status;
-    comments: Array<string> | Array<IComment>;
     modules: IModuleStep;
     users: Array<string> | Array<IUser>;
     auto_assign?: boolean;

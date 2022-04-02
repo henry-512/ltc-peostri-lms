@@ -4,7 +4,6 @@ const transformer = (data: IProject) => {
     //Remove form values used for client processing.
     delete data.auto_assign;
     delete data.module_template_id;
-    data.comments = [];
 
     let mStepCounter = 0; //Keep track of current step, in case of deletion and need for refactoring.
     for (const mKey in data.modules) {
