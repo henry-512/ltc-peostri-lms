@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useForm, useFormState } from "react-final-form";
 import { IModule, IModuleStep } from "src/util/types";
-import Steps from "../../packages/StepBuilder";
+import Steps from "../StepBuilder";
 import ModuleCard from "./ModuleCard";
 import Creator from "./Creator";
 import { useTranslate } from "react-admin";

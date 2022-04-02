@@ -9,27 +9,6 @@ import { useForm, useFormState } from "react-final-form";
 import { ITaskTemplate } from "src/util/types";
 import get from "lodash.get";
 
-const useStyles = makeStyles(theme => ({
-    modulesForm: {
-        marginTop: '0px'
-    },
-    modulesArrayInput: {
-        marginTop: '10px'
-    },
-    waiverWrapper: {
-        position: 'relative',
-        height: '0px',
-        transition: 'height 0.3s ease',
-        overflow: 'hidden',
-    },
-    waiverWrapperOpen: {
-        transition: 'height 0.3s ease',
-        height: '190px',
-        marginBottom: '-30px',
-        maxHeight: 'unset'
-    }
-}))
-
 type ModuleTemplateFieldsProps = {
     getSource?: Function,
     initialValues?: any,
@@ -64,7 +43,7 @@ const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
 
     return (
         <>
-            <Box display="flex" width="100%" flexDirection="column">
+            <Box display="flex" width="100%" flexDirection="column" style={{ marginTop: '1rem' }}>
                 <SectionTitle label="template.module.layout.general" />
                 <Grid container spacing={4}>
                     <Grid item xs={5}>

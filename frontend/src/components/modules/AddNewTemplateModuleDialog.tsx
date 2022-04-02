@@ -94,7 +94,7 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
                 <DialogTitle id={props.ariaLabel} classes={dialogStyles}>{props.label}</DialogTitle>
                 <DialogContent classes={dialogContentStyles}>
                     <FormGroupContextProvider name={props.ariaLabel} >
-                        <ReferenceInput label="project.layout.select_module_template" source="module_template_id" reference="template/modules">
+                        <ReferenceInput label="project.layout.select_module_template" source="module_template_id" reference="template/modules/list">
                             <AutocompleteInput optionText="title" optionValue="id" fullWidth validate={[required()]} helperText=" " />
                         </ReferenceInput>
                     </FormGroupContextProvider>

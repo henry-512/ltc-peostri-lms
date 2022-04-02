@@ -3,7 +3,14 @@ import { SimpleForm } from "react-admin"
 import StepHeader from "./StepHeader";
 import StepToolbar from "./StepToolbar"
 
-export default function FormStepper(props: any) {
+type FormStepperProps = {
+    create?: boolean
+    children: JSX.Element[]
+    validate: Function
+    initialValues?: any
+}
+
+export default function FormStepper(props: FormStepperProps) {
     const [backText, setBackText] = React.useState("");
     const [activeStep, setActiveStep] = React.useState(0);
     const [skipped, setSkipped] = React.useState(new Set());
@@ -75,7 +82,7 @@ export default function FormStepper(props: any) {
                 handleSkip={handleSkip}
                 backText={backText}
                 validator={validator}
-                create={props.create}
+                create={props.create || false}
             />
         } {...props} validation={props.validate}>
             <StepHeader

@@ -73,7 +73,7 @@ const CreateProjectFromTemplateDialog = (props: CreateProjectFromTemplateDialogP
             <Dialog open={props.open} onClose={handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'sm')}>
                 <DialogTitle id={props.ariaLabel} classes={dialogStyles}>{props.label}</DialogTitle>
                 <DialogContent classes={dialogContentStyles}>
-                    <ReferenceInput label="project.layout.select_template" source="project_template_id" reference="template/projects">
+                    <ReferenceInput label="project.layout.select_template" source="project_template_id" reference="template/projects/list">
                         <AutocompleteInput optionText="title" optionValue="id" fullWidth validate={[required()]} helperText=" " />
                     </ReferenceInput>
                 </DialogContent>

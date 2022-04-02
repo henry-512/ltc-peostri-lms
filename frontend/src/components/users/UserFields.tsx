@@ -68,7 +68,7 @@ export default function UserFields(props: any) {
                     <SectionTitle label="user.layout.permissions" />
                     <ReferenceInput
                         label="project.fields.rank"
-                        reference="ranks"
+                        reference="ranks/list"
                         source="rank"
                         style={{
                             width: '50%'

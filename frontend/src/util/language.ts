@@ -122,6 +122,10 @@ const domainMessages = {
                     ttc_short: "TTC",
                     title: "Module Name",
                     status: "Status"
+                },
+                steps: {
+                    general: "General Information",
+                    tasks: "Task Management"
                 }
             },
             project: {
@@ -136,6 +140,10 @@ const domainMessages = {
                     ttc_short: "TTC",
                     title: "Project Name",
                     status: "Status"
+                },
+                steps: {
+                    general: "General Information",
+                    tasks: "Module Management"
                 }
             }
         },
@@ -151,11 +159,20 @@ const domainMessages = {
                     status: "Status"
                 }
             },
-            'template/projects': {
+            'template/projects/list': {
                 name: "Project Templates"
             },
-            'template/modules': {
+            'template/modules/list': {
                 name: "Module Templates"
+            },
+            'projects/list': {
+                name: "Projects"
+            },
+            'ranks/list': {
+                name: "Ranks"
+            },
+            'users/list': {
+                name: "Users"
             }
         },
         ra: {
