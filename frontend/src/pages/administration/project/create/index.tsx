@@ -1,6 +1,6 @@
 import { makeStyles } from "@material-ui/core";
-import { Edit, useTranslate } from "react-admin";
-import FormStepper from "../../../components/FormStepper";
+import { Create, useTranslate } from "react-admin";
+import FormStepper from "../../../../components/FormStepper";
 import General from "../steps/General";
 import Modules from "../steps/Modules";
 import transformer from "../transformer";
@@ -30,24 +30,19 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const ProjectEdit = (props: any) => {
+export default function ProjectCreate(props: any) {
     const translate = useTranslate();
     const classes = useStyles();
 
-
     return (
-        <Edit title={translate('project.edit.title')} {...props} transform={transformer}>
-            <FormStepper validate={validateProject} {...props}>
+        <Create title={translate('project.create.title')} {...props} transform={transformer}>
+            <FormStepper validate={validateProject} create={true} initialValues={props.history?.location?.state?.record || {}}>
 
                 <General classes={classes} title={translate('project.steps.general')} style={{ width: "100%" }} validator="general" {...props} />
 
                 <Modules classes={classes} title={translate('project.steps.modules')} className={classes.content} validator="modules" {...props} />
 
-                {/*<Review classes={classes} title={translate('project.steps.review')} className={classes.content} validator="" {...props}/>*/}
-
             </FormStepper>
-        </Edit>
+        </Create>
     )
 }
-
-export default ProjectEdit;

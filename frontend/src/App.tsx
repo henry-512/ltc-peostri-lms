@@ -1,6 +1,6 @@
 import { Admin, EditGuesser, ListGuesser, Resource, ShowGuesser } from 'react-admin';
 import dataProvider from './util/dataProvider';
-import { ProjectList, ProjectCreate, ProjectEdit } from './pages/project';
+import { ProjectList, ProjectCreate, ProjectEdit } from './pages/administration/project';
 import routes from './util/routes';
 import { Layout } from './components/layout';
 import DashboardComponent from './pages/dashboard';
@@ -9,7 +9,7 @@ import englishMessages from 'ra-language-english';
 import domainMessages from './util/language';
 import auth from './util/authProvider';
 import LoginPage from './pages/login';
-import { UserCreate, UserEdit, UserList } from './pages/user';
+import { UserCreate, UserEdit, UserList } from './pages/administration/user';
 import { ProjectTemplateCreate, ProjectTemplateEdit, ProjectTemplateList } from './pages/template/projects';
 import { ModuleTemplateCreate, ModuleTemplateEdit, ModuleTemplateList } from './pages/template/modules';
 

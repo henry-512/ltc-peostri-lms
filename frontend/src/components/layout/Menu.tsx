@@ -14,10 +14,10 @@ import SubMenu from './SubMenu';
 import { AppState } from 'src/util/types';
 import SettingsIcon from '@material-ui/icons/Settings';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
-import { ProjectIcon } from '../../pages/project';
+import { ProjectIcon } from '../../pages/administration/project';
 import { ProjectTemplateIcon } from '../../pages/template/projects';
 import { ModuleTemplateIcon } from '../../pages/template/modules';
-import { UserIcon } from '../../pages/user';
+import { UserIcon } from '../../pages/administration/user';
 import PermissionIcon from '@material-ui/icons/Security';
 
 type MenuName = 'menuAdmin' | 'menuTemplate';

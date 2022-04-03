@@ -2,9 +2,10 @@ import { forwardRef } from 'react';
 import { AppBar, UserMenu, MenuItemLink, useTranslate } from 'react-admin';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { makeStyles } from '@material-ui/core/styles';
-import { Typography } from '@material-ui/core';
+import { Button, Typography } from '@material-ui/core';
 
 import Logo from './Logo';
+import { NotificationsButton } from '../notifications';
 
 const useStyles = makeStyles({
     title: {
@@ -52,6 +53,7 @@ const CustomAppBar = (props: any) => {
             />
             <Logo />
             <span className={classes.spacer} />
+            <NotificationsButton />
         </AppBar>
     );
 };
