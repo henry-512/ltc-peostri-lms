@@ -29,6 +29,16 @@ const domainMessages = {
         login: {
 
         },
+        dashboard: {
+            widget: {
+                project_count: {
+                    title: "Awaiting Projects"
+                },
+                task_count: {
+                    title: "Awaiting Tasks"
+                }
+            }
+        },
         project: {
             edit: {
                 title: "Editing Project"

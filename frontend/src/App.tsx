@@ -3,7 +3,7 @@ import dataProvider from './util/dataProvider';
 import { ProjectList, ProjectCreate, ProjectEdit } from './pages/administration/project';
 import routes from './util/routes';
 import { Layout } from './components/layout';
-import DashboardComponent from './pages/dashboard';
+import Dashboard from './pages/dashboard';
 import polyglotI18nProvider from 'ra-i18n-polyglot';
 import englishMessages from 'ra-language-english';
 import domainMessages from './util/language';
@@ -31,7 +31,7 @@ const App = () => {
             loginPage={LoginPage}
             customRoutes={routes}
             layout={Layout}
-            dashboard={DashboardComponent}
+            dashboard={Dashboard}
             locale="en"
             i18nProvider={i18nProvider}
             disableTelemetry
