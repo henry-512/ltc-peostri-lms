@@ -119,6 +119,12 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
             let k = filter.ref
                 ? aql`DOCUMENT(z.${filter.key}).${filter.ref}`
                 : aql`z.${filter.key}`
+            if (filter.inArray) {
+                query = aql`${query} FILTER ${filter.inArray} IN ${k}`
+            }
+            if (filter.eq) {
+                query = aql`${query} FILTER ${k} == ${filter.eq}`
+            }
             if (filter.in) {
                 query = aql`${query} FILTER ${k} IN ${filter.in}`
             }
@@ -146,7 +152,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
             opts.sort ?? { desc: false, key: '_key' },
             opts.range.offset,
             opts.range.count,
-            opts.filters || []
+            opts.filters
         )
 
         let cursor = await ArangoWrapper.db.query(query, {
@@ -158,6 +164,25 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
             (await this.collection.count()).count
 
         return { cursor, size }
+    }
+
+    public async queryGetCount(opts: IQueryGetOpts): Promise<number> {
+        let query = this.getAllQuery(
+            opts.sort ?? { desc: false, key: '_key' },
+            opts.range.offset,
+            opts.range.count,
+            opts.filters
+        )
+
+        let cursor = await ArangoWrapper.db.query(query, {
+            count: true,
+        })
+
+        if (cursor.count === undefined) {
+            throw this.internal('queryGetCount', '.count field missing')
+        }
+
+        return cursor.count ?? 0
     }
 
     public async tryExists(id: string) {
@@ -303,17 +328,6 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
             opts
         )
     }
-
-    public async getDocumentsContainingId(
-        id: string,
-        field: string,
-        opts?: QueryOptions
-    ) {
-        return ArangoWrapper.db.query(
-            aql`FOR d in ${this.collection} FILTER ${id} IN d.${field} RETURN d`,
-            opts
-        )
-    }
 }
 
 export interface IFilterOpts {
@@ -325,6 +339,10 @@ export interface IFilterOpts {
     in?: string[]
     // Substring check
     q?: string
+    // Complete checking against single element
+    eq?: string
+    // Checks if the passed string is in the array target
+    inArray?: string
 }
 
 export interface ISortOpts {
@@ -335,7 +353,7 @@ export interface ISortOpts {
 }
 
 export interface IQueryGetOpts {
-    filters?: IFilterOpts[]
+    filters: IFilterOpts[]
     sort?: ISortOpts
     range: {
         offset: number

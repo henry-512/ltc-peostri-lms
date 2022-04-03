@@ -1,3 +1,4 @@
+import { IGetAllQueryResults } from '../../../database'
 import { ITask } from '../../../lms/types'
 import { DBManager } from '../DBManager'
 import { RankManager } from './ranks'
@@ -40,18 +41,38 @@ class Task extends DBManager<ITask> {
         })
     }
 
-    public async getTasksAssignedToUser(userId: string) {
-        let cursor = await this.db.getDocumentsContainingId(userId, 'users')
-
-        return cursor.all()
-    }
-
-    public async getNumTasksAssignedToUser(userId: string) {
-        let cursor = await this.db.getDocumentsContainingId(userId, 'users', {
-            count: true,
+    public async getTasksAssignedToUser(
+        userId: string,
+        q: any
+    ): Promise<IGetAllQueryResults> {
+        let opts = this.parseQuery(q)
+        opts.filters = opts.filters.concat({
+            key: 'users',
+            eq: userId,
         })
 
-        return cursor.count ?? 0
+        let query = await this.db.queryGet(opts)
+
+        let all = await query.cursor.all()
+
+        await Promise.all(all.map(async (doc) => this.convertIDtoKEY(doc)))
+
+        return {
+            all,
+            size: query.size,
+            low: opts.range.offset,
+            high: opts.range.offset + Math.min(query.size, opts.range.count),
+        }
+    }
+
+    public async getNumTasksAssignedToUser(userId: string, q: any) {
+        let opts = this.parseQuery(q)
+        opts.filters = opts.filters.concat({
+            key: 'users',
+            eq: userId,
+        })
+
+        return this.db.queryGetCount(opts)
     }
 }
 
