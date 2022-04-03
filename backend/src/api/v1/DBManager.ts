@@ -52,23 +52,18 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         instances[dbName] = this
     }
 
-    /**
-     * Retrieves a query from the server, following the passed parameters.
-     * @param query An object with queryable fields.
-     * @return A cursor representing all db objects that fit the query
-     */
-    public async query(q: any): Promise<IGetAllQueryResults> {
+    public parseQuery(q: any): IQueryGetOpts {
         let opts: IQueryGetOpts = {
             range: {
                 offset: 0,
                 count: 10,
             },
+            filters: [],
         }
 
         // Filtering
         if (q.filter) {
             let filter = JSON.parse(q.filter)
-            opts.filters = []
 
             for (let [key, value] of Object.entries(filter)) {
                 let f: IFilterOpts = { key }
@@ -116,12 +111,24 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             }
         }
 
+        // range
         if (q.range && q.range.length == 2) {
             opts.range = {
                 offset: parseInt(q.range[0]),
                 count: Math.min(parseInt(q.range[1]), 50),
             }
         }
+
+        return opts
+    }
+
+    /**
+     * Retrieves a query from the server, following the passed parameters.
+     * @param query An object with queryable fields.
+     * @return A cursor representing all db objects that fit the query
+     */
+    public async query(q: any): Promise<IGetAllQueryResults> {
+        let opts = this.parseQuery(q)
 
         let query = await this.db.queryGet(opts)
         let all = await query.cursor.all()
@@ -130,10 +137,10 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         await Promise.all(all.map(async (doc) => this.convertIDtoKEY(doc)))
 
         return {
-            all: all,
+            all,
             size: query.size,
             low: opts.range.offset,
-            high: opts.range.offset + opts.range.count,
+            high: opts.range.offset + Math.min(query.size, opts.range.count),
         }
     }
 

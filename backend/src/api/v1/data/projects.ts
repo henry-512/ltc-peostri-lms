@@ -53,18 +53,35 @@ class Project extends DBManager<IProject> {
         )
     }
 
-    async getProjectsAssignedToUser(id: string) {
-        let cursor = await this.db.getDocumentsContainingId(id, 'users')
-
-        return cursor.all()
-    }
-
-    async getNumProjectsAssignedToUser(id: string) {
-        let cursor = await this.db.getDocumentsContainingId(id, 'users', {
-            count: true,
+    public async getProjectsAssignedToUser(id: string, q: any) {
+        let opts = this.parseQuery(q)
+        opts.filters = opts.filters.concat({
+            key: 'users',
+            eq: id,
         })
 
-        return cursor.count ?? 0
+        let query = await this.db.queryGet(opts)
+
+        let all = await query.cursor.all()
+
+        await Promise.all(all.map(async (doc) => this.convertIDtoKEY(doc)))
+
+        return {
+            all,
+            size: query.size,
+            low: opts.range.offset,
+            high: opts.range.offset + Math.min(query.size, opts.range.count),
+        }
+    }
+
+    public async getNumProjectsAssignedToUser(id: string, q: any) {
+        let opts = this.parseQuery(q)
+        opts.filters = opts.filters.concat({
+            key: 'users',
+            eq: id,
+        })
+
+        return this.db.queryGetCount(opts)
     }
 
     protected override async modifyDoc(

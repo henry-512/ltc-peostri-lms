@@ -90,7 +90,8 @@ export function routerBuilder(version: string) {
                         await TaskManager.db.assertIdExists(id)
 
                         ctx.body = await TaskManager.getNumTasksAssignedToUser(
-                            id
+                            id,
+                            ctx.request.query
                         )
                         ctx.status = HTTPStatus.OK
                     })
@@ -100,8 +101,22 @@ export function routerBuilder(version: string) {
 
                         await TaskManager.db.assertIdExists(id)
 
-                        ctx.body = await TaskManager.getTasksAssignedToUser(id)
+                        let results = await TaskManager.getTasksAssignedToUser(
+                            id,
+                            ctx.request.query
+                        )
+
+                        ctx.body = results.all
                         ctx.status = HTTPStatus.OK
+
+                        ctx.set(
+                            'Content-Range',
+                            `documents ${results.low}-${results.high}/${results.size}`
+                        )
+                        ctx.set(
+                            'Access-Control-Expose-Headers',
+                            'Content-Range'
+                        )
                     })
                     .get('tasks/count/:id', async (ctx) => {
                         let id = await TaskManager.db.assertKeyExists(
@@ -109,7 +124,8 @@ export function routerBuilder(version: string) {
                         )
 
                         ctx.body = await TaskManager.getNumTasksAssignedToUser(
-                            id
+                            id,
+                            ctx.request.query
                         )
                         ctx.status = HTTPStatus.OK
                     })
@@ -118,8 +134,22 @@ export function routerBuilder(version: string) {
                             ctx.params.id
                         )
 
-                        ctx.body = await TaskManager.getTasksAssignedToUser(id)
+                        let results = await TaskManager.getTasksAssignedToUser(
+                            id,
+                            ctx.request.query
+                        )
+
+                        ctx.body = results.all
                         ctx.status = HTTPStatus.OK
+
+                        ctx.set(
+                            'Content-Range',
+                            `documents ${results.low}-${results.high}/${results.size}`
+                        )
+                        ctx.set(
+                            'Access-Control-Expose-Headers',
+                            'Content-Range'
+                        )
                     })
                     .get('projects/count', async (ctx) => {
                         let user: AuthUser = ctx.state.user
@@ -129,7 +159,8 @@ export function routerBuilder(version: string) {
 
                         ctx.body =
                             await ProjectManager.getNumProjectsAssignedToUser(
-                                id
+                                id,
+                                ctx.request.query
                             )
                         ctx.status = HTTPStatus.OK
                     })
@@ -139,11 +170,23 @@ export function routerBuilder(version: string) {
 
                         await ProjectManager.db.assertIdExists(id)
 
-                        ctx.body =
+                        let results =
                             await ProjectManager.getProjectsAssignedToUser(
-                                id
+                                id,
+                                ctx.request.query
                             )
+
+                        ctx.body = results.all
                         ctx.status = HTTPStatus.OK
+
+                        ctx.set(
+                            'Content-Range',
+                            `documents ${results.low}-${results.high}/${results.size}`
+                        )
+                        ctx.set(
+                            'Access-Control-Expose-Headers',
+                            'Content-Range'
+                        )
                     })
                     .get('projects/count/:id', async (ctx) => {
                         let id = await ProjectManager.db.assertKeyExists(
@@ -152,7 +195,8 @@ export function routerBuilder(version: string) {
 
                         ctx.body =
                             await ProjectManager.getNumProjectsAssignedToUser(
-                                id
+                                id,
+                                ctx.request.query
                             )
                         ctx.status = HTTPStatus.OK
                     })
@@ -161,11 +205,23 @@ export function routerBuilder(version: string) {
                             ctx.params.id
                         )
 
-                        ctx.body =
+                        let results =
                             await ProjectManager.getProjectsAssignedToUser(
-                                id
+                                id,
+                                ctx.request.query
                             )
+
+                        ctx.body = results.all
                         ctx.status = HTTPStatus.OK
+
+                        ctx.set(
+                            'Content-Range',
+                            `documents ${results.low}-${results.high}/${results.size}`
+                        )
+                        ctx.set(
+                            'Access-Control-Expose-Headers',
+                            'Content-Range'
+                        )
                     })
                     .routes()
             )
