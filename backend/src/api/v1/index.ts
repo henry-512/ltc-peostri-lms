@@ -83,7 +83,18 @@ export function routerBuilder(version: string) {
             // Assigned user routes
             .use(
                 new Router({ prefix: 'users/' })
-                    .get('tasks', async (ctx) => {
+                    .get('tasks/count', async (ctx) => {
+                        let user: AuthUser = ctx.state.user
+                        let id = user.getId()
+
+                        await TaskManager.db.assertIdExists(id)
+
+                        ctx.body = await TaskManager.getNumTasksAssignedToUser(
+                            id
+                        )
+                        ctx.status = HTTPStatus.OK
+                    })
+                    .get('tasks/list', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 
@@ -92,7 +103,17 @@ export function routerBuilder(version: string) {
                         ctx.body = await TaskManager.getTasksAssignedToUser(id)
                         ctx.status = HTTPStatus.OK
                     })
-                    .get('tasks/:id', async (ctx) => {
+                    .get('tasks/count/:id', async (ctx) => {
+                        let id = await TaskManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
+
+                        ctx.body = await TaskManager.getNumTasksAssignedToUser(
+                            id
+                        )
+                        ctx.status = HTTPStatus.OK
+                    })
+                    .get('tasks/list/:id', async (ctx) => {
                         let id = await TaskManager.db.assertKeyExists(
                             ctx.params.id
                         )
@@ -100,23 +121,50 @@ export function routerBuilder(version: string) {
                         ctx.body = await TaskManager.getTasksAssignedToUser(id)
                         ctx.status = HTTPStatus.OK
                     })
-                    .get('projects', async (ctx) => {
+                    .get('projects/count', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 
                         await ProjectManager.db.assertIdExists(id)
 
                         ctx.body =
-                            await ProjectManager.getProjectsAssignedToUser(id)
+                            await ProjectManager.getNumProjectsAssignedToUser(
+                                id
+                            )
                         ctx.status = HTTPStatus.OK
                     })
-                    .get('projects/:id', async (ctx) => {
+                    .get('projects/list', async (ctx) => {
+                        let user: AuthUser = ctx.state.user
+                        let id = user.getId()
+
+                        await ProjectManager.db.assertIdExists(id)
+
+                        ctx.body =
+                            await ProjectManager.getProjectsAssignedToUser(
+                                id
+                            )
+                        ctx.status = HTTPStatus.OK
+                    })
+                    .get('projects/count/:id', async (ctx) => {
                         let id = await ProjectManager.db.assertKeyExists(
                             ctx.params.id
                         )
 
                         ctx.body =
-                            await ProjectManager.getProjectsAssignedToUser(id)
+                            await ProjectManager.getNumProjectsAssignedToUser(
+                                id
+                            )
+                        ctx.status = HTTPStatus.OK
+                    })
+                    .get('projects/list/:id', async (ctx) => {
+                        let id = await ProjectManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
+
+                        ctx.body =
+                            await ProjectManager.getProjectsAssignedToUser(
+                                id
+                            )
                         ctx.status = HTTPStatus.OK
                     })
                     .routes()

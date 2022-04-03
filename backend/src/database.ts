@@ -5,6 +5,7 @@ import {
     DocumentCollection,
 } from 'arangojs/collection'
 import { ArrayCursor } from 'arangojs/cursor'
+import { QueryOptions } from 'arangojs/database'
 import { config } from './config'
 import { HTTPStatus, IErrorable } from './lms/errors'
 import { IFieldData } from './lms/FieldData'
@@ -201,7 +202,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
             )
         }
         let id = this.keyToId(key)
-        if (!this.existsUnsafe(id)) {
+        if (!(await this.existsUnsafe(id))) {
             throw this.error(
                 'assertKeyExists',
                 HTTPStatus.NOT_FOUND,
@@ -213,15 +214,15 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 
     public async assertIdExists(id: string) {
-        if (!isDBKey(id)) {
+        if (!this.isDBId(id)) {
             throw this.error(
                 'keyExists',
                 HTTPStatus.NOT_FOUND,
                 'Document not found',
-                `[${id}] is not a valid key for this collection`
+                `[${id}] is not a valid id for this collection`
             )
         }
-        if (!this.existsUnsafe(id)) {
+        if (!(await this.existsUnsafe(id))) {
             throw this.error(
                 'assertKeyExists',
                 HTTPStatus.NOT_FOUND,
@@ -296,13 +297,21 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         )
     }
 
-    public async getAll() {
-        return ArangoWrapper.db.query(aql`FOR d in ${this.collection} RETURN d`)
+    public async getAll(opts?: QueryOptions) {
+        return ArangoWrapper.db.query(
+            aql`FOR d in ${this.collection} RETURN d`,
+            opts
+        )
     }
 
-    public async getDocumentsContainingId(id: string, field: string) {
+    public async getDocumentsContainingId(
+        id: string,
+        field: string,
+        opts?: QueryOptions
+    ) {
         return ArangoWrapper.db.query(
-            aql`FOR d in ${this.collection} FILTER ${id} IN d.${field} RETURN d`
+            aql`FOR d in ${this.collection} FILTER ${id} IN d.${field} RETURN d`,
+            opts
         )
     }
 }
