@@ -37,10 +37,16 @@ const App = () => {
             disableTelemetry
         >
             <Resource name='projects/list' list={ProjectList} create={ProjectCreate} edit={ProjectEdit} show={ShowGuesser} />
+
             <Resource name='template/projects/list' list={ProjectTemplateList} create={ProjectTemplateCreate} edit={ProjectTemplateEdit} show={ShowGuesser} />
             <Resource name='template/modules/list' list={ModuleTemplateList} create={ModuleTemplateCreate} edit={ModuleTemplateEdit} show={ShowGuesser} />
+
             <Resource name="users/list" list={UserList} create={UserCreate} edit={UserEdit} show={ShowGuesser} />
+            <Resource name="users/tasks/list" options={{ label: "layout.menu.my_tasks" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
+            <Resource name="users/projects/list" options={{ label: "layout.menu.my_projects" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
+
             <Resource name="ranks/list" options={{ label: "layout.menu.ranks" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
+            
         </Admin>
     );
 }

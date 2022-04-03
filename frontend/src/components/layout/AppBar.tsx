@@ -53,7 +53,7 @@ const CustomAppBar = (props: any) => {
             />
             <Logo />
             <span className={classes.spacer} />
-            <NotificationsButton />
+            <NotificationsButton label="layout.appbar.notifications" />
         </AppBar>
     );
 };

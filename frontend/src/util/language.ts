@@ -2,7 +2,8 @@ const domainMessages = {
     en: {
         layout: {
             appbar: {
-                title: "PEOSTRI LMS"
+                title: "PEOSTRI LMS",
+                notifications: "Notifications"
             },
             menu: {
                 administration: "Administration",
@@ -12,7 +13,9 @@ const domainMessages = {
                 project_templates: "Project Templates",
                 module_templates: "Module Templates",
                 users: "Users",
-                permissions: "Permissions"
+                permissions: "Permissions",
+                my_tasks: "My Tasks",
+                my_projects: "My Projects"
             },
             button: {
                 create: "Create",

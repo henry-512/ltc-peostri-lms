@@ -43,8 +43,23 @@ const Menu = ({ dense = false }: MenuProps) => {
                 [classes.closed]: !open,
             })}
         >
-            {' '}
             <DashboardMenuItem />
+            <MenuItemLink
+                to={{
+                    pathname: '/users/tasks/list',
+                    state: { _scrollToTop: true },
+                }}
+                primaryText={translate("layout.menu.my_tasks")}
+                leftIcon={<ProjectIcon />}
+            />
+            <MenuItemLink
+                to={{
+                    pathname: '/users/projects/list',
+                    state: { _scrollToTop: true },
+                }}
+                primaryText={translate("layout.menu.my_projects")}
+                leftIcon={<ProjectIcon />}
+            />
             <SubMenu
                 handleToggle={() => handleToggle('menuAdmin')}
                 isOpen={state.menuAdmin}
