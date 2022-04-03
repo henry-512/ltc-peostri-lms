@@ -45,6 +45,14 @@ class Task extends DBManager<ITask> {
 
         return cursor.all()
     }
+
+    public async getNumTasksAssignedToUser(userId: string) {
+        let cursor = await this.db.getDocumentsContainingId(userId, 'users', {
+            count: true,
+        })
+
+        return cursor.count ?? 0
+    }
 }
 
 export const TaskManager = new Task()

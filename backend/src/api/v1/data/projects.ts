@@ -59,6 +59,14 @@ class Project extends DBManager<IProject> {
         return cursor.all()
     }
 
+    async getNumProjectsAssignedToUser(id: string) {
+        let cursor = await this.db.getDocumentsContainingId(id, 'users', {
+            count: true,
+        })
+
+        return cursor.count ?? 0
+    }
+
     protected override async modifyDoc(
         user: AuthUser,
         files: any,
