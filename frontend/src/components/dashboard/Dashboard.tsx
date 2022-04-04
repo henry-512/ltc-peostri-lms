@@ -1,16 +1,19 @@
+import { Title } from "react-admin";
 import DashboardWrapper from "./DashboardWrapper";
 import { ProjectCount, TaskCount } from "./widgets";
 
-type DashboardWrapperProps = {
-    children: JSX.Element[]
+type DashboardProps = {
 }
 
-const Dashboard = (props: DashboardWrapperProps) => {
+const Dashboard = (props: DashboardProps) => {
     return (
-        <DashboardWrapper>
-            <ProjectCount count={0} />
-            <TaskCount count={0} />
-        </DashboardWrapper>
+        <>
+            <Title>LMS Dashboard</Title>
+            <DashboardWrapper>
+                <ProjectCount count={0} />
+                <TaskCount count={0} />
+            </DashboardWrapper>
+        </>
     )
 }
 

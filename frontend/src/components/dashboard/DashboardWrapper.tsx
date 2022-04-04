@@ -9,7 +9,7 @@ const DashboardWrapper = (props: DashboardWrapperProps) => {
     return (
         <>
             <Box display="flex" flexWrap={true} justifyContent="flex-start" alignItems="flex-start" >
-                {props.children.map((child: React.FunctionComponentElement<{ key: any; }>, i: number) => {
+                {props.children.map((child: JSX.Element, i: number) => {
                     React.cloneElement(child, {
                         key: i
                     })
