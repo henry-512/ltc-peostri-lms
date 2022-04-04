@@ -156,7 +156,7 @@ const domainMessages = {
                 },
                 steps: {
                     general: "General Information",
-                    tasks: "Module Management"
+                    modules: "Module Management"
                 }
             }
         },
