@@ -87,7 +87,7 @@ export function routerBuilder(version: string) {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 
-                        await TaskManager.db.assertIdExists(id)
+                        await UserManager.db.assertIdExists(id)
 
                         ctx.body = await TaskManager.getNumTasksAssignedToUser(
                             id,
@@ -99,7 +99,7 @@ export function routerBuilder(version: string) {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 
-                        await TaskManager.db.assertIdExists(id)
+                        await UserManager.db.assertIdExists(id)
 
                         let results = await TaskManager.getTasksAssignedToUser(
                             id,
@@ -119,7 +119,7 @@ export function routerBuilder(version: string) {
                         )
                     })
                     .get('tasks/count/:id', async (ctx) => {
-                        let id = await TaskManager.db.assertKeyExists(
+                        let id = await UserManager.db.assertKeyExists(
                             ctx.params.id
                         )
 
@@ -130,7 +130,7 @@ export function routerBuilder(version: string) {
                         ctx.status = HTTPStatus.OK
                     })
                     .get('tasks/list/:id', async (ctx) => {
-                        let id = await TaskManager.db.assertKeyExists(
+                        let id = await UserManager.db.assertKeyExists(
                             ctx.params.id
                         )
 
@@ -155,7 +155,7 @@ export function routerBuilder(version: string) {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 
-                        await ProjectManager.db.assertIdExists(id)
+                        await UserManager.db.assertIdExists(id)
 
                         ctx.body =
                             await ProjectManager.getNumProjectsAssignedToUser(
@@ -168,7 +168,7 @@ export function routerBuilder(version: string) {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 
-                        await ProjectManager.db.assertIdExists(id)
+                        await UserManager.db.assertIdExists(id)
 
                         let results =
                             await ProjectManager.getProjectsAssignedToUser(
@@ -189,7 +189,7 @@ export function routerBuilder(version: string) {
                         )
                     })
                     .get('projects/count/:id', async (ctx) => {
-                        let id = await ProjectManager.db.assertKeyExists(
+                        let id = await UserManager.db.assertKeyExists(
                             ctx.params.id
                         )
 
@@ -201,7 +201,7 @@ export function routerBuilder(version: string) {
                         ctx.status = HTTPStatus.OK
                     })
                     .get('projects/list/:id', async (ctx) => {
-                        let id = await ProjectManager.db.assertKeyExists(
+                        let id = await UserManager.db.assertKeyExists(
                             ctx.params.id
                         )
 
