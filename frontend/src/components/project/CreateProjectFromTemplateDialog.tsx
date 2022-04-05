@@ -58,7 +58,7 @@ const CreateProjectFromTemplateDialog = (props: CreateProjectFromTemplateDialogP
         dataProvider.getOne('template/projects/instance', { id: template_id })
         .then(response => {
             console.log(response.data);
-            redirect('create', '/projects', undefined, {}, { record: {...omitID(response.data)}});
+            redirect('create', '/projects/list', undefined, {}, { record: {...omitID(response.data)}});
         });
 
         props.setOpen(false);

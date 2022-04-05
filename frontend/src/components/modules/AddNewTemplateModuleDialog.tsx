@@ -66,11 +66,13 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
         const template_id = form.getState().values.module_template_id
 
         if (props.isTemplate) {
-            dataProvider.getOne('template/modules', { id: template_id })
-            .then(response => updateForm(response));
+            dataProvider.getOne('template/modules/list', { id: template_id })
+            .then(response => updateForm(response))
+            .catch((e) => handleClose());
         } else {
             dataProvider.getOne('template/modules/instance', { id: template_id })
-            .then(response  => updateForm(response));
+            .then(response  => updateForm(response))
+            .catch((e) => handleClose());
         }
 
         if (props.submitAction) {
