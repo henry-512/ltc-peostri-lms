@@ -29,12 +29,14 @@ type TaskCardProps = {
     index?: number,
     stepKey?: string,
     baseSource?: string,
-    fixKey: Function,
+    changeStep: Function,
+    changeIndex: Function,
     fields?: JSX.Element,
-    calculateTTC?: Function
+    calculateTTC?: Function,
+    updateComponent: Function
 }
 
-const TaskCard = ({ info, index, stepKey, baseSource, fixKey, fields, calculateTTC }: TaskCardProps) => {
+const TaskCard = ({ info, index, stepKey, baseSource, changeStep, changeIndex, updateComponent, fields, calculateTTC }: TaskCardProps) => {
     const translate = useTranslate();
     const classes = useStyles();
 
@@ -60,13 +62,17 @@ const TaskCard = ({ info, index, stepKey, baseSource, fixKey, fields, calculateT
     }
 
     const deleteCreator = () => {
-        let modules = get(form.getState().values, `${baseSource}[${stepKey}]`);
-        modules.splice(index, 1);
-        form.change(`${baseSource}[${stepKey}]`, modules);
+        const taskStepCount = Object.keys(get(form.getState().values, `${baseSource}`)).length;
+        
+        let tasks = get(form.getState().values, `${baseSource}[${stepKey}]`);
+        tasks.splice(index, 1);
+        form.change(`${baseSource}[${stepKey}]`, tasks);
 
-        if (modules.length <= 0) {
-            fixKey(stepKey?.split('-')[1]);
+        if (parseInt(stepKey?.split('-')[1] || "0") == (taskStepCount - 1)) {
+            changeIndex(tasks.length);
         }
+
+        updateComponent();
     }
 
     return (

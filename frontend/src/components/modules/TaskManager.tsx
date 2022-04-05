@@ -4,7 +4,7 @@ import Steps from '../StepBuilder';
 import { useForm, useFormState } from 'react-final-form';
 import TaskFields from './TaskFields';
 import Creator from './Creator';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import get from 'lodash.get';
 import TaskCard from './TaskCard';
 import React from 'react';
@@ -18,46 +18,88 @@ type TaskManagerProps = {
 const TaskManager = (props: TaskManagerProps) => {
     const translate = useTranslate();
     const form = useForm();
-    const formData = form.getState().values;
+
+    //Dialogs open
     const [creatorOpen, setCreatorOpen] = useState(false);
-    const [tasks, setTasks] = useState(get(formData, props.source) || {} as ITaskStep);
-    const [curKey, setCurKey] = useState(Object.keys(tasks).length);
-    const [newSource, setNewSource] = useState(`${props.source}[key-${curKey}][0]`);
 
-    useFormState({
-        subscription: {
-            values: true
-        },
-        onChange: ({ values }) => {
-            setTasks(get(values, props.source) || {});
-        }
-    })
+    //Main Tasks Data
+    const [tasks, setTasks] = useState(get(form.getState().values, props.source) || {
+        "key-0": []
+    } as ITaskStep);
 
-    //Initialize Modules on Form.
-    useEffect(() => {
-        form.change(props.source, tasks);
-    }, []);
+    /**
+     * @name calculateStep
+     * @description Helper function to quickly calculate the current step based on tasks data.
+     * @returns Current Step Key
+     */
+    const calculateStep = () => {
+        return (tasks) ? (Object.keys(tasks).length - 1) : 0
+    }
 
-    useEffect(() => { }, [tasks])
+    const updateComponent = () => {
+        let ftasks = get(form.getState().values, props.source);
+        setTasks(ftasks);
+    }
 
-    const openCreator = () => {
+    /**
+     * @name calculateIndex
+     * @description Helper function to quickly calculate the next Index based on tasks data.
+     * @returns Next Index
+     */
+     const calculateIndex = () => {
+        return (tasks[`key-${step}`] && tasks[`key-${step}`].length > 0) ? tasks[`key-${step}`].length : 0
+    }
+
+    //Current Step Key
+    const [step, setStep] = useState(() => calculateStep());
+    //Current Index on Step
+    const [index, setIndex] = useState(() => calculateIndex());
+
+    const newSource = useMemo(() => `${props.source}[key-${step}][${index}]`, [step, index]);
+
+    /**
+     * @name openCreator
+     * @description Opens the creator window to add a new task.
+     */
+    const openCreator = () => {        
+        if (!tasks[`key-${step}`]) return;
+        setIndex(calculateIndex());
+
+        // Create empty module structure on this step.
+        let stepArray = tasks[`key-${step}`];
+        stepArray.push({} as ITask);
+
+        // Update form with blank step added.
         form.change(props.source, {
             ...tasks,
-            [`key-${curKey}`]: [{} as ITask]
+            [`key-${step}`]: stepArray
         });
+
+        // Open the creator window.
         setCreatorOpen(true);
-
-        setNewSource(`${props.source}[key-${curKey}][0]`);
     }
 
-    const cancelCreator = () => {
-        let cacheTasks = tasks;
-        delete cacheTasks[`key-${curKey}`];
-        form.change(props.source, cacheTasks);
+    /**
+     * @name cancelCreator
+     * @description Cancel the creator by removing the empty task structure created.
+     */
+     const cancelCreator = () => {
+        let cacheModules = tasks;
+
+        if (!cacheModules[`key-${step}`]) return;
+
+        cacheModules[`key-${step}`].pop();
+
+        form.change(props.source, cacheModules);
+        updateComponent();
     }
 
-    const submitCreator = () => {
-        setCurKey(Object.keys(tasks).length);
+    /**
+     * @name submitCreator
+     * @description Submit method for the creator. Increments the index.
+     */
+     const submitCreator = () => {
+        updateComponent();
     }
 
     const getNewSource = (key: string) => {
@@ -67,23 +109,27 @@ const TaskManager = (props: TaskManagerProps) => {
 
     const updateStep = (newSteps: any) => {
         form.change(props.source, newSteps)
+        updateComponent();
     }
+    
+    //console.log(step, index, newSource, get(form.getState().values, props.source));
 
     return (
         <>
             <Steps
                 title={translate('project.layout.task_title')}
                 help={translate('project.layout.order_tasks_help')}
-                save="modules"
+                save={props.source}
                 createLabel="project.layout.create_task"
                 createAction={openCreator}
-                fixKey={setCurKey}
+                changeStep={setStep}
+                changeIndex={setIndex}
                 renderData={tasks}
-                emptyText={translate('project.layout.no_tasks')}
-                changeOnAction={false}
                 updateForm={updateStep}
+                changeOnAction={false}
+                emptyText={translate('project.layout.no_tasks')}
             >
-                <TaskCard baseSource={props.source} fixKey={setCurKey} fields={props.fields} calculateTTC={props.calculateTTC}/>
+                <TaskCard baseSource={props.source} changeStep={setStep} changeIndex={setIndex} updateComponent={updateComponent} fields={props.fields} calculateTTC={props.calculateTTC} />
             </Steps>
             <Creator
                 label={translate('project.layout.create_task')}
@@ -95,7 +141,7 @@ const TaskManager = (props: TaskManagerProps) => {
                 create
                 maxWidth="md"
             >
-                {(props.fields) ? React.cloneElement(props.fields, {getSource: getNewSource}) : <TaskFields getSource={getNewSource} calculateTTC={props.calculateTTC} />}
+                {(props.fields) ? React.cloneElement(props.fields, { getSource: getNewSource }) : <TaskFields getSource={getNewSource} calculateTTC={props.calculateTTC} />}
             </Creator>
         </>
     )

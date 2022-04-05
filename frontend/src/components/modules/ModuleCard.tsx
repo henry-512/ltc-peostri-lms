@@ -30,12 +30,14 @@ type ModuleCardProps = {
     stepKey?: string,
     subSteps?: ITaskStep,
     getSource?: string,
-    fixKey: Function,
-    fields?: JSX.Element
-    calculateTTC?: Function
+    changeStep: Function,
+    changeIndex: Function,
+    fields?: JSX.Element,
+    calculateTTC?: Function,
+    updateComponent: Function
 }
 
-const ModuleCard = ({ info, index, stepKey, fixKey, fields, calculateTTC }: ModuleCardProps) => {
+const ModuleCard = ({ info, index, stepKey, changeStep, changeIndex, fields, updateComponent, calculateTTC }: ModuleCardProps) => {
     const translate = useTranslate();
     const classes = useStyles();
 
@@ -61,13 +63,18 @@ const ModuleCard = ({ info, index, stepKey, fixKey, fields, calculateTTC }: Modu
     }
 
     const deleteCreator = () => {
-        let modules = get(form.getState().values, `modules[${stepKey}]`);
+        const formData = form.getState().values;
+        const moduleStepCount = Object.keys(formData.modules).length;
+
+        let modules = get(formData, `modules[${stepKey}]`);
         modules.splice(index, 1);
         form.change(`modules[${stepKey}]`, modules);
 
-        if (modules.length <= 0) {
-            fixKey(stepKey?.split('-')[1]);
+        if (parseInt(stepKey?.split('-')[1] || "0") == (moduleStepCount - 1)) {
+            changeIndex(modules.length);
         }
+
+        updateComponent();
     }
 
     return (

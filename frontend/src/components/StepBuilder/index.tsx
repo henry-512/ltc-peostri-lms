@@ -77,13 +77,15 @@ type StepBuilderProps = {
     createAction?: MouseEventHandler<Element>,
     initialValue?: any,
     renderData?: any,
-    fixKey?: Function,
+    changeStep: Function,
+    changeIndex: Function,
+    updateComponent?: Function,
     emptyText: string,
     actions?: JSX.Element[]
 }
 
 const StepBuilder = (props: StepBuilderProps) => {
-    const { title, help, save, children, changeOnAction, updateForm, createLabel, createAction, initialValue, renderData, fixKey, emptyText, actions } = props;
+    const { title, help, save, children, changeOnAction, updateForm, createLabel, createAction, initialValue, renderData, changeStep, changeIndex, updateComponent, emptyText, actions } = props;
     const classes = useStyles();
     const form = useForm();
 
@@ -100,18 +102,21 @@ const StepBuilder = (props: StepBuilderProps) => {
     const changeForm = (newValue?: any) => {
         if (!changeOnAction) {
             if (!updateForm) return;
-            return updateForm(newValue);
+            updateForm(newValue);
+            updateComponent?.();
+            return;
         }
 
         form.change(save || "", newValue || renderData);
+        updateComponent?.();
     }
 
     const addStep = () => {
-        fixKey?.(Object.keys(renderData).length + 1)
         changeForm({
             ...renderData,
             ["key-" + Object.keys(renderData).length]: []
         });
+        changeStep(Object.keys(renderData).length);
     }
 
     const removeStep = (key: string) => {
@@ -131,7 +136,7 @@ const StepBuilder = (props: StepBuilderProps) => {
 
         delete cacheSteps["key-" + (Object.keys(cacheSteps).length - 1).toString()];
 
-        fixKey?.(Object.keys(cacheSteps).length);
+        changeStep(Object.keys(cacheSteps).length - 1);
 
         changeForm({
             ...cacheSteps

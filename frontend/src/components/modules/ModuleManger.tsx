@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm, useFormState } from "react-final-form";
 import { IModule, IModuleStep } from "src/util/types";
 import Steps from "../StepBuilder";
@@ -16,77 +16,151 @@ type ModuleManagerProps = {
     fields?: JSX.Element;
     calculateTTC?: Function
 }
-
+/**
+ * @name ModuleManager
+ * @description ModuleManager Component1
+ * @param props 
+ * @returns Module Manager Component
+ */
 const ModuleManager = (props: ModuleManagerProps) => {
     const translate = useTranslate();
     const form = useForm();
-    const formData = form.getState().values;
+
+    //Dialogs open
     const [creatorOpen, setCreatorOpen] = useState(false);
-    const [modules, setModules] = useState(formData.modules || {} as IModuleStep);
-    const [curKey, setCurKey] = useState(Object.keys(modules).length);
-    const [newSource, setNewSource] = useState(`modules[key-${curKey}][0]`);
     const [templateSelectorOpen, setTemplateSelectorOpen] = useState(false);
 
-    useFormState({
-        subscription: {
-            values: true
-        },
-        onChange: ({ values }) => {
-            setModules(values.modules || {});
-        }
-    })
+    //Main Modules Data
+    const [modules, setModules] = useState(form.getState().values.modules || {
+        "key-0": []
+    } as IModuleStep);
 
-    //Initialize Modules on Form.
-    useEffect(() => {
-        form.change('modules', modules);
-    }, []);
-
-    useEffect(() => { }, [modules])
-
-    const openCreator = () => {
-        form.change('modules', {
-            ...modules,
-            [`key-${curKey}`]: [{} as IModule]
-        });
-        setCreatorOpen(true);
-
-        setNewSource(`modules[key-${curKey}][0]`);
+    /**
+     * @name calculateStep
+     * @description Helper function to quickly calculate the current step based on modules data.
+     * @returns Current Step Key
+     */
+    const calculateStep = () => {
+        return (modules) ? (Object.keys(modules).length - 1) : 0
     }
 
+    /**
+     * @name calculateIndex
+     * @description Helper function to quickly calculate the next Index based on modules data.
+     * @returns Next Index
+     */
+    const calculateIndex = () => {
+        return (modules[`key-${step}`] && modules[`key-${step}`].length > 0) ? (modules[`key-${step}`].length) : 0
+    }
+
+    const updateComponent = () => {
+        setModules(form.getState().values.modules);
+    }
+
+    //Current Step Key
+    const [step, setStep] = useState(() => calculateStep());
+    //Current Index on Step
+    const [index, setIndex] = useState(() => calculateIndex());
+
+    const newSource = useMemo(() => `modules[key-${step}][${index}]`, [step, index]);
+
+    /**
+     * @name openCreator
+     * @description Opens the creator window to add a new module.
+     */
+    const openCreator = () => {
+        if (!modules[`key-${step}`]) return;
+        setIndex(calculateIndex());
+
+        // Create empty module structure on this step.
+        let stepArray = modules[`key-${step}`];
+        stepArray.push({} as IModule);
+
+        // Update form with blank step added.
+        form.change('modules', {
+            ...modules,
+            [`key-${step}`]: stepArray
+        });
+
+        // Open the creator window.
+        setCreatorOpen(true);
+    }
+
+    /**
+     * @name cancelCreator
+     * @description Cancel the creator by removing the empty module structure created.
+     */
     const cancelCreator = () => {
         let cacheModules = modules;
-        delete cacheModules[`key-${curKey}`];
+
+        if (!cacheModules[`key-${step}`]) return;
+
+        cacheModules[`key-${step}`].pop();
+
         form.change('modules', cacheModules);
+
+        updateComponent();
     }
 
+    /**
+     * @name submitCreator
+     * @description Submit method for the creator. Increments the index.
+     */
     const submitCreator = () => {
-        setCurKey(Object.keys(formData.modules || {}).length);
+        updateComponent();
     }
 
+    /**
+     * @name openTemplate
+     * @description Opens the template selection window to add a new module.
+     */
     const openTemplate = () => {
+        if (!modules[`key-${step}`]) return;
+        setIndex(calculateIndex());
+
+        // Create empty module structure on this step.
+        let stepArray: IModule[] = modules[`key-${step}`];
+        stepArray.push({} as IModule);
+
+        // Update form with blank step added.
         form.change('modules', {
             ...modules,
-            [`key-${curKey}`]: [{} as IModule]
+            [`key-${step}`]: stepArray
         });
-        setTemplateSelectorOpen(true);
 
-        setNewSource(`modules[key-${curKey}][0]`);
+        // Open the template selector window.
+        setTemplateSelectorOpen(true);
     }
 
+    /**
+     * @name cancelTemplate
+     * @description Cancel the template selection by removing the empty module structure created.
+     */
     const cancelTemplate = () => {
         let cacheModules = modules;
-        delete cacheModules[`key-${curKey}`];
+
+        if (!cacheModules[`key-${step}`]) return;
+        cacheModules[`key-${step}`].pop();
+
         form.change('modules', cacheModules);
+
+        updateComponent();
     }
 
+    /**
+     * @name submitTemplate
+     * @description Submit method for the template selection. Increments the index.
+     */
     const submitTemplate = () => {
-        setCurKey(Object.keys(formData.modules || {}).length);
+        updateComponent();
     }
 
     const getNewSource = (key: string) => {
         if (key) return `${newSource}.${key}`.toString();
         return newSource.toString();
     }
+
+    console.log(step, index, newSource, form.getState().values.modules);
 
     return (
         <>
@@ -97,14 +171,16 @@ const ModuleManager = (props: ModuleManagerProps) => {
                 changeOnAction={true}
                 createLabel="project.layout.create_module"
                 createAction={openCreator}
-                fixKey={setCurKey}
+                changeStep={setStep}
+                changeIndex={setIndex}
+                updateComponent={updateComponent}
                 renderData={modules}
                 emptyText={translate('project.layout.no_modules')}
                 actions={[
-                    <AddTemplateModuleButton label="project.layout.add_module_template_button" onClick={openTemplate} />, 
-                    <AddTemplateModuleDialog 
+                    <AddTemplateModuleButton label="project.layout.add_module_template_button" onClick={openTemplate} />,
+                    <AddTemplateModuleDialog
                         ariaLabel='module_template_selection'
-                        label={translate('project.layout.add_module_template')} 
+                        label={translate('project.layout.add_module_template')}
                         open={templateSelectorOpen}
                         setOpen={setTemplateSelectorOpen}
                         cancelAction={cancelTemplate}
@@ -112,10 +188,11 @@ const ModuleManager = (props: ModuleManagerProps) => {
                         getSource={getNewSource}
                         isTemplate={props.isTemplate}
                         calculateTTC={props.calculateTTC}
+                        updateComponent={updateComponent}
                     />
                 ]}
             >
-                <ModuleCard fixKey={setCurKey} fields={props.fields} calculateTTC={props.calculateTTC} />
+                <ModuleCard changeStep={setStep} changeIndex={setIndex} updateComponent={updateComponent} fields={props.fields} calculateTTC={props.calculateTTC} />
             </Steps>
             <Creator
                 label={translate('project.layout.create_module')}
@@ -126,10 +203,11 @@ const ModuleManager = (props: ModuleManagerProps) => {
                 submitAction={submitCreator}
                 create
             >
-                {(props.fields) ? React.cloneElement(props.fields, {getSource: getNewSource}) : <ModuleFields getSource={getNewSource} calculateTTC={props.calculateTTC} />}
+                {(props.fields) ? React.cloneElement(props.fields, { getSource: getNewSource }) : <ModuleFields getSource={getNewSource} calculateTTC={props.calculateTTC} />}
             </Creator>
         </>
     )
+    return <></>
 }
 
 export default ModuleManager;

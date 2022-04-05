@@ -38,7 +38,8 @@ type AddTemplateModuleDialogProps = {
     submitAction?: Function;
     getSource: Function;
     isTemplate?: boolean;
-    calculateTTC?: Function
+    calculateTTC?: Function;
+    updateComponent: Function;
 }
 
 const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
@@ -59,6 +60,7 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
             delete data.updatedAt;
         }
         form.change(props.getSource(), data);
+        props.updateComponent();
         props.calculateTTC?.();
     }
     
