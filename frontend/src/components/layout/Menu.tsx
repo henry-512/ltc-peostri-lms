@@ -20,7 +20,7 @@ import { ModuleTemplateIcon } from '../../pages/template/modules';
 import { UserIcon } from '../../pages/administration/user';
 import PermissionIcon from '@material-ui/icons/Security';
 
-type MenuName = 'menuAdmin' | 'menuTemplate';
+export type MenuName = 'menuAdmin' | 'menuTemplate';
 
 const Menu = ({ dense = false }: MenuProps) => {
     const [state, setState] = useState({

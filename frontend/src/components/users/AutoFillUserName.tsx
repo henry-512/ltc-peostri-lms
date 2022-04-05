@@ -2,12 +2,12 @@ import { useEffect } from "react";
 import { TextInput } from "react-admin";
 import { useForm, useFormState } from "react-final-form";
 
-type Props = {
+export type AutoFillUserNameProps = {
     validate: any;
     className: any;
 }
 
-const AutoFillUserName = (props: Props) => {
+const AutoFillUserName = (props: AutoFillUserNameProps) => {
     const form = useForm();
     const { values } = useFormState();
 

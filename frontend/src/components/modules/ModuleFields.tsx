@@ -31,7 +31,7 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-type ModuleFieldsProps = {
+export type ModuleFieldsProps = {
     getSource: Function,
     initialValues?: any,
     calculateTTC?: Function

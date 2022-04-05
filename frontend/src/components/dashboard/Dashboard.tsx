@@ -2,7 +2,7 @@ import { Title } from "react-admin";
 import DashboardWrapper from "./DashboardWrapper";
 import { ProjectCount, TaskCount } from "./widgets";
 
-type DashboardProps = {
+export type DashboardProps = {
 }
 
 const Dashboard = (props: DashboardProps) => {

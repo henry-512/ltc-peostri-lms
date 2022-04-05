@@ -10,7 +10,7 @@ import AddTemplateModuleButton from "./AddNewTemplateModuleButton";
 import AddTemplateModuleDialog from "./AddNewTemplateModuleDialog";
 import React from "react";
 
-type ModuleManagerProps = {
+export type ModuleManagerProps = {
     initialValue?: IModuleStep;
     isTemplate?: boolean;
     fields?: JSX.Element;

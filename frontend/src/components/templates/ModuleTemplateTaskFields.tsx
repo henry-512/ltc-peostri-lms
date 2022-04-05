@@ -29,7 +29,7 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-type ModuleTemplateTaskFieldsProps = {
+export type ModuleTemplateTaskFieldsProps = {
     getSource?: Function,
     initialValues?: any,
     calculateTTC: any

@@ -8,7 +8,7 @@ import { Step } from "src/components/FormStepper/Step";
 import { ModuleTemplateFields, ModuleTemplateTaskFields } from "src/components/templates";
 import TaskManager from "src/components/modules/TaskManager";
 
-type ModulesManagerStep = {
+export type ModulesManagerStep = {
     getSource: Function,
     calculateTTC?: Function,
     validator: string

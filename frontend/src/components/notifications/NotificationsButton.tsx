@@ -9,7 +9,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-type NotificationsButtonProps = {
+export type NotificationsButtonProps = {
     label: string
 }
 

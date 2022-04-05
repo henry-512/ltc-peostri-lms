@@ -9,7 +9,7 @@ import get from 'lodash.get';
 import TaskCard from './TaskCard';
 import React from 'react';
 
-type TaskManagerProps = {
+export type TaskManagerProps = {
     source: string,
     fields?: JSX.Element,
     calculateTTC?: Function

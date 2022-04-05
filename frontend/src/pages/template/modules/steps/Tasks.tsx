@@ -8,13 +8,13 @@ import { Step } from "src/components/FormStepper/Step";
 import { ModuleTemplateTaskFields } from "src/components/templates";
 import TaskManager from "src/components/modules/TaskManager";
 
-type TaskManagerStep = {
+export type ModuleTemplateTasksProps = {
     getSource: Function,
     calculateTTC?: Function,
     validator: string
 }
 
-const Tasks = (props: TaskManagerStep) => {    
+const Tasks = (props: ModuleTemplateTasksProps) => {    
     const { getSource, calculateTTC, validator, ...rest } = props;
 
     const validateTitle = [required(), minLength(2), maxLength(150)];

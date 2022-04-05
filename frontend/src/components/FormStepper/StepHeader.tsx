@@ -9,11 +9,11 @@ export type StepHeaderProps  = {
      isStepSkipped: (index: number) => boolean;
 }
 
-type LabelProps = {
+export type LabelProps = {
      optional: JSX.Element
 }
 
-type StepProps = {
+export type StepProps = {
      completed: boolean
 }
 

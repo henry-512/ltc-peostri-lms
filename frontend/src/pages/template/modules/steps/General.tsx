@@ -5,13 +5,13 @@ import { SectionTitle } from "src/components/misc";
 import IDField from "src/components/modules/IDField";
 import { Step } from "src/components/FormStepper/Step"
 
-type GeneralStepProps = {
+export type ModuleTemplateGeneralStepProps = {
     validator: string
     getSource?: Function
     initialValues?: any
 }
 
-const General = (props: GeneralStepProps) => {
+const General = (props: ModuleTemplateGeneralStepProps) => {
     const { getSource, validator, initialValues, ...rest } = props;
     const validateTitle = [required(), minLength(2), maxLength(150)];
 

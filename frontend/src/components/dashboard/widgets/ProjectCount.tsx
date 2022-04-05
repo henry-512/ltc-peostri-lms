@@ -1,7 +1,7 @@
 import CardWithIcon from "./CardWithIcon"
 import ListAltIcon from '@material-ui/icons/ListAlt';
 
-type ProjectCountProps = {
+export type ProjectCountProps = {
     title?: string
     count: number
 }
