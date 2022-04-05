@@ -57,15 +57,21 @@ const CreateProjectFromTemplateDialog = (props: CreateProjectFromTemplateDialogP
         
         dataProvider.getOne('template/projects/instance', { id: template_id })
         .then(response => {
-            console.log(response.data);
             redirect('create', '/projects/list', undefined, {}, { record: {...omitID(response.data)}});
+        })
+        .catch(e => {
+            redirect('list', '/projects/list');
         });
 
         props.setOpen(false);
     }
 
-    const handleClose = () => {
+    const handleClose = () => {        
+        //Close window
         props.setOpen(false);
+
+        //Reset the field to empty
+        form.change('project_template_id', '');
     }
 
     return (
