@@ -1,6 +1,7 @@
 import { makeStyles } from '@material-ui/core';
 import { Datagrid, DateField, List, ListProps, TextField } from 'react-admin';
 import { ProjectEmptyList, ProjectListActions } from 'src/components/project';
+import rowStyle from './rowStyle';
 
 const useListStyles = makeStyles({
     headerRow: {
@@ -38,6 +39,8 @@ const ProjectList = (props: ListProps) => {
                                 headerCell: classes.headerCell,
                                 rowCell: classes.rowCell,
                         }}
+                        // @ts-ignore
+                        rowStyle={rowStyle}
                         rowClick="edit"
                     >
                         {/*<TextField source="id" /> // TODO: Temporarily removing ID due to illegible ID's */}

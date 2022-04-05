@@ -15,12 +15,6 @@ export default function validateProject(project: IProject) {
         errors.end = 'The end date is required';
     }*/
 
-    if (project.start && project.end) {
-        if (new Date(project.start).getTime() > new Date(project.end).getTime()) {
-            errors.end = 'The end date cannot be before the start date';
-        }
-    }
-
     if (project.auto_assign) {
         if (!project.users || project.users.length <= 0) {
             errors.users = 'If auto assign is active, you must select at least one user';
