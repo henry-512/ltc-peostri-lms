@@ -2,12 +2,12 @@ import Avatar from '@material-ui/core/Avatar';
 import { FieldProps } from 'react-admin';
 import { IUser } from 'src/util/types';
 
-interface Props extends FieldProps<IUser> {
+export interface AvatarFieldProps extends FieldProps<IUser> {
     className?: string;
     size?: string;
 }
 
-const AvatarField = ({ record, size = '25', className }: Props) =>
+const AvatarField = ({ record, size = '25', className }: AvatarFieldProps) =>
     record ? (
         <Avatar
             src={`${record.avatar}?size=${size}x${size}`}

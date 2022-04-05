@@ -31,7 +31,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-interface ProjectTemplateFieldsProps {
+export type ProjectTemplateFieldsProps = {
 
 }
 

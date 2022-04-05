@@ -8,7 +8,7 @@ import { ReactNode } from 'react';
 import cartouche from './cartouche.png';
 import { useTranslate } from 'react-admin';
 
-interface Props {
+export type CardWithIconProps = {
     icon: FC<any>;
     to: string;
     title?: string;
@@ -27,7 +27,7 @@ const useStyles = makeStyles(theme => ({
             color: 'inherit',
         },
     },
-    main: (props: Props) => ({
+    main: (props: CardWithIconProps) => ({
         overflow: 'inherit',
         padding: 16,
         background: `url(${
@@ -43,7 +43,7 @@ const useStyles = makeStyles(theme => ({
     title: {},
 }));
 
-const CardWithIcon = (props: Props) => {
+const CardWithIcon = (props: CardWithIconProps) => {
     const { icon, title, subtitle, to, children } = props;
     const classes = useStyles(props);
     const translate = useTranslate();

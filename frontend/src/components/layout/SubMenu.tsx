@@ -28,7 +28,7 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-interface Props {
+export type SubMenuProps = {
     dense: boolean;
     handleToggle: () => void;
     icon: ReactElement;
@@ -37,7 +37,7 @@ interface Props {
     children: ReactNode;
 }
 
-const SubMenu = (props: Props) => {
+const SubMenu = (props: SubMenuProps) => {
     const { handleToggle, isOpen, name, icon, children, dense } = props;
     const translate = useTranslate();
     const classes = useStyles();

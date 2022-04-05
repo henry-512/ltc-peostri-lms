@@ -61,7 +61,7 @@ const BulkUserToolbar = (props: any) => (
     </React.Fragment>
 )
 
-interface UserListProps extends FieldProps<IUser>, ListProps {
+export interface UserListProps extends FieldProps<IUser>, ListProps {
     
 }
 
