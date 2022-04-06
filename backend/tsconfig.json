@@ -3,6 +3,11 @@
         "entryPoints": ["src"],
         "entryPointStrategy": "expand",
         "out": "docs",
+        "umlClassDiagram": {
+            "type": "detailed",
+            "location": "local",
+            "format": "svg",
+        },
     },
     "compilerOptions": {
         "target": "es2017",
