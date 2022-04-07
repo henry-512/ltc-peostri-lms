@@ -109,7 +109,8 @@ const domainMessages = {
                 email: "Email",
                 first_visited: "First Login",
                 last_visited: "Last Login",
-                status: "Status"
+                status: "Status",
+                teams: "Teams"
             },
             layout: {
                 identity: "Identity",
