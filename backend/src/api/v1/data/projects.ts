@@ -5,6 +5,7 @@ import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { CommentManager } from './comments'
 import { ModuleManager } from './modules'
+import { TeamManager } from './teams'
 import { UserManager } from './users'
 
 function addDays(date: Date, days: number) {
@@ -43,6 +44,11 @@ class Project extends DBManager<IProject> {
                     default: [],
                     getIdKeepAsRef: true,
                     foreignApi: UserManager,
+                },
+                team: {
+                    type: 'fkey',
+                    foreignApi: TeamManager,
+                    optional: true,
                 },
                 ttc: {
                     type: 'number',
