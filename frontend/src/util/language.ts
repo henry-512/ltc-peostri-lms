@@ -13,9 +13,10 @@ const domainMessages = {
                 project_templates: "Project Templates",
                 module_templates: "Module Templates",
                 users: "Users",
-                permissions: "Permissions",
+                ranks: "Ranks",
                 my_tasks: "My Tasks",
-                my_projects: "My Projects"
+                my_projects: "My Projects",
+                teams: "Teams"
             },
             button: {
                 create: "Create",

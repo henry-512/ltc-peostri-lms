@@ -2,6 +2,9 @@ import { Title } from "react-admin";
 import DashboardWrapper from "./DashboardWrapper";
 import { ProjectCount, TaskCount } from "./widgets";
 
+const Spacer = () => <span style={{ width: '1em' }} />;
+const VerticalSpacer = () => <span style={{ height: '1em' }} />;
+
 export type DashboardProps = {
 }
 
@@ -10,8 +13,10 @@ const Dashboard = (props: DashboardProps) => {
         <>
             <Title>LMS Dashboard</Title>
             <DashboardWrapper>
-                <ProjectCount count={0} />
-                <></>
+                <ProjectCount count={21} />
+                <Spacer />
+                <TaskCount count={32} />
+                <Spacer />
             </DashboardWrapper>
         </>
     )

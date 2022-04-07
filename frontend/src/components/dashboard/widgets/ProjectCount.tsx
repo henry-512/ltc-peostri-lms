@@ -1,9 +1,10 @@
-import CardWithIcon from "./CardWithIcon"
+import CardWithIcon from "./base/CardWithIcon"
 import ListAltIcon from '@material-ui/icons/ListAlt';
 
 export type ProjectCountProps = {
     title?: string
     count: number
+    children?: JSX.Element | JSX.Element[]
 }
 
 const ProjectCount = (props: ProjectCountProps) => {

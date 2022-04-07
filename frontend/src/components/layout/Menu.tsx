@@ -17,7 +17,8 @@ import FileCopyIcon from '@material-ui/icons/FileCopy';
 import { ProjectIcon } from '../../pages/administration/project';
 import { ProjectTemplateIcon } from '../../pages/template/projects';
 import { ModuleTemplateIcon } from '../../pages/template/modules';
-import { UserIcon } from '../../pages/administration/user';
+import { UserIcon } from '../../pages/administration/users';
+import { TeamIcon } from '../../pages/administration/teams';
 import PermissionIcon from '@material-ui/icons/Security';
 
 export type MenuName = 'menuAdmin' | 'menuTemplate';
@@ -88,8 +89,16 @@ const Menu = ({ dense = false }: MenuProps) => {
                         pathname: '/ranks/list',
                         state: { _scrollToTop: true },
                     }}
-                    primaryText={translate("layout.menu.permissions")}
+                    primaryText={translate("layout.menu.ranks")}
                     leftIcon={<PermissionIcon />}
+                />
+                <MenuItemLink
+                    to={{
+                        pathname: '/teams/list',
+                        state: { _scrollToTop: true },
+                    }}
+                    primaryText={translate("layout.menu.teams")}
+                    leftIcon={<TeamIcon />}
                 />
             </SubMenu>
             <SubMenu

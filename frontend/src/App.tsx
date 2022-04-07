@@ -9,7 +9,7 @@ import englishMessages from 'ra-language-english';
 import domainMessages from './util/language';
 import auth from './util/authProvider';
 import LoginPage from './pages/login';
-import { UserCreate, UserEdit, UserList } from './pages/administration/user';
+import { UserCreate, UserEdit, UserList } from './pages/administration/users';
 import { ProjectTemplateCreate, ProjectTemplateEdit, ProjectTemplateList } from './pages/template/projects';
 import { ModuleTemplateCreate, ModuleTemplateEdit, ModuleTemplateList } from './pages/template/modules';
 
@@ -46,6 +46,7 @@ const App = () => {
             <Resource name="users/projects/list" options={{ label: "layout.menu.my_projects" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
 
             <Resource name="ranks/list" options={{ label: "layout.menu.ranks" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
+            <Resource name="teams/list" options={{ label: "layout.menu.teams" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
             
         </Admin>
     );
