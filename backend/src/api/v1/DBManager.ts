@@ -10,7 +10,7 @@ import { IFieldData, IForeignFieldData } from '../../lms/FieldData'
 import { IArangoIndexes } from '../../lms/types'
 import { convertToKey, splitId, str } from '../../lms/util'
 import { AuthUser } from '../auth'
-import { DataManager } from './DataManager'
+import { DataManager, instances } from './DataManager'
 
 /**
  * Returns the ApiRoute instance corresponding to a database id
@@ -18,9 +18,8 @@ import { DataManager } from './DataManager'
  * @returns The corresponding ApiRoute
  */
 export function getApiInstanceFromId(id: string): DBManager<IArangoIndexes> {
-    return instances[splitId(id).col]
+    return instances[splitId(id).col] as any
 }
-const instances: { [dbname: string]: DBManager<IArangoIndexes> } = {}
 
 export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
     public db: ArangoWrapper<Type>

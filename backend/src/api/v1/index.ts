@@ -20,6 +20,9 @@ import { UserManager } from './data/users'
 import { DBManager } from './DBManager'
 
 export function routerBuilder(version: string) {
+    // Resolve dependency issue
+    UserManager.resolveDependencies()
+
     return (
         new Router({ prefix: `${version}/` })
             .use(

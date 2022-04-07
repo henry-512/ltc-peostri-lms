@@ -3,7 +3,6 @@ import { IUser } from '../../../lms/types'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { RankManager } from './ranks'
-import { TeamManager } from './teams'
 import { UserArangoWrapper } from './UserArangoWrapper'
 
 export const DB_NAME = 'users'
@@ -31,7 +30,7 @@ class User extends DBManager<IUser> {
                 },
                 team: {
                     type: 'fkey',
-                    foreignApi: TeamManager,
+                    foreignApi: 'team' as any, // Resolve circular dependency
                     optional: true,
                 },
                 status: {

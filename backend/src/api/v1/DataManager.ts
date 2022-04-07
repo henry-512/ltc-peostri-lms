@@ -5,9 +5,11 @@ import {
     IFieldData,
     IForeignFieldData,
 } from '../../lms/FieldData'
-import { ICreateUpdate } from '../../lms/types'
+import { IArangoIndexes, ICreateUpdate } from '../../lms/types'
 import { isDBId, isDBKey, PTR, splitId, str } from '../../lms/util'
 import { AuthUser } from '../auth'
+
+export const instances: { [dbname: string]: DataManager<IArangoIndexes> } = {}
 
 export class DataManager<Type> extends IErrorable {
     protected hasCUTimestamp: boolean
@@ -17,6 +19,15 @@ export class DataManager<Type> extends IErrorable {
     protected parentField: null | {
         local: string
         foreign: string
+    }
+
+    // hack
+    public resolveDependencies() {
+        for (let [key, data] of this.fieldEntries) {
+            if (typeof data.foreignApi === 'string') {
+                data.foreignApi = instances[data.foreignApi] as any
+            }
+        }
     }
 
     /**
@@ -152,9 +163,10 @@ export class DataManager<Type> extends IErrorable {
                             )
                         }
                     } else {
+                        console.log(data.foreignApi)
                         throw this.internal(
                             'mapEachField',
-                            `${data} has array type but neither reference.`
+                            `${str(data)} has array type but neither reference.`
                         )
                     }
                     break
