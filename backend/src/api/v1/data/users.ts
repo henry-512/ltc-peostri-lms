@@ -29,9 +29,11 @@ class User extends DBManager<IUser> {
                     acceptNewDoc: false,
                 },
                 team: {
-                    type: 'fkey',
+                    type: 'array',
+                    instance: 'fkey',
                     foreignApi: 'team' as any, // Resolve circular dependency
                     optional: true,
+                    default: [],
                 },
                 status: {
                     type: 'string',
