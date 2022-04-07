@@ -48,7 +48,7 @@ class Task extends DBManager<ITask> {
         let opts = this.parseQuery(q)
         opts.filters = opts.filters.concat({
             key: 'users',
-            eq: userId,
+            inArray: userId,
         })
 
         let query = await this.db.queryGet(opts)
@@ -69,7 +69,7 @@ class Task extends DBManager<ITask> {
         let opts = this.parseQuery(q)
         opts.filters = opts.filters.concat({
             key: 'users',
-            eq: userId,
+            inArray: userId,
         })
 
         return this.db.queryGetCount(opts)

@@ -57,7 +57,7 @@ class Project extends DBManager<IProject> {
         let opts = this.parseQuery(q)
         opts.filters = opts.filters.concat({
             key: 'users',
-            eq: id,
+            inArray: id,
         })
 
         let query = await this.db.queryGet(opts)
@@ -78,7 +78,7 @@ class Project extends DBManager<IProject> {
         let opts = this.parseQuery(q)
         opts.filters = opts.filters.concat({
             key: 'users',
-            eq: id,
+            inArray: id,
         })
 
         return this.db.queryGetCount(opts)
