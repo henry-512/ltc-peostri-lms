@@ -13,7 +13,7 @@ const UserEdit = (props: any) => (
                 />
             }
             initialValues={{
-                useEmail: (props.initialValues?.email === props.initialValues?.username) ? true : false
+                useEmail: (props.initialValues && props.initialValues.email === props.initialValues.username) ? true : false
             }}
         >
             <UserFields />
