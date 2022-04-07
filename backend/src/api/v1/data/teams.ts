@@ -1,6 +1,5 @@
 import { ITeam } from '../../../lms/types'
 import { DBManager } from '../DBManager'
-import { UserManager } from './users'
 
 class Team extends DBManager<ITeam> {
     constructor() {
@@ -8,7 +7,7 @@ class Team extends DBManager<ITeam> {
             users: {
                 type: 'array',
                 instance: 'fkey',
-                foreignApi: UserManager,
+                foreignApi: 'users' as any,
                 default: [],
                 getIdKeepAsRef: true,
             },
