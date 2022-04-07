@@ -9,9 +9,11 @@ import { CommentManager } from './data/comments'
 import { FilemetaManager } from './data/filemeta'
 import { FiledataManager } from './data/files'
 import { ModuleManager } from './data/modules'
+import { NotificationManager } from './data/notifications'
 import { ProjectManager } from './data/projects'
 import { RankManager } from './data/ranks'
 import { TaskManager } from './data/tasks'
+import { TeamManager } from './data/teams'
 import { ModuleTempManager } from './data/template/moduleTemplates'
 import { ProjectTempManager } from './data/template/projectTemplates'
 import { UserManager } from './data/users'
@@ -35,6 +37,8 @@ export function routerBuilder(version: string) {
             .use(route('modules', ModuleManager))
             .use(route('comments', CommentManager))
             .use(route('projects', ProjectManager))
+            .use(route('teams', TeamManager))
+            .use(route('notifications', NotificationManager))
             // Templates
             .use(
                 route('template/modules', ModuleTempManager, (r, m) =>

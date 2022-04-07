@@ -127,3 +127,14 @@ export interface IUser extends IArangoIndexes {
     firstVisited: string
     lastVisited: string
 }
+
+export interface ITeam extends IArangoIndexes {
+    name: string
+    users: IUser[] | string[]
+}
+
+export interface INotification extends IArangoIndexes {
+    recipient: string | IUser
+    sender: string
+    content: string
+}
