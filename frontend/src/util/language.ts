@@ -27,9 +27,6 @@ const domainMessages = {
                 delete: "Delete"
             }
         },
-        login: {
-
-        },
         dashboard: {
             widget: {
                 project_count: {
@@ -121,6 +118,16 @@ const domainMessages = {
                 use_email: "Use Email?",
                 create_title: "Create a User",
                 edit_title: "Editing User: %{name}"
+            }
+        },
+        team: {
+            info: {
+                name: "Name",
+                users: "Users"
+            },
+            layout: {
+                general: "General",
+                editing: "Editing Team"
             }
         },
         template: {

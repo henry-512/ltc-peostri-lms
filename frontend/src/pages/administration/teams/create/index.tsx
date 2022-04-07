@@ -1,7 +1,9 @@
-import { Create, SimpleForm, useTranslate } from "react-admin";
-import { UserFields, UserToolbar } from "src/components/users";
+import { Box } from "@material-ui/core";
+import { AutocompleteArrayInput, Create, ReferenceArrayInput, SimpleForm, TextInput, useTranslate } from "react-admin";
+import { SectionTitle } from "src/components/misc";
+import TeamToolbar from "src/components/teams/TeamToolbar";
 import transformer from "../transformer";
-import validateUser from "../validation";
+import validateTeam from "../validation";
 
 const TeamCreate = (props: any) => {
     const translate = useTranslate();
@@ -9,17 +11,25 @@ const TeamCreate = (props: any) => {
     return (
         <Create {...props} transform={transformer} title={translate('user.layout.create_title')}>
             <SimpleForm
-                validate={validateUser}
+                validate={validateTeam}
                 toolbar={
-                    <UserToolbar
+                    <TeamToolbar
                         create={true}
                     />
                 }
-                initialValues={{
-                    useEmail: true
-                }}
             >
-                <UserFields />
+                <Box display="flex" width="calc(50% - 16px)" flexDirection="column">
+                    <SectionTitle label="team.layout.general" />
+                    <TextInput source="name" fullWidth/>
+                    <ReferenceArrayInput reference="users/list" source="users">
+                        <AutocompleteArrayInput 
+                            optionText={choice => `${choice.firstName} ${choice.lastName}`} 
+                            optionValue="id" 
+                            source="users"
+                            fullWidth
+                        />
+                    </ReferenceArrayInput>
+                </Box>
             </SimpleForm>
         </Create>
     );

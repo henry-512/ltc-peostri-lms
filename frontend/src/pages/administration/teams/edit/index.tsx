@@ -1,22 +1,32 @@
-import { Edit, SimpleForm } from "react-admin";
-import { UserEditTitle, UserEditToolbar, UserFields, UserToolbar } from "src/components/users";
+import { Box } from "@material-ui/core";
+import { AutocompleteArrayInput, Edit, ReferenceArrayInput, SimpleForm, TextInput } from "react-admin";
+import { SectionTitle } from "src/components/misc";
+import TeamToolbar from "src/components/teams/TeamToolbar";
 import transformer from "../transformer";
-import validateUser from "../validation";
+import validateTeam from "../validation";
 
 const TeamEdit = (props: any) => (
-    <Edit {...props} transform={transformer} actions={<UserEditToolbar />} title={<UserEditTitle />}>
+    <Edit {...props} transform={transformer} title='team.layout.editing'>
         <SimpleForm
-            validate={validateUser}
+            validate={validateTeam}
             toolbar={
-                <UserToolbar
+                <TeamToolbar
                     create={false}
                 />
             }
-            initialValues={{
-                useEmail: (props.initialValues?.email === props.initialValues?.username) ? true : false
-            }}
         >
-            <UserFields />
+            <Box display="flex" width="calc(50% - 16px)" flexDirection="column">
+                <SectionTitle label="team.layout.general" />
+                <TextInput source="name" fullWidth/>
+                <ReferenceArrayInput reference="users/list" source="users">
+                    <AutocompleteArrayInput 
+                        optionText={choice => `${choice.firstName} ${choice.lastName}`} 
+                        optionValue="id" 
+                        source="users"
+                        fullWidth
+                    />
+                </ReferenceArrayInput>
+            </Box>
         </SimpleForm>
     </Edit>
 )

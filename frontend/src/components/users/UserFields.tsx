@@ -1,6 +1,6 @@
 import { Box, makeStyles, Theme } from "@material-ui/core";
 import { Styles } from "@material-ui/core/styles/withStyles";
-import { BooleanInput, email, PasswordInput, ReferenceInput, required, SelectInput, TextInput } from "react-admin";
+import { AutocompleteArrayInput, BooleanInput, email, PasswordInput, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput } from "react-admin";
 import { SectionTitle, Separator } from "../misc";
 import AutoFillUserName from "./AutoFillUserName";
 
@@ -37,6 +37,7 @@ export default function UserFields(props: any) {
                                 width: "calc(50% - 16px)"
                             }}
                             validate={[required()]}
+                            helperText=" "
                         />
                         <TextInput
                             source="lastName"
@@ -45,6 +46,7 @@ export default function UserFields(props: any) {
                             }}
                             formClassName={classes.last_name}
                             validate={[required()]}
+                            helperText=" "
                         />
                     </Box>
                     <Box>
@@ -54,12 +56,14 @@ export default function UserFields(props: any) {
                             validation={{ email: true }}
                             formClassName={classes.email}
                             validate={[required(), email()]}
+                            helperText=" "
                             fullWidth
                         />
                         <TextInput
                             type="avatar"
                             source="avatar"
                             validate={[required()]}
+                            helperText=" "
                             fullWidth
                         />
                     </Box>
@@ -97,9 +101,16 @@ export default function UserFields(props: any) {
                             width: '50%'
                         }}
                     />
+                    <ReferenceArrayInput reference="teams/list" source="teams">
+                        <AutocompleteArrayInput 
+                            optionText={choice => `${choice.name}`} 
+                            optionValue="id" 
+                            source="teams"
+                            fullWidth
+                        />
+                    </ReferenceArrayInput>
                 </Box>
             </Box>
-            <Separator />
             <SectionTitle label="user.layout.security" />
             <Box display="flex" width="50%" flexDirection="column">
                 <Box display="flex" alignItems="center" style={{
@@ -109,7 +120,7 @@ export default function UserFields(props: any) {
                         className={classes.username}
                         validate={[required()]}
                     />
-                    <BooleanInput label="user.layout.use_email" source="useEmail" className={classes.use_email} />
+                    <BooleanInput label="user.layout.use_email" source="useEmail" className={classes.use_email} helperText=" " />
                 </Box>
                 <Box display="flex" style={{
                     gap: "32px"
@@ -120,6 +131,7 @@ export default function UserFields(props: any) {
                         style={{
                             width: "calc(50% - 16px)"
                         }}
+                        helperText=" "
                     />
                     <PasswordInput
                         source="confirm_password"
@@ -127,6 +139,7 @@ export default function UserFields(props: any) {
                         style={{
                             width: "calc(50% - 16px)"
                         }}
+                        helperText=" "
                     />
                 </Box>
             </Box>

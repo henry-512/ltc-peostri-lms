@@ -37,6 +37,7 @@ const AutoFillUserName = (props: AutoFillUserNameProps) => {
                 disabled={
                     (values.useEmail) ? true : false
                 }
+                helperText=" "
             />
         </>
     )

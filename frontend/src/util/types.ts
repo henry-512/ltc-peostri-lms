@@ -11,6 +11,17 @@ export interface LoginInformation {
     password: string
 }
 
+export interface ITeam extends Record {
+    name: string
+    users: IUser[] | string[]
+}
+
+export interface INotification extends IArangoIndexes {
+    recipient: string | IUser
+    sender: string
+    content: string
+}
+
 export type Status = "IN_PROGRESS" | "COMPLETED" | "ARCHIVED" | "AWAITING";
 export type TaskTypes = "DOCUMENT_UPLOAD" | "DOCUMENT_REVIEW" | "MODULE_WAIVER" | "MODULE_WAIVER_APPROVAL" | "DOCUMENT_APPROVE"
 export type UserStatus = 'ACTIVE' | 'LOCKED' | 'INACTIVE' | 'SUSPENDED'

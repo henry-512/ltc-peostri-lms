@@ -1,8 +1,7 @@
 import { makeStyles } from '@material-ui/core';
-import React from 'react';
-import { BulkDeleteButton, Datagrid, DateField, FieldProps, List, ListProps, ReferenceField, ReferenceInput, SearchInput, SelectInput, TextField, TextInput } from 'react-admin';
-import { AvatarField } from 'src/components/users';
-import { IUser } from 'src/util/types';
+import { Datagrid, FieldProps, List, ListProps, ReferenceArrayField, SingleFieldList, TextField } from 'react-admin';
+import UserChip from 'src/components/misc/UserChip';
+import { ITeam } from 'src/util/types';
 
 const useListStyles = makeStyles(theme => ({
     headerRow: {
@@ -55,34 +54,17 @@ const useListStyles = makeStyles(theme => ({
     }
 }));
 
-const BulkUserToolbar = (props: any) => (
-    <React.Fragment>
-        <BulkDeleteButton {...props} />
-    </React.Fragment>
-)
-
-export interface UserListProps extends FieldProps<IUser>, ListProps {
+export interface TeamListProps extends FieldProps<ITeam>, ListProps {
     
 }
 
-const TeamList = (props: UserListProps) => {
+const TeamList = (props: TeamListProps) => {
     const classes = useListStyles();
-
-    const UserListFilters = [
-        <SearchInput source="q" alwaysOn />,
-        <TextInput source="firstName" className={classes.filter} />,
-        <TextInput source="lastName" className={classes.filter} />,
-        <ReferenceInput source="rank" reference="ranks/list" className={classes.select} >
-            <SelectInput optionText={choice => `${choice.name}`} />
-        </ReferenceInput>
-    ];
 
     return (
         <>
             <List {...props}
                 perPage={25}
-                bulkActionButtons={<BulkUserToolbar />}
-                filters={UserListFilters}
             >
                 <Datagrid
                     classes={{
@@ -92,18 +74,12 @@ const TeamList = (props: UserListProps) => {
                     }}
                     rowClick="edit"
                 >
-                    {/*<TextField source="id" /> // TODO: Temporarily removing ID due to illegible ID's */}
-                    <AvatarField className={classes.avatar} />
-                    <TextField source="firstName" label="user.info.first_name" />
-                    <TextField source="lastName" label="user.info.last_name" />
-                    <DateField source="firstVisited" locales="en-US" options={{ timeZone: 'UTC' }} label="user.info.first_visited" />
-                    <DateField source="lastVisited" locales="en-US" options={{ timeZone: 'UTC' }} label="user.info.last_visited" />
-                    <ReferenceField source="rank.id" reference="ranks/list" label="user.info.rank" >
-                        <TextField source="name" />
-                    </ReferenceField>
-                    <TextField source="username" label="user.info.username" />
-                    <TextField source="status" label="user.info.status" />
-                    <TextField source="email" label="user.info.email" />
+                    <TextField source="name" label="team.info.name" />
+                    <ReferenceArrayField source="users" reference="users/list" label="team.info.users" >
+                        <SingleFieldList linkType="show">
+                            <UserChip />
+                        </SingleFieldList>
+                    </ReferenceArrayField>
                 </Datagrid>
             </List>
         </>

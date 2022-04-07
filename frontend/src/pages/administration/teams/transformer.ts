@@ -1,12 +1,6 @@
-import { IUser } from "src/util/types";
+import { ITeam } from "src/util/types";
 
-const transformer = (data: IUser) => {
-    delete data.useEmail;
-    delete data.confirm_password;
-
-    if (data.password && data.password?.length <= 0) {
-        delete data.password;
-    }
+const transformer = (data: ITeam) => {
 
     return {
         ...data
