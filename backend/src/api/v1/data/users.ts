@@ -28,7 +28,7 @@ class User extends DBManager<IUser> {
                     getIdKeepAsRef: true,
                     acceptNewDoc: false,
                 },
-                team: {
+                teams: {
                     type: 'array',
                     instance: 'fkey',
                     foreignApi: 'teams' as any, // Resolve circular dependency
