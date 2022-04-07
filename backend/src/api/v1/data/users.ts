@@ -28,6 +28,10 @@ class User extends DBManager<IUser> {
                     getIdKeepAsRef: true,
                     acceptNewDoc: false,
                 },
+                team: {
+                    type: 'fkey',
+                    optional: true,
+                },
                 status: {
                     type: 'string',
                     default: 'ACTIVE',
