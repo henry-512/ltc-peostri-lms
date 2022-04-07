@@ -11,7 +11,7 @@ const Dashboard = (props: DashboardProps) => {
             <Title>LMS Dashboard</Title>
             <DashboardWrapper>
                 <ProjectCount count={0} />
-                <TaskCount count={0} />
+                <></>
             </DashboardWrapper>
         </>
     )
