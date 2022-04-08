@@ -42,7 +42,19 @@ export function routerBuilder(version: string) {
             .use(route('comments', CommentManager))
             .use(route('projects', ProjectManager))
             .use(route('teams', TeamManager))
-            .use(route('notifications', NotificationManager))
+            .use(
+                route('notifications', NotificationManager, (r, m) =>
+                    r.put('/read/:id', async (ctx) => {
+                        // TODO: validate recipient?
+
+                        let id = await m.db.assertKeyExists(ctx.params.id)
+
+                        await NotificationManager.read(id)
+
+                        ctx.status = HTTPStatus.NO_CONTENT
+                    })
+                )
+            )
             // Templates
             .use(
                 route('template/modules', ModuleTempManager, (r, m) =>
@@ -230,6 +242,41 @@ export function routerBuilder(version: string) {
                             'Access-Control-Expose-Headers',
                             'Content-Range'
                         )
+                    })
+                    // NOTIFICATIONS
+                    .get('notifications/list', async (ctx) => {
+                        let user: AuthUser = ctx.state.user
+                        let id = user.getId()
+
+                        await UserManager.db.assertIdExists(id)
+
+                        let results =
+                            await NotificationManager.getNotificationsAssignedToUser(
+                                id,
+                                ctx.request.query
+                            )
+
+                        ctx.body = results.all
+                        ctx.status = HTTPStatus.OK
+
+                        ctx.set(
+                            'Content-Range',
+                            `documents ${results.low}-${results.high}/${results.size}`
+                        )
+                        ctx.set(
+                            'Access-Control-Expose-Headers',
+                            'Content-Range'
+                        )
+                    })
+                    .put('notifications/readall', async (ctx) => {
+                        let user: AuthUser = ctx.state.user
+                        let id = user.getId()
+
+                        await UserManager.db.assertIdExists(id)
+
+                        NotificationManager.readAllForUser(id)
+
+                        ctx.status = HTTPStatus.NO_CONTENT
                     })
                     .routes()
             )
