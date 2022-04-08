@@ -1,12 +1,13 @@
 import { Box, Divider, Link, Button, Popover, PopoverOrigin, Typography, makeStyles } from "@material-ui/core"
 import React from "react"
 import { Loading } from "react-admin"
+import { useHistory } from "react-router-dom"
 import { INotification } from "src/util/types"
 import NotificationsEmpty from "./NotificationsEmpty"
 import NotificationsItem from "./NotificationsItem"
 
-const Header = ({disabled}: {disabled: boolean}) => {
-    
+const Header = ({disabled, markAllRead}: {disabled: boolean, markAllRead: any}) => {
+
     return (    
         <>
             <Box display="flex" padding=".5rem 1rem" alignItems="center" >
@@ -15,7 +16,7 @@ const Header = ({disabled}: {disabled: boolean}) => {
                 </Typography>
                 <Box sx={{ flex: '1 1 auto' }} />
                 {(disabled) ? null :
-                    <Link href="#some-link">
+                    <Link href="#" onClick={markAllRead} >
                         Mark all as read
                     </Link>
                 }
@@ -32,15 +33,22 @@ const useFooterStyles = makeStyles(theme => ({
     }
 }))
 
-const Footer = ({disabled}: {disabled?: boolean}) => {
+const Footer = ({disabled, handleClose}: {disabled?: boolean, handleClose: Function}) => {
     const classes = useFooterStyles();
+    const history = useHistory();
+
+    const viewAllNotifications = (e: any) => {
+        history.push('/users/notifications/list');
+        handleClose();
+    }
+
     return (
         <>
             {(disabled) ? null : (
                 <>
                     <Divider />
                     <Box display="flex" padding="0" justifyContent="center">
-                        <Button href="#some-link" disableElevation size="small" fullWidth classes={classes}>
+                        <Button onClick={viewAllNotifications} disableElevation size="small" fullWidth classes={classes}>
                             See All Notifications
                         </Button>
                     </Box>
@@ -59,6 +67,7 @@ export type NotificationsMenuProps = {
     data?: INotification[]
     id?: string
     loading: boolean
+    markAllRead: Function
 }
 
 const useStyles = makeStyles(theme => ({
@@ -72,7 +81,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const NotificationsMenu = (props: NotificationsMenuProps) => {
-    const { anchorEl, AnchorOrigin, TransformOrigin, open, handleClose, data = [], id, loading } = props;
+    const { anchorEl, AnchorOrigin, TransformOrigin, open, handleClose, data = [], id, loading, markAllRead } = props;
     const classes = useStyles();
 
     return (
@@ -87,7 +96,7 @@ const NotificationsMenu = (props: NotificationsMenuProps) => {
                 onClose={handleClose}
                 classes={classes}
             >
-                <Header disabled={(data && data.length > 0) ? false : true} />
+                <Header disabled={(data && data.length > 0) ? false : true} markAllRead={markAllRead} />
                 {(loading) ? <Loading className={classes.loader} loadingPrimary="" loadingSecondary="Loading Notifications.." /> :
                     (data && data.length > 0) ? 
                         data.map((notification, index) => {
@@ -99,7 +108,7 @@ const NotificationsMenu = (props: NotificationsMenuProps) => {
                         <NotificationsEmpty />
                     )
                 }
-                <Footer />
+                <Footer handleClose={handleClose} />
             </Popover>
         </>
     )

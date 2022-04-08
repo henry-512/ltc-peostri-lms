@@ -34,16 +34,34 @@ const NotificationsWidget = (props: NotificationsButtonProps) => {
     const [notifications, setNotifications] = useState([] as INotification[]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
+    const fetchNotifications = () => {
+        setLoading(true);
         dataProvider.getList<INotification>('users/notifications/list', { filter: { read: true }, pagination: { page: 1, perPage: 5 }, sort: { field: "createdAt", order: "ASC"} })
         .then(({ data }) => {
             setNotifications(data);
-            setLoading(false);
         })
         .catch(error => {
             return;
         })
-    }, [])
+        .finally(() => {
+            setLoading(false);
+        })
+    }
+
+    useEffect(() => fetchNotifications(), [])
+
+    const markAllRead = () => {
+        dataProvider.getList<INotification>('users/notifications/readall', { filter: {}, pagination: { page: 0, perPage: 0 }, sort: { field: "", order: ""} })
+        .then(({ data }) => {
+            setNotifications(data);
+        })
+        .catch(error => {
+            return;
+        })
+        .finally(() => {
+            handleClose();
+        })
+    }
 
     return (
         <>
@@ -57,6 +75,7 @@ const NotificationsWidget = (props: NotificationsButtonProps) => {
                 handleClose={handleClose} 
                 data={notifications}
                 loading={loading}
+                markAllRead={markAllRead}
             />
         </>
     )
