@@ -49,7 +49,7 @@ export function routerBuilder(version: string) {
 
                         let id = await m.db.assertKeyExists(ctx.params.id)
 
-                        await NotificationManager.read([id])
+                        await NotificationManager.read(id)
 
                         ctx.status = HTTPStatus.NO_CONTENT
                     })
@@ -242,6 +242,41 @@ export function routerBuilder(version: string) {
                             'Access-Control-Expose-Headers',
                             'Content-Range'
                         )
+                    })
+                    // NOTIFICATIONS
+                    .get('notifications/list', async (ctx) => {
+                        let user: AuthUser = ctx.state.user
+                        let id = user.getId()
+
+                        await UserManager.db.assertIdExists(id)
+
+                        let results =
+                            await NotificationManager.getNotificationsAssignedToUser(
+                                id,
+                                ctx.request.query
+                            )
+
+                        ctx.body = results.all
+                        ctx.status = HTTPStatus.OK
+
+                        ctx.set(
+                            'Content-Range',
+                            `documents ${results.low}-${results.high}/${results.size}`
+                        )
+                        ctx.set(
+                            'Access-Control-Expose-Headers',
+                            'Content-Range'
+                        )
+                    })
+                    .put('notifications/readall', async (ctx) => {
+                        let user: AuthUser = ctx.state.user
+                        let id = user.getId()
+
+                        await UserManager.db.assertIdExists(id)
+
+                        NotificationManager.readAllForUser(id)
+
+                        ctx.status = HTTPStatus.NO_CONTENT
                     })
                     .routes()
             )
