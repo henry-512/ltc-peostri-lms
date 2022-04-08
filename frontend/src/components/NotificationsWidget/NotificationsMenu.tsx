@@ -38,7 +38,7 @@ const Footer = ({disabled, handleClose}: {disabled?: boolean, handleClose: Funct
     const history = useHistory();
 
     const viewAllNotifications = (e: any) => {
-        history.push('/users/notifications/list');
+        history.push('/user/notifications');
         handleClose();
     }
 

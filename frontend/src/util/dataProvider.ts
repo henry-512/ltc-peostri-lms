@@ -75,7 +75,7 @@ const dataProvider = (
     httpClient = client,
     countHeader: string = 'Content-Range'
 ): DataProvider => ({
-    getList: (resource, params) => {
+    getList: (resource, params) => {               
         const { page, perPage } = params.pagination;
         const { field, order } = params.sort;
 
@@ -90,7 +90,7 @@ const dataProvider = (
             range: [rangeStart, rangeEnd],
             filter: JSON.stringify(params.filter),
         };
-        const url = `${apiUrl}/${resource}?${stringify(query)}`;
+        const url = `${apiUrl}/${resource}/list?${stringify(query)}`;
         const options =
             countHeader === 'Content-Range'
                 ? {
@@ -124,7 +124,7 @@ const dataProvider = (
     },
 
     getOne: (resource, params) =>
-        httpClient(`${apiUrl}/${resource}/${params.id}`).then(({ json }) => ({
+        httpClient(`${apiUrl}/${resource}/list/${params.id}`).then(({ json }) => ({
             data: json,
         })),
 
@@ -132,7 +132,7 @@ const dataProvider = (
         const query = {
             filter: JSON.stringify({ id: params.ids }),
         };
-        const url = `${apiUrl}/${resource}?${stringify(query)}`;
+        const url = `${apiUrl}/${resource}/list?${stringify(query)}`;
         return httpClient(url).then(({ json }) => ({ data: json }));
     },
 
@@ -151,7 +151,7 @@ const dataProvider = (
                 [params.target]: params.id,
             }),
         };
-        const url = `${apiUrl}/${resource}?${stringify(query)}`;
+        const url = `${apiUrl}/${resource}/list?${stringify(query)}`;
         const options =
             countHeader === 'Content-Range'
                 ? {
@@ -180,10 +180,15 @@ const dataProvider = (
 
     update: (resource, params) => {
         switch(resource) {
+            case 'users/notifications/readall':
+                return httpClient(`${apiUrl}/${resource}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(params.data),
+                }).then(({ json }) => ({ data: json }))
             case 'projects':
                 const formData = convertProjectToFormData(params.data);
 
-                return httpClient(`${apiUrl}/${resource}/${params.id}`, {
+                return httpClient(`${apiUrl}/${resource}/list/${params.id}`, {
                     method: 'PUT',
                     body: formData,
                 }).then(({ json }) => ({
@@ -201,7 +206,7 @@ const dataProvider = (
     updateMany: (resource, params) =>
         Promise.all(
             params.ids.map(id =>
-                httpClient(`${apiUrl}/${resource}/${id}`, {
+                httpClient(`${apiUrl}/${resource}/list/${id}`, {
                     method: 'PUT',
                     body: JSON.stringify(params.data),
                 })
@@ -213,14 +218,14 @@ const dataProvider = (
             case 'projects':
                 const formData = convertProjectToFormData(params.data);
 
-                return httpClient(`${apiUrl}/${resource}`, {
+                return httpClient(`${apiUrl}/${resource}/list`, {
                     method: 'POST',
                     body: formData,
                 }).then(({ json }) => ({
                     data: { ...params.data, id: json.id },
                 }))
             default: 
-                return httpClient(`${apiUrl}/${resource}`, {
+                return httpClient(`${apiUrl}/${resource}/list`, {
                     method: 'POST',
                     body: JSON.stringify(params.data),
                 }).then(({ json }) => ({
@@ -230,7 +235,7 @@ const dataProvider = (
     },
 
     delete: (resource, params) =>
-        httpClient(`${apiUrl}/${resource}/${params.id}`, {
+        httpClient(`${apiUrl}/${resource}/list/${params.id}`, {
             method: 'DELETE',
             headers: new Headers({
                 'Content-Type': 'text/plain',
@@ -241,7 +246,7 @@ const dataProvider = (
     deleteMany: (resource, params) =>
         Promise.all(
             params.ids.map(id =>
-                httpClient(`${apiUrl}/${resource}/${id}`, {
+                httpClient(`${apiUrl}/${resource}/list/${id}`, {
                     method: 'DELETE',
                     headers: new Headers({
                         'Content-Type': 'text/plain',

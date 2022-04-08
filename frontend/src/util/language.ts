@@ -170,7 +170,7 @@ const domainMessages = {
             }
         },
         resources: {
-            users: {
+            'users': {
                 name: "Users",
                 fields: {
                     first_name: "First Name",
@@ -181,20 +181,20 @@ const domainMessages = {
                     status: "Status"
                 }
             },
-            'template/projects/list': {
+            'template/projects': {
                 name: "Project Templates"
             },
-            'template/modules/list': {
+            'template/modules': {
                 name: "Module Templates"
             },
-            'projects/list': {
+            'projects': {
                 name: "Projects"
             },
-            'ranks/list': {
+            'ranks': {
                 name: "Ranks"
             },
-            'users/list': {
-                name: "Users"
+            'teams': {
+                name: "Teams"
             }
         },
         ra: {

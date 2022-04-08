@@ -57,10 +57,10 @@ const CreateProjectFromTemplateDialog = (props: CreateProjectFromTemplateDialogP
         
         dataProvider.getOne('template/projects/instance', { id: template_id })
         .then(response => {
-            redirect('create', '/projects/list', undefined, {}, { record: {...omitID(response.data)}});
+            redirect('create', '/projects', undefined, {}, { record: {...omitID(response.data)}});
         })
         .catch(e => {
-            redirect('list', '/projects/list');
+            redirect('list', '/projects');
         });
 
         props.setOpen(false);
@@ -79,7 +79,7 @@ const CreateProjectFromTemplateDialog = (props: CreateProjectFromTemplateDialogP
             <Dialog open={props.open} onClose={handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'sm')}>
                 <DialogTitle id={props.ariaLabel} classes={dialogStyles}>{props.label}</DialogTitle>
                 <DialogContent classes={dialogContentStyles}>
-                    <ReferenceInput label="project.layout.select_template" source="project_template_id" reference="template/projects/list">
+                    <ReferenceInput label="project.layout.select_template" source="project_template_id" reference="template/projects">
                         <AutocompleteInput optionText="title" optionValue="id" fullWidth validate={[required()]} helperText=" " />
                     </ReferenceInput>
                 </DialogContent>

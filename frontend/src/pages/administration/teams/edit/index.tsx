@@ -18,7 +18,7 @@ const TeamEdit = (props: any) => (
             <Box display="flex" width="calc(50% - 16px)" flexDirection="column">
                 <SectionTitle label="team.layout.general" />
                 <TextInput source="name" fullWidth/>
-                <ReferenceArrayInput reference="users/list" source="users">
+                <ReferenceArrayInput reference="users" source="users">
                     <AutocompleteArrayInput 
                         optionText={choice => `${choice.firstName} ${choice.lastName}`} 
                         optionValue="id" 

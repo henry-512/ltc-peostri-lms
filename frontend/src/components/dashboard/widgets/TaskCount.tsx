@@ -26,7 +26,7 @@ export type TaskWidgetProps = {
 
 const TaskWidget = (props: TaskWidgetProps) => {
     return (
-        <CardWithIcon icon={ListAltIcon} to={"/users/tasks/list"} title={props.title || "dashboard.widget.task_count.title"} subtitle={props.count}>
+        <CardWithIcon icon={ListAltIcon} to={"/users/tasks"} title={props.title || "dashboard.widget.task_count.title"} subtitle={props.count}>
             {(props.data) ? (
                 <>
                     <List>

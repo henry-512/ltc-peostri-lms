@@ -62,7 +62,7 @@ const General = (props: any) => {
                         <Grid container>
                             <ReferenceArrayInput
                                 label="project.fields.member"
-                                reference="users/list"
+                                reference="users"
                                 source="users"
                             >
                                 <AutocompleteArrayInput

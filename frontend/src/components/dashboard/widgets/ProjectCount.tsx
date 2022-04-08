@@ -9,7 +9,7 @@ export type ProjectCountProps = {
 
 const ProjectCount = (props: ProjectCountProps) => {
     return (
-        <CardWithIcon icon={ListAltIcon} to={"/users/projects/list"} title={props.title || "dashboard.widget.project_count.title"} subtitle={props.count} />
+        <CardWithIcon icon={ListAltIcon} to={"/users/projects"} title={props.title || "dashboard.widget.project_count.title"} subtitle={props.count} />
     )
 }
 

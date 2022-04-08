@@ -36,7 +36,7 @@ const NotificationsWidget = (props: NotificationsButtonProps) => {
 
     const fetchNotifications = () => {
         setLoading(true);
-        dataProvider.getList<INotification>('users/notifications/list', { filter: { read: true }, pagination: { page: 1, perPage: 5 }, sort: { field: "createdAt", order: "ASC"} })
+        dataProvider.getList<INotification>('users/notifications', { filter: { read: false }, pagination: { page: 1, perPage: 5 }, sort: { field: "createdAt", order: "ASC" } })
         .then(({ data }) => {
             setNotifications(data);
         })
@@ -51,8 +51,9 @@ const NotificationsWidget = (props: NotificationsButtonProps) => {
     useEffect(() => fetchNotifications(), [])
 
     const markAllRead = () => {
-        dataProvider.getList<INotification>('users/notifications/readall', { filter: {}, pagination: { page: 0, perPage: 0 }, sort: { field: "", order: ""} })
+        dataProvider.update<INotification>('user/notifications/readall', { id: "", data: {}, previousData: { id: "" } })
         .then(({ data }) => {
+            // @ts-ignore
             setNotifications(data);
         })
         .catch(error => {
@@ -65,7 +66,7 @@ const NotificationsWidget = (props: NotificationsButtonProps) => {
 
     return (
         <>
-            <NotificationsButton id={id} label={label} handleMenu={handleMenu} />
+            <NotificationsButton id={id} label={label} handleMenu={handleMenu} hasNew={(notifications && notifications.length > 0)} />
             <NotificationsMenu 
                 id={id}
                 anchorEl={anchorEl} 

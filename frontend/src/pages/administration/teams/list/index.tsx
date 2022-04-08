@@ -75,7 +75,7 @@ const TeamList = (props: TeamListProps) => {
                     rowClick="edit"
                 >
                     <TextField source="name" label="team.info.name" />
-                    <ReferenceArrayField source="users" reference="users/list" label="team.info.users" >
+                    <ReferenceArrayField source="users" reference="users" label="team.info.users" >
                         <SingleFieldList linkType="show">
                             <UserChip />
                         </SingleFieldList>

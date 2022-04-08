@@ -72,7 +72,7 @@ export default function UserFields(props: any) {
                     <SectionTitle label="user.layout.permissions" />
                     <ReferenceInput
                         label="project.fields.rank"
-                        reference="ranks/list"
+                        reference="ranks"
                         source="rank"
                         style={{
                             width: '50%'
@@ -101,7 +101,7 @@ export default function UserFields(props: any) {
                             width: '50%'
                         }}
                     />
-                    <ReferenceArrayInput reference="teams/list" source="teams">
+                    <ReferenceArrayInput reference="teams" source="teams">
                         <AutocompleteArrayInput 
                             optionText={choice => `${choice.name}`} 
                             optionValue="id" 

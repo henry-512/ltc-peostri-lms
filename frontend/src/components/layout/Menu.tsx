@@ -47,7 +47,7 @@ const Menu = ({ dense = false }: MenuProps) => {
             <DashboardMenuItem />
             <MenuItemLink
                 to={{
-                    pathname: '/users/tasks/list',
+                    pathname: '/user/tasks',
                     state: { _scrollToTop: true },
                 }}
                 primaryText={translate("layout.menu.my_tasks")}
@@ -55,7 +55,7 @@ const Menu = ({ dense = false }: MenuProps) => {
             />
             <MenuItemLink
                 to={{
-                    pathname: '/users/projects/list',
+                    pathname: '/user/projects',
                     state: { _scrollToTop: true },
                 }}
                 primaryText={translate("layout.menu.my_projects")}
@@ -70,7 +70,7 @@ const Menu = ({ dense = false }: MenuProps) => {
             >
                 <MenuItemLink
                     to={{
-                        pathname: '/projects/list',
+                        pathname: '/projects',
                         state: { _scrollToTop: true },
                     }}
                     primaryText={translate("layout.menu.projects")}
@@ -78,7 +78,7 @@ const Menu = ({ dense = false }: MenuProps) => {
                 />
                 <MenuItemLink
                     to={{
-                        pathname: '/users/list',
+                        pathname: '/users',
                         state: { _scrollToTop: true },
                     }}
                     primaryText={translate("layout.menu.users")}
@@ -86,7 +86,7 @@ const Menu = ({ dense = false }: MenuProps) => {
                 />
                 <MenuItemLink
                     to={{
-                        pathname: '/ranks/list',
+                        pathname: '/ranks',
                         state: { _scrollToTop: true },
                     }}
                     primaryText={translate("layout.menu.ranks")}
@@ -94,7 +94,7 @@ const Menu = ({ dense = false }: MenuProps) => {
                 />
                 <MenuItemLink
                     to={{
-                        pathname: '/teams/list',
+                        pathname: '/teams',
                         state: { _scrollToTop: true },
                     }}
                     primaryText={translate("layout.menu.teams")}
@@ -110,7 +110,7 @@ const Menu = ({ dense = false }: MenuProps) => {
             >
                 <MenuItemLink
                     to={{
-                        pathname: '/template/projects/list',
+                        pathname: '/template/projects',
                         state: { _scrollToTop: true },
                     }}
                     primaryText={translate("layout.menu.project_templates")}
@@ -118,7 +118,7 @@ const Menu = ({ dense = false }: MenuProps) => {
                 />
                 <MenuItemLink
                     to={{
-                        pathname: '/template/modules/list',
+                        pathname: '/template/modules',
                         state: { _scrollToTop: true },
                     }}
                     primaryText={translate("layout.menu.module_templates")}

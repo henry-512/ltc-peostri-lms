@@ -1,15 +1,17 @@
 import { IconButton, Tooltip } from "@material-ui/core";
 import NotificationsIcon from '@material-ui/icons/Notifications';
+import NotificationsActiveIcon from '@material-ui/icons/NotificationsActive';
 import { useTranslate } from "react-admin";
 
 export type NotificationsButtonProps = {
     label: string
     handleMenu: any
     id?: string
+    hasNew: boolean
 }
 
 const NotificationsButton = (props: NotificationsButtonProps) => {
-    const { label, handleMenu, id } = props;
+    const { label, handleMenu, id, hasNew } = props;
     const translate = useTranslate();
 
     return (
@@ -20,7 +22,7 @@ const NotificationsButton = (props: NotificationsButtonProps) => {
                     onClick={handleMenu}
                     aria-describedby={id}
                 >
-                    <NotificationsIcon />
+                    {(hasNew) ? <NotificationsActiveIcon /> : <NotificationsIcon />}
                 </IconButton>
             </Tooltip>
         </>
