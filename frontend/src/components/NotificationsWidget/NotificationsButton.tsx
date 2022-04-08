@@ -1,28 +1,16 @@
-import { IconButton, makeStyles, Tooltip } from "@material-ui/core";
+import { IconButton, Tooltip } from "@material-ui/core";
 import NotificationsIcon from '@material-ui/icons/Notifications';
-import { MouseEventHandler, useState } from "react";
-import { useTranslate } from 'react-admin'
-
-const useStyles = makeStyles(theme => ({
-    root: {
-        minWidth: '0'
-    }
-}));
+import { useTranslate } from "react-admin";
 
 export type NotificationsButtonProps = {
     label: string
+    handleMenu: any
+    id?: string
 }
 
 const NotificationsButton = (props: NotificationsButtonProps) => {
-    const { label } = props;
-    const classes = useStyles();
+    const { label, handleMenu, id } = props;
     const translate = useTranslate();
-    const [anchorEl, setAnchorEl] = useState(null);
-
-    const open = Boolean(anchorEl);
-    
-    const handleMenu = (event: any) => setAnchorEl(event.currentTarget);
-    const handleClose = () => setAnchorEl(null);
 
     return (
         <>
@@ -30,6 +18,7 @@ const NotificationsButton = (props: NotificationsButtonProps) => {
                 <IconButton
                     color="inherit"
                     onClick={handleMenu}
+                    aria-describedby={id}
                 >
                     <NotificationsIcon />
                 </IconButton>
