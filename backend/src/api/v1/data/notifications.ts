@@ -6,22 +6,29 @@ import { UserManager } from './users'
 
 class Notification extends DBManager<INotification> {
     constructor() {
-        super('notifications', 'Notification', 'recipient', {
-            recipient: {
-                type: 'fkey',
-                foreignApi: UserManager,
+        super(
+            'notifications',
+            'Notification',
+            {
+                recipient: {
+                    type: 'fkey',
+                    foreignApi: UserManager,
+                },
+                content: {
+                    type: 'string',
+                },
+                sender: {
+                    type: 'string',
+                },
+                read: {
+                    type: 'boolean',
+                    default: false,
+                },
             },
-            content: {
-                type: 'string',
-            },
-            sender: {
-                type: 'string',
-            },
-            read: {
-                type: 'boolean',
-                default: false,
-            },
-        })
+            {
+                hasCreate: true,
+            }
+        )
     }
 
     public async readAllForUser(id: string) {
@@ -42,10 +49,7 @@ class Notification extends DBManager<INotification> {
             if (await this.db.exists(i)) {
                 this.read(i)
             } else {
-                this.internal(
-                    'readAllForUser',
-                    `${i} is not a db id`
-                )
+                this.internal('readAllForUser', `${i} is not a db id`)
             }
         }
     }

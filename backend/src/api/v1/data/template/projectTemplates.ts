@@ -8,7 +8,6 @@ class ProjectTemplate extends DBManager<IProjectTemplate> {
         super(
             'projectTemplates',
             'Project Template',
-            'title',
             {
                 title: { type: 'string' },
                 modules: {
@@ -27,7 +26,7 @@ class ProjectTemplate extends DBManager<IProjectTemplate> {
                     default: 0,
                 },
             },
-            { hasCUTimestamp: true }
+            { hasCreate: true, hasUpdate: true, defaultFilter: 'title' }
         )
     }
 

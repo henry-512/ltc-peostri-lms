@@ -19,7 +19,6 @@ class Project extends DBManager<IProject> {
         super(
             'projects',
             'Project',
-            'title',
             {
                 title: { type: 'string' },
                 start: { type: 'string' },
@@ -55,7 +54,7 @@ class Project extends DBManager<IProject> {
                     optional: true,
                 },
             },
-            { hasCUTimestamp: true }
+            { hasUpdate: true, hasCreate: true, defaultFilter: 'title' }
         )
     }
 
@@ -90,11 +89,11 @@ class Project extends DBManager<IProject> {
         return this.db.queryGetCount(opts)
     }
 
-    protected override async modifyDoc(
+    protected override modifyDoc = (
         user: AuthUser,
         files: any,
         doc: any
-    ): Promise<IProject> {
+    ): Promise<IProject> => {
         // Calculate start dates from TTC values
         let modules = doc.modules
 

@@ -15,7 +15,6 @@ class Filedata extends DBManager<IFile> {
         super(
             'file',
             'File',
-            'title',
             {
                 title: { type: 'string' },
                 author: {
@@ -31,7 +30,9 @@ class Filedata extends DBManager<IFile> {
                 },
             },
             {
-                hasCUTimestamp: true,
+                hasCreate: true,
+                hasUpdate: true,
+                defaultFilter: 'title',
             }
         )
     }
@@ -50,10 +51,7 @@ class Filedata extends DBManager<IFile> {
     }
 
     public async readLatest(doc: IFilemeta) {
-        let latest = await this.getFromDB(
-            {} as any,
-            doc.latest as string
-        )
+        let latest = await this.getFromDB({} as any, doc.latest as string)
 
         let src = path.join(FILE_PATH, latest.path ?? '')
         let stat = await fs.promises.stat(src)

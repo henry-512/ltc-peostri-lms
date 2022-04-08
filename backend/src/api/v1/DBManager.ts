@@ -6,11 +6,11 @@ import {
     IQueryGetOpts,
 } from '../../database'
 import { APIError, HTTPStatus } from '../../lms/errors'
-import { IFieldData, IForeignFieldData } from '../../lms/FieldData'
+import { IField, IForeignFieldData } from '../../lms/FieldData'
 import { IArangoIndexes } from '../../lms/types'
 import { convertToKey, splitId, str } from '../../lms/util'
 import { AuthUser } from '../auth'
-import { DataManager, instances } from './DataManager'
+import { DataManager, Managers } from './DataManager'
 
 /**
  * Returns the ApiRoute instance corresponding to a database id
@@ -18,7 +18,7 @@ import { DataManager, instances } from './DataManager'
  * @returns The corresponding ApiRoute
  */
 export function getApiInstanceFromId(id: string): DBManager<IArangoIndexes> {
-    return instances[splitId(id).col] as any
+    return Managers[splitId(id).col] as any
 }
 
 export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
@@ -28,15 +28,14 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
     constructor(
         dbName: string,
         className: string,
-        defaultFilter: string,
-        fields: { [key: string]: IFieldData },
+        fields: { [key: string]: IField },
         opts?: {
-            /**
-             * Create/Update timestamp
-             */
-            hasCUTimestamp?: boolean
+            hasCreate?: boolean,
+            hasUpdate?: boolean,
+            defaultFilter?: string
         }
     ) {
+        // set id field
         fields['id'] = {
             type: 'string',
             optional: true,
@@ -44,11 +43,22 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
 
         super(className, fields, opts)
 
-        this.defaultFilter = defaultFilter
+        this.defaultFilter = '_key'
+        let filter = opts?.defaultFilter
+        if (filter) {
+            if (filter in this.fieldData) {
+                this.defaultFilter = filter
+            } else {
+                console.warn(
+                    `default filter ${filter} dne on this type ${this.className}, intentional?`
+                )
+            }
+        }
+
         this.db = new ArangoWrapper<Type>(dbName, this.fieldEntries)
 
         // Add this to the lookup table
-        instances[dbName] = this
+        Managers[dbName] = this
     }
 
     public parseQuery(q: any): IQueryGetOpts {

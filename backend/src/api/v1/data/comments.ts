@@ -8,7 +8,6 @@ class Comment extends DBManager<IComment> {
         super(
             'comments',
             'Comment',
-            'content',
             {
                 content: { type: 'string' },
                 author: {
@@ -20,15 +19,15 @@ class Comment extends DBManager<IComment> {
                     parentReferenceKey: 'comments',
                 },
             },
-            { hasCUTimestamp: true }
+            { hasCreate: true, hasUpdate: true, defaultFilter: 'content' }
         )
     }
 
-    protected override async modifyDoc(
+    protected override modifyDoc = (
         user: AuthUser,
         files: any,
         doc: any
-    ): Promise<IComment> {
+    ): Promise<IComment> => {
         if (!doc.author) {
             doc.author = user.getId()
         }
@@ -37,12 +36,12 @@ class Comment extends DBManager<IComment> {
 
     // NOTE: If this is supposed to be a comment reference
     // but does not exist, this generates a comment.
-    protected override async buildFromString(
+    protected override buildFromString = async (
         user: AuthUser,
         files: any,
         str: string,
         par: string
-    ): Promise<IComment | undefined> {
+    ): Promise<IComment> => {
         // TODO: input validation
         let com: IComment = {
             id: this.db.generateDBID(),

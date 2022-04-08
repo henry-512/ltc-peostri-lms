@@ -16,8 +16,6 @@ class User extends DBManager<IUser> {
         super(
             DB_NAME,
             'User',
-            // This has custom functionality in UserArangoWrapper
-            'name',
             {
                 firstName: { type: 'string' },
                 lastName: { type: 'string' },
@@ -62,17 +60,21 @@ class User extends DBManager<IUser> {
                     type: 'string',
                     optional: true,
                 },
+            },
+            {
+                // This has custom functionality in UserArangoWrapper
+                defaultFilter: 'name',
             }
         )
 
         this.db = new UserArangoWrapper(this.fieldEntries)
     }
 
-    override async modifyDoc(
+    protected override modifyDoc = async (
         user: AuthUser,
         files: any,
         doc: any
-    ): Promise<IUser> {
+    ): Promise<IUser> => {
         // Hash password
         if (doc.password) {
             doc.password = await bcrypt.hash(doc.password, 5)

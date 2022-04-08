@@ -32,17 +32,17 @@ class TaskTemplate extends DataManager<ITaskTemplate> {
                     default: 0,
                 },
             },
-            { hasCUTimestamp: true }
+            { hasCreate: true, hasUpdate: true }
         )
     }
 
     // Tasks have ids appended as part of the frontend process
     // These are completely useless in the db, and should be removed
-    protected override modifyDoc(
+    protected override modifyDoc = async (
         user: AuthUser,
         files: any,
         doc: any
-    ): Promise<ITaskTemplate> {
+    ): Promise<ITaskTemplate> => {
         delete doc.id
 
         return doc
@@ -56,7 +56,6 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
         super(
             'moduleTemplates',
             'Module Template',
-            'title',
             {
                 title: { type: 'string' },
                 tasks: {
@@ -74,7 +73,7 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
                     default: 0,
                 },
             },
-            { hasCUTimestamp: true }
+            { hasCreate: true, hasUpdate: true, defaultFilter: 'title' }
         )
     }
 

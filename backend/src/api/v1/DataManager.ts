@@ -1,19 +1,17 @@
 import { config } from '../../config'
 import { HTTPStatus, IErrorable } from '../../lms/errors'
-import {
-    IDataFieldData,
-    IFieldData,
-    IForeignFieldData,
-} from '../../lms/FieldData'
+import { IDataFieldData, IField, IForeignFieldData } from '../../lms/FieldData'
 import { IArangoIndexes, ICreateUpdate } from '../../lms/types'
 import { isDBId, isDBKey, PTR, splitId, str } from '../../lms/util'
 import { AuthUser } from '../auth'
 
-export const instances: { [dbname: string]: DataManager<IArangoIndexes> } = {}
+export const Managers: { [dbname: string]: DataManager<IArangoIndexes> } = {}
 
 export class DataManager<Type> extends IErrorable {
-    protected hasCUTimestamp: boolean
-    protected fieldEntries: [string, IFieldData][]
+    protected hasCreate: boolean
+    protected hasUpdate: boolean
+
+    protected fieldEntries: [string, IField][]
     protected foreignEntries: [string, IForeignFieldData][]
     private dataEntries: [string, IDataFieldData][]
     protected parentField: null | {
@@ -21,11 +19,36 @@ export class DataManager<Type> extends IErrorable {
         foreign: string
     }
 
+    /**
+     * Accepts a non id/key string and converts it into a valid document
+     */
+    protected buildFromString?: (
+        user: AuthUser,
+        files: any,
+        str: string,
+        par: string
+    ) => Promise<Type>
+
+    /**
+     * Modifies a doc, if required. Called before verifying any fields.
+     */
+    protected modifyDoc?: (
+        user: AuthUser,
+        files: any,
+        doc: any
+    ) => Promise<Type>
+
     // hack
     public resolveDependencies() {
         for (let [key, data] of this.fieldEntries) {
             if (typeof data.foreignApi === 'string') {
-                data.foreignApi = instances[data.foreignApi] as any
+                data.foreignApi = Managers[data.foreignApi] as any
+                if (!data.foreignApi) {
+                    throw this.internal(
+                        'resolveDependencies',
+                        `${data.foreignApi} is not a valid manager`
+                    )
+                }
             }
         }
     }
@@ -59,7 +82,7 @@ export class DataManager<Type> extends IErrorable {
         )
     }
 
-    protected async mapKeys<T extends IFieldData>(
+    protected async mapKeys<T extends IField>(
         doc: Type,
         entries: [string, T][],
         fn: (value: string, data: T) => Promise<any>,
@@ -104,15 +127,15 @@ export class DataManager<Type> extends IErrorable {
     protected async mapEachField(
         doc: any,
         // Runs for all keys. Returns true if this key should be skipped
-        allFn?: (pointer: PTR<any>, data: IFieldData) => Promise<boolean>,
+        allFn?: (pointer: PTR<any>, data: IField) => Promise<boolean>,
         // Runs for each foreign key
         foreignFn?: (value: any, data: IForeignFieldData) => Promise<any>,
         // Runs for each data key
         dataFn?: (value: any, data: IDataFieldData) => Promise<any>,
         // Runs for each other key
-        otherFn?: (value: any, data: IFieldData) => Promise<any>,
+        otherFn?: (value: any, data: IField) => Promise<any>,
         // Runs for parent keys
-        parentFn?: (value: any, data: IFieldData) => Promise<any>
+        parentFn?: (value: any, data: IField) => Promise<any>
     ): Promise<any> {
         for (let [key, data] of this.fieldEntries) {
             if (allFn && (await allFn({ obj: doc, key }, data))) {
@@ -215,7 +238,7 @@ export class DataManager<Type> extends IErrorable {
         return doc
     }
 
-    protected async forEachField<T extends IFieldData>(
+    protected async forEachField<T extends IField>(
         doc: Type,
         entries: [string, T][],
         // Runs for each foreign key
@@ -289,19 +312,25 @@ export class DataManager<Type> extends IErrorable {
 
     constructor(
         className: string,
-        protected fieldData: { [key: string]: IFieldData },
+        protected fieldData: { [key: string]: IField },
         opts?: {
-            /**
-             * Create/Update timestamp
-             */
-            hasCUTimestamp?: boolean
+            // createdAt timestamp
+            hasCreate?: boolean
+            // updatedAt timestamp
+            hasUpdate?: boolean
+            // default key to use for filtering
+            defaultFilter?: string
         }
     ) {
         super(className)
 
-        this.hasCUTimestamp = opts?.hasCUTimestamp ?? false
-        if (this.hasCUTimestamp) {
+        this.hasCreate = opts?.hasCreate ?? false
+        this.hasUpdate = opts?.hasUpdate ?? false
+
+        if (this.hasCreate) {
             fieldData['createdAt'] = { type: 'string' }
+        }
+        if (this.hasUpdate) {
             fieldData['updatedAt'] = { type: 'string' }
         }
 
@@ -335,18 +364,20 @@ export class DataManager<Type> extends IErrorable {
     protected async verifyAddedDocument(
         user: AuthUser,
         files: any,
-        a: Type,
+        doc: Type,
         exists: boolean,
         map: Map<DataManager<any>, any[]>,
         lastDBId: string
     ): Promise<Type> {
         // Modify this document, if required
-        let doc = await this.modifyDoc(user, files, a)
+        if (this.modifyDoc) {
+            doc = await this.modifyDoc(user, files, doc)
+        }
 
-        if (this.hasCUTimestamp) {
-            if (!exists) {
-                ;(<ICreateUpdate>doc).createdAt = new Date().toJSON()
-            }
+        if (this.hasCreate && !exists) {
+            ;(<ICreateUpdate>doc).createdAt = new Date().toJSON()
+        }
+        if (this.hasUpdate) {
             ;(<ICreateUpdate>doc).updatedAt = new Date().toJSON()
         }
 
@@ -437,7 +468,7 @@ export class DataManager<Type> extends IErrorable {
                     'verifyAddedDocument.mapEachField',
                     HTTPStatus.BAD_REQUEST,
                     'Missing required field',
-                    `${String(k)} dne in ${JSON.stringify(o)}`
+                    `${str(k)} dne in ${JSON.stringify(o)}`
                 )
             },
             // foreign
@@ -484,7 +515,7 @@ export class DataManager<Type> extends IErrorable {
         user: AuthUser,
         files: any,
         doc: any,
-        data: IFieldData,
+        data: IField,
         map: Map<DataManager<any>, any[]>,
         par: string
     ): Promise<any> {
@@ -506,39 +537,38 @@ export class DataManager<Type> extends IErrorable {
                 )
             }
 
-            // Build a new document from a string
-            if (data.acceptNewDoc) {
-                let built = await this.buildFromString(user, files, doc, par)
-                if (built !== undefined) {
-                    // Verify id and add to call stack
-                    let id = (<any>built).id
-                    if (data.foreignApi) {
-                        if (!id || !data.foreignApi.db.isDBId(id)) {
-                            throw this.internal(
-                                'parseGet',
-                                `buildFromString on ${this.className} returns document without id field`
-                            )
-                        }
-                    }
-                    built = await this.verifyAddedDocument(
-                        user,
-                        files,
-                        built,
-                        false,
-                        map,
-                        id ?? par
-                    )
-                    // Return either the id reference or the built object
-                    return data.foreignApi ? id : built
-                }
+            // Check if we can build a doc from a string here
+            if (!data.acceptNewDoc || !this.buildFromString) {
+                throw this.error(
+                    'parseGet',
+                    HTTPStatus.BAD_REQUEST,
+                    'Invalid key value',
+                    `[${doc}] is not a valid string entry`
+                )
             }
 
-            throw this.error(
-                'parseGet',
-                HTTPStatus.BAD_REQUEST,
-                'Invalid key value',
-                `[${doc}] is not a valid string entry`
+            // Build a new document from a string
+            let built = await this.buildFromString(user, files, doc, par)
+            // Verify id and add to call stack
+            let id = (<any>built).id
+            if (data.foreignApi) {
+                if (!id || !data.foreignApi.db.isDBId(id)) {
+                    throw this.internal(
+                        'parseGet',
+                        `buildFromString on ${this.className} returns document without id field`
+                    )
+                }
+            }
+            built = await this.verifyAddedDocument(
+                user,
+                files,
+                built,
+                false,
+                map,
+                id ?? par
             )
+            // Return either the id reference or the built object
+            return data.foreignApi ? id : built
             // Objects are fully-formed documents
         } else if (typeof doc === 'object') {
             // Update parent field only if it isn't already set
@@ -624,29 +654,6 @@ export class DataManager<Type> extends IErrorable {
                 doc
             )}] is not a foreign document or reference for data [${str(data)}]`
         )
-    }
-
-    /**
-     * Accepts a non id/key string and converts it into a valid document
-     */
-    protected async buildFromString(
-        user: AuthUser,
-        files: any,
-        str: string,
-        par: string
-    ): Promise<Type | undefined> {
-        return undefined
-    }
-
-    /**
-     * Modifies a doc, if required. Called before verifying any fields.
-     */
-    protected async modifyDoc(
-        user: AuthUser,
-        files: any,
-        doc: any
-    ): Promise<Type> {
-        return doc
     }
 
     protected async addReference(id: string, field: string, real: boolean) {

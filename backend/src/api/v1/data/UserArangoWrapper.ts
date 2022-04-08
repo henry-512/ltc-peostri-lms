@@ -1,12 +1,12 @@
 import { aql, GeneratedAqlQuery } from 'arangojs/aql'
 import { ArangoWrapper, IFilterOpts, ISortOpts } from '../../../database'
 import { HTTPStatus } from '../../../lms/errors'
-import { IFieldData } from '../../../lms/FieldData'
+import { IField } from '../../../lms/FieldData'
 import { IUser } from '../../../lms/types'
 import { DB_NAME } from './users'
 
 export class UserArangoWrapper extends ArangoWrapper<IUser> {
-    constructor(fields: [string, IFieldData][]) {
+    constructor(fields: [string, IField][]) {
         super(DB_NAME, fields)
     }
 

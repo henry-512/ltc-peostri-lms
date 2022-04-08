@@ -8,7 +8,7 @@ import { ArrayCursor } from 'arangojs/cursor'
 import { QueryOptions } from 'arangojs/database'
 import { config } from './config'
 import { HTTPStatus, IErrorable } from './lms/errors'
-import { IFieldData } from './lms/FieldData'
+import { IField } from './lms/FieldData'
 import { IArangoIndexes } from './lms/types'
 import {
     appendReturnFields,
@@ -93,7 +93,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         }
     }
 
-    constructor(private dbName: string, fields: [string, IFieldData][]) {
+    constructor(private dbName: string, fields: [string, IField][]) {
         super(dbName)
 
         this.collection = ArangoWrapper.db.collection(this.dbName)

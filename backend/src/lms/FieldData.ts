@@ -2,7 +2,7 @@ import { DataManager } from '../api/v1/DataManager'
 import { DBManager } from '../api/v1/DBManager'
 import { IArangoIndexes } from './types'
 
-export interface IFieldData {
+export interface IField {
     type:
         | 'string'
         | 'boolean'
@@ -41,10 +41,10 @@ export interface IFieldData {
     distortOnGet?: (doc: any) => any
 }
 
-export interface IForeignFieldData extends IFieldData {
+export interface IForeignFieldData extends IField {
     foreignApi: DBManager<IArangoIndexes>
 }
 
-export interface IDataFieldData extends IFieldData {
+export interface IDataFieldData extends IField {
     foreignData: DataManager<any>
 }

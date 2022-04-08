@@ -35,11 +35,11 @@ class Waive extends DataManager<IWaiveData> {
         })
     }
 
-    protected override modifyDoc(
+    protected override modifyDoc = async (
         user: AuthUser,
         files: any,
         doc: any
-    ): Promise<IWaiveData> {
+    ): Promise<IWaiveData> => {
         if (!doc.author) {
             doc.author = user.getId()
         }
@@ -51,61 +51,68 @@ const WaiveManager = new Waive()
 
 class Module extends DBManager<IModule> {
     constructor() {
-        super('modules', 'Module', 'title', {
-            title: { type: 'string' },
-            tasks: {
-                type: 'step',
-                instance: 'fkey',
-                foreignApi: TaskManager,
-                freeable: true,
-                acceptNewDoc: true,
+        super(
+            'modules',
+            'Module',
+            {
+                title: { type: 'string' },
+                tasks: {
+                    type: 'step',
+                    instance: 'fkey',
+                    foreignApi: TaskManager,
+                    freeable: true,
+                    acceptNewDoc: true,
+                },
+                comments: {
+                    type: 'array',
+                    instance: 'fkey',
+                    foreignApi: CommentManager,
+                    optional: true,
+                    default: [],
+                    freeable: true,
+                    acceptNewDoc: true,
+                },
+                project: {
+                    type: 'parent',
+                    parentReferenceKey: 'modules',
+                },
+                status: {
+                    type: 'string',
+                    default: 'AWAITING',
+                },
+                suspense: {
+                    type: 'string',
+                    optional: true,
+                },
+                files: {
+                    type: 'array',
+                    instance: 'fkey',
+                    foreignApi: FilemetaManager,
+                    optional: true,
+                    default: [],
+                    acceptNewDoc: true,
+                },
+                waive: {
+                    type: 'data',
+                    foreignData: WaiveManager,
+                    optional: true,
+                },
+                ttc: {
+                    type: 'number',
+                    optional: true,
+                },
             },
-            comments: {
-                type: 'array',
-                instance: 'fkey',
-                foreignApi: CommentManager,
-                optional: true,
-                default: [],
-                freeable: true,
-                acceptNewDoc: true,
-            },
-            project: {
-                type: 'parent',
-                parentReferenceKey: 'modules',
-            },
-            status: {
-                type: 'string',
-                default: 'AWAITING',
-            },
-            suspense: {
-                type: 'string',
-                optional: true,
-            },
-            files: {
-                type: 'array',
-                instance: 'fkey',
-                foreignApi: FilemetaManager,
-                optional: true,
-                default: [],
-                acceptNewDoc: true,
-            },
-            waive: {
-                type: 'data',
-                foreignData: WaiveManager,
-                optional: true,
-            },
-            ttc: {
-                type: 'number',
-                optional: true,
-            },
-        })
+            {
+                defaultFilter: 'title',
+            }
+        )
     }
 
-    protected override modifyDoc(
+    protected override modifyDoc = (
         user: AuthUser,
         files: any,
         doc: any
-    ): Promise<IModule> {
+    ): Promise<IModule> => {
         // Remove front-end waive_module
         delete doc.waive_module
 

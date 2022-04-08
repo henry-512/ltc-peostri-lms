@@ -8,16 +8,21 @@ const PermissionManager = new DataManager<IPermission>('Permission', {
     perm3: { type: 'boolean' },
 })
 
-export const RankManager = new DBManager<IRank>('ranks', 'Rank', 'name', {
-    name: { type: 'string', default: 'New Rank' },
-    permissions: {
-        type: 'data',
-        default: {
-            perm1: false,
-            perm2: false,
-            perm3: false,
+export const RankManager = new DBManager<IRank>(
+    'ranks',
+    'Rank',
+    {
+        name: { type: 'string', default: 'New Rank' },
+        permissions: {
+            type: 'data',
+            default: {
+                perm1: false,
+                perm2: false,
+                perm3: false,
+            },
+            foreignData: PermissionManager,
+            hideGetRef: true,
         },
-        foreignData: PermissionManager,
-        hideGetRef: true,
     },
-})
+    { defaultFilter: 'name' }
+)

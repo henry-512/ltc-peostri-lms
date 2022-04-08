@@ -9,7 +9,6 @@ class Filemeta extends DBManager<IFilemeta> {
         super(
             'filemeta',
             'File Metadata',
-            '_key',
             {
                 latest: {
                     type: 'fkey',
@@ -35,17 +34,17 @@ class Filemeta extends DBManager<IFilemeta> {
                     parentReferenceKey: 'files',
                 },
             },
-            { hasCUTimestamp: true }
+            { hasCreate: true }
         )
     }
 
     // Stores the passed file into the database
-    protected override async buildFromString(
+    protected override buildFromString = async (
         user: AuthUser,
         files: any,
         str: string,
         par: string
-    ): Promise<IFilemeta | undefined> {
+    ): Promise<IFilemeta> => {
         if (!files[str]) {
             this.error(
                 'buildFromString',
