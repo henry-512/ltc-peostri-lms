@@ -42,7 +42,19 @@ export function routerBuilder(version: string) {
             .use(route('comments', CommentManager))
             .use(route('projects', ProjectManager))
             .use(route('teams', TeamManager))
-            .use(route('notifications', NotificationManager))
+            .use(
+                route('notifications', NotificationManager, (r, m) =>
+                    r.put('/read/:id', async (ctx) => {
+                        // TODO: validate recipient?
+
+                        let id = await m.db.assertKeyExists(ctx.params.id)
+
+                        await NotificationManager.read([id])
+
+                        ctx.status = HTTPStatus.NO_CONTENT
+                    })
+                )
+            )
             // Templates
             .use(
                 route('template/modules', ModuleTempManager, (r, m) =>

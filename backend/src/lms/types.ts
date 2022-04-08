@@ -137,4 +137,5 @@ export interface INotification extends IArangoIndexes {
     recipient: string | IUser
     sender: string
     content: string
+    read: boolean
 }

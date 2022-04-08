@@ -1,8 +1,8 @@
-import { ITeam } from '../../../lms/types'
+import { INotification } from '../../../lms/types'
 import { DBManager } from '../DBManager'
 import { UserManager } from './users'
 
-class Notification extends DBManager<ITeam> {
+class Notification extends DBManager<INotification> {
     constructor() {
         super('notifications', 'Notification', 'recipient', {
             recipient: {
@@ -15,7 +15,23 @@ class Notification extends DBManager<ITeam> {
             sender: {
                 type: 'string',
             },
+            read: {
+                type: 'boolean',
+                default: false,
+            },
         })
+    }
+
+    public async read(ids: string[]) {
+        for (const id of ids) {
+            let doc = await this.db.get(id)
+
+            doc.read = true
+
+            await this.db.update(doc, {
+                mergeObjects: false,
+            })
+        }
     }
 }
 
