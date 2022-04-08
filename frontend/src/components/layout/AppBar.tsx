@@ -1,11 +1,9 @@
-import { forwardRef } from 'react';
-import { AppBar, UserMenu, MenuItemLink, useTranslate } from 'react-admin';
-import SettingsIcon from '@material-ui/icons/Settings';
+import { AppBar, UserMenu, Loading, Error, useQuery } from 'react-admin';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 
 import Logo from './Logo';
-import { NotificationsButton } from '../notifications';
+import NotificationsWidget from '../NotificationsWidget';
 
 const useStyles = makeStyles({
     title: {
@@ -19,30 +17,19 @@ const useStyles = makeStyles({
     },
 });
 
-/*
-const ConfigurationMenu = forwardRef<any, any>((props, ref) => {
-    const translate = useTranslate();
-    return (
-        <MenuItemLink
-            ref={ref}
-            to="/configuration"
-            primaryText={translate('pos.configuration')}
-            leftIcon={<SettingsIcon />}
-            onClick={props.onClick}
-            sidebarIsOpen
-        />
-    );
-});
-
-const ActiveUserMenu = (props: any) => (
-    <UserMenu {...props}>
-        
-    </UserMenu>
-);
-*/
-
 const CustomAppBar = (props: any) => {
     const classes = useStyles();
+
+    const { data, loading, error } = useQuery({ 
+        type: 'getList',
+        resource: 'users/notifications/list',
+        payload: { status }
+    });
+
+    if (loading) return <Loading />;
+    if (error) return <Error />;
+    if (!data) return null;
+    
     return (
         <AppBar {...props} elevation={1} userMenu={<UserMenu />}>
             <Typography
@@ -53,7 +40,7 @@ const CustomAppBar = (props: any) => {
             />
             <Logo />
             <span className={classes.spacer} />
-            <NotificationsButton label="layout.appbar.notifications" />
+            <NotificationsWidget label="layout.appbar.notifications" />
         </AppBar>
     );
 };
