@@ -274,7 +274,7 @@ export function routerBuilder(version: string) {
 
                         await UserManager.db.assertIdExists(id)
 
-                        NotificationManager.readAllForUser(id)
+                        await NotificationManager.readAllForUser(id)
 
                         ctx.status = HTTPStatus.NO_CONTENT
                     })
