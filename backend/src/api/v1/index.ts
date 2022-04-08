@@ -18,6 +18,7 @@ import { ModuleTempManager } from './data/template/moduleTemplates'
 import { ProjectTempManager } from './data/template/projectTemplates'
 import { UserManager } from './data/users'
 import { DBManager } from './DBManager'
+import { APIRouter, sendRange } from './Router'
 
 export function routerBuilder(version: string) {
     // Resolve dependency issue
@@ -27,62 +28,69 @@ export function routerBuilder(version: string) {
     return (
         new Router({ prefix: `${version}/` })
             .use(
-                route('users', UserManager, (r, m) =>
-                    r.get('/self', async (ctx) => {
+                new APIRouter('users', UserManager)
+                    .get('/self', async (ctx) => {
                         let user = ctx.state.user
 
-                        ctx.body = await m.getFromDB(user, user.getId())
+                        ctx.body = await UserManager.getFromDB(
+                            user,
+                            user.getId()
+                        )
                         ctx.status = HTTPStatus.OK
                     })
-                )
+                    .routes()
             )
-            .use(route('ranks', RankManager))
-            .use(route('tasks', TaskManager))
-            .use(route('modules', ModuleManager))
-            .use(route('comments', CommentManager))
-            .use(route('projects', ProjectManager))
-            .use(route('teams', TeamManager))
+            .use(new APIRouter('ranks', RankManager).routes())
+            .use(new APIRouter('tasks', TaskManager).routes())
+            .use(new APIRouter('modules', ModuleManager).routes())
+            .use(new APIRouter('comments', CommentManager).routes())
+            .use(new APIRouter('projects', ProjectManager).routes())
+            .use(new APIRouter('teams', TeamManager).routes())
             .use(
-                route('notifications', NotificationManager, (r, m) =>
-                    r.put('/read/:id', async (ctx) => {
+                new APIRouter('notifications', NotificationManager)
+                    .put('/read/:id', async (ctx) => {
                         // TODO: validate recipient?
 
-                        let id = await m.db.assertKeyExists(ctx.params.id)
+                        let id = await NotificationManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
 
                         await NotificationManager.read(id)
 
                         ctx.status = HTTPStatus.NO_CONTENT
                     })
-                )
+                    .routes()
             )
             // Templates
             .use(
-                route('template/modules', ModuleTempManager, (r, m) =>
-                    r.get('/instance/:id', async (ctx) => {
-                        let id = await m.db.assertKeyExists(ctx.params.id)
+                new APIRouter('template/modules', ModuleTempManager)
+                    .get('/instance/:id', async (ctx) => {
+                        let id = await ModuleTempManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
 
                         ctx.body = await ModuleTempManager.buildModuleFromId(id)
                         ctx.status = HTTPStatus.OK
                     })
-                )
+                    .routes()
             )
             .use(
-                route(
-                    'template/projects',
-                    ProjectTempManager,
+                new APIRouter('template/projects', ProjectTempManager)
                     // Builds a project matching the passed project template ID
-                    (r, m) =>
-                        r.get('/instance/:id', async (ctx, next) => {
-                            let id = await m.db.assertKeyExists(ctx.params.id)
+                    .get('/instance/:id', async (ctx) => {
+                        let id = await ProjectTempManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
 
-                            ctx.body =
-                                await ProjectTempManager.buildProjectFromId(id)
-                            ctx.status = HTTPStatus.OK
-                        })
-                )
+                        ctx.body = await ProjectTempManager.buildProjectFromId(
+                            id
+                        )
+                        ctx.status = HTTPStatus.OK
+                    })
+                    .routes()
             )
             // Files
-            .use(route('filemeta', FilemetaManager))
+            .use(new APIRouter('filemeta', FilemetaManager).routes())
             .use(
                 new Router({ prefix: 'files' })
                     .get('/:id', async (ctx) => {
@@ -126,17 +134,7 @@ export function routerBuilder(version: string) {
                             ctx.request.query
                         )
 
-                        ctx.body = results.all
-                        ctx.status = HTTPStatus.OK
-
-                        ctx.set(
-                            'Content-Range',
-                            `documents ${results.low}-${results.high}/${results.size}`
-                        )
-                        ctx.set(
-                            'Access-Control-Expose-Headers',
-                            'Content-Range'
-                        )
+                        sendRange(results, ctx)
                     })
                     .get('tasks/count/:id', async (ctx) => {
                         let id = await UserManager.db.assertKeyExists(
@@ -159,17 +157,7 @@ export function routerBuilder(version: string) {
                             ctx.request.query
                         )
 
-                        ctx.body = results.all
-                        ctx.status = HTTPStatus.OK
-
-                        ctx.set(
-                            'Content-Range',
-                            `documents ${results.low}-${results.high}/${results.size}`
-                        )
-                        ctx.set(
-                            'Access-Control-Expose-Headers',
-                            'Content-Range'
-                        )
+                        sendRange(results, ctx)
                     })
                     .get('projects/count', async (ctx) => {
                         let user: AuthUser = ctx.state.user
@@ -196,17 +184,7 @@ export function routerBuilder(version: string) {
                                 ctx.request.query
                             )
 
-                        ctx.body = results.all
-                        ctx.status = HTTPStatus.OK
-
-                        ctx.set(
-                            'Content-Range',
-                            `documents ${results.low}-${results.high}/${results.size}`
-                        )
-                        ctx.set(
-                            'Access-Control-Expose-Headers',
-                            'Content-Range'
-                        )
+                        sendRange(results, ctx)
                     })
                     .get('projects/count/:id', async (ctx) => {
                         let id = await UserManager.db.assertKeyExists(
@@ -231,17 +209,7 @@ export function routerBuilder(version: string) {
                                 ctx.request.query
                             )
 
-                        ctx.body = results.all
-                        ctx.status = HTTPStatus.OK
-
-                        ctx.set(
-                            'Content-Range',
-                            `documents ${results.low}-${results.high}/${results.size}`
-                        )
-                        ctx.set(
-                            'Access-Control-Expose-Headers',
-                            'Content-Range'
-                        )
+                        sendRange(results, ctx)
                     })
                     // NOTIFICATIONS
                     .get('notifications/list', async (ctx) => {
@@ -256,17 +224,7 @@ export function routerBuilder(version: string) {
                                 ctx.request.query
                             )
 
-                        ctx.body = results.all
-                        ctx.status = HTTPStatus.OK
-
-                        ctx.set(
-                            'Content-Range',
-                            `documents ${results.low}-${results.high}/${results.size}`
-                        )
-                        ctx.set(
-                            'Access-Control-Expose-Headers',
-                            'Content-Range'
-                        )
+                        sendRange(results, ctx)
                     })
                     .put('notifications/readall', async (ctx) => {
                         let user: AuthUser = ctx.state.user
@@ -281,106 +239,4 @@ export function routerBuilder(version: string) {
                     .routes()
             )
     )
-}
-
-async function parseBody<Type extends IArangoIndexes>(req: any) {
-    // Multipart form requests put the POST data in a different spot
-    if (req.files && req.files.json) {
-        let file = req.files.json
-        if (Array.isArray(file)) {
-            file = file[0]
-        }
-        let buf = await fs.promises.readFile(file.path)
-
-        return JSON.parse(buf.toString())
-    } else {
-        return req.body as Type
-    }
-}
-
-function route<Type extends IArangoIndexes>(
-    prefix: string,
-    manager: DBManager<Type>,
-    call?: (router: Router, manager: DBManager<Type>) => any
-) {
-    let r = new Router({ prefix })
-
-    if (call) {
-        call(r, manager)
-    }
-
-    if (config.devRoutes) {
-        r = manager.debugRoutes(r)
-    }
-
-    r.get('/list', async (ctx) => {
-        let results = await manager.query(ctx.request.query)
-
-        ctx.status = HTTPStatus.OK
-        ctx.body = results.all
-
-        ctx.set(
-            'Content-Range',
-            `documents ${results.low}-${results.high}/${results.size}`
-        )
-        ctx.set('Access-Control-Expose-Headers', 'Content-Range')
-    })
-
-    r.get('/list/:id', async (ctx) => {
-        let id = await manager.db.assertKeyExists(ctx.params.id)
-
-        ctx.body = await manager.getFromDB(ctx.state.user, id)
-        ctx.status = HTTPStatus.OK
-    })
-
-    r.post('/list', async (ctx) => {
-        let doc: Type = await parseBody<Type>(ctx.request)
-
-        let id = await manager.create(
-            ctx.state.user,
-            ctx.request.files,
-            doc,
-            ctx.header['user-agent'] !== 'backend-testing'
-        )
-
-        ctx.status = HTTPStatus.CREATED
-        ctx.body = {
-            id: splitId(id).key,
-            message: `${manager.className} created with id [${id}]`,
-        }
-    })
-
-    r.put('/list/:id', async (ctx) => {
-        let id = manager.db.keyToId(ctx.params.id)
-        let doc: Type = await parseBody<Type>(ctx.request)
-
-        await manager.update(
-            ctx.state.user,
-            ctx.request.files,
-            id,
-            doc,
-            ctx.header['user-agent'] !== 'backend-testing'
-        )
-
-        ctx.body = await manager.getFromDB(ctx.state.user, id)
-        ctx.status = HTTPStatus.OK
-    })
-
-    r.delete('/list/:id', async (ctx) => {
-        let id = await manager.db.assertKeyExists(ctx.params.id)
-        await manager.delete(
-            ctx.state.user,
-            id,
-            ctx.header['user-agent'] !== 'backend-testing',
-            true
-        )
-
-        ctx.status = HTTPStatus.OK
-        ctx.body = {
-            id: ctx.params.id,
-            message: `${manager.className} deleted`,
-        }
-    })
-
-    return r.routes()
 }

@@ -141,12 +141,9 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
 
     /**
      * Retrieves a query from the server, following the passed parameters.
-     * @param query An object with queryable fields.
      * @return A cursor representing all db objects that fit the query
      */
-    public async query(q: any): Promise<IGetAllQueryResults> {
-        let opts = this.parseQuery(q)
-
+    public async runQuery(opts: IQueryGetOpts): Promise<IGetAllQueryResults> {
         let query = await this.db.queryGet(opts)
         let all = await query.cursor.all()
 
@@ -532,7 +529,5 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                 }
             })
         }
-
-        return r
     }
 }
