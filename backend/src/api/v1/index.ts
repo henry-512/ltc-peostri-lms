@@ -102,7 +102,7 @@ export function routerBuilder(version: string) {
             )
             // Assigned user routes
             .use(
-                new Router({ prefix: 'users/' })
+                new Router({ prefix: 'user/' })
                     .get('tasks/count', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
@@ -268,7 +268,7 @@ export function routerBuilder(version: string) {
                             'Content-Range'
                         )
                     })
-                    .get('notifications/readall', async (ctx) => {
+                    .put('notifications/readall', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 

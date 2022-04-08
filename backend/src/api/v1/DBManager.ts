@@ -30,8 +30,8 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         className: string,
         fields: { [key: string]: IField },
         opts?: {
-            hasCreate?: boolean,
-            hasUpdate?: boolean,
+            hasCreate?: boolean
+            hasUpdate?: boolean
             defaultFilter?: string
         }
     ) {
@@ -90,12 +90,20 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
 
                 if (Array.isArray(value)) {
                     f.in = value
-                } else if (typeof value === 'string') {
-                    f.q = value
                 } else {
-                    console.warn(`Invalid filtering value [${value}]`)
-                    console.warn(f)
-                    continue
+                    let type = typeof value
+                    if (
+                        type === 'string' ||
+                        type === 'boolean' ||
+                        type === 'number'
+                    ) {
+                        f.q = value as string
+                    } else {
+                        console.warn(`Invalid filtering value [${value}]`)
+                        console.warn(f)
+                        console.warn(value)
+                        continue
+                    }
                 }
 
                 opts.filters.push(f)
@@ -168,7 +176,11 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                 if (data.hideGetId) {
                     delete p.obj[p.key]
                     return true
-                } else if (!(p.key in p.obj)) {
+                } else if (
+                    !(p.key in p.obj) ||
+                    p.obj[p.key] === undefined ||
+                    p.obj[p.key] === null
+                ) {
                     if (data.default !== undefined) {
                         // Put default value in
                         p.obj[p.key] = data.default

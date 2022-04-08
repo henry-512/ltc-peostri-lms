@@ -670,7 +670,11 @@ export class DataManager<Type> extends IErrorable {
             doc,
             // all
             async (p, data) => {
-                if (!(p.key in p.obj)) {
+                if (
+                    !(p.key in p.obj) ||
+                    p.obj[p.key] === undefined ||
+                    p.obj[p.key] === null
+                ) {
                     if (data.default !== undefined) {
                         // Put default value in
                         p.obj[p.key] = data.default
