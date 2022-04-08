@@ -268,7 +268,7 @@ export function routerBuilder(version: string) {
                             'Content-Range'
                         )
                     })
-                    .put('notifications/readall', async (ctx) => {
+                    .get('notifications/readall', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 
