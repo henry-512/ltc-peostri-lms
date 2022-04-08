@@ -16,10 +16,12 @@ export interface ITeam extends Record {
     users: IUser[] | string[]
 }
 
-export interface INotification extends IArangoIndexes {
+export interface INotification extends Record {
     recipient: string | IUser
     sender: string
     content: string
+    read: boolean
+    createdAt: string
 }
 
 export type Status = "IN_PROGRESS" | "COMPLETED" | "ARCHIVED" | "AWAITING";

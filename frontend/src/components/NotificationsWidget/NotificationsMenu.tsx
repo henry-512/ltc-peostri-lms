@@ -1,18 +1,9 @@
-import { Box, Divider, Link, Menu, Popover, PopoverOrigin, Typography } from "@material-ui/core"
+import { Box, Divider, Link, Button, Popover, PopoverOrigin, Typography, makeStyles } from "@material-ui/core"
 import React from "react"
+import { Loading } from "react-admin"
 import { INotification } from "src/util/types"
 import NotificationsEmpty from "./NotificationsEmpty"
 import NotificationsItem from "./NotificationsItem"
-
-export type NotificationsMenuProps = {
-    anchorEl: Element | null
-    AnchorOrigin: PopoverOrigin
-    TransformOrigin: PopoverOrigin
-    open: boolean
-    handleClose: any
-    data?: INotification[]
-    id?: string
-}
 
 const Header = ({disabled}: {disabled: boolean}) => {
     
@@ -34,17 +25,24 @@ const Header = ({disabled}: {disabled: boolean}) => {
     )
 }
 
-const Footer = ({disabled}: {disabled: boolean}) => {
+const useFooterStyles = makeStyles(theme => ({
+    root: {
+        borderRadius: '0 0 10px 10px',
+        padding: '.5rem 0'
+    }
+}))
 
+const Footer = ({disabled}: {disabled?: boolean}) => {
+    const classes = useFooterStyles();
     return (
         <>
             {(disabled) ? null : (
                 <>
                     <Divider />
-                    <Box display="flex" padding="1rem 1rem" justifyContent="center">
-                        <Link href="#some-link">
+                    <Box display="flex" padding="0" justifyContent="center">
+                        <Button href="#some-link" disableElevation size="small" fullWidth classes={classes}>
                             See All Notifications
-                        </Link>
+                        </Button>
                     </Box>
                 </>
             )}
@@ -52,8 +50,30 @@ const Footer = ({disabled}: {disabled: boolean}) => {
     )
 }
 
+export type NotificationsMenuProps = {
+    anchorEl: Element | null
+    AnchorOrigin: PopoverOrigin
+    TransformOrigin: PopoverOrigin
+    open: boolean
+    handleClose: any
+    data?: INotification[]
+    id?: string
+    loading: boolean
+}
+
+const useStyles = makeStyles(theme => ({
+    loader: {
+        padding: '4rem 1rem 1rem 1rem',
+        height: 'auto'
+    },
+    paper: {
+        minWidth: '300px'
+    }
+}));
+
 const NotificationsMenu = (props: NotificationsMenuProps) => {
-    const { anchorEl, AnchorOrigin, TransformOrigin, open, handleClose, data = [], id } = props;
+    const { anchorEl, AnchorOrigin, TransformOrigin, open, handleClose, data = [], id, loading } = props;
+    const classes = useStyles();
 
     return (
         <>
@@ -62,23 +82,24 @@ const NotificationsMenu = (props: NotificationsMenuProps) => {
                 anchorEl={anchorEl}
                 anchorOrigin={AnchorOrigin}
                 transformOrigin={TransformOrigin}
-                // Make sure the menu is display under the button and not over the appbar
-                // See https://v4.mui.com/components/menus/#customized-menus
                 getContentAnchorEl={null}
                 open={open}
                 onClose={handleClose}
+                classes={classes}
             >
                 <Header disabled={(data && data.length > 0) ? false : true} />
-                {(data && data.length > 0) ? 
-                    data.map((notification, index) => {
-                        return React.cloneElement(<NotificationsItem record={notification} />, {
-                            key: index
-                        });
-                    })
-                : (
-                    <NotificationsEmpty />
-                )}
-                <Footer disabled={(data && data.length > 0) ? false : true} />
+                {(loading) ? <Loading className={classes.loader} loadingPrimary="" loadingSecondary="Loading Notifications.." /> :
+                    (data && data.length > 0) ? 
+                        data.map((notification, index) => {
+                            return React.cloneElement(<NotificationsItem record={notification} />, {
+                                key: index
+                            });
+                        })
+                    : (
+                        <NotificationsEmpty />
+                    )
+                }
+                <Footer />
             </Popover>
         </>
     )

@@ -8,7 +8,7 @@ const NotificationsItem = (props: NotificationsItemProps) => {
 
     return (
         <>
-            
+            <h1>{props.record.content}</h1>
         </>
     )
 }
