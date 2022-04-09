@@ -32,17 +32,10 @@ export class APIRouter<Type extends IArangoIndexes> extends Router {
     constructor(
         prefix: string,
         private manager: DBManager<Type>,
-        private apiOpts?: APIRouterOpts,
-        opt?: Router.RouterOptions
+        private apiOpts?: APIRouterOpts
     ) {
         // Apply prefix
-        if (opt === undefined) {
-            opt = { prefix }
-        } else {
-            opt.prefix = prefix
-        }
-
-        super(opt)
+        super({ prefix })
     }
 
     public override routes() {
