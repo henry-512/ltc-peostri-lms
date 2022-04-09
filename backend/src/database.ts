@@ -123,13 +123,13 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
             if (filter.inArray) {
                 query = aql`${query} FILTER ${filter.inArray} IN ${k}`
             }
-            if (filter.eq) {
+            if (filter.eq !== undefined) {
                 query = aql`${query} FILTER ${k} == ${filter.eq}`
             }
-            if (filter.in) {
+            if (filter.in !== undefined) {
                 query = aql`${query} FILTER ${k} IN ${filter.in}`
             }
-            if (filter.q) {
+            if (filter.q !== undefined) {
                 query = aql`${query} FILTER CONTAINS(${k},${filter.q})`
             }
         }

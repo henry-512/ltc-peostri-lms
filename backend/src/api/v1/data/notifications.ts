@@ -31,6 +31,8 @@ class Notification extends DBManager<INotification> {
         )
     }
 
+    // public async buildNotification()
+
     public async readAllForUser(id: string) {
         let opts: IQueryGetOpts = {
             range: {
@@ -47,7 +49,7 @@ class Notification extends DBManager<INotification> {
 
         for (const i of all) {
             if (await this.db.exists(i)) {
-                this.read(i)
+                await this.read(i)
             } else {
                 this.internal('readAllForUser', `${i} is not a db id`)
             }
@@ -59,7 +61,7 @@ class Notification extends DBManager<INotification> {
 
         doc.read = true
 
-        await this.db.update(doc, {
+        return this.db.update(doc, {
             mergeObjects: false,
         })
     }
