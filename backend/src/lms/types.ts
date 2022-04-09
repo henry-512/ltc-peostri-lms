@@ -135,7 +135,17 @@ export interface ITeam extends IArangoIndexes {
 
 export interface INotification extends IArangoIndexes {
     recipient: string | IUser
-    sender: string
+    sender: ISender
     content: string
     read: boolean
+    type: NotificationType
+}
+
+export type NotificationType = 'PROJECT' | 'MODULE' | 'TASK' | 'USER'
+export type ResourceType = 'projects' | 'users' | 'modules' | 'tasks'
+
+export interface ISender {
+    resource: ResourceType
+    // THIS IS A KEY !!!
+    id: string
 }

@@ -1,8 +1,24 @@
 import { ParsedUrlQuery } from 'querystring'
 import { IQueryGetOpts } from '../../../database'
-import { INotification } from '../../../lms/types'
+import { INotification, ISender, NotificationType, ResourceType } from '../../../lms/types'
+import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
 import { UserManager } from './users'
+
+class NotificationSender extends DataManager<ISender> {
+    constructor() {
+        super('Sender', {
+            resource: {
+                type: 'string',
+            },
+            id: {
+                type: 'string',
+            }
+        })
+    }
+}
+
+const SenderManager = new NotificationSender()
 
 class Notification extends DBManager<INotification> {
     constructor() {
@@ -18,7 +34,11 @@ class Notification extends DBManager<INotification> {
                     type: 'string',
                 },
                 sender: {
-                    type: 'string',
+                    type: 'data',
+                    foreignData: SenderManager,
+                },
+                type: {
+                    type: 'string'
                 },
                 read: {
                     type: 'boolean',
@@ -31,10 +51,28 @@ class Notification extends DBManager<INotification> {
         )
     }
 
-    public async saveAndBuildNotification(
+    public buildType(t: ResourceType): NotificationType {
+        switch(t) {
+            case 'projects':
+                return 'PROJECT'
+            case 'users':
+                return 'USER'
+            case 'modules':
+                return 'MODULE'
+            case 'tasks':
+                return 'TASK'
+            default:
+                throw this.internal(
+                    'buildType',
+                    `type ${t} is not valid`
+                )
+        }
+    }
+
+    public async buildAndSaveNotification(
         recipientKey: string,
         content: string,
-        sender: string
+        sender: ISender
     ) {
         // Validate and convert user key
         let recipient = await UserManager.db.assertKeyExists(recipientKey)
@@ -45,6 +83,7 @@ class Notification extends DBManager<INotification> {
             sender,
             content,
             read: false,
+            type: this.buildType(sender.resource)
         }
 
         return this.db.save(notification)
