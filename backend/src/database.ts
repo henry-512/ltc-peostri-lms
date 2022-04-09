@@ -112,7 +112,8 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         offset: number,
         count: number,
         filters: IFilterOpts[],
-        justIds: boolean
+        justIds: boolean,
+        raw: boolean
     ): GeneratedAqlQuery {
         let query = aql`FOR z IN ${this.collection}`
 
@@ -144,6 +145,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
 
         if (justIds) {
             query = aql`${query} z._id`
+        } else if (raw) {
         } else {
             query = aql`${query} {${this.getAllQueryFields}}`
         }
@@ -160,7 +162,8 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
             opts.range.offset,
             opts.range.count,
             opts.filters,
-            opts.justIds ?? false
+            opts.justIds ?? false,
+            opts.raw ?? false
         )
 
         let cursor = await ArangoWrapper.db.query(query, {
@@ -180,7 +183,8 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
             opts.range.offset,
             opts.range.count,
             opts.filters,
-            opts.justIds ?? false
+            opts.justIds ?? false,
+            opts.raw ?? false
         )
 
         let cursor = await ArangoWrapper.db.query(query, {
@@ -369,6 +373,7 @@ export interface IQueryGetOpts {
         count: number
     }
     justIds?: boolean
+    raw?: boolean
 }
 
 export interface IGetAllQueryResults {

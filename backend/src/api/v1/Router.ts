@@ -17,12 +17,12 @@ export interface APIRouterOpts {
 }
 
 export const allDisabled: APIRouterOpts = {
-    noDebugRoute: false,
-    noListGetAll: false,
-    noListGetId: false,
-    noListPost: false,
-    noListPut: false,
-    noListDelete: false,
+    noDebugRoute: true,
+    noListGetAll: true,
+    noListGetId: true,
+    noListPost: true,
+    noListPut: true,
+    noListDelete: true,
 }
 
 export class APIRouter<Type extends IArangoIndexes> extends Router {

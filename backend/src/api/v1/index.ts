@@ -27,19 +27,6 @@ export function routerBuilder(version: string) {
 
     return (
         new Router({ prefix: `${version}/` })
-            .use(
-                new APIRouter('users', UserManager)
-                    .get('/self', async (ctx) => {
-                        let user = ctx.state.user
-
-                        ctx.body = await UserManager.getFromDB(
-                            user,
-                            user.getId()
-                        )
-                        ctx.status = HTTPStatus.OK
-                    })
-                    .routes()
-            )
             .use(new APIRouter('ranks', RankManager).routes())
             .use(new APIRouter('tasks', TaskManager).routes())
             .use(new APIRouter('modules', ModuleManager).routes())
@@ -108,10 +95,21 @@ export function routerBuilder(version: string) {
                     })
                     .routes()
             )
-            // Assigned user routes
+            // User routes
             .use(
-                new Router({ prefix: 'user/' })
-                    .get('tasks/count', async (ctx) => {
+                // Default
+                new APIRouter('users', UserManager)
+                    // Self
+                    .get('/self', async (ctx) => {
+                        let user = ctx.state.user
+
+                        ctx.body = await UserManager.getFromDB(
+                            user,
+                            user.getId()
+                        )
+                        ctx.status = HTTPStatus.OK
+                    })
+                    .get('/tasks/count', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 
@@ -123,7 +121,7 @@ export function routerBuilder(version: string) {
                         )
                         ctx.status = HTTPStatus.OK
                     })
-                    .get('tasks/list', async (ctx) => {
+                    .get('/tasks/list', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 
@@ -136,7 +134,7 @@ export function routerBuilder(version: string) {
 
                         sendRange(results, ctx)
                     })
-                    .get('tasks/count/:id', async (ctx) => {
+                    .get('/tasks/count/:id', async (ctx) => {
                         let id = await UserManager.db.assertKeyExists(
                             ctx.params.id
                         )
@@ -147,7 +145,7 @@ export function routerBuilder(version: string) {
                         )
                         ctx.status = HTTPStatus.OK
                     })
-                    .get('tasks/list/:id', async (ctx) => {
+                    .get('/tasks/list/:id', async (ctx) => {
                         let id = await UserManager.db.assertKeyExists(
                             ctx.params.id
                         )
@@ -159,7 +157,7 @@ export function routerBuilder(version: string) {
 
                         sendRange(results, ctx)
                     })
-                    .get('projects/count', async (ctx) => {
+                    .get('/projects/count', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 
@@ -172,7 +170,7 @@ export function routerBuilder(version: string) {
                             )
                         ctx.status = HTTPStatus.OK
                     })
-                    .get('projects/list', async (ctx) => {
+                    .get('/projects/list', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 
@@ -186,7 +184,7 @@ export function routerBuilder(version: string) {
 
                         sendRange(results, ctx)
                     })
-                    .get('projects/count/:id', async (ctx) => {
+                    .get('/projects/count/:id', async (ctx) => {
                         let id = await UserManager.db.assertKeyExists(
                             ctx.params.id
                         )
@@ -198,7 +196,7 @@ export function routerBuilder(version: string) {
                             )
                         ctx.status = HTTPStatus.OK
                     })
-                    .get('projects/list/:id', async (ctx) => {
+                    .get('/projects/list/:id', async (ctx) => {
                         let id = await UserManager.db.assertKeyExists(
                             ctx.params.id
                         )
@@ -212,7 +210,7 @@ export function routerBuilder(version: string) {
                         sendRange(results, ctx)
                     })
                     // NOTIFICATIONS
-                    .get('notifications/list', async (ctx) => {
+                    .get('/notifications/list', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 
@@ -226,7 +224,7 @@ export function routerBuilder(version: string) {
 
                         sendRange(results, ctx)
                     })
-                    .put('notifications/readall', async (ctx) => {
+                    .put('/notifications/readall', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 

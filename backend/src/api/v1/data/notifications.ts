@@ -31,7 +31,24 @@ class Notification extends DBManager<INotification> {
         )
     }
 
-    // public async buildNotification()
+    public async saveAndBuildNotification(
+        recipientKey: string,
+        content: string,
+        sender: string
+    ) {
+        // Validate and convert user key
+        let recipient = await UserManager.db.assertKeyExists(recipientKey)
+
+        let notification: INotification = {
+            id: this.db.generateDBID(),
+            recipient,
+            sender,
+            content,
+            read: false,
+        }
+
+        return this.db.save(notification)
+    }
 
     public async readAllForUser(id: string) {
         let opts: IQueryGetOpts = {
@@ -40,19 +57,18 @@ class Notification extends DBManager<INotification> {
                 count: 10,
             },
             filters: [{ key: 'recipient', eq: id }],
-            justIds: true,
+            raw: true,
         }
 
         let query = await this.db.queryGet(opts)
 
         let all = await query.cursor.all()
 
-        for (const i of all) {
-            if (await this.db.exists(i)) {
-                await this.read(i)
-            } else {
-                this.internal('readAllForUser', `${i} is not a db id`)
-            }
+        for (const doc of all) {
+            // Hack the id to be a key
+            doc.id = doc._key
+            doc.read = true
+            await this.db.update(doc, { mergeObjects: false })
         }
     }
 
