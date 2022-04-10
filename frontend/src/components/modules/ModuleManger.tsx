@@ -160,8 +160,6 @@ const ModuleManager = (props: ModuleManagerProps) => {
         return newSource.toString();
     }
 
-    console.log(step, index, newSource, form.getState().values.modules);
-
     return (
         <>
             <Steps

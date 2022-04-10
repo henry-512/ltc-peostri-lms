@@ -49,7 +49,7 @@ const CardWithIcon = (props: CardWithIconProps) => {
     const translate = useTranslate();
     return (
         <Card className={classes.card}>
-            <Link to={to}>
+            <Link to={to} replace>
                 <div className={classes.main}>
                     <Box width="3em" className="icon">
                         {createElement(icon, { fontSize: 'large' })}

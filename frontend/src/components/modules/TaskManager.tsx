@@ -111,8 +111,6 @@ const TaskManager = (props: TaskManagerProps) => {
         form.change(props.source, newSteps)
         updateComponent();
     }
-    
-    //console.log(step, index, newSource, get(form.getState().values, props.source));
 
     return (
         <>

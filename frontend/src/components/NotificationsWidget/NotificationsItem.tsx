@@ -72,6 +72,7 @@ export type NotificationsItemProps = {
 
 const NotificationsItem = (props: NotificationsItemProps) => {
     const recordLink = linkToRecord(`${props.record.sender.resource}`, props.record.sender.id, 'show');
+
     const classes = useStyles();
     const dataProvider = useDataProvider();
 
@@ -87,7 +88,7 @@ const NotificationsItem = (props: NotificationsItemProps) => {
     
     return (
         <>
-            <Link to={recordLink} style={{
+            <Link to={recordLink} replace style={{
                 textDecoration: 'none'
             }} onClick={markRead}>
                 <Box className={classnames(classes.root, {
