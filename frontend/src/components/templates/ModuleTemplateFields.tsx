@@ -1,5 +1,5 @@
 import { Box, Grid, makeStyles, Typography } from "@material-ui/core"
-import IDField from "../modules/IDField";
+import IDField from "../misc/IDField";
 import { maxLength, minLength, NumberInput, required, SelectInput, TextInput } from "react-admin";
 import TaskManager from "../modules/TaskManager";
 import { SectionTitle } from "../misc";

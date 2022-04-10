@@ -2,7 +2,6 @@ import { Admin, EditGuesser, ListGuesser, Resource, ShowGuesser } from 'react-ad
 import dataProvider from './util/dataProvider';
 import { ProjectList, ProjectCreate, ProjectEdit } from './pages/administration/project';
 import routes from './util/routes';
-import { Layout } from './components/layout';
 import DashboardPage from './pages/dashboard';
 import polyglotI18nProvider from 'ra-i18n-polyglot';
 import englishMessages from 'ra-language-english';
@@ -13,6 +12,7 @@ import { UserCreate, UserEdit, UserList } from './pages/administration/users';
 import { TeamCreate, TeamEdit, TeamList } from './pages/administration/teams';
 import { ProjectTemplateCreate, ProjectTemplateEdit, ProjectTemplateList } from './pages/template/projects';
 import { ModuleTemplateCreate, ModuleTemplateEdit, ModuleTemplateList } from './pages/template/modules';
+import Layout from './components/Layout';
 
 const API_URL = process.env.REACT_APP_API_URL + "/" + process.env.REACT_APP_API_VERSION || "http://localhost:5000/api/v1";
 

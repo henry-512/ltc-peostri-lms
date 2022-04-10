@@ -2,8 +2,8 @@ import { AppBar, UserMenu } from 'react-admin';
 import { makeStyles } from '@material-ui/core/styles';
 import { Typography } from '@material-ui/core';
 
-import Logo from './Logo';
 import NotificationsWidget from '../NotificationsWidget';
+import Logo from '../Logo';
 
 const useStyles = makeStyles({
     title: {

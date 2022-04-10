@@ -3,11 +3,11 @@ import { useForm, useFormState } from "react-final-form";
 import { IModule, IModuleStep } from "src/util/types";
 import Steps from "../StepBuilder";
 import ModuleCard from "./ModuleCard";
-import Creator from "./Creator";
+import Creator from "../Creator";
 import { useTranslate } from "react-admin";
 import ModuleFields from "./ModuleFields";
-import AddTemplateModuleButton from "./AddNewTemplateModuleButton";
-import AddTemplateModuleDialog from "./AddNewTemplateModuleDialog";
+import AddTemplateModuleButton from "./AddTemplateModuleButton";
+import AddTemplateModuleDialog from "./AddTemplateModuleDialog";
 import React from "react";
 
 export type ModuleManagerProps = {
