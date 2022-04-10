@@ -95,16 +95,6 @@ export function routerBuilder(version: string) {
             .use(new APIRouter('users', UserManager).routes())
             .use(
                 new Router()
-                    // Self
-                    .get('self', async (ctx) => {
-                        let user = ctx.state.user
-
-                        ctx.body = await UserManager.getFromDB(
-                            user,
-                            user.getId()
-                        )
-                        ctx.status = HTTPStatus.OK
-                    })
                     .get('tasks/count', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
