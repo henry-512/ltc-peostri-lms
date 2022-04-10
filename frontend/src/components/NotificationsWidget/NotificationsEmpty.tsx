@@ -8,7 +8,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export type NotificationsEmptyProps = {
+export interface NotificationsEmptyProps {
 }
 
 const NotificationsEmpty = (props: NotificationsEmptyProps) => {

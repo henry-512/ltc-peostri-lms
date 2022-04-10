@@ -60,7 +60,7 @@ const Footer = ({disabled, handleClose}: {disabled?: boolean, handleClose: Funct
     )
 }
 
-export type NotificationsMenuProps = {
+export interface NotificationsMenuProps {
     anchorEl: Element | null
     AnchorOrigin: PopoverOrigin
     TransformOrigin: PopoverOrigin

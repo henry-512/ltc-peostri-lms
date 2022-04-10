@@ -8,7 +8,7 @@ import { ReactNode } from 'react';
 import cartouche from './cartouche.png';
 import { useTranslate } from 'react-admin';
 
-export type CardWithIconProps = {
+export interface CardWithIconProps {
     icon: FC<any>;
     to: string;
     title?: string;
