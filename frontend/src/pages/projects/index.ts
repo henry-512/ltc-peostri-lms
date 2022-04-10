@@ -1,1 +1,5 @@
-export default {}
+import ProjectShow from "./show";
+
+export default {
+    ProjectShow
+}

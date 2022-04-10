@@ -13,6 +13,7 @@ import { TeamCreate, TeamEdit, TeamList } from './pages/administration/teams';
 import { ProjectTemplateCreate, ProjectTemplateEdit, ProjectTemplateList } from './pages/template/projects';
 import { ModuleTemplateCreate, ModuleTemplateEdit, ModuleTemplateList } from './pages/template/modules';
 import Layout from './components/Layout';
+import ProjectShow from './pages/projects/show';
 
 const API_URL = process.env.REACT_APP_API_URL + "/" + process.env.REACT_APP_API_VERSION || "http://localhost:5000/api/v1";
 
@@ -48,7 +49,7 @@ const App = () => {
             <Resource name="admin/teams" options={{ label: "layout.menu.teams" }} show={ShowGuesser} list={TeamList} create={TeamCreate} edit={TeamEdit}  />
 
             <Resource name="tasks" options={{ label: "layout.menu.my_tasks" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
-            <Resource name="projects" options={{ label: "layout.menu.my_projects" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
+            <Resource name="projects" options={{ label: "layout.menu.my_projects" }} show={ProjectShow} list={ListGuesser} edit={EditGuesser}  />
             <Resource name="notifications" list={ListGuesser} />
             
         </Admin>

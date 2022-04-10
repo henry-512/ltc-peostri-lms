@@ -11,7 +11,7 @@ import {
 } from 'ra-core';
 import { ToolbarProps } from '@material-ui/core';
 import { CreateButton, ExportButton, TopToolbar } from 'react-admin';
-import CreateProjectFromTemplate from './CreateProjectFromTemplate';
+import CreateProjectFromTemplate from '../CreateProjectFromTemplate';
 
 /**
  * Action Toolbar for the List view

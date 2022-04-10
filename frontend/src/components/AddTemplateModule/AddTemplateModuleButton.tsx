@@ -2,7 +2,12 @@ import { Button } from 'react-admin';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import { MouseEventHandler } from 'react';
 
-const AddTemplateModuleButton = ({ label, onClick }: { label: string | undefined, onClick: MouseEventHandler | undefined }) => (
+export type AddTemplateModuleButtonProps = {
+    label?: string
+    onClick?: MouseEventHandler
+}
+
+const AddTemplateModuleButton = ({ label, onClick }: AddTemplateModuleButtonProps) => (
     <Button label={label} onClick={onClick} color="primary" variant="contained">
         <AddCircleOutlineIcon />
     </Button>

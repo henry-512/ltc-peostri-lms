@@ -6,9 +6,8 @@ import ModuleCard from "./ModuleCard";
 import Creator from "../Creator";
 import { useTranslate } from "react-admin";
 import ModuleFields from "./ModuleFields";
-import AddTemplateModuleButton from "./AddTemplateModuleButton";
-import AddTemplateModuleDialog from "./AddTemplateModuleDialog";
 import React from "react";
+import AddTemplateModule from "../AddTemplateModule";
 
 export type ModuleManagerProps = {
     initialValue?: IModuleStep;
@@ -175,15 +174,13 @@ const ModuleManager = (props: ModuleManagerProps) => {
                 renderData={modules}
                 emptyText={translate('project.layout.no_modules')}
                 actions={[
-                    <AddTemplateModuleButton label="project.layout.add_module_template_button" onClick={openTemplate} />,
-                    <AddTemplateModuleDialog
-                        ariaLabel='module_template_selection'
-                        label={translate('project.layout.add_module_template')}
-                        open={templateSelectorOpen}
-                        setOpen={setTemplateSelectorOpen}
-                        cancelAction={cancelTemplate}
-                        submitAction={submitTemplate}
-                        getSource={getNewSource}
+                    <AddTemplateModule
+                        openTemplate={openTemplate}
+                        templateSelectorOpen={templateSelectorOpen}
+                        setTemplateSelectorOpen={setTemplateSelectorOpen}
+                        cancelTemplate={cancelTemplate}
+                        submitTemplate={submitTemplate}
+                        getNewSource={getNewSource}
                         isTemplate={props.isTemplate}
                         calculateTTC={props.calculateTTC}
                         updateComponent={updateComponent}
@@ -205,7 +202,6 @@ const ModuleManager = (props: ModuleManagerProps) => {
             </Creator>
         </>
     )
-    return <></>
 }
 
 export default ModuleManager;
