@@ -37,6 +37,12 @@ const domainMessages = {
                 }
             }
         },
+        notification: {
+            title: "Notifications",
+            empty: "No Notifications",
+            see_all: "See All Notifications",
+            mark_all_read: "Mark all as read"
+        },
         project: {
             edit: {
                 title: "Editing Project"

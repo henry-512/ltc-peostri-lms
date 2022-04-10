@@ -1,23 +1,24 @@
 import { Box, Divider, Link, Button, Popover, PopoverOrigin, Typography, makeStyles } from "@material-ui/core"
 import React from "react"
-import { Loading } from "react-admin"
+import { Loading, useTranslate } from "react-admin"
 import { useHistory } from "react-router-dom"
 import { INotification } from "src/util/types"
 import NotificationsEmpty from "./NotificationsEmpty"
 import NotificationsItem from "./NotificationsItem"
 
 const Header = ({disabled, markAllRead}: {disabled: boolean, markAllRead: any}) => {
+    const translate = useTranslate();
 
     return (    
         <>
             <Box display="flex" padding=".5rem 1rem" alignItems="center" >
                 <Typography variant="subtitle1">
-                    Notifications
+                {translate('notification.title')}
                 </Typography>
                 <Box sx={{ flex: '1 1 auto' }} />
                 {(disabled) ? null :
                     <Link href="#" onClick={markAllRead} >
-                        Mark all as read
+                        {translate('notification.mark_all_read')}
                     </Link>
                 }
             </Box>
@@ -36,6 +37,7 @@ const useFooterStyles = makeStyles(theme => ({
 const Footer = ({disabled, handleClose}: {disabled?: boolean, handleClose: Function}) => {
     const classes = useFooterStyles();
     const history = useHistory();
+    const translate = useTranslate();
 
     const viewAllNotifications = (e: any) => {
         history.push('/user/notifications');
@@ -49,7 +51,7 @@ const Footer = ({disabled, handleClose}: {disabled?: boolean, handleClose: Funct
                     <Divider />
                     <Box display="flex" padding="0" justifyContent="center">
                         <Button onClick={viewAllNotifications} disableElevation size="small" fullWidth classes={classes}>
-                            See All Notifications
+                            {translate('notification.see_all')}
                         </Button>
                     </Box>
                 </>
