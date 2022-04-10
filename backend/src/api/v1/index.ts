@@ -94,7 +94,7 @@ export function routerBuilder(version: string) {
             // Default
             .use(new APIRouter('users', UserManager).routes())
             .use(
-                new Router({ prefix: 'user/' })
+                new Router()
                     // Self
                     .get('self', async (ctx) => {
                         let user = ctx.state.user
