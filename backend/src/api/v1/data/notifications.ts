@@ -70,12 +70,12 @@ class Notification extends DBManager<INotification> {
     }
 
     public async buildAndSaveNotification(
-        recipientKey: string,
+        recipient: string,
         content: string,
         sender: ISender
     ) {
-        // Validate and convert user key
-        let recipient = await UserManager.db.assertKeyExists(recipientKey)
+        // Validate user key
+        await UserManager.db.assertIdExists(recipient)
 
         let notification: INotification = {
             id: this.db.generateDBID(),
