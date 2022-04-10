@@ -1,6 +1,7 @@
 import { makeStyles } from '@material-ui/core';
 import { Datagrid, DateField, FunctionField, List, ListProps, NumberField, TextField } from 'react-admin';
 import { IModuleStep, IModuleTemplate, ITaskTemplate } from 'src/util/types';
+import { dateOptions } from 'src/util/dateFormatter';
 
 const useListStyles = makeStyles({
     headerRow: {
@@ -52,8 +53,8 @@ const ModuleTemplateList = (props: ListProps) => {
                     >
                         {/*<TextField source="id" /> // TODO: Temporarily removing ID due to illegible ID's */}
                         <TextField source="title" />
-                        <DateField source="createdAt" showTime />
-                        <DateField source="updatedAt" showTime />
+                        <DateField source="createdAt" showTime options={dateOptions} />
+                        <DateField source="updatedAt" showTime options={dateOptions} />
                         <TextField source="status" />
                         <NumberField source="ttc" label="template.module.fields.ttc_short" />
                         <FunctionField label="Steps" render={(record: Record<string, IModuleTemplate> | undefined) => `${Object.keys(record?.tasks || {}).length}`} />

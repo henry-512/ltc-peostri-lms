@@ -2,6 +2,7 @@ import { makeStyles } from '@material-ui/core';
 import { Datagrid, DateField, List, ListProps, TextField } from 'react-admin';
 import { ProjectEmptyList, ProjectListActions } from 'src/components/project';
 import rowStyle from './rowStyle';
+import { dateOptions } from 'src/util/dateFormatter';
 
 const useListStyles = makeStyles({
     headerRow: {
@@ -45,8 +46,8 @@ const ProjectList = (props: ListProps) => {
                     >
                         {/*<TextField source="id" /> // TODO: Temporarily removing ID due to illegible ID's */}
                         <TextField source="title" />
-                        <DateField source="createdAt" showTime />
-                        <DateField source="updatedAt" showTime />
+                        <DateField source="createdAt" locales="en-US" showTime options={dateOptions} />
+                        <DateField source="updatedAt" locales="en-US" showTime options={dateOptions} />
                         <DateField source="start" locales="en-US" options={{ timeZone: 'UTC' }} />
                         <DateField source="suspense" locales="en-US" options={{ timeZone: 'UTC' }} />
                         <TextField source="status" />

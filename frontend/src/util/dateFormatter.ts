@@ -8,4 +8,6 @@ const dateFormatter = (dateString: string, words?: boolean) => {
     return `${date.getHours()}:${date.getMinutes()} ${date.getMonth()}/${date.getDate()}/${date.getFullYear()}`
 }
 
+export const dateOptions = { hour12: false, weekday: undefined, year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: undefined  }
+
 export default dateFormatter
