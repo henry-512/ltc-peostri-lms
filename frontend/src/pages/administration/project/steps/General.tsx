@@ -3,6 +3,7 @@ import { AutocompleteArrayInput, BooleanInput, DateInput, FormGroupContextProvid
 import { useForm } from "react-final-form";
 import { SectionTitle } from "src/components/misc";
 import { Step } from "src/components/FormStepper/Step"
+import { dateFormatter, dateParser } from "src/util/dateFormatter";
 
 const General = (props: any) => {
     const translate = useTranslate();
@@ -31,6 +32,8 @@ const General = (props: any) => {
                             <Grid item xs={3}>
                                 <DateInput
                                     label={translate('project.fields.start')}
+                                    format={dateFormatter} 
+                                    parse={dateParser}
                                     source="start"
                                     required
                                     fullWidth

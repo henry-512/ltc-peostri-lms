@@ -4,9 +4,8 @@ import red from '@material-ui/core/colors/red';
 import { IProject } from 'src/util/types';
 
 const rowStyle = (record: IProject) => {
-    const nowDate = new Date();
     const recordDate = new Date(record.suspense);
-    const nowTime = nowDate.getTime();
+    const nowTime = Date.now();
     const recordTime = recordDate.getTime();
     const timeDiff = Math.abs(nowTime - recordTime);
     const DAY = 1000 * 60 * 60 * 24;

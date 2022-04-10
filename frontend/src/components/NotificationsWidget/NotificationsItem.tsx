@@ -7,7 +7,7 @@ import { Box, Divider, makeStyles, Typography } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import { linkToRecord, useDataProvider } from "react-admin";
 import classnames from "classnames";
-import dateFormatter from "src/util/dateFormatter";
+import { dateFormatToString } from "src/util/dateFormatter";
 
 export type NotificationIconProps = {
     type: NotificationTypes
@@ -101,7 +101,7 @@ const NotificationsItem = (props: NotificationsItemProps) => {
                             {props.record.content}
                         </Typography>
                         <Typography variant="body2">
-                            {dateFormatter(props.record.createdAt, true)}
+                            {dateFormatToString(props.record.createdAt, true)}
                         </Typography>
                     </Box>
                 </Box>

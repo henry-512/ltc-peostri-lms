@@ -1,6 +1,5 @@
 import { Box, Grid } from "@material-ui/core"
-import { AutocompleteArrayInput, BooleanInput, DateInput, FormGroupContextProvider, maxLength, minLength, NumberInput, ReferenceArrayInput, required, SelectInput, TextInput, useTranslate } from "react-admin"
-import { useForm } from "react-final-form";
+import { FormGroupContextProvider, maxLength, minLength, NumberInput, required, SelectInput, TextInput } from "react-admin"
 import { SectionTitle } from "src/components/misc";
 import IDField from "src/components/modules/IDField";
 import { Step } from "src/components/FormStepper/Step"

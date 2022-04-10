@@ -125,8 +125,8 @@ export interface IModule extends IArangoIndexes {
 
 export interface IProject extends IArangoIndexes, ICreateUpdate {
     title: string;
-    start: Date;
-    suspense: Date;
+    start: Date | string;
+    suspense: Date | string;
     status: Status;
     modules: IModuleStep;
     users: Array<string> | Array<IUser>;
