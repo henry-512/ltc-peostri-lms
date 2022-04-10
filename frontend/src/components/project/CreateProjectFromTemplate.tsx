@@ -3,7 +3,7 @@ import { SimpleForm, useTranslate } from "react-admin";
 import CreateProjectFromTemplateButton from "./CreateProjectFromTemplateButton";
 import CreateProjectFromTemplateDialog from "./CreateProjectFromTemplateDialog";
 
-export type CreateProjectFromTemplateProps = {
+export interface CreateProjectFromTemplateProps {
     variant?: 'contained' | 'outlined' | 'text'
 }
 

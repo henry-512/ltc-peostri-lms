@@ -24,7 +24,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export type TaskCardProps = {
+export interface TaskCardProps {
     info?: ITask,
     index?: number,
     stepKey?: string,
