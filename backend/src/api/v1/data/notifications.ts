@@ -82,6 +82,7 @@ class Notification extends DBManager<INotification> {
             recipient,
             sender,
             content,
+            createdAt: new Date().toJSON(),
             read: false,
             type: this.buildType(sender.resource)
         }

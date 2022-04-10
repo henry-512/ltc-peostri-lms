@@ -139,6 +139,7 @@ export interface INotification extends IArangoIndexes {
     content: string
     read: boolean
     type: NotificationType
+    createdAt: string
 }
 
 export type NotificationType = 'PROJECT' | 'MODULE' | 'TASK' | 'USER'
