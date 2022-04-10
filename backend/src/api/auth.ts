@@ -164,7 +164,11 @@ export class AuthUser {
                     // Runs the authentication routes
                     await next()
 
-                    ctx.status = HTTPStatus.NO_CONTENT
+                    let user = ctx.state.user
+
+                    ctx.body = await UserManager.getFromDB(user, user.getId())
+                    ctx.status = HTTPStatus.OK
+                    // ctx.status = HTTPStatus.NO_CONTENT
                 })
                 // Removes login cookie
                 .post('/logout', async (ctx) => {

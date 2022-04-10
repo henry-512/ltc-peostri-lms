@@ -91,11 +91,12 @@ export function routerBuilder(version: string) {
                     .routes()
             )
             // User routes
+            // Default
+            .use(new APIRouter('users', UserManager).routes())
             .use(
-                // Default
-                new APIRouter('users', UserManager)
+                new Router({ prefix: 'user/' })
                     // Self
-                    .get('/self', async (ctx) => {
+                    .get('self', async (ctx) => {
                         let user = ctx.state.user
 
                         ctx.body = await UserManager.getFromDB(
@@ -104,7 +105,7 @@ export function routerBuilder(version: string) {
                         )
                         ctx.status = HTTPStatus.OK
                     })
-                    .get('/tasks/count', async (ctx) => {
+                    .get('tasks/count', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 
@@ -116,7 +117,7 @@ export function routerBuilder(version: string) {
                         )
                         ctx.status = HTTPStatus.OK
                     })
-                    .get('/tasks/list', async (ctx) => {
+                    .get('tasks/list', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 
@@ -129,7 +130,7 @@ export function routerBuilder(version: string) {
 
                         sendRange(results, ctx)
                     })
-                    .get('/tasks/count/:id', async (ctx) => {
+                    .get('tasks/count/:id', async (ctx) => {
                         let id = await UserManager.db.assertKeyExists(
                             ctx.params.id
                         )
@@ -140,7 +141,7 @@ export function routerBuilder(version: string) {
                         )
                         ctx.status = HTTPStatus.OK
                     })
-                    .get('/tasks/list/:id', async (ctx) => {
+                    .get('tasks/list/:id', async (ctx) => {
                         let id = await UserManager.db.assertKeyExists(
                             ctx.params.id
                         )
@@ -152,7 +153,7 @@ export function routerBuilder(version: string) {
 
                         sendRange(results, ctx)
                     })
-                    .get('/projects/count', async (ctx) => {
+                    .get('projects/count', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 
@@ -165,7 +166,7 @@ export function routerBuilder(version: string) {
                             )
                         ctx.status = HTTPStatus.OK
                     })
-                    .get('/projects/list', async (ctx) => {
+                    .get('projects/list', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 
@@ -179,7 +180,7 @@ export function routerBuilder(version: string) {
 
                         sendRange(results, ctx)
                     })
-                    .get('/projects/count/:id', async (ctx) => {
+                    .get('projects/count/:id', async (ctx) => {
                         let id = await UserManager.db.assertKeyExists(
                             ctx.params.id
                         )
@@ -191,7 +192,7 @@ export function routerBuilder(version: string) {
                             )
                         ctx.status = HTTPStatus.OK
                     })
-                    .get('/projects/list/:id', async (ctx) => {
+                    .get('projects/list/:id', async (ctx) => {
                         let id = await UserManager.db.assertKeyExists(
                             ctx.params.id
                         )
@@ -205,7 +206,7 @@ export function routerBuilder(version: string) {
                         sendRange(results, ctx)
                     })
                     // NOTIFICATIONS
-                    .get('/notifications/list', async (ctx) => {
+                    .get('notifications/list', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 
@@ -219,7 +220,7 @@ export function routerBuilder(version: string) {
 
                         sendRange(results, ctx)
                     })
-                    .put('/notifications/readall', async (ctx) => {
+                    .put('notifications/readall', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 
@@ -229,7 +230,7 @@ export function routerBuilder(version: string) {
 
                         ctx.status = HTTPStatus.NO_CONTENT
                     })
-                    .put('/notifications/read/:id', async (ctx) => {
+                    .put('notifications/read/:id', async (ctx) => {
                         // TODO: validate recipient?
 
                         let id = await NotificationManager.db.assertKeyExists(
