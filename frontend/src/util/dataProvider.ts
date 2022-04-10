@@ -180,11 +180,16 @@ const dataProvider = (
 
     update: (resource, params) => {
         switch(resource) {
-            case 'users/notifications/readall':
+            case 'user/notifications/readall':
                 return httpClient(`${apiUrl}/${resource}`, {
                     method: 'PUT',
                     body: JSON.stringify(params.data),
-                }).then(({ json }) => ({ data: json }))
+                }).then(({ json }) => Promise.resolve({ data: { id: "" } }))
+            case 'user/notifications/read':
+                return httpClient(`${apiUrl}/${resource}/${params.id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(params.data),
+                }).then(({ json }) => Promise.resolve({ data: { id: "" } }))
             case 'projects':
                 const formData = convertProjectToFormData(params.data);
 

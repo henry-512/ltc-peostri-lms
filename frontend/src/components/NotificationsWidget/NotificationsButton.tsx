@@ -22,7 +22,7 @@ const NotificationsButton = (props: NotificationsButtonProps) => {
                     onClick={handleMenu}
                     aria-describedby={id}
                 >
-                    {(hasNew) ? <NotificationsActiveIcon /> : <NotificationsIcon />}
+                    {(hasNew === true) ? <NotificationsActiveIcon /> : <NotificationsIcon />}
                 </IconButton>
             </Tooltip>
         </>

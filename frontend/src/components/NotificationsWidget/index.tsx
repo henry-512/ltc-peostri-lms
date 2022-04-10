@@ -36,7 +36,7 @@ const NotificationsWidget = (props: NotificationsButtonProps) => {
 
     const fetchNotifications = () => {
         setLoading(true);
-        dataProvider.getList<INotification>('users/notifications', { filter: { read: false }, pagination: { page: 1, perPage: 5 }, sort: { field: "createdAt", order: "ASC" } })
+        dataProvider.getList<INotification>('user/notifications', { filter: {}, pagination: { page: 1, perPage: 5 }, sort: { field: "read", order: "ASC" } })
         .then(({ data }) => {
             setNotifications(data);
         })
@@ -52,9 +52,9 @@ const NotificationsWidget = (props: NotificationsButtonProps) => {
 
     const markAllRead = () => {
         dataProvider.update<INotification>('user/notifications/readall', { id: "", data: {}, previousData: { id: "" } })
-        .then(({ data }) => {
+        .then(() => {
             // @ts-ignore
-            setNotifications(data);
+            return fetchNotifications();
         })
         .catch(error => {
             return;

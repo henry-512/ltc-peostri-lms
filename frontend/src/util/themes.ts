@@ -57,7 +57,9 @@ export const lightTheme = {
             main: '#4f3cc9'
         },
         borderColor: {
-            main: '#e0e0e3'
+            main: '#e0e0e3',
+            light: '#e6e6e8',
+            dark: '#b3b3b5'
         },
         secondary: {
             light: '#5f5fc4',

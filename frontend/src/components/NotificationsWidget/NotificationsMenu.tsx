@@ -100,7 +100,7 @@ const NotificationsMenu = (props: NotificationsMenuProps) => {
                 {(loading) ? <Loading className={classes.loader} loadingPrimary="" loadingSecondary="Loading Notifications.." /> :
                     (data && data.length > 0) ? 
                         data.map((notification, index) => {
-                            return React.cloneElement(<NotificationsItem record={notification} />, {
+                            return React.cloneElement(<NotificationsItem record={notification} last={data.length - 1 == index} />, {
                                 key: index
                             });
                         })

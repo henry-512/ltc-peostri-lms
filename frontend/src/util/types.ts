@@ -16,17 +16,22 @@ export interface ITeam extends Record {
     users: IUser[] | string[]
 }
 
+export type NotificationTypes = "PROJECT" | "MODULE" | "TASK" | "USER";
+export type Status = "IN_PROGRESS" | "COMPLETED" | "ARCHIVED" | "AWAITING";
+export type TaskTypes = "DOCUMENT_UPLOAD" | "DOCUMENT_REVIEW" | "MODULE_WAIVER" | "MODULE_WAIVER_APPROVAL" | "DOCUMENT_APPROVE";
+export type UserStatus = 'ACTIVE' | 'LOCKED' | 'INACTIVE' | 'SUSPENDED';
+
 export interface INotification extends Record {
     recipient: string | IUser
-    sender: string
     content: string
     read: boolean
     createdAt: string
+    type: NotificationTypes
+    sender: {
+        resource: 'projects' | 'users' | 'modules' | 'tasks'
+        id: string
+    }
 }
-
-export type Status = "IN_PROGRESS" | "COMPLETED" | "ARCHIVED" | "AWAITING";
-export type TaskTypes = "DOCUMENT_UPLOAD" | "DOCUMENT_REVIEW" | "MODULE_WAIVER" | "MODULE_WAIVER_APPROVAL" | "DOCUMENT_APPROVE"
-export type UserStatus = 'ACTIVE' | 'LOCKED' | 'INACTIVE' | 'SUSPENDED'
 
 // All are optional
 export interface IArangoIndexes {
