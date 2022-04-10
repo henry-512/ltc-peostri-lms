@@ -88,7 +88,20 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                     continue
                 }
 
-                if (Array.isArray(value)) {
+                let data = this.fieldData[key]
+
+                if (data.type === 'array') {
+                    if (typeof value === 'string') {
+                        if (data.foreignApi) {
+                            f.inArray = data.foreignApi.db.keyToId(value)
+                        } else {
+                            f.inArray = value
+                        }
+                    } else {
+                        console.warn(`Invalid filtering value [${value}]`)
+                        continue
+                    }
+                } else if (Array.isArray(value)) {
                     f.in = value
                 } else {
                     let type = typeof value
