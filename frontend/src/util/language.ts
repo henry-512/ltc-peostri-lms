@@ -1,362 +1,347 @@
 const domainMessages = {
-    en: {
-        layout: {
-            appbar: {
-                title: "PEOSTRI LMS",
-                notifications: "Notifications"
-            },
-            menu: {
-                administration: "Administration",
-                projects: "Projects",
-                modules: "Modules",
-                templates: "Templates",
-                project_templates: "Project Templates",
-                module_templates: "Module Templates",
-                users: "Users",
-                ranks: "Ranks",
-                my_tasks: "My Tasks",
-                my_projects: "My Projects",
-                teams: "Teams"
-            },
-            button: {
-                create: "Create",
-                next: "Next",
-                back: "Back",
-                skip: "Skip",
-                save: "Save",
-                delete: "Delete"
-            }
-        },
-        dashboard: {
-            widget: {
-                project_count: {
-                    title: "Awaiting Projects"
+    "en": {
+        "dashboard": {
+            "widget": {
+                "project_count": {
+                    "title": "Awaiting Projects"
                 },
-                task_count: {
-                    title: "Awaiting Tasks"
+                "task_count": {
+                    "title": "Awaiting Tasks"
                 }
             }
         },
-        notification: {
-            title: "Notifications",
-            empty: "No New Notifications",
-            see_all: "See All Notifications",
-            mark_all_read: "Mark all as read"
-        },
-        project: {
-            edit: {
-                title: "Editing Project"
+        "layout": {
+            "appbar": {
+                "notifications": "Notifications",
+                "title": "PEOSTRI LMS"
             },
-            create: {
-                title: "Creating Project",
-                from_template: "Create From Template"
+            "button": {
+                "back": "Back",
+                "create": "Create",
+                "delete": "Delete",
+                "next": "Next",
+                "save": "Save",
+                "skip": "Skip"
             },
-            steps: {
-                general: "General Information",
-                modules: "Module Management",
-                order: "Module Order",
-                review: "Review"
-            },
-            fields: {
-                title: "Title",
-                start: "Start Date",
-                end: "End Date",
-                member: "Assign Members",
-                module_title: "Module Title",
-                module_status: "Module Status",
-                task_title: "Task Title",
-                task_type: "Task Type",
-                task_status: "Task Status",
-                rank: "Rank",
-                waiver_file: "Drop a File Here, or Click Here to Browse Files",
-                suspense: "Suspense Date"
-            },
-            layout: {
-                general: "Project Information",
-                assign: "Assign Members to Project",
-                auto_assign: "Auto Assign to Tasks by Rank",
-                waive_module: "Waive Module",
-                waive_help: "Attach a File or Comment to Waive this Module",
-                module_title: "Module Management",
-                order_modules_help: "Drag and Drop the Modules in Order",
-                order_tasks_help: "Drag and Drop the Tasks in Order",
-                create_module: "Add Module",
-                create_task: "Add Task",
-                add_step: "Add Step",
-                save: "Save",
-                create: "Create",
-                cancel: "Cancel",
-                no_modules: "Add a Module to this Project",
-                task_title: "Task Management",
-                no_tasks: "Add a Task to this Module",
-                edit_module: "Editing Module: %{title}",
-                edit_task: "Editing Task: %{title}",
-                add_module_template: "Add Module Template",
-                add_module_template_button: "Add Template",
-                select_module_template: "Select a Module Template",
-                select_template: "Select a Project Template"
+            "menu": {
+                "administration": "Administration",
+                "module_templates": "Module Templates",
+                "modules": "Modules",
+                "my_projects": "My Projects",
+                "my_tasks": "My Tasks",
+                "project_templates": "Project Templates",
+                "projects": "Projects",
+                "ranks": "Ranks",
+                "teams": "Teams",
+                "templates": "Templates",
+                "users": "Users"
             }
         },
-        tasks: {
-            types: {
-                document_upload: "Upload",
-                document_review: "Review",
-                document_approve: "Approve",
-                module_waiver: "Waiver",
-                module_waiver_approval: "Waiver Approval"
-            }
+        "notification": {
+            "empty": "No New Notifications",
+            "mark_all_read": "Mark all as read",
+            "see_all": "See All Notifications",
+            "title": "Notifications"
         },
-        user: {
-            info: {
-                first_name: "First Name",
-                last_name: "Last Name",
-                rank: "Rank",
-                username: "Username",
-                email: "Email",
-                first_visited: "First Login",
-                last_visited: "Last Login",
-                status: "Status",
-                teams: "Teams"
+        "project": {
+            "create": {
+                "from_template": "Create From Template",
+                "title": "Creating Project"
             },
-            layout: {
-                identity: "Identity",
-                security: "Security",
-                permissions: "Permissions",
-                use_email: "Use Email?",
-                create_title: "Create a User",
-                edit_title: "Editing User: %{name}"
-            }
-        },
-        team: {
-            info: {
-                name: "Name",
-                users: "Users"
+            "edit": {
+                "title": "Editing Project"
             },
-            layout: {
-                general: "General",
-                editing: "Editing Team"
+            "fields": {
+                "end": "End Date",
+                "member": "Assign Members",
+                "module_status": "Module Status",
+                "module_title": "Module Title",
+                "rank": "Rank",
+                "start": "Start Date",
+                "suspense": "Suspense Date",
+                "task_status": "Task Status",
+                "task_title": "Task Title",
+                "task_type": "Task Type",
+                "title": "Title",
+                "waiver_file": "Drop a File Here, or Click Here to Browse Files"
+            },
+            "layout": {
+                "add_module_template": "Add Module Template",
+                "add_module_template_button": "Add Template",
+                "add_step": "Add Step",
+                "assign": "Assign Members to Project",
+                "auto_assign": "Auto Assign to Tasks by Rank",
+                "cancel": "Cancel",
+                "create": "Create",
+                "create_module": "Add Module",
+                "create_task": "Add Task",
+                "edit_module": "Editing Module: %{title}",
+                "edit_task": "Editing Task: %{title}",
+                "general": "Project Information",
+                "module_title": "Module Management",
+                "no_modules": "Add a Module to this Project",
+                "no_tasks": "Add a Task to this Module",
+                "order_modules_help": "Drag and Drop the Modules in Order",
+                "order_tasks_help": "Drag and Drop the Tasks in Order",
+                "save": "Save",
+                "select_module_template": "Select a Module Template",
+                "select_template": "Select a Project Template",
+                "task_title": "Task Management",
+                "waive_help": "Attach a File or Comment to Waive this Module",
+                "waive_module": "Waive Module"
+            },
+            "steps": {
+                "general": "General Information",
+                "modules": "Module Management",
+                "order": "Module Order",
+                "review": "Review"
             }
         },
-        template: {
-            module: {
-                layout: {
-                    general: "General Information",
-                    create_title: "Create Module Template",
-                    edit_title: "Editing Project Template",
+        "ra": {
+            "action": {
+                "add": "Add",
+                "add_filter": "Add filter",
+                "back": "Go Back",
+                "bulk_actions": "1 item selected |||| %{smart_count} items selected",
+                "cancel": "Cancel",
+                "clear_input_value": "Clear value",
+                "clone": "Clone",
+                "close": "Close",
+                "close_menu": "Close menu",
+                "confirm": "Confirm",
+                "create": "Create",
+                "create_item": "Create %{item}",
+                "delete": "Delete",
+                "edit": "Edit",
+                "expand": "Expand",
+                "export": "Export",
+                "list": "List",
+                "move_down": "Move down",
+                "move_up": "Move up",
+                "open_menu": "Open menu",
+                "refresh": "Refresh",
+                "remove": "Remove",
+                "remove_filter": "Remove this filter",
+                "save": "Save",
+                "search": "Search",
+                "select_all": "Select all",
+                "select_row": "Select this row",
+                "show": "View",
+                "sort": "Sort",
+                "undo": "Undo",
+                "unselect": "Unselect",
+                "update": "Update"
+            },
+            "auth": {
+                "auth_check_error": "Please login to continue",
+                "logout": "Logout",
+                "password": "Password",
+                "sign_in": "Sign in",
+                "sign_in_error": "Authentication failed, please retry",
+                "user_menu": "Profile",
+                "username": "Username"
+            },
+            "boolean": {
+                "false": "No",
+                "null": " ",
+                "true": "Yes"
+            },
+            "input": {
+                "file": {
+                    "upload_several": "Drop some files to upload, or click to select one.",
+                    "upload_single": "Drop a file to upload, or click to select it."
                 },
-                fields: {
-                    ttc: "Est. Time to Completion (in days)",
-                    ttc_help: "Calculated Based on Tasks",
-                    ttc_short: "TTC",
-                    title: "Module Name",
-                    status: "Status"
+                "image": {
+                    "upload_several": "Drop some pictures to upload, or click to select one.",
+                    "upload_single": "Drop a picture to upload, or click to select it."
                 },
-                steps: {
-                    general: "General Information",
-                    tasks: "Task Management"
+                "password": {
+                    "toggle_hidden": "Show password",
+                    "toggle_visible": "Hide password"
+                },
+                "references": {
+                    "all_missing": "Unable to find references data.",
+                    "many_missing": "At least one of the associated references no longer appears to be available.",
+                    "single_missing": "Associated reference no longer appears to be available."
                 }
             },
-            project: {
-                layout: {
-                    general: "General Information",
-                    create_title: "Create Project Template",
-                    edit_title: "Editing Project Template",
+            "message": {
+                "about": "About",
+                "are_you_sure": "Are you sure?",
+                "bulk_delete_content": "Are you sure you want to delete this %{name}? |||| Are you sure you want to delete these %{smart_count} items?",
+                "bulk_delete_title": "Delete %{name} |||| Delete %{smart_count} %{name}",
+                "bulk_update_content": "Are you sure you want to update this %{name}? |||| Are you sure you want to update these %{smart_count} items?",
+                "bulk_update_title": "Update %{name} |||| Update %{smart_count} %{name}",
+                "delete_content": "Are you sure you want to delete this item?",
+                "delete_title": "Delete %{name} #%{id}",
+                "details": "Details",
+                "error": "A client error occurred and your request couldn't be completed.",
+                "invalid_form": "The form is not valid. Please check for errors",
+                "loading": "The page is loading, just a moment please",
+                "no": "No",
+                "not_found": "Either you typed a wrong URL, or you followed a bad link.",
+                "unsaved_changes": "Some of your changes weren't saved. Are you sure you want to ignore them?",
+                "yes": "Yes"
+            },
+            "navigation": {
+                "next": "Next",
+                "no_more_results": "The page number %{page} is out of boundaries. Try the previous page.",
+                "no_results": "No results found",
+                "page_out_from_begin": "Cannot go before page 1",
+                "page_out_from_end": "Cannot go after last page",
+                "page_out_of_boundaries": "Page number %{page} out of boundaries",
+                "page_range_info": "%{offsetBegin}-%{offsetEnd} of %{total}",
+                "page_rows_per_page": "Rows per page:",
+                "prev": "Prev",
+                "skip_nav": "Skip to content"
+            },
+            "notification": {
+                "bad_item": "Incorrect element",
+                "canceled": "Action cancelled",
+                "created": "Element created",
+                "data_provider_error": "dataProvider error. Check the console for details.",
+                "deleted": "Element deleted |||| %{smart_count} elements deleted",
+                "http_error": "Server communication error",
+                "i18n_error": "Cannot load the translations for the specified language",
+                "item_doesnt_exist": "Element does not exist",
+                "logged_out": "Your session has ended, please reconnect.",
+                "not_authorized": "You're not authorized to access this resource.",
+                "updated": "Element updated |||| %{smart_count} elements updated"
+            },
+            "page": {
+                "create": "Create %{name}",
+                "dashboard": "Dashboard",
+                "edit": "%{name} #%{id}",
+                "empty": "No %{name} yet.",
+                "error": "Something went wrong",
+                "invite": "Do you want to add one?",
+                "list": "%{name}",
+                "loading": "Loading",
+                "not_found": "Not Found",
+                "show": "%{name} #%{id}"
+            },
+            "sort": {
+                "ASC": "ascending",
+                "DESC": "descending",
+                "sort_by": "Sort by %{field} %{order}"
+            },
+            "validation": {
+                "email": "Must be a valid email",
+                "maxLength": "Must be %{max} characters or less",
+                "maxValue": "Must be %{max} or less",
+                "minLength": "Must be %{min} characters at least",
+                "minValue": "Must be at least %{min}",
+                "number": "Must be a number",
+                "oneOf": "Must be one of: %{options}",
+                "regex": "Must match a specific format (regexp): %{pattern}",
+                "required": "Required"
+            }
+        },
+        "resources": {
+            "admin/projects": {
+                "name": "Projects"
+            },
+            "admin/ranks": {
+                "name": "Ranks"
+            },
+            "admin/teams": {
+                "name": "Teams"
+            },
+            "admin/template/modules": {
+                "name": "Module Templates"
+            },
+            "admin/template/projects": {
+                "name": "Project Templates"
+            },
+            "admin/users": {
+                "fields": {
+                    "email": "Email",
+                    "first_name": "First Name",
+                    "last_name": "Last Name",
+                    "rank": "Rank",
+                    "status": "Status",
+                    "username": "Username"
                 },
-                fields: {
-                    ttc: "Est. Time to Completion (in days)",
-                    ttc_help: "Calculated Based on Modules",
-                    ttc_short: "TTC",
-                    title: "Project Name",
-                    status: "Status"
+                "name": "Users"
+            }
+        },
+        "tasks": {
+            "types": {
+                "document_approve": "Approve",
+                "document_review": "Review",
+                "document_upload": "Upload",
+                "module_waiver": "Waiver",
+                "module_waiver_approval": "Waiver Approval"
+            }
+        },
+        "team": {
+            "info": {
+                "name": "Name",
+                "users": "Users"
+            },
+            "layout": {
+                "editing": "Editing Team",
+                "general": "General"
+            }
+        },
+        "template": {
+            "module": {
+                "fields": {
+                    "status": "Status",
+                    "title": "Module Name",
+                    "ttc": "Est. Time to Completion (in days)",
+                    "ttc_help": "Calculated Based on Tasks",
+                    "ttc_short": "TTC"
                 },
-                steps: {
-                    general: "General Information",
-                    modules: "Module Management"
+                "layout": {
+                    "create_title": "Create Module Template",
+                    "edit_title": "Editing Project Template",
+                    "general": "General Information"
+                },
+                "steps": {
+                    "general": "General Information",
+                    "tasks": "Task Management"
+                }
+            },
+            "project": {
+                "fields": {
+                    "status": "Status",
+                    "title": "Project Name",
+                    "ttc": "Est. Time to Completion (in days)",
+                    "ttc_help": "Calculated Based on Modules",
+                    "ttc_short": "TTC"
+                },
+                "layout": {
+                    "create_title": "Create Project Template",
+                    "edit_title": "Editing Project Template",
+                    "general": "General Information"
+                },
+                "steps": {
+                    "general": "General Information",
+                    "modules": "Module Management"
                 }
             }
         },
-        resources: {
-            'admin/users': {
-                name: "Users",
-                fields: {
-                    first_name: "First Name",
-                    last_name: "Last Name",
-                    rank: "Rank",
-                    username: "Username",
-                    email: "Email",
-                    status: "Status"
-                }
+        "user": {
+            "info": {
+                "email": "Email",
+                "first_name": "First Name",
+                "first_visited": "First Login",
+                "last_name": "Last Name",
+                "last_visited": "Last Login",
+                "rank": "Rank",
+                "status": "Status",
+                "teams": "Teams",
+                "username": "Username"
             },
-            'admin/template/projects': {
-                name: "Project Templates"
-            },
-            'admin/template/modules': {
-                name: "Module Templates"
-            },
-            'admin/projects': {
-                name: "Projects"
-            },
-            'admin/ranks': {
-                name: "Ranks"
-            },
-            'admin/teams': {
-                name: "Teams"
+            "layout": {
+                "create_title": "Create a User",
+                "edit_title": "Editing User: %{name}",
+                "identity": "Identity",
+                "permissions": "Permissions",
+                "security": "Security",
+                "use_email": "Use Email?"
             }
-        },
-        ra: {
-            action: {
-                add_filter: 'Add filter',
-                add: 'Add',
-                back: 'Go Back',
-                bulk_actions: '1 item selected |||| %{smart_count} items selected',
-                cancel: 'Cancel',
-                clear_input_value: 'Clear value',
-                clone: 'Clone',
-                confirm: 'Confirm',
-                create: 'Create',
-                create_item: 'Create %{item}',
-                delete: 'Delete',
-                edit: 'Edit',
-                export: 'Export',
-                list: 'List',
-                refresh: 'Refresh',
-                remove_filter: 'Remove this filter',
-                remove: 'Remove',
-                save: 'Save',
-                search: 'Search',
-                select_all: 'Select all',
-                select_row: 'Select this row',
-                show: 'View',
-                sort: 'Sort',
-                undo: 'Undo',
-                unselect: 'Unselect',
-                expand: 'Expand',
-                close: 'Close',
-                open_menu: 'Open menu',
-                close_menu: 'Close menu',
-                update: 'Update',
-                move_up: 'Move up',
-                move_down: 'Move down',
-            },
-            boolean: {
-                true: 'Yes',
-                false: 'No',
-                null: ' ',
-            },
-            page: {
-                create: 'Create %{name}',
-                dashboard: 'Dashboard',
-                edit: '%{name} #%{id}',
-                error: 'Something went wrong',
-                list: '%{name}',
-                loading: 'Loading',
-                not_found: 'Not Found',
-                show: '%{name} #%{id}',
-                empty: 'No %{name} yet.',
-                invite: 'Do you want to add one?',
-            },
-            input: {
-                file: {
-                    upload_several:
-                        'Drop some files to upload, or click to select one.',
-                    upload_single: 'Drop a file to upload, or click to select it.',
-                },
-                image: {
-                    upload_several:
-                        'Drop some pictures to upload, or click to select one.',
-                    upload_single:
-                        'Drop a picture to upload, or click to select it.',
-                },
-                references: {
-                    all_missing: 'Unable to find references data.',
-                    many_missing:
-                        'At least one of the associated references no longer appears to be available.',
-                    single_missing:
-                        'Associated reference no longer appears to be available.',
-                },
-                password: {
-                    toggle_visible: 'Hide password',
-                    toggle_hidden: 'Show password',
-                },
-            },
-            message: {
-                about: 'About',
-                are_you_sure: 'Are you sure?',
-                bulk_delete_content:
-                    'Are you sure you want to delete this %{name}? |||| Are you sure you want to delete these %{smart_count} items?',
-                bulk_delete_title:
-                    'Delete %{name} |||| Delete %{smart_count} %{name}',
-                bulk_update_content:
-                    'Are you sure you want to update this %{name}? |||| Are you sure you want to update these %{smart_count} items?',
-                bulk_update_title:
-                    'Update %{name} |||| Update %{smart_count} %{name}',
-                delete_content: 'Are you sure you want to delete this item?',
-                delete_title: 'Delete %{name} #%{id}',
-                details: 'Details',
-                error:
-                    "A client error occurred and your request couldn't be completed.",
-                invalid_form: 'The form is not valid. Please check for errors',
-                loading: 'The page is loading, just a moment please',
-                no: 'No',
-                not_found:
-                    'Either you typed a wrong URL, or you followed a bad link.',
-                yes: 'Yes',
-                unsaved_changes:
-                    "Some of your changes weren't saved. Are you sure you want to ignore them?",
-            },
-            navigation: {
-                no_results: 'No results found',
-                no_more_results:
-                    'The page number %{page} is out of boundaries. Try the previous page.',
-                page_out_of_boundaries: 'Page number %{page} out of boundaries',
-                page_out_from_end: 'Cannot go after last page',
-                page_out_from_begin: 'Cannot go before page 1',
-                page_range_info: '%{offsetBegin}-%{offsetEnd} of %{total}',
-                page_rows_per_page: 'Rows per page:',
-                next: 'Next',
-                prev: 'Prev',
-                skip_nav: 'Skip to content',
-            },
-            sort: {
-                sort_by: 'Sort by %{field} %{order}',
-                ASC: 'ascending',
-                DESC: 'descending',
-            },
-            auth: {
-                auth_check_error: 'Please login to continue',
-                user_menu: 'Profile',
-                username: 'Username',
-                password: 'Password',
-                sign_in: 'Sign in',
-                sign_in_error: 'Authentication failed, please retry',
-                logout: 'Logout',
-            },
-            notification: {
-                updated: 'Element updated |||| %{smart_count} elements updated',
-                created: 'Element created',
-                deleted: 'Element deleted |||| %{smart_count} elements deleted',
-                bad_item: 'Incorrect element',
-                item_doesnt_exist: 'Element does not exist',
-                http_error: 'Server communication error',
-                data_provider_error:
-                    'dataProvider error. Check the console for details.',
-                i18n_error:
-                    'Cannot load the translations for the specified language',
-                canceled: 'Action cancelled',
-                logged_out: 'Your session has ended, please reconnect.',
-                not_authorized: "You're not authorized to access this resource.",
-            },
-            validation: {
-                required: 'Required',
-                minLength: 'Must be %{min} characters at least',
-                maxLength: 'Must be %{max} characters or less',
-                minValue: 'Must be at least %{min}',
-                maxValue: 'Must be %{max} or less',
-                number: 'Must be a number',
-                email: 'Must be a valid email',
-                oneOf: 'Must be one of: %{options}',
-                regex: 'Must match a specific format (regexp): %{pattern}',
-            },
         }
     }
 }
