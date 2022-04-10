@@ -229,6 +229,17 @@ export function routerBuilder(version: string) {
 
                         ctx.status = HTTPStatus.NO_CONTENT
                     })
+                    .put('/notifications/read/:id', async (ctx) => {
+                        // TODO: validate recipient?
+
+                        let id = await NotificationManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
+
+                        await NotificationManager.read(id)
+
+                        ctx.status = HTTPStatus.NO_CONTENT
+                    })
                     .routes()
             )
     )
