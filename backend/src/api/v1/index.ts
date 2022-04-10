@@ -127,7 +127,8 @@ export function routerBuilder(version: string) {
 
                         ctx.body = await TaskManager.getFromDB(
                             ctx.state.user,
-                            id
+                            id,
+                            true
                         )
                         ctx.status = HTTPStatus.OK
                     })
@@ -165,7 +166,8 @@ export function routerBuilder(version: string) {
 
                         ctx.body = await ProjectManager.getFromDB(
                             ctx.state.user,
-                            id
+                            id,
+                            true
                         )
                         ctx.status = HTTPStatus.OK
                     })

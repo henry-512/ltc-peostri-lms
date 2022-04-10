@@ -180,7 +180,11 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
      * @param id A (valid) db id for the document
      * @return A Type representing a document with key, with .id set and ._* removed
      */
-    public async getFromDB(user: AuthUser, id: string): Promise<Type> {
+    public async getFromDB(
+        user: AuthUser,
+        id: string,
+        noDeref?: boolean
+    ): Promise<Type> {
         let doc = await this.db.get(id)
 
         return this.mapEachField(
@@ -208,7 +212,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             // foreign
             async (v, data) => {
                 if (typeof v === 'string') {
-                    if (data.getIdKeepAsRef) {
+                    if (data.getIdKeepAsRef || noDeref) {
                         return convertToKey(v)
                     } else if (data.foreignApi.db.isDBId(v)) {
                         // Dereference the id into an object
