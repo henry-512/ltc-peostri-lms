@@ -104,7 +104,7 @@ const General = (props: any) => {
                                 label="project.fields.member"
                                 reference="admin/users"
                                 source="users"
-                                filter={(form.getState().values.team) ? { teams: [form.getState().values.team] } : undefined}
+                                filter={(form.getState().values.team) ? { team: form.getState().values.team } : undefined}
                             >
                                 <AutocompleteArrayInput
                                     optionText={choice => `${choice.firstName} ${choice.lastName}`}
