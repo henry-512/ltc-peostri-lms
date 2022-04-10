@@ -5,7 +5,7 @@ import WaiverInput from "./WaiverInput";
 import AddTemplateModuleButton from "./AddTemplateModuleButton";
 import AddTemplateModuleDialog from "./AddTemplateModuleDialog";
 
-export default {
+export {
     ModuleCard,
     ModuleFields,
     ModuleManager,

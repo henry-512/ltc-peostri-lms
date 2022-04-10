@@ -1,35 +1,10 @@
 import { Box, Grid, makeStyles } from "@material-ui/core";
-import { useEffect } from "react";
-import { maxLength, minLength, NumberInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
+import { maxLength, minLength, NumberInput, required, SelectInput, TextInput } from "react-admin";
 import { useForm, useFormState } from "react-final-form";
 import { IModuleTemplate } from "src/util/types";
-import { SectionTitle } from "../misc";
-import { ModuleManager } from "../modules";
+import { SectionTitle } from "../index";
+import { ModuleManager } from "../ModuleManager";
 import ModuleTemplateFields from "./ModuleTemplateFields";
-
-const useStyles = makeStyles(theme => ({
-    root: {},
-    content: {
-        marginTop: theme.spacing(2)
-    },
-    usersTitle: {
-        display: 'flex',
-        alignItems: 'center'
-    },
-    taskBox: {
-        font: 'inherit'
-    },
-    fieldTitle: {
-        borderBottom: '2px solid ' + theme.palette.primary.main,
-        paddingBottom: '.25rem',
-        lineHeight: '1',
-        color: theme.palette.text.primary,
-        marginBottom: '.25rem'
-    },
-    alignCenter: {
-        alignItems: 'center'
-    }
-}));
 
 export type ProjectTemplateFieldsProps = {
 

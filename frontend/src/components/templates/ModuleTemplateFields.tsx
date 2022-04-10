@@ -1,8 +1,7 @@
 import { Box, Grid, makeStyles, Typography } from "@material-ui/core"
-import IDField from "../misc/IDField";
 import { maxLength, minLength, NumberInput, required, SelectInput, TextInput } from "react-admin";
-import TaskManager from "../modules/TaskManager";
-import { SectionTitle } from "../misc";
+import { TaskManager } from "../TaskManager";
+import { SectionTitle, IDField } from "../index";
 import { ModuleTemplateTaskFields } from ".";
 import { useEffect } from "react";
 import { useForm, useFormState } from "react-final-form";

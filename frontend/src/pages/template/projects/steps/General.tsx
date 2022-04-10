@@ -1,6 +1,6 @@
 import { Box, Grid } from "@material-ui/core"
 import { FormGroupContextProvider, maxLength, minLength, NumberInput, required, SelectInput, TextInput } from "react-admin"
-import { SectionTitle } from "src/components/misc";
+import { SectionTitle } from "src/components/index";
 import { Step } from "src/components/FormStepper/Step"
 
 export type ProjectTemplateGeneralProps = {

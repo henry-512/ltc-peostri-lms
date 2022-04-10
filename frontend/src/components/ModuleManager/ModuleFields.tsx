@@ -1,11 +1,11 @@
 import { Grid, makeStyles, Typography } from "@material-ui/core"
-import IDField from "./IDField";
+import IDField from "../IDField";
 import WaiverInput from "./WaiverInput";
 import classNames from "classnames";
 import RichTextInput from "ra-input-rich-text";
 import { FileField, FileInput, maxLength, minLength, NumberInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
 import { useEffect, useState } from "react";
-import TaskManager from "./TaskManager";
+import { TaskManager } from "../TaskManager";
 import { useForm } from "react-final-form";
 import get from "lodash.get";
 import { ITaskTemplate } from "src/util/types";

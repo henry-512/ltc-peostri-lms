@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core';
 import { Datagrid, FieldProps, List, ListProps, ReferenceArrayField, SingleFieldList, TextField } from 'react-admin';
-import UserChip from 'src/components/misc/UserChip';
+import { UserChip } from 'src/components/index';
 import { ITeam } from 'src/util/types';
 
 const useListStyles = makeStyles(theme => ({

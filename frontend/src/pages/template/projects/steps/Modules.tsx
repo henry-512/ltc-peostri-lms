@@ -1,12 +1,12 @@
 import { FormDataConsumer, FormGroupContextProvider, maxLength, minLength, required } from "react-admin";
-import { ModuleManager } from "src/components/modules";
+import { ModuleManager } from "src/components/ModuleManager";
 import { IModuleTemplate, ITaskTemplate } from "src/util/types";
 import { useForm } from "react-final-form";
 import get from "lodash.get";
 import { useEffect } from "react";
 import { Step } from "src/components/FormStepper/Step";
 import { ModuleTemplateFields, ModuleTemplateTaskFields } from "src/components/templates";
-import TaskManager from "src/components/modules/TaskManager";
+import { TaskManager } from "src/components/TaskManager";
 
 export type ModulesManagerStep = {
     getSource: Function,

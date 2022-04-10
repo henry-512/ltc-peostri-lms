@@ -3,8 +3,7 @@ import get from "lodash.get";
 import { useEffect } from "react";
 import { maxLength, minLength, NumberInput, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
 import { useForm, useFormState } from "react-final-form";
-import AutoAssignArrayInput from "../TaskManager/AutoAssignArrayInput";
-import IDField from "../misc/IDField";
+import { IDField } from "../index";
 
 const useStyles = makeStyles(theme => ({
     taskForm: {
