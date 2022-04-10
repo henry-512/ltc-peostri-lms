@@ -3,8 +3,8 @@ import { IModule, IProject, ITask } from '../../../lms/types'
 import { IStepper } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
-import { CommentManager } from './comments'
 import { ModuleManager } from './modules'
+import { NotificationManager } from './notifications'
 import { TeamManager } from './teams'
 import { UserManager } from './users'
 
@@ -87,6 +87,45 @@ class Project extends DBManager<IProject> {
         })
 
         return this.db.queryGetCount(opts)
+    }
+
+    public override async create(
+        user: AuthUser,
+        files: any,
+        d: IProject,
+        real: boolean
+    ): Promise<string> {
+        let id = await super.create(user, files, d, real)
+
+        NotificationManager.buildAndSaveNotification(
+            user.getId(),
+            `Project ${id} created.`,
+            {
+                resource: 'projects',
+                id: this.db.asKey(id),
+            }
+        )
+
+        return id
+    }
+
+    public override async update(
+        user: AuthUser,
+        files: any,
+        id: string,
+        doc: IProject,
+        real: boolean
+    ): Promise<void> {
+        await super.update(user, files, id, doc, real)
+
+        NotificationManager.buildAndSaveNotification(
+            user.getId(),
+            `Project ${id} updated.`,
+            {
+                resource: 'projects',
+                id: this.db.asKey(id),
+            }
+        )
     }
 
     protected override modifyDoc = (

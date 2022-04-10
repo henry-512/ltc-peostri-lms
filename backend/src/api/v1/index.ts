@@ -1,9 +1,5 @@
 import Router from '@koa/router'
-import fs from 'fs'
-import { config } from '../../config'
 import { HTTPStatus } from '../../lms/errors'
-import { IArangoIndexes } from '../../lms/types'
-import { splitId } from '../../lms/util'
 import { AuthUser } from '../auth'
 import { CommentManager } from './data/comments'
 import { FilemetaManager } from './data/filemeta'
@@ -17,7 +13,6 @@ import { TeamManager } from './data/teams'
 import { ModuleTempManager } from './data/template/moduleTemplates'
 import { ProjectTempManager } from './data/template/projectTemplates'
 import { UserManager } from './data/users'
-import { DBManager } from './DBManager'
 import { APIRouter, sendRange } from './Router'
 
 export function routerBuilder(version: string) {
@@ -231,6 +226,17 @@ export function routerBuilder(version: string) {
                         await UserManager.db.assertIdExists(id)
 
                         await NotificationManager.readAllForUser(id)
+
+                        ctx.status = HTTPStatus.NO_CONTENT
+                    })
+                    .put('/notifications/read/:id', async (ctx) => {
+                        // TODO: validate recipient?
+
+                        let id = await NotificationManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
+
+                        await NotificationManager.read(id)
 
                         ctx.status = HTTPStatus.NO_CONTENT
                     })
