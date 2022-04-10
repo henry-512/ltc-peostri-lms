@@ -3,7 +3,7 @@ import IDField from "./IDField";
 import WaiverInput from "./WaiverInput";
 import classNames from "classnames";
 import RichTextInput from "ra-input-rich-text";
-import { DateInput, FileField, FileInput, maxLength, minLength, NumberInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
+import { FileField, FileInput, maxLength, minLength, NumberInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
 import { useEffect, useState } from "react";
 import TaskManager from "./TaskManager";
 import { useForm } from "react-final-form";
