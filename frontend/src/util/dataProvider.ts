@@ -192,12 +192,12 @@ const dataProvider = (
 
     update: (resource, params) => {
         switch(resource) {
-            case 'user/notifications/readall':
+            case 'notifications/readall':
                 return httpClient(`${apiUrl}/${resource}`, {
                     method: 'PUT',
                     body: JSON.stringify(params.data),
                 }).then(({ json }) => Promise.resolve({ data: { id: "" } }))
-            case 'user/notifications/read':
+            case 'notifications/read':
                 return httpClient(`${apiUrl}/${resource}/${params.id}`, {
                     method: 'PUT',
                     body: JSON.stringify(params.data),

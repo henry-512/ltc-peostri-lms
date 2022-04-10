@@ -36,7 +36,7 @@ const NotificationsWidget = (props: NotificationsButtonProps) => {
 
     const fetchNotifications = () => {
         setLoading(true);
-        dataProvider.getList<INotification>('user/notifications', { filter: {}, pagination: { page: 1, perPage: 5 }, sort: { field: "read", order: "ASC" } })
+        dataProvider.getList<INotification>('notifications', { filter: {}, pagination: { page: 1, perPage: 5 }, sort: { field: "read", order: "ASC" } })
         .then(({ data }) => {
             setNotifications(data);
         })
@@ -51,7 +51,7 @@ const NotificationsWidget = (props: NotificationsButtonProps) => {
     useEffect(() => fetchNotifications(), [])
 
     const markAllRead = () => {
-        dataProvider.update<INotification>('user/notifications/readall', { id: "", data: {}, previousData: { id: "" } })
+        dataProvider.update<INotification>('notifications/readall', { id: "", data: {}, previousData: { id: "" } })
         .then(() => {
             // @ts-ignore
             return fetchNotifications();

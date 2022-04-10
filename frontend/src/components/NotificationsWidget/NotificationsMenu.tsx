@@ -40,7 +40,7 @@ const Footer = ({disabled, handleClose}: {disabled?: boolean, handleClose: Funct
     const translate = useTranslate();
 
     const viewAllNotifications = (e: any) => {
-        history.push('/user/notifications');
+        history.push('/notifications');
         handleClose();
     }
 

@@ -47,7 +47,7 @@ const Menu = ({ dense = false }: MenuProps) => {
             <DashboardMenuItem />
             <MenuItemLink
                 to={{
-                    pathname: '/user/tasks',
+                    pathname: '/tasks',
                     state: { _scrollToTop: true },
                 }}
                 primaryText={translate("layout.menu.my_tasks")}
@@ -55,7 +55,7 @@ const Menu = ({ dense = false }: MenuProps) => {
             />
             <MenuItemLink
                 to={{
-                    pathname: '/user/projects',
+                    pathname: '/projects',
                     state: { _scrollToTop: true },
                 }}
                 primaryText={translate("layout.menu.my_projects")}

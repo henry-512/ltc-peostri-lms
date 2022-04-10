@@ -47,9 +47,9 @@ const App = () => {
             <Resource name="admin/ranks" options={{ label: "layout.menu.ranks" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
             <Resource name="admin/teams" options={{ label: "layout.menu.teams" }} show={ShowGuesser} list={TeamList} create={TeamCreate} edit={TeamEdit}  />
 
-            <Resource name="user/tasks" options={{ label: "layout.menu.my_tasks" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
-            <Resource name="user/projects" options={{ label: "layout.menu.my_projects" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
-            <Resource name="user/notifications" list={ListGuesser} />
+            <Resource name="tasks" options={{ label: "layout.menu.my_tasks" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
+            <Resource name="projects" options={{ label: "layout.menu.my_projects" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
+            <Resource name="notifications" list={ListGuesser} />
             
         </Admin>
     );

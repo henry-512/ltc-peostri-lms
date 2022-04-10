@@ -68,12 +68,12 @@ export type NotificationsItemProps = {
 }
 
 const NotificationsItem = (props: NotificationsItemProps) => {
-    const recordLink = linkToRecord(`/${props.record.sender.resource}`, props.record.sender.id, 'show');
+    const recordLink = linkToRecord(`${props.record.sender.resource}`, props.record.sender.id, 'show');
     const classes = useStyles();
     const dataProvider = useDataProvider();
 
     const markRead = () => {
-        dataProvider.update<INotification>('user/notifications/read', { id: props.record.id, data: {}, previousData: { id: props.record.id } })
+        dataProvider.update<INotification>('notifications/read', { id: props.record.id, data: {}, previousData: { id: props.record.id } })
         .then(() => {
             return;
         })
