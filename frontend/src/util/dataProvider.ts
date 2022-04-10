@@ -123,10 +123,22 @@ const dataProvider = (
         });
     },
 
-    getOne: (resource, params) =>
-        httpClient(`${apiUrl}/${resource}/list/${params.id}`).then(({ json }) => ({
-            data: json,
-        })),
+    getOne: (resource, params) => {
+        switch(resource) {
+            case 'admin/template/modules/instance':
+                return httpClient(`${apiUrl}/${resource}/${params.id}`).then(({ json }) => ({
+                    data: json,
+                }))
+            case 'admin/template/projects/instance':
+                return httpClient(`${apiUrl}/${resource}/${params.id}`).then(({ json }) => ({
+                    data: json,
+                }))
+            default:
+                return httpClient(`${apiUrl}/${resource}/list/${params.id}`).then(({ json }) => ({
+                    data: json,
+                }))
+        }
+    },
 
     getMany: (resource, params) => {
         const query = {
@@ -190,7 +202,7 @@ const dataProvider = (
                     method: 'PUT',
                     body: JSON.stringify(params.data),
                 }).then(({ json }) => Promise.resolve({ data: { id: "" } }))
-            case 'projects':
+            case 'admin/projects':
                 const formData = convertProjectToFormData(params.data);
 
                 return httpClient(`${apiUrl}/${resource}/list/${params.id}`, {
@@ -220,7 +232,7 @@ const dataProvider = (
 
     create: async (resource, params) => {
         switch(resource) {
-            case 'projects':
+            case 'admin/projects':
                 const formData = convertProjectToFormData(params.data);
 
                 return httpClient(`${apiUrl}/${resource}/list`, {
