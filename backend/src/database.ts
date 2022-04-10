@@ -146,6 +146,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         if (justIds) {
             query = aql`${query} z._id`
         } else if (raw) {
+            query = aql`${query} z`
         } else {
             query = aql`${query} {${this.getAllQueryFields}}`
         }
