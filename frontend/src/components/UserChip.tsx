@@ -8,7 +8,7 @@ const useStyles = makeStyles(
     { name: 'RaChipField' }
 );
 
-export type UserChipProps = {
+export interface UserChipProps {
     basePath?: string
     onClick?: any
     record?: IUser

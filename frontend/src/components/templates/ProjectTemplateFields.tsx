@@ -6,7 +6,7 @@ import { SectionTitle } from "../index";
 import { ModuleManager } from "../ModuleManager";
 import ModuleTemplateFields from "./ModuleTemplateFields";
 
-export type ProjectTemplateFieldsProps = {
+export interface ProjectTemplateFieldsProps {
 
 }
 

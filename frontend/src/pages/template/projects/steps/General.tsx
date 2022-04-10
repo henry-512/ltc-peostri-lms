@@ -3,7 +3,7 @@ import { FormGroupContextProvider, maxLength, minLength, NumberInput, required, 
 import { SectionTitle } from "src/components/index";
 import { Step } from "src/components/FormStepper/Step"
 
-export type ProjectTemplateGeneralProps = {
+export interface ProjectTemplateGeneralProps {
     validator: string
     getSource?: Function
     initialValues?: any

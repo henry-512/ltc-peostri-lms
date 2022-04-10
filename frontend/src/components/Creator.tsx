@@ -29,7 +29,7 @@ const useDialogActionsStyles = makeStyles((theme) => ({
     }
 }));
 
-export type CreatorProps = {
+export interface CreatorProps {
     open: boolean;
     setOpen: Function;
     ariaLabel: string;

@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
         margin: '0',
     }
 }));
-export type ModuleCardProps = {
+export interface ModuleCardProps {
     steps?: any,
     info?: IModule,
     index?: number,

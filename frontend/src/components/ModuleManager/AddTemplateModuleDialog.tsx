@@ -28,7 +28,7 @@ const useDialogActionsStyles = makeStyles((theme) => ({
     }
 }));
 
-export type AddTemplateModuleDialogProps = {
+export interface AddTemplateModuleDialogProps {
     ariaLabel: string;
     maxWidth?: "lg" | "xs" | "md" | "xl" | "sm";
     label: string;

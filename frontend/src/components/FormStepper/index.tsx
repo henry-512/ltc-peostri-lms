@@ -3,7 +3,7 @@ import { SimpleForm } from "react-admin"
 import StepHeader from "./StepHeader";
 import StepToolbar from "./StepToolbar"
 
-export type FormStepperProps = {
+export interface FormStepperProps {
     create?: boolean
     children: JSX.Element[]
     validate: Function
