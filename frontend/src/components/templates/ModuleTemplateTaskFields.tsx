@@ -98,7 +98,7 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
                 <Grid item xs={3} style={{ marginTop: '-32px' }}>
                     <ReferenceInput
                         label="project.fields.rank"
-                        reference="ranks"
+                        reference="admin/ranks"
                         source={getSource?.('rank') || ""}
                     >
                         <SelectInput

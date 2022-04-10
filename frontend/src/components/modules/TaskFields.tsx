@@ -98,7 +98,7 @@ const TaskFields = (props: TaskFieldsProps) => {
                 <Grid item xs={6} style={{ marginTop: '-32px' }}>
                     <ReferenceInput
                         label="project.fields.rank"
-                        reference="ranks"
+                        reference="admin/ranks"
                         source={getSource?.('rank') || ""}
                     >
                         <SelectInput

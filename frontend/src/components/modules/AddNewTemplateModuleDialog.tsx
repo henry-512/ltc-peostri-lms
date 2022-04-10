@@ -68,11 +68,11 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
         const template_id = form.getState().values.module_template_id
 
         if (props.isTemplate) {
-            dataProvider.getOne('template/modules', { id: template_id })
+            dataProvider.getOne('admin/template/modules', { id: template_id })
             .then(response => updateForm(response))
             .catch((e) => handleClose());
         } else {
-            dataProvider.getOne('template/modules/instance', { id: template_id })
+            dataProvider.getOne('admin/template/modules/instance', { id: template_id })
             .then(response  => updateForm(response))
             .catch((e) => handleClose());
         }
@@ -98,7 +98,7 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
                 <DialogTitle id={props.ariaLabel} classes={dialogStyles}>{props.label}</DialogTitle>
                 <DialogContent classes={dialogContentStyles}>
                     <FormGroupContextProvider name={props.ariaLabel} >
-                        <ReferenceInput label="project.layout.select_module_template" source="module_template_id" reference="template/modules">
+                        <ReferenceInput label="project.layout.select_module_template" source="module_template_id" reference="admin/template/modules">
                             <AutocompleteInput optionText="title" optionValue="id" fullWidth validate={[required()]} helperText=" " />
                         </ReferenceInput>
                     </FormGroupContextProvider>

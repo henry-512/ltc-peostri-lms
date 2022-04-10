@@ -37,19 +37,19 @@ const App = () => {
             i18nProvider={i18nProvider}
             disableTelemetry
         >
-            <Resource name='projects' list={ProjectList} create={ProjectCreate} edit={ProjectEdit} show={ShowGuesser} />
+            <Resource name='admin/projects' list={ProjectList} create={ProjectCreate} edit={ProjectEdit} show={ShowGuesser} />
 
-            <Resource name='template/projects' list={ProjectTemplateList} create={ProjectTemplateCreate} edit={ProjectTemplateEdit} show={ShowGuesser} />
-            <Resource name='template/modules' list={ModuleTemplateList} create={ModuleTemplateCreate} edit={ModuleTemplateEdit} show={ShowGuesser} />
+            <Resource name='admin/template/projects' list={ProjectTemplateList} create={ProjectTemplateCreate} edit={ProjectTemplateEdit} show={ShowGuesser} />
+            <Resource name='admin/template/modules' list={ModuleTemplateList} create={ModuleTemplateCreate} edit={ModuleTemplateEdit} show={ShowGuesser} />
 
-            <Resource name="users" list={UserList} create={UserCreate} edit={UserEdit} show={ShowGuesser} />
+            <Resource name="admin/users" list={UserList} create={UserCreate} edit={UserEdit} show={ShowGuesser} />
+
+            <Resource name="admin/ranks" options={{ label: "layout.menu.ranks" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
+            <Resource name="admin/teams" options={{ label: "layout.menu.teams" }} show={ShowGuesser} list={TeamList} create={TeamCreate} edit={TeamEdit}  />
 
             <Resource name="user/tasks" options={{ label: "layout.menu.my_tasks" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
             <Resource name="user/projects" options={{ label: "layout.menu.my_projects" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
-            <Resource name="user/notifications" list={ListGuesser} edit={EditGuesser} />
-
-            <Resource name="ranks" options={{ label: "layout.menu.ranks" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
-            <Resource name="teams" options={{ label: "layout.menu.teams" }} show={ShowGuesser} list={TeamList} create={TeamCreate} edit={TeamEdit}  />
+            <Resource name="user/notifications" list={ListGuesser} />
             
         </Admin>
     );

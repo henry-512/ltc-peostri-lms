@@ -101,7 +101,7 @@ export default function UserFields(props: any) {
                             width: '50%'
                         }}
                     />
-                    <ReferenceArrayInput reference="teams" source="teams">
+                    <ReferenceArrayInput reference="admin/teams" source="teams">
                         <AutocompleteArrayInput 
                             optionText={choice => `${choice.name}`} 
                             optionValue="id" 

@@ -72,7 +72,7 @@ const UserList = (props: UserListProps) => {
         <SearchInput source="q" alwaysOn />,
         <TextInput source="firstName" className={classes.filter} />,
         <TextInput source="lastName" className={classes.filter} />,
-        <ReferenceInput source="rank" reference="ranks" className={classes.select} >
+        <ReferenceInput source="rank" reference="admin/ranks" className={classes.select} >
             <SelectInput optionText={choice => `${choice.name}`} />
         </ReferenceInput>
     ];
@@ -98,13 +98,13 @@ const UserList = (props: UserListProps) => {
                     <TextField source="lastName" label="user.info.last_name" />
                     <DateField source="firstVisited" locales="en-US" options={{ timeZone: 'UTC' }} label="user.info.first_visited" />
                     <DateField source="lastVisited" locales="en-US" options={{ timeZone: 'UTC' }} label="user.info.last_visited" />
-                    <ReferenceField source="rank.id" reference="ranks" label="user.info.rank" >
+                    <ReferenceField source="rank.id" reference="admin/ranks" label="user.info.rank" >
                         <TextField source="name" />
                     </ReferenceField>
                     <TextField source="username" label="user.info.username" />
                     <TextField source="status" label="user.info.status" />
                     <TextField source="email" label="user.info.email" />
-                    <ReferenceArrayField source="teams" reference="teams" label="user.info.teams" >
+                    <ReferenceArrayField source="teams" reference="admin/teams" label="user.info.teams" >
                         <SingleFieldList linkType="show">
                             <ChipField source="name" />
                         </SingleFieldList>
