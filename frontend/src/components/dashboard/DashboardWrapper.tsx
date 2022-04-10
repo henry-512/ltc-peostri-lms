@@ -1,6 +1,6 @@
 import { Box } from "@material-ui/core";
 
-export interface DashboardWrapperProps {
+export type DashboardWrapperProps = {
     children: JSX.Element | JSX.Element[]
 }
 

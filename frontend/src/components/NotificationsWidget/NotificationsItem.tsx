@@ -9,7 +9,7 @@ import { linkToRecord, useDataProvider } from "react-admin";
 import classnames from "classnames";
 import { dateFormatToString } from "src/util/dateFormatter";
 
-export interface NotificationIconProps {
+export type NotificationIconProps = {
     type: NotificationTypes
 }
 
@@ -63,7 +63,7 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export interface NotificationsItemProps {
+export type NotificationsItemProps = {
     record: INotification
     last: boolean
     fetch: Function

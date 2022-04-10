@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-export interface StepSettings {
+export type StepSettings = {
     title: string
     children: JSX.Element | JSX.Element[]
     optional?: boolean

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { TextInput } from "react-admin";
 import { useForm, useFormState } from "react-final-form";
 
-export interface AutoFillUserNameProps {
+export type AutoFillUserNameProps = {
     validate: any;
     className: any;
 }

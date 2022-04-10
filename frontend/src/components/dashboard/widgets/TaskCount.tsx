@@ -3,7 +3,7 @@ import ListAltIcon from '@material-ui/icons/ListAlt';
 import { ITask } from "src/util/types";
 import { Box, List, Typography } from "@material-ui/core";
 
-export interface TaskItemProps {
+export type TaskItemProps = {
     name: string
 }
 
@@ -17,7 +17,7 @@ export const TaskItem = (props: TaskItemProps) => (
     </>
 )
 
-export interface TaskWidgetProps {
+export type TaskWidgetProps = {
     title?: string
     count: number
     children?: JSX.Element | JSX.Element[]

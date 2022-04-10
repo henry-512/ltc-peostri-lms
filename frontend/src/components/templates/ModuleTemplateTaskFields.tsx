@@ -28,7 +28,7 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export interface ModuleTemplateTaskFieldsProps {
+export type ModuleTemplateTaskFieldsProps = {
     getSource?: Function,
     initialValues?: any,
     calculateTTC: any

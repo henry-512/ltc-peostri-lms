@@ -28,7 +28,7 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-export interface SubMenuProps {
+export type SubMenuProps = {
     dense: boolean;
     handleToggle: () => void;
     icon: ReactElement;

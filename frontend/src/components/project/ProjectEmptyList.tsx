@@ -54,7 +54,7 @@ const ProjectEmptyList = (props: EmptyProps) => {
     );
 };
 
-export interface EmptyProps {
+export type EmptyProps = {
     classes?: ClassesOverride<typeof useStyles>;
     resource?: string;
 }

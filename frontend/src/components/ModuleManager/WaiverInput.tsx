@@ -4,7 +4,7 @@ import { BooleanInput } from "react-admin";
 import { useForm } from "react-final-form";
 import { ITaskStep, ITaskWaiverReview } from "src/util/types";
 
-export interface WaiverInputProps {
+export type WaiverInputProps = {
     source: string,
     setShowSteps: Function
 }

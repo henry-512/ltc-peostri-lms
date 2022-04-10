@@ -8,7 +8,7 @@ import { useForm, useFormState } from "react-final-form";
 import { ITaskTemplate } from "src/util/types";
 import get from "lodash.get";
 
-export interface ModuleTemplateFieldsProps {
+export type ModuleTemplateFieldsProps = {
     getSource?: Function,
     initialValues?: any,
     calculateTTC?: Function

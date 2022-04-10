@@ -66,7 +66,7 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-export interface StepBuilderProps {
+export type StepBuilderProps = {
     title: string,
     help: string,
     children: JSX.Element | JSX.Element[],

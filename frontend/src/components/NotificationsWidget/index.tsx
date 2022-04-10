@@ -5,7 +5,7 @@ import NotificationsButton from "./NotificationsButton";
 import { Loading, Error, useQuery, useDataProvider, useNotify } from 'react-admin';
 import { INotification } from "src/util/types";
 
-export interface NotificationsButtonProps {
+export type NotificationsButtonProps = {
     label: string
 }
 

@@ -29,7 +29,7 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export interface TaskFieldsProps {
+export type TaskFieldsProps = {
     getSource: Function,
     initialValues?: any,
     calculateTTC?: Function

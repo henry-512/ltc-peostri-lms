@@ -3,7 +3,7 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsActiveIcon from '@material-ui/icons/NotificationsActive';
 import { useTranslate } from "react-admin";
 
-export interface NotificationsButtonProps {
+export type NotificationsButtonProps = {
     label: string
     handleMenu: any
     id?: string

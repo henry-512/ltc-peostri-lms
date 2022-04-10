@@ -5,7 +5,7 @@ import { ProjectCount, TaskCount } from "./widgets";
 const Spacer = () => <span style={{ width: '1em' }} />;
 const VerticalSpacer = () => <span style={{ height: '1em' }} />;
 
-export interface DashboardProps {
+export type DashboardProps = {
 }
 
 const Dashboard = (props: DashboardProps) => {

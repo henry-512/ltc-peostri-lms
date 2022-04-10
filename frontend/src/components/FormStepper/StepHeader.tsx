@@ -2,18 +2,18 @@ import { makeStyles, Step, StepLabel, Stepper, Typography } from "@material-ui/c
 import React from "react";
 import { StepSettings } from "./Step";
 
-export interface StepHeaderProps {
+export type StepHeaderProps = {
     active: number
     children: JSX.Element | JSX.Element[];
     setStepOptional: (index: number) => void;
     isStepSkipped: (index: number) => boolean;
 }
 
-export interface LabelProps {
+export type LabelProps = {
     optional: JSX.Element
 }
 
-export interface StepProps {
+export type StepProps = {
     completed: boolean
 }
 
