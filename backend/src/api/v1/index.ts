@@ -158,7 +158,7 @@ export function routerBuilder(version: string) {
 
                         sendRange(results, ctx)
                     })
-                    .get('tasks/list/:id', async (ctx) => {
+                    .get('projects/list/:id', async (ctx) => {
                         let id = await ProjectManager.db.assertKeyExists(
                             ctx.params.id
                         )
