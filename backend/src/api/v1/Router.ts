@@ -35,7 +35,7 @@ export class APIRouter<Type extends IArangoIndexes> extends Router {
         private apiOpts?: APIRouterOpts
     ) {
         // Apply prefix
-        super({ prefix })
+        super({ prefix: `admin/${prefix}` })
     }
 
     public override routes() {
