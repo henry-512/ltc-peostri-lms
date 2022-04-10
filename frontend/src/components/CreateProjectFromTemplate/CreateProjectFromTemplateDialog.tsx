@@ -1,7 +1,6 @@
-import { FormGroupContextProvider, ReferenceInput, required, AutocompleteInput, useDataProvider, useFormGroup, useTranslate, SimpleForm, FormWithRedirect, useRedirect } from "react-admin";
+import { ReferenceInput, required, AutocompleteInput, useDataProvider, useTranslate, useRedirect } from "react-admin";
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, makeStyles } from "@material-ui/core";
 import { useForm } from "react-final-form";
-import { useHistory } from "react-router";
 
 const useDialogStyles = makeStyles(theme => ({
     root: {

@@ -1,8 +1,8 @@
-import { debounce, PopoverOrigin } from "@material-ui/core";
+import { PopoverOrigin } from "@material-ui/core";
 import { useEffect, useState } from "react";
 import NotificationsMenu from "./NotificationsMenu";
 import NotificationsButton from "./NotificationsButton";
-import { Loading, Error, useQuery, useDataProvider, useNotify } from 'react-admin';
+import { useDataProvider } from 'react-admin';
 import { INotification } from "src/util/types";
 
 export type NotificationsButtonProps = {

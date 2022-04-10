@@ -1,4 +1,4 @@
-const Logo = (props: any) => {
+const Logo = () => {
     return (
         <img src="/logo.png" alt="PEO STRI LOGO" height="32px" />
     );

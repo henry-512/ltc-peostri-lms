@@ -1,12 +1,11 @@
-import { FormDataConsumer, FormGroupContextProvider, maxLength, minLength, required } from "react-admin";
-import { ModuleManager } from "src/components/ModuleManager";
-import { IModuleTemplate, ITaskTemplate } from "src/util/types";
+import { FormGroupContextProvider, maxLength, minLength, required } from "react-admin";
+import { ITaskTemplate } from "src/util/types";
 import { useForm } from "react-final-form";
 import get from "lodash.get";
 import { useEffect } from "react";
 import { Step } from "src/components/FormStepper/Step";
 import { ModuleTemplateTaskFields } from "src/components/templates";
-import { TaskManager } from "src/components/TaskManager";
+import TaskManager from "src/components/TaskManager";
 
 export type ModuleTemplateTasksProps = {
     getSource: Function,
@@ -17,7 +16,6 @@ export type ModuleTemplateTasksProps = {
 const Tasks = (props: ModuleTemplateTasksProps) => {    
     const { getSource, calculateTTC, validator, ...rest } = props;
 
-    const validateTitle = [required(), minLength(2), maxLength(150)];
     const form = useForm();
 
     const recalculateTTC = (data: any) => {

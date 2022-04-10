@@ -1,4 +1,3 @@
-import { LoginInformation } from 'src/util/types'
 import { AuthProvider } from 'react-admin';
 
 const authProvider: AuthProvider = {

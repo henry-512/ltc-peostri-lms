@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Inbox from '@material-ui/icons/Inbox';
@@ -10,7 +9,7 @@ import {
     CreateButton,
     ClassesOverride,
 } from 'react-admin';
-import { CreateProjectFromTemplate } from 'src/components/project';
+import CreateProjectFromTemplate from 'src/components/CreateProjectFromTemplate';
 
 const ProjectEmptyList = (props: EmptyProps) => {
     const { basePath, hasCreate } = useListContext(props);

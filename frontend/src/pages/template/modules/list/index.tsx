@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core';
 import { Datagrid, DateField, FunctionField, List, ListProps, NumberField, TextField } from 'react-admin';
-import { IModuleStep, IModuleTemplate, ITaskTemplate } from 'src/util/types';
+import { IModuleTemplate, ITaskTemplate } from 'src/util/types';
 import { dateOptions } from 'src/util/dateFormatter';
 
 const useListStyles = makeStyles({

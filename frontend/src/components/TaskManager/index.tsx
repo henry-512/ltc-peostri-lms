@@ -1,10 +1,10 @@
 import { useTranslate } from 'react-admin';
 import { ITask, ITaskStep } from 'src/util/types';
 import Steps from '../StepBuilder';
-import { useForm, useFormState } from 'react-final-form';
+import { useForm } from 'react-final-form';
 import TaskFields from './TaskFields';
 import Creator from '../Creator';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import get from 'lodash.get';
 import TaskCard from './TaskCard';
 import React from 'react';

@@ -1,8 +1,5 @@
-import { makeStyles } from "@material-ui/core";
-import { Create, SimpleForm, useTranslate } from "react-admin";
+import { Create, useTranslate } from "react-admin";
 import FormStepper from "src/components/FormStepper";
-import { TemplateToolbar } from "src/components/templates";
-import ProjectTemplateFields from "src/components/templates/ProjectTemplateFields";
 import General from "../steps/General";
 import Modules from "../steps/Modules";
 import transformer from "../transformer";

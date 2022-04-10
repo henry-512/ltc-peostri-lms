@@ -1,10 +1,10 @@
-import { Box, Grid, makeStyles, Typography } from "@material-ui/core"
+import { Box, Grid } from "@material-ui/core"
 import { maxLength, minLength, NumberInput, required, SelectInput, TextInput } from "react-admin";
-import { TaskManager } from "../TaskManager";
+import TaskManager from "../TaskManager";
 import { SectionTitle, IDField } from "../index";
 import { ModuleTemplateTaskFields } from ".";
 import { useEffect } from "react";
-import { useForm, useFormState } from "react-final-form";
+import { useForm } from "react-final-form";
 import { ITaskTemplate } from "src/util/types";
 import get from "lodash.get";
 

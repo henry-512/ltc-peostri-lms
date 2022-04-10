@@ -3,7 +3,7 @@ import { maxLength, minLength, NumberInput, required, SelectInput, TextInput } f
 import { useForm, useFormState } from "react-final-form";
 import { IModuleTemplate } from "src/util/types";
 import { SectionTitle } from "../index";
-import { ModuleManager } from "../ModuleManager";
+import ModuleManager from "../ModuleManager";
 import ModuleTemplateFields from "./ModuleTemplateFields";
 
 export type ProjectTemplateFieldsProps = {
