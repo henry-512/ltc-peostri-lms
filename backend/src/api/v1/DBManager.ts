@@ -90,6 +90,9 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
 
                 let data = this.fieldData[key]
 
+                console.log(value)
+                console.log(str(data))
+
                 if (data.type === 'array') {
                     if (typeof value === 'string') {
                         if (data.foreignApi) {
@@ -118,6 +121,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                         continue
                     }
                 }
+                console.log(f)
 
                 opts.filters.push(f)
             }

@@ -15,7 +15,9 @@ export class UserArangoWrapper extends ArangoWrapper<IUser> {
         sort: ISortOpts,
         offset: number,
         count: number,
-        filters: IFilterOpts[]
+        filters: IFilterOpts[],
+        justIds: boolean,
+        raw: boolean
     ): GeneratedAqlQuery {
         let query = aql`FOR z IN ${this.collection}`
 
@@ -27,11 +29,16 @@ export class UserArangoWrapper extends ArangoWrapper<IUser> {
                     ? aql`DOCUMENT(z.${filter.key}).${filter.ref}`
                     : aql`z.${filter.key}`
 
-            if (filter.in) {
+            if (filter.inArray) {
+                query = aql`${query} FILTER ${filter.inArray} IN ${k}`
+            }
+            if (filter.eq !== undefined) {
+                query = aql`${query} FILTER ${k} == ${filter.eq}`
+            }
+            if (filter.in !== undefined) {
                 query = aql`${query} FILTER ${k} IN ${filter.in}`
             }
-
-            if (filter.q) {
+            if (filter.q !== undefined) {
                 query = aql`${query} FILTER CONTAINS(${k},${filter.q})`
             }
         }
@@ -40,12 +47,17 @@ export class UserArangoWrapper extends ArangoWrapper<IUser> {
             ? aql`${query} SORT DOCUMENT(z.${sort.key}).${sort.ref}`
             : aql`${query} SORT z.${sort.key}`
 
-        query = aql`${query} ${sort.desc ? aql`DESC` : aql`ASC`}
-            LIMIT ${offset}, ${count}
-            LET a = (RETURN DOCUMENT(z.rank))[0]
-            RETURN {rank:(RETURN {id:a._key,name:a.name})[0],${
-                this.getAllQueryFields
-            }}`
+        query = aql`${query} ${
+            sort.desc ? 'DESC' : 'ASC'
+        } LIMIT ${offset}, ${count} LET a = (RETURN DOCUMENT(z.rank))[0] RETURN`
+
+        if (justIds) {
+            query = aql`${query} z._id`
+        } else if (raw) {
+            query = aql`${query} z`
+        } else {
+            query = aql`${query} {rank:(RETURN {id:a._key,name:a.name})[0],${this.getAllQueryFields}}`
+        }
 
         return query
     }
