@@ -176,7 +176,7 @@ const domainMessages = {
             }
         },
         resources: {
-            'users': {
+            'admin/users': {
                 name: "Users",
                 fields: {
                     first_name: "First Name",
@@ -187,19 +187,19 @@ const domainMessages = {
                     status: "Status"
                 }
             },
-            'template/projects': {
+            'admin/template/projects': {
                 name: "Project Templates"
             },
-            'template/modules': {
+            'admin/template/modules': {
                 name: "Module Templates"
             },
-            'projects': {
+            'admin/projects': {
                 name: "Projects"
             },
-            'ranks': {
+            'admin/ranks': {
                 name: "Ranks"
             },
-            'teams': {
+            'admin/teams': {
                 name: "Teams"
             }
         },
