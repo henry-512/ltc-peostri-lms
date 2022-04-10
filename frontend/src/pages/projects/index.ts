@@ -1,5 +1,7 @@
 import ProjectShow from "./show";
+import ProjectList from "./list";
 
-export default {
-    ProjectShow
+export {
+    ProjectShow,
+    ProjectList
 }

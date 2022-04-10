@@ -30,7 +30,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const ProjectEdit = (props: any) => {
+const AdminProjectEdit = (props: any) => {
     const translate = useTranslate();
     const classes = useStyles();
 
@@ -50,4 +50,4 @@ const ProjectEdit = (props: any) => {
     )
 }
 
-export default ProjectEdit;
+export default AdminProjectEdit;

@@ -1,6 +1,6 @@
 import { Admin, EditGuesser, ListGuesser, Resource, ShowGuesser } from 'react-admin';
 import dataProvider from './util/dataProvider';
-import { ProjectList, ProjectCreate, ProjectEdit } from './pages/administration/project';
+import { AdminProjectList, AdminProjectCreate, AdminProjectEdit } from './pages/administration/project';
 import routes from './util/routes';
 import DashboardPage from './pages/dashboard';
 import polyglotI18nProvider from 'ra-i18n-polyglot';
@@ -13,7 +13,7 @@ import { TeamCreate, TeamEdit, TeamList } from './pages/administration/teams';
 import { ProjectTemplateCreate, ProjectTemplateEdit, ProjectTemplateList } from './pages/template/projects';
 import { ModuleTemplateCreate, ModuleTemplateEdit, ModuleTemplateList } from './pages/template/modules';
 import Layout from './components/Layout';
-import ProjectShow from './pages/projects/show';
+import { ProjectShow, ProjectList } from './pages/projects';
 
 const API_URL = process.env.REACT_APP_API_URL + "/" + process.env.REACT_APP_API_VERSION || "http://localhost:5000/api/v1";
 
@@ -38,7 +38,7 @@ const App = () => {
             i18nProvider={i18nProvider}
             disableTelemetry
         >
-            <Resource name='admin/projects' list={ProjectList} create={ProjectCreate} edit={ProjectEdit} show={ShowGuesser} />
+            <Resource name='admin/projects' list={AdminProjectList} create={AdminProjectCreate} edit={AdminProjectEdit} show={ShowGuesser} />
 
             <Resource name='admin/template/projects' list={ProjectTemplateList} create={ProjectTemplateCreate} edit={ProjectTemplateEdit} show={ShowGuesser} />
             <Resource name='admin/template/modules' list={ModuleTemplateList} create={ModuleTemplateCreate} edit={ModuleTemplateEdit} show={ShowGuesser} />
@@ -49,9 +49,8 @@ const App = () => {
             <Resource name="admin/teams" options={{ label: "layout.menu.teams" }} show={ShowGuesser} list={TeamList} create={TeamCreate} edit={TeamEdit}  />
 
             <Resource name="tasks" options={{ label: "layout.menu.my_tasks" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
-            <Resource name="projects" options={{ label: "layout.menu.my_projects" }} show={ProjectShow} list={ListGuesser} edit={EditGuesser}  />
+            <Resource name="projects" options={{ label: "layout.menu.my_projects" }} show={ProjectShow} list={ProjectList} />
             <Resource name="notifications" list={ListGuesser} />
-            
         </Admin>
     );
 }

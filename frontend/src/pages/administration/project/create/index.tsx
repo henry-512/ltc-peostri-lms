@@ -30,7 +30,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ProjectCreate(props: any) {
+export default function AdminProjectCreate(props: any) {
     const translate = useTranslate();
     const classes = useStyles();
 

@@ -63,7 +63,8 @@ const domainMessages = {
                 "task_title": "Task Title",
                 "task_type": "Task Type",
                 "title": "Title",
-                "waiver_file": "Drop a File Here, or Click Here to Browse Files"
+                "waiver_file": "Drop a File Here, or Click Here to Browse Files",
+                "team": "Team"
             },
             "layout": {
                 "add_module_template": "Add Module Template",

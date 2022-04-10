@@ -1,8 +1,8 @@
-import ProjectCreate from './create'
-import ProjectEdit from './edit'
-import ProjectList from './list'
+import AdminProjectCreate from './create'
+import AdminProjectEdit from './edit'
+import AdminProjectList from './list'
 import ListAltIcon from '@material-ui/icons/ListAlt';
 
-const ProjectIcon = ListAltIcon;
+const AdminProjectIcon = ListAltIcon;
 
-export { ProjectCreate, ProjectEdit, ProjectList, ProjectIcon };
+export { AdminProjectCreate, AdminProjectEdit, AdminProjectList, AdminProjectIcon };

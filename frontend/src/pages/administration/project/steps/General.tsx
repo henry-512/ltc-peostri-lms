@@ -1,9 +1,31 @@
 import { Grid } from "@material-ui/core"
-import { AutocompleteArrayInput, BooleanInput, DateInput, FormGroupContextProvider, NumberInput, ReferenceArrayInput, TextInput, useTranslate } from "react-admin"
+import { AutocompleteArrayInput, BooleanInput, DateInput, FormGroupContextProvider, NumberInput, ReferenceArrayInput, ReferenceInput, SelectInput, TextInput, useTranslate } from "react-admin"
 import { useForm } from "react-final-form";
 import { SectionTitle } from "src/components/index";
 import { Step } from "src/components/FormStepper/Step"
 import { dateFormatter, dateParser } from "src/util/dateFormatter";
+
+const UserInput = (props: { team?: string }) => {
+    const { team } = props;
+
+    return (
+        <>
+            <ReferenceArrayInput
+                label="project.fields.member"
+                reference="admin/users"
+                source="users"
+                filter={(team) ? { teams: [team] } : undefined}
+            >
+                <AutocompleteArrayInput
+                    optionText={choice => `${choice.firstName} ${choice.lastName}`}
+                    optionValue="id"
+                    helperText=" "
+                    fullWidth
+                />
+            </ReferenceArrayInput>
+        </>
+    )
+}
 
 const General = (props: any) => {
     const translate = useTranslate();
@@ -62,11 +84,27 @@ const General = (props: any) => {
                                 </Grid>
                             </Grid>
                         </Grid>
-                        <Grid container>
+                        <Grid container spacing={2}>
+                            <Grid item xs={6}>
+                                <ReferenceInput
+                                    label="project.fields.team"
+                                    reference="admin/teams"
+                                    source="team"
+                                >
+                                    <SelectInput 
+                                        optionText={choice => `${choice.name}`}
+                                        optionValue="id"
+                                        helperText=" "
+                                        fullWidth
+                                    />
+                                </ReferenceInput>
+                            </Grid>
+                            <Grid item xs={6}>
                             <ReferenceArrayInput
                                 label="project.fields.member"
                                 reference="admin/users"
                                 source="users"
+                                filter={(form.getState().values.team) ? { teams: [form.getState().values.team] } : undefined}
                             >
                                 <AutocompleteArrayInput
                                     optionText={choice => `${choice.firstName} ${choice.lastName}`}
@@ -75,6 +113,7 @@ const General = (props: any) => {
                                     fullWidth
                                 />
                             </ReferenceArrayInput>
+                            </Grid>
                         </Grid>
                     </Grid>
                 </Grid>

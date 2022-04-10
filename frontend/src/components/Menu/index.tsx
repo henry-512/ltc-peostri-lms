@@ -14,7 +14,7 @@ import SubMenu from './SubMenu';
 import { AppState } from 'src/util/types';
 import SettingsIcon from '@material-ui/icons/Settings';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
-import { ProjectIcon } from '../../pages/administration/project';
+import { AdminProjectIcon } from '../../pages/administration/project';
 import { ProjectTemplateIcon } from '../../pages/template/projects';
 import { ModuleTemplateIcon } from '../../pages/template/modules';
 import { UserIcon } from '../../pages/administration/users';
@@ -51,7 +51,7 @@ const Menu = ({ dense = false }: MenuProps) => {
                     state: { _scrollToTop: true },
                 }}
                 primaryText={translate("layout.menu.my_tasks")}
-                leftIcon={<ProjectIcon />}
+                leftIcon={<AdminProjectIcon />}
             />
             <MenuItemLink
                 to={{
@@ -59,7 +59,7 @@ const Menu = ({ dense = false }: MenuProps) => {
                     state: { _scrollToTop: true },
                 }}
                 primaryText={translate("layout.menu.my_projects")}
-                leftIcon={<ProjectIcon />}
+                leftIcon={<AdminProjectIcon />}
             />
             <SubMenu
                 handleToggle={() => handleToggle('menuAdmin')}
@@ -74,7 +74,7 @@ const Menu = ({ dense = false }: MenuProps) => {
                         state: { _scrollToTop: true },
                     }}
                     primaryText={translate("layout.menu.projects")}
-                    leftIcon={<ProjectIcon />}
+                    leftIcon={<AdminProjectIcon />}
                 />
                 <MenuItemLink
                     to={{

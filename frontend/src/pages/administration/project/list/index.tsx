@@ -24,7 +24,7 @@ const useListStyles = makeStyles({
     },
 });
 
-const ProjectList = (props: ListProps) => {
+const AdminProjectList = (props: ListProps) => {
     const classes = useListStyles();
 
      return (
@@ -57,4 +57,4 @@ const ProjectList = (props: ListProps) => {
      );
 }
 
-export default ProjectList;
+export default AdminProjectList;
