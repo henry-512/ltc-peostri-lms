@@ -120,28 +120,16 @@ export function routerBuilder(version: string) {
 
                         sendRange(results, ctx)
                     })
-                    .get('tasks/count/:id', async (ctx) => {
-                        let id = await UserManager.db.assertKeyExists(
+                    .get('tasks/list/:id', async (ctx) => {
+                        let id = await TaskManager.db.assertKeyExists(
                             ctx.params.id
                         )
 
-                        ctx.body = await TaskManager.getNumTasksAssignedToUser(
-                            id,
-                            ctx.request.query
+                        ctx.body = await TaskManager.getFromDB(
+                            ctx.state.user,
+                            id
                         )
                         ctx.status = HTTPStatus.OK
-                    })
-                    .get('tasks/list/:id', async (ctx) => {
-                        let id = await UserManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
-
-                        let results = await TaskManager.getTasksAssignedToUser(
-                            id,
-                            ctx.request.query
-                        )
-
-                        sendRange(results, ctx)
                     })
                     .get('projects/count', async (ctx) => {
                         let user: AuthUser = ctx.state.user
@@ -170,30 +158,16 @@ export function routerBuilder(version: string) {
 
                         sendRange(results, ctx)
                     })
-                    .get('projects/count/:id', async (ctx) => {
-                        let id = await UserManager.db.assertKeyExists(
+                    .get('tasks/list/:id', async (ctx) => {
+                        let id = await ProjectManager.db.assertKeyExists(
                             ctx.params.id
                         )
 
-                        ctx.body =
-                            await ProjectManager.getNumProjectsAssignedToUser(
-                                id,
-                                ctx.request.query
-                            )
+                        ctx.body = await ProjectManager.getFromDB(
+                            ctx.state.user,
+                            id
+                        )
                         ctx.status = HTTPStatus.OK
-                    })
-                    .get('projects/list/:id', async (ctx) => {
-                        let id = await UserManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
-
-                        let results =
-                            await ProjectManager.getProjectsAssignedToUser(
-                                id,
-                                ctx.request.query
-                            )
-
-                        sendRange(results, ctx)
                     })
                     // NOTIFICATIONS
                     .get('notifications/list', async (ctx) => {
