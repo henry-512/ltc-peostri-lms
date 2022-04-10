@@ -68,13 +68,13 @@ export interface IUser extends Record {
     status?: UserStatus;
 }
 
-export interface IComment extends IArangoIndexes, ICreateUpdate {
+export interface IComment extends Record, ICreateUpdate {
     content: string;
     author: string | IUser;
     parent?: string | IModule | IProject;
 }
 
-export interface ITask extends IArangoIndexes {
+export interface ITask extends Record {
     title: string;
     status: Status;
     assigned?: Array<string> | Array<IUser>;
@@ -108,7 +108,7 @@ export interface IFile {
     src: string;
 }
 
-export interface IModule extends IArangoIndexes {
+export interface IModule extends Record {
     title: string;
     tasks: ITaskStep;
     comments: Array<string> | Array<IComment>;
@@ -123,7 +123,7 @@ export interface IModule extends IArangoIndexes {
     file?: any;
 }
 
-export interface IProject extends IArangoIndexes, ICreateUpdate {
+export interface IProject extends Record, ICreateUpdate {
     title: string;
     start: Date | string;
     suspense: Date | string;
@@ -157,7 +157,7 @@ export interface ITaskTemplate extends ITask {
     ttc: number;
 }
 
-export interface IModuleTemplate extends IModule, IArangoIndexes {
+export interface IModuleTemplate extends IModule {
     ttc: number;
     tasks: {
         [id: string | number]: ITaskTemplate[]

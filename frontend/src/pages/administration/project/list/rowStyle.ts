@@ -2,15 +2,9 @@ import green from '@material-ui/core/colors/green';
 import amber from '@material-ui/core/colors/amber';
 import red from '@material-ui/core/colors/red';
 import { IProject } from 'src/util/types';
+import getProgressStatus from 'src/util/getProgressStatus';
 
-const rowStyle = (record: IProject) => {
-    const recordDate = new Date(record.suspense);
-    const nowTime = Date.now();
-    const recordTime = recordDate.getTime();
-    const timeDiff = Math.abs(nowTime - recordTime);
-    const DAY = 1000 * 60 * 60 * 24;
-    const AMBER_TIME = 5 * DAY;
-    
+const rowStyle = (record: IProject) => {    
     let style = {};
     if (!record) {
         return style;
@@ -18,29 +12,31 @@ const rowStyle = (record: IProject) => {
 
     if (record.status === 'ARCHIVED' || record.status === 'COMPLETED') return style;
 
-    if (nowTime < recordTime && timeDiff > AMBER_TIME)
-        return {
-            ...style,
-            borderLeftColor: green[500],
-            borderLeftWidth: 5,
-            borderLeftStyle: 'solid',
-        };
-    if (nowTime < recordTime && timeDiff <= AMBER_TIME)
-        return {
-            ...style,
-            borderLeftColor: amber[500],
-            borderLeftWidth: 5,
-            borderLeftStyle: 'solid',
-            backgroundColor: 'rgb(255, 244, 229)'
-        };
-    if (nowTime >= recordTime)
-        return {
-            ...style,
-            borderLeftColor: red[500],
-            borderLeftWidth: 5,
-            borderLeftStyle: 'solid',
-            backgroundColor: 'rgb(253, 236, 234)'
-        };
+    switch(getProgressStatus(record.suspense)) {
+        case 'GREEN':
+            return {
+                ...style,
+                borderLeftColor: green[500],
+                borderLeftWidth: 5,
+                borderLeftStyle: 'solid',
+            };
+        case 'AMBER':
+            return {
+                ...style,
+                borderLeftColor: amber[500],
+                borderLeftWidth: 5,
+                borderLeftStyle: 'solid',
+                backgroundColor: 'rgb(255, 244, 229)'
+            };
+        case 'RED':
+            return {
+                ...style,
+                borderLeftColor: red[500],
+                borderLeftWidth: 5,
+                borderLeftStyle: 'solid',
+                backgroundColor: 'rgb(253, 236, 234)'
+            };
+    }
 
     return style;
 };
