@@ -2,10 +2,10 @@ import { IPermission, IRank } from '../../../lms/types'
 import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
 
+// assigned team all
 const PermissionManager = new DataManager<IPermission>('Permission', {
-    perm1: { type: 'boolean' },
-    perm2: { type: 'boolean' },
-    perm3: { type: 'boolean' },
+    taskFetching: { type: 'string' },
+    projectFetching: { type: 'string' },
 })
 
 export const RankManager = new DBManager<IRank>(
@@ -16,9 +16,8 @@ export const RankManager = new DBManager<IRank>(
         permissions: {
             type: 'data',
             default: {
-                perm1: false,
-                perm2: false,
-                perm3: false,
+                taskFetching: 'assigned',
+                projectFetching: 'assigned',
             },
             foreignData: PermissionManager,
             hideGetRef: true,
