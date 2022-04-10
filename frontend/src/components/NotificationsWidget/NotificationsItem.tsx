@@ -7,6 +7,7 @@ import { Box, Divider, makeStyles, Typography } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import { linkToRecord, useDataProvider } from "react-admin";
 import classnames from "classnames";
+import dateFormatter from "src/util/dateFormatter";
 
 export type NotificationIconProps = {
     type: NotificationTypes
@@ -38,7 +39,7 @@ const useStyles = makeStyles(theme => ({
         gap: '.75rem',
         color: theme.palette.primary.main,
         '&:hover': {
-            backgroundColor: theme.palette?.borderColor?.dark,
+            backgroundColor: theme.palette?.borderColor?.main,
             transition: 'all .3s'
         }
     },
@@ -65,6 +66,8 @@ const useStyles = makeStyles(theme => ({
 export type NotificationsItemProps = {
     record: INotification
     last: boolean
+    fetch: Function
+    handleClose: Function
 }
 
 const NotificationsItem = (props: NotificationsItemProps) => {
@@ -75,7 +78,7 @@ const NotificationsItem = (props: NotificationsItemProps) => {
     const markRead = () => {
         dataProvider.update<INotification>('notifications/read', { id: props.record.id, data: {}, previousData: { id: props.record.id } })
         .then(() => {
-            return;
+            return (props.fetch() && props.handleClose());
         })
         .catch(error => {
             return;
@@ -97,8 +100,8 @@ const NotificationsItem = (props: NotificationsItemProps) => {
                         <Typography variant="subtitle1">
                             {props.record.content}
                         </Typography>
-                        <Typography variant="caption">
-                            some Texzt
+                        <Typography variant="body2">
+                            {dateFormatter(props.record.createdAt, true)}
                         </Typography>
                     </Box>
                 </Box>

@@ -70,6 +70,7 @@ export type NotificationsMenuProps = {
     id?: string
     loading: boolean
     markAllRead: Function
+    fetch: Function
 }
 
 const useStyles = makeStyles(theme => ({
@@ -83,7 +84,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const NotificationsMenu = (props: NotificationsMenuProps) => {
-    const { anchorEl, AnchorOrigin, TransformOrigin, open, handleClose, data = [], id, loading, markAllRead } = props;
+    const { anchorEl, AnchorOrigin, TransformOrigin, open, handleClose, data = [], id, loading, markAllRead, fetch } = props;
     const classes = useStyles();
 
     return (
@@ -102,7 +103,7 @@ const NotificationsMenu = (props: NotificationsMenuProps) => {
                 {(loading) ? <Loading className={classes.loader} loadingPrimary="" loadingSecondary="Loading Notifications.." /> :
                     (data && data.length > 0) ? 
                         data.map((notification, index) => {
-                            return React.cloneElement(<NotificationsItem record={notification} last={data.length - 1 == index} />, {
+                            return React.cloneElement(<NotificationsItem record={notification} last={data.length - 1 == index} fetch={fetch} handleClose={handleClose} />, {
                                 key: index
                             });
                         })

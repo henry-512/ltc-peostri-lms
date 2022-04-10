@@ -39,7 +39,7 @@ const domainMessages = {
         },
         notification: {
             title: "Notifications",
-            empty: "No Notifications",
+            empty: "No New Notifications",
             see_all: "See All Notifications",
             mark_all_read: "Mark all as read"
         },

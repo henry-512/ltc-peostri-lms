@@ -36,7 +36,7 @@ const NotificationsWidget = (props: NotificationsButtonProps) => {
 
     const fetchNotifications = () => {
         setLoading(true);
-        dataProvider.getList<INotification>('notifications', { filter: {}, pagination: { page: 1, perPage: 5 }, sort: { field: "read", order: "ASC" } })
+        dataProvider.getList<INotification>('notifications', { filter: { read: false }, pagination: { page: 1, perPage: 5 }, sort: { field: "read", order: "ASC" } })
         .then(({ data }) => {
             setNotifications(data);
         })
@@ -73,6 +73,7 @@ const NotificationsWidget = (props: NotificationsButtonProps) => {
                 AnchorOrigin={AnchorOrigin} 
                 TransformOrigin={TransformOrigin} 
                 open={open} 
+                fetch={fetchNotifications}
                 handleClose={handleClose} 
                 data={notifications}
                 loading={loading}
