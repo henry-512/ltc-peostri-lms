@@ -68,7 +68,7 @@ export type NotificationsMenuProps = {
     handleClose: any
     data?: INotification[]
     id?: string
-    loading: boolean
+    loading?: boolean
     markAllRead: Function
     fetch: Function
 }
@@ -84,7 +84,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const NotificationsMenu = (props: NotificationsMenuProps) => {
-    const { anchorEl, AnchorOrigin, TransformOrigin, open, handleClose, data = [], id, loading, markAllRead, fetch } = props;
+    const { anchorEl, AnchorOrigin, TransformOrigin, open, handleClose, data = [], id, loading = false, markAllRead, fetch } = props;
     const classes = useStyles();
 
     return (

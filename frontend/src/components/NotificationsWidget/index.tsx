@@ -1,4 +1,4 @@
-import { PopoverOrigin } from "@material-ui/core";
+import { debounce, PopoverOrigin } from "@material-ui/core";
 import { useEffect, useState } from "react";
 import NotificationsMenu from "./NotificationsMenu";
 import NotificationsButton from "./NotificationsButton";
@@ -19,23 +19,22 @@ const TransformOrigin: PopoverOrigin = {
     horizontal: 'right',
 };
 
+const UPDATE_TIME = 1 // Minutes until re-fetch
+
 const NotificationsWidget = (props: NotificationsButtonProps) => {
     const { label } = props;
     const [anchorEl, setAnchorEl] = useState(null);
 
     const open = Boolean(anchorEl);
-    
-    const handleMenu = (event: any) => setAnchorEl(event.currentTarget);
-    const handleClose = () => setAnchorEl(null);
 
     const id = open ? 'notifications-popover' : undefined;
+    //const [loading, setLoading] = useState(true);
 
     const dataProvider = useDataProvider();
     const [notifications, setNotifications] = useState([] as INotification[]);
-    const [loading, setLoading] = useState(true);
 
     const fetchNotifications = () => {
-        setLoading(true);
+        //setLoading(true);
         dataProvider.getList<INotification>('notifications', { filter: { read: false }, pagination: { page: 1, perPage: 5 }, sort: { field: "read", order: "ASC" } })
         .then(({ data }) => {
             setNotifications(data);
@@ -44,11 +43,23 @@ const NotificationsWidget = (props: NotificationsButtonProps) => {
             return;
         })
         .finally(() => {
-            setLoading(false);
+            //setLoading(false);
         })
     }
 
-    useEffect(() => fetchNotifications(), [])
+    const handleMenu = (event: any) => {
+        setAnchorEl(event.currentTarget); 
+    }
+    const handleClose = () => setAnchorEl(null);
+
+    useEffect(() => {
+        fetchNotifications()
+        const interval = setInterval(() => {
+            fetchNotifications()
+        }, UPDATE_TIME * 60 * 1000) // Minutes * Seconds * Milliseconds
+         
+        return () => clearInterval(interval);
+    }, [])
 
     const markAllRead = () => {
         dataProvider.update<INotification>('notifications/readall', { id: "", data: {}, previousData: { id: "" } })
@@ -76,7 +87,6 @@ const NotificationsWidget = (props: NotificationsButtonProps) => {
                 fetch={fetchNotifications}
                 handleClose={handleClose} 
                 data={notifications}
-                loading={loading}
                 markAllRead={markAllRead}
             />
         </>
