@@ -14,7 +14,7 @@ const UserInput = (props: { team?: string }) => {
                 label="project.fields.member"
                 reference="admin/users"
                 source="users"
-                filter={(team) ? { teams: [team] } : undefined}
+                filter={(team) ? { teams: team } : undefined}
             >
                 <AutocompleteArrayInput
                     optionText={choice => `${choice.firstName} ${choice.lastName}`}
@@ -96,23 +96,13 @@ const General = (props: any) => {
                                         optionValue="id"
                                         helperText=" "
                                         fullWidth
+                                        allowEmpty={true}
+                                        resettable={true}
                                     />
                                 </ReferenceInput>
                             </Grid>
                             <Grid item xs={6}>
-                            <ReferenceArrayInput
-                                label="project.fields.member"
-                                reference="admin/users"
-                                source="users"
-                                filter={(form.getState().values.team) ? { teams: form.getState().values.team } : undefined}
-                            >
-                                <AutocompleteArrayInput
-                                    optionText={choice => `${choice.firstName} ${choice.lastName}`}
-                                    optionValue="id"
-                                    helperText=" "
-                                    fullWidth
-                                />
-                            </ReferenceArrayInput>
+                                <UserInput team={form.getState().values.team} />
                             </Grid>
                         </Grid>
                     </Grid>
