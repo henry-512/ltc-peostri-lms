@@ -79,6 +79,9 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
 
                 if (key === 'q') {
                     f.key = this.defaultFilter
+                } else if (key === 'id') {
+                    // Filtering by ID filters by _key
+                    f.key = '_key'
                 } else if (
                     !(key in this.fieldData) ||
                     this.fieldData[key].hideGetAll
