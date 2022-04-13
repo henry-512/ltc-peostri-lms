@@ -2,6 +2,7 @@ import { makeStyles } from '@material-ui/core';
 import React from 'react';
 import { BulkDeleteButton, ChipField, Datagrid, DateField, FieldProps, List, ListProps, ReferenceArrayField, ReferenceField, ReferenceInput, SearchInput, SelectInput, SingleFieldList, TextField, TextInput } from 'react-admin';
 import { AvatarField } from 'src/components/users';
+import { dateOptions } from 'src/util/dateFormatter';
 import { IUser } from 'src/util/types';
 
 const useListStyles = makeStyles(theme => ({
@@ -96,8 +97,8 @@ const UserList = (props: UserListProps) => {
                     <AvatarField className={classes.avatar} />
                     <TextField source="firstName" label="user.info.first_name" />
                     <TextField source="lastName" label="user.info.last_name" />
-                    <DateField source="firstVisited" locales="en-US" options={{ timeZone: 'UTC' }} label="user.info.first_visited" />
-                    <DateField source="lastVisited" locales="en-US" options={{ timeZone: 'UTC' }} label="user.info.last_visited" />
+                    <DateField source="firstVisited" locales="en-GB" options={dateOptions} label="user.info.first_visited" />
+                    <DateField source="lastVisited" locales="en-GB" options={dateOptions} label="user.info.last_visited" />
                     <ReferenceField source="rank.id" reference="admin/ranks" label="user.info.rank" >
                         <TextField source="name" />
                     </ReferenceField>

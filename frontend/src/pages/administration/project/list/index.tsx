@@ -46,10 +46,10 @@ const AdminProjectList = (props: ListProps) => {
                     >
                         {/*<TextField source="id" /> // TODO: Temporarily removing ID due to illegible ID's */}
                         <TextField source="title" />
-                        <DateField source="createdAt" locales="en-US" showTime options={dateOptions} />
-                        <DateField source="updatedAt" locales="en-US" showTime options={dateOptions} />
-                        <DateField source="start" locales="en-US" />
-                        <DateField source="suspense" locales="en-US" />
+                        <DateField source="createdAt" locales="en-GB" showTime options={dateOptions} />
+                        <DateField source="updatedAt" locales="en-GB" showTime options={dateOptions} />
+                        <DateField source="start" locales="en-GB" />
+                        <DateField source="suspense" locales="en-GB" />
                         <TextField source="status" />
                     </Datagrid>
                </List>
