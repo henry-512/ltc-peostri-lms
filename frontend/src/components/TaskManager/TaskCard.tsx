@@ -49,10 +49,12 @@ const TaskCard = ({ info, index, stepKey, baseSource, changeStep, changeIndex, u
     }
 
     const cancelCreator = () => {
+        updateComponent();
         return;
     }
 
     const submitCreator = () => {
+        updateComponent();
         return;
     }
 

@@ -50,10 +50,12 @@ const ModuleCard = ({ info, index, stepKey, changeStep, changeIndex, fields, upd
     }
 
     const cancelCreator = () => {
+        updateComponent();
         return;
     }
 
     const submitCreator = () => {
+        updateComponent();
         return;
     }
 

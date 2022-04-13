@@ -33,7 +33,7 @@ const AddTemplateModule = (props: AddTemplateModuleProps) => {
 
     return (
         <>
-            <AddTemplateModuleButton label="project.layout.add_module_template_button" onClick={openTemplate} />,
+            <AddTemplateModuleButton label="project.layout.add_module_template_button" onClick={openTemplate} />
             <AddTemplateModuleDialog
                 ariaLabel='module_template_selection'
                 label={translate('project.layout.add_module_template')}
