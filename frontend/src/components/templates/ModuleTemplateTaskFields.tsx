@@ -82,6 +82,8 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
                         fullWidth
                         helperText=" "
                         validate={[required()]}
+                        emptyValue={null}
+                        emptyText={<></>}
                         disableValue="not_available"
                     />
                 </Grid>
@@ -99,6 +101,8 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
                         defaultValue="AWAITING"
                         label="project.fields.task_status"
                         validate={[required()]}
+                        emptyValue={null}
+                        emptyText={<></>}
                         fullWidth
                         helperText=" "
                     />

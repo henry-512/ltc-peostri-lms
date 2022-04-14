@@ -44,6 +44,8 @@ const General = (props: ProjectTemplateGeneralProps) => {
                                 optionValue="id"
                                 defaultValue="AWAITING"
                                 validate={[required()]}
+                                emptyValue={null}
+                                emptyText={<></>}
                                 label="template.project.fields.status"
                                 fullWidth
                                 helperText=" "

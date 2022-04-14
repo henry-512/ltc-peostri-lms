@@ -4,7 +4,8 @@ import { AutocompleteArrayInput, useChoicesContext } from "react-admin";
 import { useFormContext } from "react-hook-form";
 
 export interface AutoAssignArrayInputProps {
-    source: string
+    source?: string
+    label: string
 }
 
 const AutoAssignArrayInput = (props: AutoAssignArrayInputProps) => {

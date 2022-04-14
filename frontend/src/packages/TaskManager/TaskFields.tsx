@@ -58,7 +58,7 @@ const TaskFields = (props: TaskFieldsProps) => {
         <Root>
             <Grid container spacing={4} className={classes.taskFieldWrapper}>
                 <IDField source={getSource?.('id') || ""} id={props.defaultValues?.id} />
-                <Grid item xs={5}>
+                <Grid item xs={5} style={{ marginTop: '-32px' }}>
                     <TextInput
                         source={getSource?.('title') || ""}
                         label="project.fields.task_title"
@@ -67,7 +67,7 @@ const TaskFields = (props: TaskFieldsProps) => {
                         validate={validateTitle}
                     />
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={4} style={{ marginTop: '-32px' }}>
                     <SelectInput
                         source={getSource?.('type') || ""}
                         choices={[
@@ -83,10 +83,12 @@ const TaskFields = (props: TaskFieldsProps) => {
                         fullWidth
                         helperText=" "
                         validate={[required()]}
+                        emptyValue={null}
+                        emptyText={<></>}
                         disableValue="not_available"
                     />
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={3} style={{ marginTop: '-32px'}}>
                     <SelectInput
                         source={getSource?.('status') || ""}
                         choices={[
@@ -100,6 +102,8 @@ const TaskFields = (props: TaskFieldsProps) => {
                         disabled={false}
                         defaultValue="AWAITING"
                         validate={[required()]}
+                        emptyValue={null}
+                        emptyText={<></>}
                         label="project.fields.task_status"
                         fullWidth
                         helperText=" "
@@ -108,11 +112,11 @@ const TaskFields = (props: TaskFieldsProps) => {
 
                 <Grid item xs={6} style={{ marginTop: '-32px' }}>
                     <ReferenceInput
-                        label="project.fields.rank"
                         reference="admin/ranks"
                         source={getSource?.('rank') || ""}
                     >
                         <SelectInput
+                            label="project.fields.rank"
                             optionText={choice => `${choice.name}`}
                             optionValue="id"
                             helperText=" "
@@ -133,11 +137,10 @@ const TaskFields = (props: TaskFieldsProps) => {
 
                 <Grid item xs={12} style={{ marginTop: '-32px' }}>
                     <ReferenceArrayInput
-                        label="project.fields.member"
-                        reference="users"
+                        reference="admin/users"
                         source={getSource?.('users') || ""}
                     >
-                        <AutoAssignArrayInput source={getSource?.()} />
+                        <AutoAssignArrayInput label="project.fields.member" />
                     </ReferenceArrayInput>
                 </Grid>
             </Grid>

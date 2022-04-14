@@ -58,7 +58,7 @@ export default function StepToolbar(props: StepToolbarProps) {
                     label={translate('layout.button.skip')} />
             )}
             {(props.active !== props.stepCount - 1) ? (
-                <Button onClick={props.handleNext} label={translate('layout.button.next')} disabled={!isValid || !isDirty} />
+                <Button onClick={props.handleNext} label={translate('layout.button.next')} disabled={(props.create) ? (!isValid || !isDirty) : (!isValid)} />
             ) : (
                 <SaveButton
                     label={(props.create) ? "layout.button.create" : "layout.button.save"}

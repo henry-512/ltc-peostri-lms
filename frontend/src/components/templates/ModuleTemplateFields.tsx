@@ -71,6 +71,8 @@ const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
                             defaultValue="AWAITING"
                             label="template.module.fields.status"
                             validate={[required()]}
+                            emptyValue={null}
+                            emptyText={<></>}
                             fullWidth
                             helperText=" "
                         />

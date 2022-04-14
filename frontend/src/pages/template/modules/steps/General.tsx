@@ -45,6 +45,8 @@ const General = (props: ModuleTemplateGeneralStepProps) => {
                                 optionValue="id"
                                 defaultValue="AWAITING"
                                 validate={[required()]}
+                                emptyValue={null}
+                                emptyText={<></>}
                                 label="template.module.fields.status"
                                 fullWidth
                                 helperText=" "
