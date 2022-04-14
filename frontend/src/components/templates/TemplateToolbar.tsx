@@ -28,7 +28,7 @@ const TemplateToolbar = (props: TemplateToolbarProps) => {
             <Box sx={{ flex: '1 1 auto' }} />
             <SaveButton
                 label={(props.create) ? "layout.button.create" : "layout.button.save"}
-                disabled={(!isValid || !isDirty) ? true : false}
+                disabled={(props.create) ? (!isValid || !isDirty) : (!isValid)}
             />
         </Toolbar>
     )
