@@ -1,7 +1,7 @@
 import { ReferenceInput, required, AutocompleteInput, useDataProvider, useTranslate, useRedirect } from "react-admin";
 import { styled } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
-import { useFormState } from "react-hook-form";
+import { useFormContext, useFormState } from "react-hook-form";
 
 const PREFIX = 'CreateProjectFromTemplateDialog';
 
@@ -49,9 +49,10 @@ const CreateProjectFromTemplateDialog = (props: CreateProjectFromTemplateDialogP
     const dataProvider = useDataProvider();
     const redirect = useRedirect();
     const { isValid } = useFormState();
+    const { getValues, setValue } = useFormContext();
     
-    /*const handleSubmit = async () => {
-        const template_id = form.getState().values.project_template_id;
+    const handleSubmit = async () => {
+        const template_id = getValues('project_template_id');
         
         dataProvider.getOne('admin/template/projects/instance', { id: template_id })
         .then(response => {
@@ -69,14 +70,11 @@ const CreateProjectFromTemplateDialog = (props: CreateProjectFromTemplateDialogP
         props.setOpen(false);
 
         //Reset the field to empty
-        form.change('project_template_id', '');
-    }*/
-
-    const handleClose = () => true
-    const handleSubmit = () => true
+        setValue('project_template_id', '');
+    }
 
     return (
-        (<Root>
+        <Root>
             <Dialog open={props.open} onClose={handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'sm')}>
                 <DialogTitle id={props.ariaLabel} className={classes.dialog}>{props.label}</DialogTitle>
                 <DialogContent className={classes.dialogContent}>
@@ -94,7 +92,7 @@ const CreateProjectFromTemplateDialog = (props: CreateProjectFromTemplateDialogP
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Root>)
+        </Root>
     );
 }
 

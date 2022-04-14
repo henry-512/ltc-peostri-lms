@@ -1,5 +1,4 @@
 import { AppBar, UserMenu } from 'react-admin';
-import { styled } from '@mui/material/styles';
 import { Typography } from '@mui/material';
 
 import NotificationsWidget from '../NotificationsWidget';

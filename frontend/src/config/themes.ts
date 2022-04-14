@@ -1,4 +1,7 @@
-export const lightTheme = {
+import { defaultTheme } from "react-admin";
+import merge from 'lodash.merge'
+
+export const lightTheme = merge({}, defaultTheme, {
     palette: {
         primary: {
             main: '#4f3cc9'
@@ -75,15 +78,6 @@ export const lightTheme = {
                 },
             }
         },
-        MuiButton: {
-            styleOverrides: {
-                contained: {
-                    backgroundColor: '#fff',
-                    color: '#4f3cc9',
-                    boxShadow: 'none',
-                },
-            }
-        },
         MuiButtonBase: {
             defaultProps: {
                 // disable ripple for perf reasons
@@ -153,4 +147,4 @@ export const lightTheme = {
             }
         }
     }
-};
+});

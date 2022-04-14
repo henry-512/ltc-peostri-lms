@@ -15,7 +15,11 @@ const CreateProjectFromTemplate = (props: CreateProjectFromTemplateProps) => {
         <>
             <CreateProjectFromTemplateButton label="project.create.from_template" onClick={() => setDialogOpen(true)} variant={(props.variant) ? props.variant : undefined} />
             <SimpleForm 
-                hidden
+                sx={{
+                    display: 'none',
+                    visibility: 'hidden'
+                }}
+                hidden={true}
                 toolbar={<></>}
             >
                 <CreateProjectFromTemplateDialog ariaLabel={"project_template_selection"} label={translate("project.layout.select_template")} open={dialogOpen} setOpen={setDialogOpen} />

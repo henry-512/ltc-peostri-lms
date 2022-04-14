@@ -26,12 +26,6 @@ const ModuleTemplateList = (props: ListProps) => {
                         borderLeftColor: 'transparent',
                         borderLeftWidth: 5,
                         borderLeftStyle: 'solid',
-                    },
-                    [`& .RaDatagrid-headerCell`]: {
-                        padding: '6px 8px 6px 8px',
-                    },
-                    [`& .RaDatagrid-rowCell`]: {
-                        padding: '6px 8px 6px 8px',
                     }
                 }}
                 rowClick="edit"

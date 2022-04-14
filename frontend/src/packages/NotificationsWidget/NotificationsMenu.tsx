@@ -7,27 +7,11 @@ import { INotification } from "src/util/types"
 import NotificationsEmpty from "./NotificationsEmpty"
 import NotificationsItem from "./NotificationsItem"
 
-const PREFIX = 'NotificationsMenu';
-
-const classes = {
-    headerRoot: `${PREFIX}-header`,
-    footerRoot: `${PREFIX}-footer`,
-    loader: `${PREFIX}-loader`,
-    paper: `${PREFIX}-paper`
-};
-
-const HeaderRoot = styled('div')(({ theme }) => ({
-    [`& .${classes.headerRoot}`]: {
-        borderRadius: '0 0 10px 10px',
-        padding: '.5rem 0'
-    }
-}));
-
 const Header = ({disabled, markAllRead}: {disabled: boolean, markAllRead: any}) => {
     const translate = useTranslate();
 
     return (
-        <HeaderRoot>
+        <>
             <Box display="flex" padding=".5rem 1rem" alignItems="center" >
                 <Typography variant="subtitle1">
                 {translate('notification.title')}
@@ -40,16 +24,9 @@ const Header = ({disabled, markAllRead}: {disabled: boolean, markAllRead: any}) 
                 }
             </Box>
             <Divider />
-        </HeaderRoot>
+        </>
     );
 }
-
-const FooterRoot = styled('div')(({ theme }) => ({
-    [`& .${classes.footerRoot}`]: {
-        borderRadius: '0 0 10px 10px',
-        padding: '.5rem 0'
-    }
-}))
 
 const Footer = ({disabled, handleClose}: {disabled?: boolean, handleClose: Function}) => {
     const navigate = useNavigate();
@@ -61,18 +38,21 @@ const Footer = ({disabled, handleClose}: {disabled?: boolean, handleClose: Funct
     }
 
     return (
-        <FooterRoot>
+        <>
             {(disabled) ? null : (
                 <>
                     <Divider />
                     <Box display="flex" padding="0" justifyContent="center">
-                        <Button onClick={viewAllNotifications} disableElevation size="small" fullWidth classes={classes}>
+                        <Button onClick={viewAllNotifications} disableElevation size="small" fullWidth sx={{
+                            borderRadius: '0 0 10px 10px',
+                            padding: '.5rem 0'
+                        }}>
                             {translate('notification.see_all')}
                         </Button>
                     </Box>
                 </>
             )}
-        </FooterRoot>
+        </>
     )
 }
 
@@ -89,23 +69,11 @@ export type NotificationsMenuProps = {
     fetch: Function
 }
 
-const Root = styled('div')(({ theme }) => ({
-    [`& .${classes.loader}`]: {
-        padding: '4rem 1rem 1rem 1rem',
-        height: 'auto'
-    },
-
-    [`& .${classes.paper}`]: {
-        minWidth: '300px'
-    }
-}))
-
 const NotificationsMenu = (props: NotificationsMenuProps) => {
     const { anchorEl, AnchorOrigin, TransformOrigin, open, handleClose, data = [], id, loading = false, markAllRead, fetch } = props;
 
-
     return (
-        <Root>
+        <>
             <Popover
                 id={id}
                 anchorEl={anchorEl}
@@ -113,10 +81,14 @@ const NotificationsMenu = (props: NotificationsMenuProps) => {
                 transformOrigin={TransformOrigin}
                 open={open}
                 onClose={handleClose}
-                classes={classes}
+                sx={{
+                    paper: {
+                        minWidth: '300px'
+                    }
+                }}
             >
                 <Header disabled={(data && data.length > 0) ? false : true} markAllRead={markAllRead} />
-                {(loading) ? <Loading className={classes.loader} loadingPrimary="" loadingSecondary="Loading Notifications.." /> :
+                {(loading) ? <Loading loadingPrimary="" loadingSecondary="Loading Notifications.." /> :
                     (data && data.length > 0) ? 
                         data.map((notification, index) => {
                             return React.cloneElement(<NotificationsItem record={notification} last={data.length - 1 == index} fetch={fetch} handleClose={handleClose} />, {
@@ -129,7 +101,7 @@ const NotificationsMenu = (props: NotificationsMenuProps) => {
                 }
                 <Footer handleClose={handleClose} />
             </Popover>
-        </Root>
+        </>
     )
 }
 
