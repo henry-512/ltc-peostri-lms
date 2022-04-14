@@ -111,6 +111,7 @@ export interface IModule extends RaRecord {
         comment: string;
     };
     file?: any;
+    ttc?: number | string
 }
 
 export interface IProject extends RaRecord, ICreateUpdate {
@@ -123,6 +124,7 @@ export interface IProject extends RaRecord, ICreateUpdate {
     auto_assign?: boolean;
     author?: IUser | string;
     module_template_id?: string;
+    ttc?: number | string
 }
 
 export interface IRank extends IArangoIndexes {
@@ -144,11 +146,11 @@ export interface IFileMetadata extends IArangoIndexes, ICreateUpdate {
 }
 
 export interface ITaskTemplate extends ITask {
-    ttc: string;
+    ttc: string | number;
 }
 
 export interface IModuleTemplate extends IModule {
-    ttc: string;
+    ttc: string | number;
     tasks: {
         [id: string | number]: ITaskTemplate[]
     }
@@ -157,7 +159,7 @@ export interface IModuleTemplate extends IModule {
 
 export interface IProjectTemplate extends IArangoIndexes, ICreateUpdate {
     title: string;
-    ttc: string;
+    ttc: string | number;
     modules: Array<IModule>;
     module_template_id?: string;
 }

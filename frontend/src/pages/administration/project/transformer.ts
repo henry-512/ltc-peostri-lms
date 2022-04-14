@@ -5,6 +5,8 @@ const transformer = (data: IProject) => {
     delete data.auto_assign;
     delete data.module_template_id;
 
+    data.ttc = parseInt(`${data.ttc}`);
+
     let mStepCounter = 0; //Keep track of current step, in case of deletion and need for refactoring.
     for (const mKey in data.modules) {
         if (data.modules[mKey].length <= 0) {
@@ -14,6 +16,8 @@ const transformer = (data: IProject) => {
 
         for (let i = 0; i < data.modules[mKey].length; i++) {
             const module = data.modules[mKey][i];
+
+            module.ttc = parseInt(`${module.ttc}`);
 
             let tStepCounter = 0; //Keep track of current step, in case of deletion and need for refactoring.
             for (const tKey in module.tasks) {

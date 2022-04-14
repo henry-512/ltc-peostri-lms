@@ -70,8 +70,8 @@ const ModuleFields = (props: ModuleFieldsProps) => {
         for (let [stepKey, step] of Object.entries<ITask[]>(tasks)) {
             let stepTTC: number = 0;
             for (let [taskKey, task] of Object.entries<ITask>(step)) {
-                if (task.ttc < stepTTC) continue;
-                stepTTC = parseInt(task.ttc);
+                if (parseInt(`${task.ttc}`) < stepTTC) continue;
+                stepTTC = parseInt(`${task.ttc}`);
             }
             module_ttc += stepTTC;
         }

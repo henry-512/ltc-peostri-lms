@@ -24,8 +24,8 @@ const Tasks = (props: ModuleTemplateTasksProps) => {
         for (let [stepKey, step] of Object.entries<ITaskTemplate[]>(tasks)) {
             let stepTTC: number = 0;
             for (let [taskKey, task] of Object.entries<ITaskTemplate>(step)) {
-                if (parseInt(task.ttc) < stepTTC) continue;
-                stepTTC = parseInt(task.ttc);
+                if (parseInt(`${`${task.ttc}`}`) < stepTTC) continue;
+                stepTTC = parseInt(`${`${task.ttc}`}`);
             }
             module_ttc += stepTTC;
         }

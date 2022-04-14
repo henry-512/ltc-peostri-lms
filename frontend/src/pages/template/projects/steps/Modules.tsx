@@ -23,8 +23,8 @@ const Modules = (props: ModulesManagerStep) => {
         for (let [stepKey, step] of Object.entries<IModuleTemplate[]>(modules)) {
             let stepTTC: number = 0;
             for (let [moduleKey, module] of Object.entries<IModuleTemplate>(step)) {
-                if (parseInt(module.ttc) < stepTTC) continue;
-                stepTTC = parseInt(module.ttc);
+                if (parseInt(`${module.ttc}`) < stepTTC) continue;
+                stepTTC = parseInt(`${module.ttc}`);
             }
             project_ttc += stepTTC;
         }
