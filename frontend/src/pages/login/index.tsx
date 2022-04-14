@@ -139,6 +139,7 @@ const Login = () => {
                                         label={translate('ra.auth.username')}
                                         disabled={loading}
                                         validate={required()}
+                                        helperText=" "
                                         fullWidth
                                     />  
                                 </div>
@@ -149,6 +150,7 @@ const Login = () => {
                                         type="password"
                                         disabled={loading}
                                         validate={required()}
+                                        helperText=" "
                                         fullWidth
                                     />
                                 </div>
