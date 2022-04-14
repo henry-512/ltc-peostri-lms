@@ -1,13 +1,13 @@
 import { useTranslate } from 'react-admin';
 import { ITask, ITaskStep } from 'src/util/types';
 import Steps from '../StepBuilder';
-import { useForm } from 'react-final-form';
 import TaskFields from './TaskFields';
 import { Creator } from 'src/components/misc';
 import { useMemo, useState } from 'react';
 import get from 'lodash.get';
 import TaskCard from './TaskCard';
 import React from 'react';
+import { useFormContext } from 'react-hook-form';
 
 export type TaskManagerProps = {
     source: string,
@@ -16,14 +16,15 @@ export type TaskManagerProps = {
 }
 
 const TaskManager = (props: TaskManagerProps) => {
+    const { getValues, setValue } = useFormContext();
+    
     const translate = useTranslate();
-    const form = useForm();
 
     //Dialogs open
     const [creatorOpen, setCreatorOpen] = useState(false);
 
     //Main Tasks Data
-    const [tasks, setTasks] = useState(get(form.getState().values, props.source) || {
+    const [tasks, setTasks] = useState(getValues(props.source) || {
         "key-0": []
     } as ITaskStep);
 
@@ -36,11 +37,6 @@ const TaskManager = (props: TaskManagerProps) => {
         return (tasks) ? (Object.keys(tasks).length - 1) : 0
     }
 
-    const updateComponent = () => {
-        let ftasks = get(form.getState().values, props.source);
-        setTasks(ftasks);
-    }
-
     /**
      * @name calculateIndex
      * @description Helper function to quickly calculate the next Index based on tasks data.
@@ -48,6 +44,11 @@ const TaskManager = (props: TaskManagerProps) => {
      */
      const calculateIndex = () => {
         return (tasks[`key-${step}`] && tasks[`key-${step}`].length > 0) ? tasks[`key-${step}`].length : 0
+    }
+
+    const updateComponent = () => {
+        let ftasks = getValues(props.source);
+        setTasks(ftasks);
     }
 
     //Current Step Key
@@ -70,10 +71,7 @@ const TaskManager = (props: TaskManagerProps) => {
         stepArray.push({} as ITask);
 
         // Update form with blank step added.
-        form.change(props.source, {
-            ...tasks,
-            [`key-${step}`]: stepArray
-        });
+        setValue(`${props.source}.key-${step}`, stepArray);
 
         // Open the creator window.
         setCreatorOpen(true);
@@ -84,13 +82,13 @@ const TaskManager = (props: TaskManagerProps) => {
      * @description Cancel the creator by removing the empty task structure created.
      */
      const cancelCreator = () => {
-        let cacheModules = tasks;
+        if (!tasks[`key-${step}`]) return;
 
-        if (!cacheModules[`key-${step}`]) return;
+        let stepArray = tasks[`key-${step}`]
+        stepArray.pop();
 
-        cacheModules[`key-${step}`].pop();
+        setValue(props.source, stepArray);
 
-        form.change(props.source, cacheModules);
         updateComponent();
     }
 
@@ -108,7 +106,7 @@ const TaskManager = (props: TaskManagerProps) => {
     }
 
     const updateStep = (newSteps: any) => {
-        form.change(props.source, newSteps)
+        setValue(props.source, newSteps)
         updateComponent();
     }
 

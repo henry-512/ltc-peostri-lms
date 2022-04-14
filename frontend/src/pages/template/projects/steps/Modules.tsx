@@ -1,9 +1,5 @@
 import { FormGroupContextProvider } from "react-admin";
 import ModuleManager from "src/packages/ModuleManager";
-import { ITaskTemplate } from "src/util/types";
-import { useForm } from "react-final-form";
-import get from "lodash.get";
-import { useEffect } from "react";
 import { Step } from "src/packages/FormStepper/Step";
 import { ModuleTemplateFields } from "src/components/templates";
 
@@ -15,7 +11,7 @@ export type ModulesManagerStep = {
 
 const Modules = (props: ModulesManagerStep) => {    
     const { getSource, validator, calculateTTC, ...rest } = props;
-    const form = useForm();
+    /*const form = useForm();
 
     const recalculateTTC = (data: any) => {
         const formData = form.getState().values;
@@ -36,13 +32,13 @@ const Modules = (props: ModulesManagerStep) => {
         form.change(getSource?.('ttc'), module_ttc);
     }
 
-    useEffect(() => (props.calculateTTC) ? props.calculateTTC() : null, [get(form.getState().values, getSource?.('ttc'))])
+    useEffect(() => (props.calculateTTC) ? props.calculateTTC() : null, [get(form.getState().values, getSource?.('ttc'))])*/
 
     return (
         <>
             <Step validator={props.validator} {...rest}>
                 <FormGroupContextProvider name={props.validator}>    
-                    <ModuleManager fields={<ModuleTemplateFields calculateTTC={recalculateTTC} />} isTemplate={true} />
+                    <ModuleManager fields={<ModuleTemplateFields calculateTTC={/*recalculateTTC TODO*/ () => true} />} isTemplate={true} />
                 </FormGroupContextProvider>
             </Step>
         </>

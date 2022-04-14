@@ -1,8 +1,4 @@
-import { FormGroupContextProvider, maxLength, minLength, required } from "react-admin";
-import { ITaskTemplate } from "src/util/types";
-import { useForm } from "react-final-form";
-import get from "lodash.get";
-import { useEffect } from "react";
+import { FormGroupContextProvider } from "react-admin";
 import { Step } from "src/packages/FormStepper/Step";
 import { ModuleTemplateTaskFields } from "src/components/templates";
 import TaskManager from "src/packages/TaskManager";
@@ -16,7 +12,7 @@ export type ModuleTemplateTasksProps = {
 const Tasks = (props: ModuleTemplateTasksProps) => {    
     const { getSource, calculateTTC, validator, ...rest } = props;
 
-    const form = useForm();
+    /*const form = useForm();
 
     const recalculateTTC = (data: any) => {
         const formData = form.getState().values;
@@ -37,13 +33,13 @@ const Tasks = (props: ModuleTemplateTasksProps) => {
         form.change(getSource?.('ttc'), module_ttc);
     }
 
-    useEffect(() => (props.calculateTTC) ? props.calculateTTC() : null, [get(form.getState().values, getSource?.('ttc'))])
+    useEffect(() => (props.calculateTTC) ? props.calculateTTC() : null, [get(form.getState().values, getSource?.('ttc'))])*/
 
     return (
         <>
             <Step validator={props.validator} {...rest}>
                 <FormGroupContextProvider name={props.validator}>    
-                    <TaskManager source={getSource?.('tasks') || ""} fields={<ModuleTemplateTaskFields calculateTTC={recalculateTTC} />}/>
+                    <TaskManager source={getSource?.('tasks') || ""} fields={<ModuleTemplateTaskFields calculateTTC={/*recalculateTTC TODO*/ () => true} />}/>
                 </FormGroupContextProvider>
             </Step>
         </>

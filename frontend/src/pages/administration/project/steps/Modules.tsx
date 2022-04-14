@@ -1,11 +1,9 @@
 import { Step } from "src/packages/FormStepper/Step";
 import { FormGroupContextProvider } from "react-admin";
 import ModuleManager from "src/packages/ModuleManager";
-import { IModuleTemplate } from "src/util/types";
-import { useForm } from "react-final-form";
 
 const Modules = (props: any) => {
-    const form = useForm();
+    /*const form = useForm();
 
     const recalculateTTC = () => {
         const formData = form.getState().values;
@@ -24,13 +22,13 @@ const Modules = (props: any) => {
         if (project_ttc == formData.ttc) return;
 
         form.change('ttc', project_ttc);
-    }
+    }*/
 
     return (
         <>
             <Step validator={props.validator} {...props}>
                 <FormGroupContextProvider name={props.validator}>    
-                    <ModuleManager calculateTTC={recalculateTTC} />         
+                    <ModuleManager calculateTTC={/*recalculateTTC TODO*/ () => true} />         
                 </FormGroupContextProvider>
             </Step>
         </>

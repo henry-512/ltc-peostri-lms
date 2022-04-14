@@ -3,7 +3,6 @@ import { styled } from '@mui/material/styles';
 import get from "lodash.get";
 import { useEffect } from "react";
 import { maxLength, minLength, NumberInput, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
-import { useForm } from "react-final-form";
 import AutoAssignArrayInput from "./AutoAssignArrayInput";
 import { IDField } from "src/components/misc";
 
@@ -15,7 +14,6 @@ const classes = {
     taskFieldWrapper: `${PREFIX}-taskFieldWrapper`
 };
 
-// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
 const Root = styled('div')(({ theme }) => ({
     [`& .${classes.taskForm}`]: {
         marginTop: '1.75rem'
@@ -52,9 +50,9 @@ const TaskFields = (props: TaskFieldsProps) => {
 
     const translate = useTranslate();
     const validateTitle = [required(), minLength(2), maxLength(150)];
-    const form = useForm();
 
-    useEffect(() => props.calculateTTC?.(), [get(form.getState().values, getSource?.('ttc'))]);
+    // TODO
+    //useEffect(() => props.calculateTTC?.(), [get(form.getState().values, getSource?.('ttc'))]);
 
     return (
         <Root>

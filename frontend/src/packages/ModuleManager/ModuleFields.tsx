@@ -3,13 +3,10 @@ import { styled } from '@mui/material/styles';
 import { IDField } from "src/components/misc";
 import WaiverInput from "./WaiverInput";
 import classNames from "classnames";
-import RichTextInput from "ra-input-rich-text";
+import { RichTextInput } from "ra-input-rich-text";
 import { FileField, FileInput, maxLength, minLength, NumberInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import TaskManager from "../TaskManager";
-import { useForm } from "react-final-form";
-import get from "lodash.get";
-import { ITaskTemplate } from "src/util/types";
 
 const PREFIX = 'ModuleFields';
 
@@ -20,12 +17,7 @@ const classes = {
     waiverWrapperOpen: `${PREFIX}-waiverWrapperOpen`
 };
 
-// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
-const Root = styled('div')((
-    {
-        theme
-    }
-) => ({
+const Root = styled('div')(({ theme }) => ({
     [`& .${classes.modulesForm}`]: {
         marginTop: '0px'
     },
@@ -62,9 +54,7 @@ const ModuleFields = (props: ModuleFieldsProps) => {
     const validateTitle = [required(), minLength(2), maxLength(150)];
     const [showFileUpload, setShowFileUpload] = useState(defaultValues?.waive_module || false);
 
-    const form = useForm();
-
-    const recalculateTTC = (data: any) => {
+    /*const recalculateTTC = (data: any) => {
         const formData = form.getState().values;
         if (!get(formData, getSource?.('tasks') || "")) return;
 
@@ -83,10 +73,10 @@ const ModuleFields = (props: ModuleFieldsProps) => {
         form.change(getSource?.('ttc'), module_ttc);
     }
 
-    useEffect(() => (props.calculateTTC) ? props.calculateTTC() : null, [get(form.getState().values, getSource?.('ttc'))])
+    useEffect(() => (props.calculateTTC) ? props.calculateTTC() : null, [get(form.getState().values, getSource?.('ttc'))])*/
 
     return (
-        (<Root>
+        <Root>
             <Grid container spacing={2} style={{
                 marginTop: '.1rem'
             }}>
@@ -160,10 +150,10 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                 marginTop: '.5rem'
             }}>
                 <Grid item xs={12}>
-                    <TaskManager source={getSource?.('tasks') || ""} calculateTTC={recalculateTTC} />
+                    <TaskManager source={getSource?.('tasks') || ""} calculateTTC={/*recalculateTTC TODO */ () => true} />
                 </Grid>
             </Grid>
-        </Root>)
+        </Root>
     );
 }
 

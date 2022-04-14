@@ -11,7 +11,7 @@ import {
     CircularProgress
 } from '@mui/material';
 import { Notification, useTranslate, useLogin, useNotify, Form, TextInput, required } from 'react-admin';
-import { lightTheme } from '../../util/themes';
+import { lightTheme } from 'src/config/themes';
 
 
 const PREFIX = 'LoginPage';

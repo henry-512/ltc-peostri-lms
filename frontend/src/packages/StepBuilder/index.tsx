@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import React, { MouseEventHandler, useEffect } from "react";
 import { useState } from "react";
 import { DragDropContext, Droppable, OnDragEndResponder } from "react-beautiful-dnd";
-import { useForm } from "react-final-form";
+import { useFormContext } from "react-hook-form";
 import AddNewButton from "./AddNewButton";
 import AddStepButton from "./AddStepButton";
 import RemoveStepButton from "./RemoveStepButton";
@@ -22,7 +22,6 @@ const classes = {
     moduleDropper: `${PREFIX}-moduleDropper`
 };
 
-// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
 const Root = styled('div')(({ theme }) => ({
     [`& .${classes.root}`]: {
         marginTop: '1rem'
@@ -109,7 +108,7 @@ export type StepBuilderProps = {
 const StepBuilder = (props: StepBuilderProps) => {
     const { title, help, save, children, changeOnAction, updateForm, createLabel, createAction, defaultValue, renderData, changeStep, changeIndex, updateComponent, emptyText, actions } = props;
 
-    const form = useForm();
+    const { setValue } = useFormContext();
 
     const [canAddSteps, setCanAddSteps] = useState(false);
 
@@ -129,7 +128,7 @@ const StepBuilder = (props: StepBuilderProps) => {
             return;
         }
 
-        form.change(save || "", newValue || renderData);
+        setValue(save || "", newValue || renderData);
         updateComponent?.();
     }
 

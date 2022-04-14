@@ -5,10 +5,10 @@ import React from "react";
 import { useState } from "react";
 import { useTranslate } from "react-admin";
 import { Draggable } from "react-beautiful-dnd";
-import { useForm } from "react-final-form";
 import { ITask } from "src/util/types";
 import { Creator } from "src/components/misc";
 import TaskFields from "./TaskFields";
+import { useFormContext } from "react-hook-form";
 
 const PREFIX = 'TaskCard';
 
@@ -52,8 +52,9 @@ const TaskCard = ({ info, index, stepKey, baseSource, changeStep, changeIndex, u
 
 
     const [open, setOpen] = useState(false);
-    const form = useForm();
     const source = `${baseSource}[${stepKey}][${index}]`;
+
+    const { getValues, setValue } = useFormContext();
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -75,11 +76,12 @@ const TaskCard = ({ info, index, stepKey, baseSource, changeStep, changeIndex, u
     }
 
     const deleteCreator = () => {
-        const taskStepCount = Object.keys(get(form.getState().values, `${baseSource}`)).length;
+        const taskSteps = getValues(`${baseSource}`);
+        const taskStepCount = Object.keys(taskSteps).length;
         
-        let tasks = get(form.getState().values, `${baseSource}[${stepKey}]`);
+        let tasks = getValues(`${baseSource}[${stepKey}]`);
         tasks.splice(index, 1);
-        form.change(`${baseSource}[${stepKey}]`, tasks);
+        setValue(`${baseSource}[${stepKey}]`, tasks);
 
         if (parseInt(stepKey?.split('-')[1] || "0") == (taskStepCount - 1)) {
             changeIndex(tasks.length);
