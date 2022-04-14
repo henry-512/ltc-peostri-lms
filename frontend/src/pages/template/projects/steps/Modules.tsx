@@ -1,10 +1,10 @@
 import { FormGroupContextProvider } from "react-admin";
-import ModuleManager from "src/components/ModuleManager";
+import ModuleManager from "src/packages/ModuleManager";
 import { ITaskTemplate } from "src/util/types";
 import { useForm } from "react-final-form";
 import get from "lodash.get";
 import { useEffect } from "react";
-import { Step } from "src/components/FormStepper/Step";
+import { Step } from "src/packages/FormStepper/Step";
 import { ModuleTemplateFields } from "src/components/templates";
 
 export type ModulesManagerStep = {

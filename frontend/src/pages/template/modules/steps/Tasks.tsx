@@ -3,9 +3,9 @@ import { ITaskTemplate } from "src/util/types";
 import { useForm } from "react-final-form";
 import get from "lodash.get";
 import { useEffect } from "react";
-import { Step } from "src/components/FormStepper/Step";
+import { Step } from "src/packages/FormStepper/Step";
 import { ModuleTemplateTaskFields } from "src/components/templates";
-import TaskManager from "src/components/TaskManager";
+import TaskManager from "src/packages/TaskManager";
 
 export type ModuleTemplateTasksProps = {
     getSource: Function,

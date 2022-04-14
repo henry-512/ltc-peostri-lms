@@ -3,7 +3,7 @@ import { ITask, ITaskStep } from 'src/util/types';
 import Steps from '../StepBuilder';
 import { useForm } from 'react-final-form';
 import TaskFields from './TaskFields';
-import Creator from '../Creator';
+import { Creator } from 'src/components/misc';
 import { useMemo, useState } from 'react';
 import get from 'lodash.get';
 import TaskCard from './TaskCard';

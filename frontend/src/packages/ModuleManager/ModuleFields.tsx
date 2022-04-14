@@ -1,5 +1,5 @@
 import { Grid, makeStyles, Typography } from "@material-ui/core"
-import IDField from "../IDField";
+import { IDField } from "src/components/misc";
 import WaiverInput from "./WaiverInput";
 import classNames from "classnames";
 import RichTextInput from "ra-input-rich-text";
