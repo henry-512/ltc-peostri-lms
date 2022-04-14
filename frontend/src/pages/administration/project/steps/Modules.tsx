@@ -15,8 +15,8 @@ const Modules = (props: any) => {
         for (let [stepKey, step] of Object.entries<IModule[]>(modules)) {
             let stepTTC: number = 0;
             for (let [moduleKey, module] of Object.entries<IModule>(step)) {
-                if (module.ttc < stepTTC) continue;
-                stepTTC = module.ttc;
+                if (parseInt(module.ttc) < stepTTC) continue;
+                stepTTC = parseInt(module.ttc);
             }
             project_ttc += stepTTC;
         }

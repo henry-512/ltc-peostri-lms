@@ -144,11 +144,11 @@ export interface IFileMetadata extends IArangoIndexes, ICreateUpdate {
 }
 
 export interface ITaskTemplate extends ITask {
-    ttc: number;
+    ttc: string;
 }
 
 export interface IModuleTemplate extends IModule {
-    ttc: number;
+    ttc: string;
     tasks: {
         [id: string | number]: ITaskTemplate[]
     }
@@ -157,7 +157,7 @@ export interface IModuleTemplate extends IModule {
 
 export interface IProjectTemplate extends IArangoIndexes, ICreateUpdate {
     title: string;
-    ttc: number;
+    ttc: string;
     modules: Array<IModule>;
     module_template_id?: string;
 }

@@ -26,8 +26,8 @@ const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
         for (let [stepKey, step] of Object.entries<ITaskTemplate[]>(tasks)) {
             let stepTTC: number = 0;
             for (let [taskKey, task] of Object.entries<ITaskTemplate>(step)) {
-                if (task.ttc < stepTTC) continue;
-                stepTTC = task.ttc;
+                if (parseInt(task.ttc) < stepTTC) continue;
+                stepTTC = parseInt(task.ttc);
             }
             module_ttc += stepTTC;
         }
