@@ -60,7 +60,7 @@ const Creator = (props: CreatorProps) => {
         props.setOpen(false);
     }
 
-    const { isValid } = useFormGroup(props.ariaLabel);
+    const { isValid, isDirty } = useFormGroup(props.ariaLabel);
 
     return (
         <>
@@ -102,7 +102,7 @@ const Creator = (props: CreatorProps) => {
                         {translate('project.layout.cancel')}
                     </Button>
                     <Box sx={{ flex: '1 1 auto' }} />
-                    <Button onClick={handleSubmit} color="primary" disabled={isValid ? false : true}>
+                    <Button onClick={handleSubmit} color="primary" disabled={(props.create) ? (!isValid || !isDirty) : (!isValid)}>
                         {props.create ? translate('project.layout.create') : translate('project.layout.save')}
                     </Button>
                 </DialogActions>

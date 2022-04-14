@@ -39,7 +39,7 @@ const AutoAssignArrayInput = (props: AutoAssignArrayInputProps) => {
     return (
         <>
             <AutocompleteArrayInput
-                optionText={choice => `${choice.firstName} ${choice.lastName}`}
+                optionText={choice => `${choice.firstName} ${choice.lastName} (${choice.id.substring(0, 4)})`}
                 optionValue="id"
                 helperText=" "
                 fullWidth

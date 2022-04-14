@@ -22,7 +22,7 @@ const TeamEdit = (props: any) => (
                 <TextInput source="name" fullWidth/>
                 <ReferenceArrayInput reference="admin/users" source="users">
                     <AutocompleteArrayInput 
-                        optionText={choice => `${choice.firstName} ${choice.lastName}`} 
+                        optionText={choice => `${choice.firstName} ${choice.lastName} (${choice.id.substring(0, 4)})`} 
                         optionValue="id" 
                         source="users"
                         fullWidth

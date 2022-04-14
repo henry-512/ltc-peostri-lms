@@ -18,7 +18,7 @@ const UserInput = (props: UserInputProps) => {
                 filter={(team) ? { teams: team } : undefined}
             >
                 <AutocompleteArrayInput
-                    optionText={choice => `${choice.firstName} ${choice.lastName}`}
+                    optionText={choice => `${choice.firstName} ${choice.lastName} (${choice.id.substring(0, 4)})`}
                     optionValue="id"
                     helperText=" "
                     fullWidth
