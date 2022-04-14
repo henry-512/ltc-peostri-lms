@@ -109,7 +109,6 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
 
                 <Grid item xs={3} style={{ marginTop: '-32px' }}>
                     <ReferenceInput
-                        label="project.fields.rank"
                         reference="admin/ranks"
                         source={getSource?.('rank') || ""}
                     >
@@ -117,6 +116,7 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
                             optionText={choice => `${choice.name}`}
                             optionValue="id"
                             helperText=" "
+                            label="project.fields.rank"
                             fullWidth
                         />
                     </ReferenceInput>
