@@ -92,6 +92,7 @@ export default function UserFields(props: any) {
                             optionText={choice => `${choice.name}`} 
                             optionValue="id" 
                             source="teams"
+                            helperText=" "
                             fullWidth
                         />
                     </ReferenceArrayInput>

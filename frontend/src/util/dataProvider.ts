@@ -212,7 +212,7 @@ const dataProvider = (
                     data: { ...params.data, id: json.id },
                 }))
             default: 
-                return httpClient(`${apiUrl}/${resource}/${params.id}`, {
+                return httpClient(`${apiUrl}/${resource}/list/${params.id}`, {
                     method: 'PUT',
                     body: JSON.stringify(params.data),
                 }).then(({ json }) => ({ data: json }))
