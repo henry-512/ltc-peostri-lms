@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { maxLength, minLength, NumberInput, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
 import AutoAssignArrayInput from "./AutoAssignArrayInput";
 import { IDField } from "src/components/misc";
+import { useFormContext } from "react-hook-form";
 
 const PREFIX = 'TaskFields';
 
@@ -51,8 +52,11 @@ const TaskFields = (props: TaskFieldsProps) => {
     const translate = useTranslate();
     const validateTitle = [required(), minLength(2), maxLength(150)];
 
-    // TODO
-    //useEffect(() => props.calculateTTC?.(), [get(form.getState().values, getSource?.('ttc'))]);
+    const { getValues } = useFormContext();
+
+    useEffect(() => {
+        props.calculateTTC?.();
+    }, [getValues(getSource?.('ttc'))])
 
     return (
         <Root>

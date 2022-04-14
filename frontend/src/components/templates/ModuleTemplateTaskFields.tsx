@@ -3,6 +3,7 @@ import { styled } from '@mui/material/styles';
 import get from "lodash.get";
 import { useEffect } from "react";
 import { maxLength, minLength, NumberInput, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
+import { useFormContext } from "react-hook-form";
 import { IDField } from "src/components/misc";
 
 const PREFIX = 'ModuleTemplateTaskFields';
@@ -49,9 +50,12 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
 
     const translate = useTranslate();
     const validateTitle = [required(), minLength(2), maxLength(150)];
-    //const form = useForm();
-    // TODO
-    //useEffect(() => props.calculateTTC(), [get(form.getState().values, getSource?.('ttc'))]);
+
+    const { getValues } = useFormContext();
+
+    useEffect(() => {
+        props.calculateTTC();
+    }, [getValues(getSource?.('ttc'))])
 
     return (
         <Root>

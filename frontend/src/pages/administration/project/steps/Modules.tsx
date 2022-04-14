@@ -1,34 +1,36 @@
 import { Step } from "src/packages/FormStepper/Step";
 import { FormGroupContextProvider } from "react-admin";
 import ModuleManager from "src/packages/ModuleManager";
+import { useFormContext } from "react-hook-form";
+import { IModule } from "src/util/types";
 
 const Modules = (props: any) => {
-    /*const form = useForm();
+    const { getValues, setValue } = useFormContext();
 
     const recalculateTTC = () => {
-        const formData = form.getState().values;
-        if (!formData.modules) return;
+        const modules = getValues('modules');
+        if (!modules) return;
 
         let project_ttc = 0;
-        for (let [stepKey, step] of Object.entries<IModuleTemplate[]>(formData.modules)) {
+        for (let [stepKey, step] of Object.entries<IModule[]>(modules)) {
             let stepTTC: number = 0;
-            for (let [moduleKey, module] of Object.entries<IModuleTemplate>(step)) {
+            for (let [moduleKey, module] of Object.entries<IModule>(step)) {
                 if (module.ttc < stepTTC) continue;
                 stepTTC = module.ttc;
             }
             project_ttc += stepTTC;
         }
 
-        if (project_ttc == formData.ttc) return;
+        if (project_ttc == getValues('ttc')) return;
 
-        form.change('ttc', project_ttc);
-    }*/
+        setValue('ttc', project_ttc);
+    }
 
     return (
         <>
             <Step validator={props.validator} {...props}>
                 <FormGroupContextProvider name={props.validator}>    
-                    <ModuleManager calculateTTC={/*recalculateTTC TODO*/ () => true} />         
+                    <ModuleManager calculateTTC={recalculateTTC} />         
                 </FormGroupContextProvider>
             </Step>
         </>

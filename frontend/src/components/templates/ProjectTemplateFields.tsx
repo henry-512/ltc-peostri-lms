@@ -1,10 +1,10 @@
 import { Box, Grid } from "@mui/material";
 import { maxLength, minLength, NumberInput, required, SelectInput, TextInput } from "react-admin";
-import { useForm, useFormState } from "react-hook-form";
 import { IModuleTemplate } from "src/util/types";
 import { SectionTitle } from "src/components/misc";
 import ModuleManager from "src/packages/ModuleManager";
 import ModuleTemplateFields from "./ModuleTemplateFields";
+import { useFormContext } from "react-hook-form";
 
 export type ProjectTemplateFieldsProps = {
 
@@ -13,14 +13,14 @@ export type ProjectTemplateFieldsProps = {
 const ProjectTemplateFields = (props: ProjectTemplateFieldsProps) => {
     const validateTitle = [required(), minLength(2), maxLength(150)];
 
-    const form = useForm();
-    // TODO CHANGE TO USEFORMCONTEXT()
-    /*const recalculateTTC = () => {
-        //const formData = form.getState().values;
-        if (!formData.modules) return;
+    const { getValues, setValue } = useFormContext();
+
+    const recalculateTTC = () => {
+        const modules = getValues('modules');
+        if (!modules) return;
 
         let project_ttc = 0;
-        for (let [stepKey, step] of Object.entries<IModuleTemplate[]>(formData.modules)) {
+        for (let [stepKey, step] of Object.entries<IModuleTemplate[]>(modules)) {
             let stepTTC: number = 0;
             for (let [moduleKey, module] of Object.entries<IModuleTemplate>(step)) {
                 if (module.ttc < stepTTC) continue;
@@ -29,10 +29,10 @@ const ProjectTemplateFields = (props: ProjectTemplateFieldsProps) => {
             project_ttc += stepTTC;
         }
 
-        if (project_ttc == formData.ttc) return;
+        if (project_ttc == getValues('ttc')) return;
 
-        //form.change('ttc', project_ttc);
-    }*/
+        setValue('ttc', project_ttc);
+    }
 
     return (
         <>
@@ -81,7 +81,7 @@ const ProjectTemplateFields = (props: ProjectTemplateFieldsProps) => {
                     </Grid>
                 </Grid>
             </Box>
-            <ModuleManager fields={<ModuleTemplateFields calculateTTC={/* TODO recalculateTTC || */() => {}} />} isTemplate={true} />
+            <ModuleManager fields={<ModuleTemplateFields calculateTTC={recalculateTTC} />} isTemplate={true} />
         </>
     )
 }
