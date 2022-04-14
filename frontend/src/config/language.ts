@@ -293,7 +293,7 @@ const domainMessages = {
                     "status": "Status",
                     "title": "Module Name",
                     "ttc": "Est. Time to Completion (in days)",
-                    "ttc_help": "Calculated Based on Tasks",
+                    "ttc_help": "Auto Calculated Based on Tasks",
                     "ttc_short": "TTC"
                 },
                 "layout": {
@@ -311,7 +311,7 @@ const domainMessages = {
                     "status": "Status",
                     "title": "Project Name",
                     "ttc": "Est. Time to Completion (in days)",
-                    "ttc_help": "Calculated Based on Modules",
+                    "ttc_help": "Auto Calculated Based on Modules",
                     "ttc_short": "TTC"
                 },
                 "layout": {

@@ -7,8 +7,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 const StyledDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
         padding: theme.spacing(2),
-        paddingTop: 0,
-        paddingBottom: 0
+        paddingTop: 0
     },
     '& .MuiDialogActions-root': {
         margin: 0,

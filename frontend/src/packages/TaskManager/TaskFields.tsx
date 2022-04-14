@@ -58,7 +58,7 @@ const TaskFields = (props: TaskFieldsProps) => {
         <Root>
             <Grid container spacing={4} className={classes.taskFieldWrapper}>
                 <IDField source={getSource?.('id') || ""} id={props.defaultValues?.id} />
-                <Grid item xs={5} style={{ marginTop: '-32px' }}>
+                <Grid item xs={5} style={{ marginTop: '-18px' }}>
                     <TextInput
                         source={getSource?.('title') || ""}
                         label="project.fields.task_title"
@@ -67,7 +67,7 @@ const TaskFields = (props: TaskFieldsProps) => {
                         validate={validateTitle}
                     />
                 </Grid>
-                <Grid item xs={4} style={{ marginTop: '-32px' }}>
+                <Grid item xs={4} style={{ marginTop: '-18px' }}>
                     <SelectInput
                         source={getSource?.('type') || ""}
                         choices={[
@@ -88,7 +88,7 @@ const TaskFields = (props: TaskFieldsProps) => {
                         disableValue="not_available"
                     />
                 </Grid>
-                <Grid item xs={3} style={{ marginTop: '-32px'}}>
+                <Grid item xs={3} style={{ marginTop: '-18px'}}>
                     <SelectInput
                         source={getSource?.('status') || ""}
                         choices={[
@@ -126,7 +126,7 @@ const TaskFields = (props: TaskFieldsProps) => {
                 </Grid>
 
                 <Grid item xs={6} style={{ marginTop: '-32px' }}>
-                    <NumberInput
+                    <TextInput
                         source={getSource?.('ttc') || ""}
                         label="template.module.fields.ttc"
                         fullWidth
