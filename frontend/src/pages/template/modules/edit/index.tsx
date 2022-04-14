@@ -9,7 +9,7 @@ const ModuleTemplateEdit = (props: any) => {
     const translate = useTranslate();
 
     return (
-        <Edit title={translate('project.edit.title')} {...props} transform={transformer}>
+        <Edit title={translate('project.edit.title')} {...props} transform={transformer} redirect="show">
             <FormStepper validate={validateModuleTemplate} {...props}>
 
                 <General title={translate('template.module.steps.general')} validator="general" getSource={(src: string) => src} {...props} />

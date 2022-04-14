@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material"
 import { MouseEventHandler } from "react";
 import { Button, DeleteButton, SaveButton, Toolbar, ToolbarProps, useFormGroup, useTranslate } from "react-admin"
-import { useForm } from "react-final-form";
+import { useFormState } from "react-hook-form";
 
 export interface StepToolbarProps extends ToolbarProps {
     active: number;
@@ -18,8 +18,7 @@ export interface StepToolbarProps extends ToolbarProps {
 export default function StepToolbar(props: StepToolbarProps) {
     const translate = useTranslate();
     const formGroupState = useFormGroup(props.validator);
-    const form = useForm();
-    const formState = form.getState();
+    const { isValid, isDirty } = useFormState();
 
     return (
         <Toolbar {...props}>
@@ -58,12 +57,11 @@ export default function StepToolbar(props: StepToolbarProps) {
                     label={translate('layout.button.skip')} />
             )}
             {(props.active !== props.stepCount - 1) ? (
-                <Button onClick={props.handleNext} label={translate('layout.button.next')} disabled={formGroupState.invalid && formGroupState.dirty ? true : false} />
+                <Button onClick={props.handleNext} label={translate('layout.button.next')} disabled={!isValid && isDirty ? true : false} />
             ) : (
                 <SaveButton
                     label={(props.create) ? "layout.button.create" : "layout.button.save"}
-                    redirect="list"
-                    disabled={formState.invalid ? true : false}
+                    disabled={!isValid ? true : false}
                 />
             )}
         </Toolbar>

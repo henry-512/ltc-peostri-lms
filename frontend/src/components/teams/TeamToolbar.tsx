@@ -1,13 +1,13 @@
 import { Box } from "@mui/material"
 import { DeleteButton, SaveButton, Toolbar, ToolbarProps } from "react-admin"
-import { useFormState } from "react-final-form";
+import { useFormState } from "react-hook-form";
 
 export interface TeamToolbarProps extends ToolbarProps {
     create: boolean;
 }
 
 export default function TeamToolbar(props: TeamToolbarProps) {
-    const formState = useFormState();
+    const { isValid, isDirty } = useFormState();
 
     return (
         <Toolbar {...props}>
@@ -28,8 +28,7 @@ export default function TeamToolbar(props: TeamToolbarProps) {
             <Box sx={{ flex: '1 1 auto' }} />
             <SaveButton
                 label={(props.create) ? "layout.button.create" : "layout.button.save"}
-                redirect="edit"
-                disabled={(formState.invalid || !formState.dirty) ? true : false}
+                disabled={(!isValid || !isDirty) ? true : false}
             />
         </Toolbar>
     )

@@ -16,86 +16,7 @@ const classes = {
     select: `${PREFIX}-select`
 };
 
-// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
-const Root = styled('div')((
-    {
-        theme
-    }
-) => ({
-    [`& .${classes.headerRow}`]: {
-        borderLeftColor: 'transparent',
-        borderLeftWidth: 5,
-        borderLeftStyle: 'solid',
-    },
-
-    [`& .${classes.headerCell}`]: {
-        padding: '6px 8px 6px 8px',
-    },
-
-    [`& .${classes.rowCell}`]: {
-        padding: '6px 8px 6px 8px',
-    },
-
-    [`& .${classes.avatar}`]: {
-        marginRight: theme.spacing(1),
-        marginTop: -theme.spacing(0.5),
-        marginBottom: -theme.spacing(0.5),
-    },
-
-    [`& .${classes.filter}`]: {
-        marginTop: '32px',
-        '& .MuiInputBase-root': {
-            fontSize: '.8rem'
-        },
-        '& .MuiFormLabel-root': {
-            fontSize: '.9rem',
-            transform: 'translate(12px, 12px) scale(1)'
-        },
-        '& .MuiFormLabel-root.Mui-focused': {
-            transform: 'translate(12px, 5px) scale(.7)'
-        },
-        '& .MuiInputBase-input': {
-            paddingTop: '16px'
-        }
-    },
-
-    [`& .${classes.select}`]: {
-        marginTop: '32px',
-        '& .MuiInputBase-root': {
-            fontSize: '.8rem'
-        },
-        '& .MuiFormLabel-root': {
-            fontSize: '.9rem',
-            transform: 'translate(12px, 12px) scale(1)'
-        },
-        '& .MuiFormLabel-root.Mui-focused, & .MuiInputLabel-filled.MuiInputLabel-shrink.MuiInputLabel-marginDense': {
-            transform: 'translate(12px, 5px) scale(.7)'
-        },
-        '& .MuiInputBase-input': {
-            paddingTop: '16px'
-        }
-    }
-}));
-
-const useListStyles = makeStyles((
-    {
-        theme
-    }
-) => ({
-    [`& .${classes.headerRow}`]: {
-        borderLeftColor: 'transparent',
-        borderLeftWidth: 5,
-        borderLeftStyle: 'solid',
-    },
-
-    [`& .${classes.headerCell}`]: {
-        padding: '6px 8px 6px 8px',
-    },
-
-    [`& .${classes.rowCell}`]: {
-        padding: '6px 8px 6px 8px',
-    },
-
+const Root = styled('div')(({ theme }) => ({
     [`& .${classes.avatar}`]: {
         marginRight: theme.spacing(1),
         marginTop: -theme.spacing(0.5),
@@ -148,8 +69,6 @@ export interface UserListProps extends FieldProps<IUser>, ListProps {
 }
 
 const UserList = (props: UserListProps) => {
-    const classes = useListStyles();
-
     const UserListFilters = [
         <SearchInput source="q" alwaysOn />,
         <TextInput source="firstName" className={classes.filter} />,
@@ -160,17 +79,25 @@ const UserList = (props: UserListProps) => {
     ];
 
     return (
-        (<Root>
+        <Root>
             <List {...props}
                 perPage={25}
                 bulkActionButtons={<BulkUserToolbar />}
                 filters={UserListFilters}
             >
                 <Datagrid
-                    classes={{
-                        headerRow: classes.headerRow,
-                        headerCell: classes.headerCell,
-                        rowCell: classes.rowCell,
+                    sx={{
+                        [`& .RaDatagrid-headerRow`]: {
+                            borderLeftColor: 'transparent',
+                            borderLeftWidth: 5,
+                            borderLeftStyle: 'solid',
+                        },
+                        [`& .RaDatagrid-headerCell`]: {
+                            padding: '6px 8px 6px 8px',
+                        },
+                        [`& .RaDatagrid-rowCell`]: {
+                            padding: '6px 8px 6px 8px',
+                        }
                     }}
                     rowClick="edit"
                 >
@@ -193,7 +120,7 @@ const UserList = (props: UserListProps) => {
                     </ReferenceArrayField>
                 </Datagrid>
             </List>
-        </Root>)
+        </Root>
     );
 }
 

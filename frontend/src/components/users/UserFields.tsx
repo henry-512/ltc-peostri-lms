@@ -1,6 +1,5 @@
 import { Box, Theme } from "@mui/material";
 import { styled } from '@mui/material/styles';
-import { Styles } from '@mui/styles';
 import { AutocompleteArrayInput, BooleanInput, email, PasswordInput, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput } from "react-admin";
 import { SectionTitle } from "src/components/misc";
 import AutoFillUserName from "./AutoFillUserName";
@@ -24,13 +23,10 @@ const Root = styled('div')({
     }
 });
 
-export {};
-
 export default function UserFields(props: any) {
-
     
     return (
-        (<Root>
+        <Root>
             <Box display="flex" justifyContent="flex-start" width="100%" style={{
                     gap: "32px"
                 }}>
@@ -53,7 +49,6 @@ export default function UserFields(props: any) {
                             style={{
                                 width: "calc(50% - 16px)"
                             }}
-                            formClassName={classes.last_name}
                             validate={[required()]}
                             helperText=" "
                         />
@@ -62,8 +57,6 @@ export default function UserFields(props: any) {
                         <TextInput
                             type="email"
                             source="email"
-                            validation={{ email: true }}
-                            formClassName={classes.email}
                             validate={[required(), email()]}
                             helperText=" "
                             fullWidth
@@ -136,7 +129,6 @@ export default function UserFields(props: any) {
                 }}>
                     <PasswordInput
                         source="password"
-                        formClassName={classes.password}
                         style={{
                             width: "calc(50% - 16px)"
                         }}
@@ -144,7 +136,6 @@ export default function UserFields(props: any) {
                     />
                     <PasswordInput
                         source="confirm_password"
-                        formClassName={classes.confirm_password}
                         style={{
                             width: "calc(50% - 16px)"
                         }}
@@ -152,6 +143,6 @@ export default function UserFields(props: any) {
                     />
                 </Box>
             </Box>
-        </Root>)
+        </Root>
     );
 }

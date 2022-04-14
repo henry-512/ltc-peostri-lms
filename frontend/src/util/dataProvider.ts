@@ -203,7 +203,7 @@ const dataProvider = (
                     body: JSON.stringify(params.data),
                 }).then(({ json }) => Promise.resolve({ data: { id: "" } }))
             case 'admin/projects':
-                const formData = convertProjectToFormData(params.data);
+                const formData = convertProjectToFormData(params.data as IProject);
 
                 return httpClient(`${apiUrl}/${resource}/list/${params.id}`, {
                     method: 'PUT',

@@ -18,12 +18,7 @@ const classes = {
     cardText: `${PREFIX}-cardText`
 };
 
-// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
-const Root = styled('div')((
-    {
-        theme
-    }
-) => ({
+const Root = styled('div')(({ theme }) => ({
     [`& .${classes.root}`]: {
         marginBottom: '0',
         height: 'auto'
@@ -94,7 +89,7 @@ const TaskCard = ({ info, index, stepKey, baseSource, changeStep, changeIndex, u
     }
 
     return (
-        (<Root>
+        <Root>
             <Draggable draggableId={"task-" + stepKey + "-" + index || ""} index={index || 0} key={info?.id || ""}>
                 {(provided, snapshot) => (
                     <div
@@ -136,7 +131,7 @@ const TaskCard = ({ info, index, stepKey, baseSource, changeStep, changeIndex, u
                     </div>
                 )}
             </Draggable>
-        </Root>)
+        </Root>
     );
 }
 

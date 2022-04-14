@@ -7,7 +7,7 @@ const UserCreate = (props: any) => {
     const translate = useTranslate();
     
     return (
-        <Create {...props} transform={transformer} title={translate('user.layout.create_title')}>
+        <Create {...props} transform={transformer} title={translate('user.layout.create_title')} redirect="list">
             <SimpleForm
                 validate={validateUser}
                 toolbar={

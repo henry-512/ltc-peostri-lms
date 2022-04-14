@@ -6,7 +6,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Box, Divider, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-import { linkToRecord, useDataProvider } from "react-admin";
+import { useCreatePath, useDataProvider } from "react-admin";
 import classnames from "classnames";
 import { dateFormatToString } from "src/util/dateFormatter";
 
@@ -19,12 +19,7 @@ const classes = {
     infoWrapper: `${PREFIX}-infoWrapper`
 };
 
-// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
-const Root = styled('div')((
-    {
-        theme
-    }
-) => ({
+const Root = styled('div')(({ theme }) => ({
     [`& .${classes.root}`]: {
         maxWidth: "400px",
         display: "flex",
@@ -89,7 +84,7 @@ export type NotificationsItemProps = {
 }
 
 const NotificationsItem = (props: NotificationsItemProps) => {
-    const recordLink = linkToRecord(`${props.record.sender.resource}`, props.record.sender.id, 'show');
+    const createPath = useCreatePath();
 
 
     const dataProvider = useDataProvider();
@@ -106,7 +101,7 @@ const NotificationsItem = (props: NotificationsItemProps) => {
     
     return (
         (<Root>
-            <Link to={recordLink} replace style={{
+            <Link to={createPath({ resource: `${props.record.sender.resource}`, id: props.record.sender.id, type: 'show' })} replace style={{
                 textDecoration: 'none'
             }} onClick={markRead}>
                 <Box className={classnames(classes.root, {

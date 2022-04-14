@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { styled } from '@mui/material/styles';
 import PropTypes from 'prop-types';
-import { Field, withTypes } from 'react-final-form';
 import { useLocation } from 'react-router-dom';
 
 import {
@@ -9,14 +8,9 @@ import {
     Button,
     Card,
     CardActions,
-    CircularProgress,
-    CssBaseline,
-    TextField,
-    adaptV4Theme,
+    CircularProgress
 } from '@mui/material';
-import { createTheme } from '@mui/material/styles';
-import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/styles';
-import { Notification, useTranslate, useLogin, useNotify } from 'react-admin';
+import { Notification, useTranslate, useLogin, useNotify, Form, TextInput, required } from 'react-admin';
 import { lightTheme } from '../../util/themes';
 
 
@@ -31,11 +25,7 @@ const classes = {
     actions: `${PREFIX}-actions`
 };
 
-const StyledStyledEngineProvider = styled(StyledEngineProvider)((
-    {
-        theme
-    }
-) => ({
+const Root = styled('div')(({ theme }) => ({
     [`& .${classes.main}`]: {
         display: 'flex',
         flexDirection: 'column',
@@ -75,33 +65,10 @@ const StyledStyledEngineProvider = styled(StyledEngineProvider)((
     }
 }));
 
-
-declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
-
-
-const renderInput = ({
-    meta: { touched, error } = { touched: false, error: undefined },
-    input: { ...inputProps },
-    ...props
-}) => (
-    <TextField
-        error={!!(touched && error)}
-        helperText={touched && error}
-        {...inputProps}
-        {...props}
-        fullWidth
-    />
-);
-
 interface FormValues {
     username?: string;
     password?: string;
 }
-
-const { Form } = withTypes<FormValues>();
 
 const Login = () => {
     const [loading, setLoading] = useState(false);
@@ -109,33 +76,34 @@ const Login = () => {
 
     const notify = useNotify();
     const login = useLogin();
-    const location = useLocation<{ nextPathname: string } | null>();
+    const location = useLocation();
 
     const handleSubmit = (auth: FormValues) => {
         setLoading(true);
-        login(auth, location.state ? location.state.nextPathname : '/').catch(
-            (error: Error) => {
-                setLoading(false);
-                notify(
-                    typeof error === 'string'
-                        ? error
-                        : typeof error === 'undefined' || !error.message
-                            ? 'ra.auth.sign_in_error'
-                            : error.message,
-                    {
-                        type: 'warning',
-                        messageArgs: {
-                            _:
-                                typeof error === 'string'
-                                    ? error
-                                    : error && error.message
-                                        ? error.message
-                                        : undefined,
-                        },
-                    }
-                );
-            }
-        );
+        login(
+            auth,
+            location.state ? (location.state as any).nextPathname : '/'
+        ).catch((error: Error) => {
+            setLoading(false);
+            notify(
+                typeof error === 'string'
+                    ? error
+                    : typeof error === 'undefined' || !error.message
+                    ? 'ra.auth.sign_in_error'
+                    : error.message,
+                {
+                    type: 'warning',
+                    messageArgs: {
+                        _:
+                            typeof error === 'string'
+                                ? error
+                                : error && error.message
+                                ? error.message
+                                : undefined,
+                    },
+                }
+            );
+        });
     };
 
     const validate = (values: FormValues) => {
@@ -150,66 +118,62 @@ const Login = () => {
     };
 
     return (
-        <Form
-            onSubmit={handleSubmit}
-            validate={validate}
-            render={({ handleSubmit }) => (
-                <form onSubmit={handleSubmit} noValidate>
-                    <div className={classes.main}>
-                        <Box display="flex" flexDirection="column" position="absolute" top="50%" style={{
-                            transform: "translateY(-50%)",
-                            gap: '1em'
-                        }} >
-                            <Card className={classes.card}>
-                                <div className={classes.logo}>
-                                    <img src="/logo.png" alt="PEO STRI" />
-                                </div>
-                                <div className={classes.form}>
-                                    <div className={classes.input}>
-                                        <Field
-                                            autoFocus
-                                            name="username"
-                                            // @ts-ignore
-                                            component={renderInput}
-                                            label={translate('ra.auth.username')}
-                                            disabled={loading}
-                                        />
-                                    </div>
-                                    <div className={classes.input}>
-                                        <Field
-                                            name="password"
-                                            // @ts-ignore
-                                            component={renderInput}
-                                            label={translate('ra.auth.password')}
-                                            type="password"
-                                            disabled={loading}
-                                        />
-                                    </div>
-                                </div>
-                                <CardActions className={classes.actions}>
-                                    <Button
-                                        variant="contained"
-                                        type="submit"
-                                        color="primary"
+        <Root>
+            <Form onSubmit={handleSubmit} validate={validate}>
+                <div className={classes.main}>
+                    <Box display="flex" flexDirection="column" position="absolute" top="50%" style={{
+                        transform: "translateY(-50%)",
+                        gap: '1em'
+                    }} >
+                        <Card className={classes.card}>
+                            <div className={classes.logo}>
+                                <img src="/logo.png" alt="PEO STRI" />
+                            </div>
+                            <div className={classes.form}>
+                                <div className={classes.input}>
+                                    <TextInput
+                                        autoFocus
+                                        source="username"
+                                        label={translate('ra.auth.username')}
                                         disabled={loading}
+                                        validate={required()}
                                         fullWidth
-                                    >
-                                        {loading && (
-                                            <CircularProgress
-                                                size={25}
-                                                thickness={2}
-                                            />
-                                        )}
-                                        {translate('ra.auth.sign_in')}
-                                    </Button>
-                                </CardActions>
-                            </Card>
-                        </Box>
-                        <Notification />
-                    </div>
-                </form>
-            )}
-        />
+                                    />  
+                                </div>
+                                <div className={classes.input}>
+                                    <TextInput
+                                        source="password"
+                                        label={translate('ra.auth.password')}
+                                        type="password"
+                                        disabled={loading}
+                                        validate={required()}
+                                        fullWidth
+                                    />
+                                </div>
+                            </div>
+                            <CardActions className={classes.actions}>
+                                <Button
+                                    variant="contained"
+                                    type="submit"
+                                    color="primary"
+                                    disabled={loading}
+                                    fullWidth
+                                >
+                                    {loading && (
+                                        <CircularProgress
+                                            size={25}
+                                            thickness={2}
+                                        />
+                                    )}
+                                    {translate('ra.auth.sign_in')}
+                                </Button>
+                            </CardActions>
+                        </Card>
+                    </Box>
+                    <Notification />
+                </div>
+            </Form>
+        </Root>
     );
 };
 
@@ -218,16 +182,4 @@ Login.propTypes = {
     previousRoute: PropTypes.string,
 };
 
-// We need to put the ThemeProvider decoration in another component
-
-// the right theme
-const LoginPage = (props: any) => (
-    <StyledStyledEngineProvider injectFirst>
-        <ThemeProvider theme={createTheme(adaptV4Theme(lightTheme))}>
-            <CssBaseline />
-            <Login {...props} />
-        </ThemeProvider>
-    </StyledStyledEngineProvider>
-);
-
-export default LoginPage;
+export default Login;

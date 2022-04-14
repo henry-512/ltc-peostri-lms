@@ -3,7 +3,6 @@ import { styled } from '@mui/material/styles';
 import get from "lodash.get";
 import { useEffect } from "react";
 import { maxLength, minLength, NumberInput, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
-import { useForm, useFormState } from "react-final-form";
 import { IDField } from "src/components/misc";
 
 const PREFIX = 'ModuleTemplateTaskFields';
@@ -14,12 +13,7 @@ const classes = {
     taskFieldWrapper: `${PREFIX}-taskFieldWrapper`
 };
 
-// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
-const Root = styled('div')((
-    {
-        theme
-    }
-) => ({
+const Root = styled('div')(({ theme }) => ({
     [`& .${classes.taskForm}`]: {
         marginTop: '1.75rem'
     },
@@ -55,13 +49,12 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
 
     const translate = useTranslate();
     const validateTitle = [required(), minLength(2), maxLength(150)];
-    const formData = useFormState().values
-    const form = useForm();
-
-    useEffect(() => props.calculateTTC(), [get(form.getState().values, getSource?.('ttc'))]);
+    //const form = useForm();
+    // TODO
+    //useEffect(() => props.calculateTTC(), [get(form.getState().values, getSource?.('ttc'))]);
 
     return (
-        (<Root>
+        <Root>
             <Grid container spacing={4} className={classes.taskFieldWrapper}>
                 <IDField source={getSource?.('id') || ""} id={props.defaultValues?.id} />
                 <Grid item xs={5}>
@@ -135,7 +128,7 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
                     />
                 </Grid>
             </Grid>
-        </Root>)
+        </Root>
     );
 }
 

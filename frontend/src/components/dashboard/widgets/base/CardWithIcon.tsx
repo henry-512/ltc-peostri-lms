@@ -16,11 +16,7 @@ const classes = {
     title: `${PREFIX}-title`
 };
 
-const StyledCard = styled(Card)((
-    {
-        theme
-    }
-) => ({
+const StyledCard = styled(Card)(({ theme }) => ({
     [`&.${classes.card}`]: {
         minHeight: 52,
         display: 'flex',
@@ -35,9 +31,8 @@ const StyledCard = styled(Card)((
     [`& .${classes.main}`]: (props: CardWithIconProps) => ({
         overflow: 'inherit',
         padding: 16,
-        background: `url(${
-            cartouche
-        }) no-repeat`,
+        background: `url(${cartouche
+            }) no-repeat`,
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',

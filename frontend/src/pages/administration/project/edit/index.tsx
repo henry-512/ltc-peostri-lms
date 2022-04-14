@@ -17,11 +17,7 @@ const classes = {
     alignCenter: `${PREFIX}-alignCenter`
 };
 
-const StyledEdit = styled(Edit)((
-    {
-        theme
-    }
-) => ({
+const StyledEdit = styled(Edit)(({ theme }) => ({
     [`& .${classes.root}`]: {},
 
     [`& .${classes.content}`]: {
@@ -52,8 +48,6 @@ const StyledEdit = styled(Edit)((
 
 const AdminProjectEdit = (props: any) => {
     const translate = useTranslate();
-
-
 
     return (
         <StyledEdit title={translate('project.edit.title')} {...props} transform={transformer}>

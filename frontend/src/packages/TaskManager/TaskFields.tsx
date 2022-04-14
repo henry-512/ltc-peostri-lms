@@ -16,11 +16,7 @@ const classes = {
 };
 
 // TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
-const Root = styled('div')((
-    {
-        theme
-    }
-) => ({
+const Root = styled('div')(({ theme }) => ({
     [`& .${classes.taskForm}`]: {
         marginTop: '1.75rem'
     },
@@ -61,7 +57,7 @@ const TaskFields = (props: TaskFieldsProps) => {
     useEffect(() => props.calculateTTC?.(), [get(form.getState().values, getSource?.('ttc'))]);
 
     return (
-        (<Root>
+        <Root>
             <Grid container spacing={4} className={classes.taskFieldWrapper}>
                 <IDField source={getSource?.('id') || ""} id={props.defaultValues?.id} />
                 <Grid item xs={5}>
@@ -146,7 +142,7 @@ const TaskFields = (props: TaskFieldsProps) => {
                     </ReferenceArrayInput>
                 </Grid>
             </Grid>
-        </Root>)
+        </Root>
     );
 }
 

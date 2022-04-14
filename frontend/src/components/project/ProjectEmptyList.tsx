@@ -19,7 +19,6 @@ const classes = {
     toolbar: `${PREFIX}-toolbar`
 };
 
-
 const Root = styled('div')(({ theme }) => ({
     [`& .${classes.message}`]: {
         textAlign: 'center',
@@ -64,31 +63,29 @@ const ProjectEmptyList = (props: EmptyProps) => {
     const inviteMessage = translate('ra.page.invite');
 
     return (
-        <>
-            <Root>
-                <div className={classes.message}>
-                    <Inbox className={classes.icon} />
-                    <Typography variant="h4" paragraph>
-                        {translate(`resources.${resource}.empty`, {
-                            _: emptyMessage,
+        <Root>
+            <div className={classes.message}>
+                <Inbox className={classes.icon} />
+                <Typography variant="h4" paragraph>
+                    {translate(`resources.${resource}.empty`, {
+                        _: emptyMessage,
+                    })}
+                </Typography>
+                {hasCreate && (
+                    <Typography variant="body1">
+                        {translate(`resources.${resource}.invite`, {
+                            _: inviteMessage,
                         })}
                     </Typography>
-                    {hasCreate && (
-                        <Typography variant="body1">
-                            {translate(`resources.${resource}.invite`, {
-                                _: inviteMessage,
-                            })}
-                        </Typography>
-                    )}
-                </div>
-                {hasCreate && (
-                    <div className={classes.toolbar}>
-                        <CreateButton variant="contained" />
-                        <CreateProjectFromTemplate />
-                    </div>
                 )}
-            </Root>
-        </>
+            </div>
+            {hasCreate && (
+                <div className={classes.toolbar}>
+                    <CreateButton variant="contained" />
+                    <CreateProjectFromTemplate />
+                </div>
+            )}
+        </Root>
     );
 };
 

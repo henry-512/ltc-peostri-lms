@@ -44,10 +44,9 @@ import CreateProjectFromTemplate from 'src/packages/CreateProjectFromTemplate';
 const ProjectListActions: FC<ListActionsProps> = props => {
     const { className, exporter, filters, ...rest } = props;
     const {
-        currentSort,
+        sort,
         displayedFilters,
         filterValues,
-        basePath,
         selectedIds,
         showFilter,
         total,
@@ -67,12 +66,12 @@ const ProjectListActions: FC<ListActionsProps> = props => {
                     })
                 }
                 <CreateProjectFromTemplate variant="text" />
-                {hasCreate && <CreateButton basePath={basePath} />}
+                {hasCreate && <CreateButton />}
                 {exporter !== false && (
                     <ExportButton
                         disabled={total === 0}
                         resource={resource}
-                        sort={currentSort}
+                        sort={sort}
                         filterValues={filterValues}
                     />
                 )}

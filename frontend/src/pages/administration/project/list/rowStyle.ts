@@ -1,6 +1,6 @@
-import green from '@material-ui/core/colors/green';
-import amber from '@material-ui/core/colors/amber';
-import red from '@material-ui/core/colors/red';
+import green from '@mui/material/colors/green';
+import amber from '@mui/material/colors/amber';
+import red from '@mui/material/colors/red';
 import { IProject } from 'src/util/types';
 import getProgressStatus from 'src/util/getProgressStatus';
 

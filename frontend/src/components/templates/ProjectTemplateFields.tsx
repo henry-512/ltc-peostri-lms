@@ -1,7 +1,6 @@
 import { Box, Grid } from "@mui/material";
-import makeStyles from '@mui/styles/makeStyles';
 import { maxLength, minLength, NumberInput, required, SelectInput, TextInput } from "react-admin";
-import { useForm, useFormState } from "react-final-form";
+import { useForm, useFormState } from "react-hook-form";
 import { IModuleTemplate } from "src/util/types";
 import { SectionTitle } from "src/components/misc";
 import ModuleManager from "src/packages/ModuleManager";
@@ -13,11 +12,11 @@ export type ProjectTemplateFieldsProps = {
 
 const ProjectTemplateFields = (props: ProjectTemplateFieldsProps) => {
     const validateTitle = [required(), minLength(2), maxLength(150)];
-    const formData = useFormState().values;
-    const form = useForm();
 
-    const recalculateTTC = () => {
-        const formData = form.getState().values;
+    const form = useForm();
+    // TODO CHANGE TO USEFORMCONTEXT()
+    /*const recalculateTTC = () => {
+        //const formData = form.getState().values;
         if (!formData.modules) return;
 
         let project_ttc = 0;
@@ -32,8 +31,8 @@ const ProjectTemplateFields = (props: ProjectTemplateFieldsProps) => {
 
         if (project_ttc == formData.ttc) return;
 
-        form.change('ttc', project_ttc);
-    }
+        //form.change('ttc', project_ttc);
+    }*/
 
     return (
         <>
@@ -79,7 +78,7 @@ const ProjectTemplateFields = (props: ProjectTemplateFieldsProps) => {
                     </Grid>
                 </Grid>
             </Box>
-            <ModuleManager fields={<ModuleTemplateFields calculateTTC={recalculateTTC} />} isTemplate={true} />
+            <ModuleManager fields={<ModuleTemplateFields calculateTTC={/* TODO recalculateTTC || */() => {}} />} isTemplate={true} />
         </>
     )
 }

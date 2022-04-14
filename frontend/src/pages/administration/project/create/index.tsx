@@ -17,11 +17,7 @@ const classes = {
     alignCenter: `${PREFIX}-alignCenter`
 };
 
-const StyledCreate = styled(Create)((
-    {
-        theme
-    }
-) => ({
+const StyledCreate = styled(Create)(({ theme }) => ({
     [`& .${classes.root}`]: {},
 
     [`& .${classes.content}`]: {

@@ -1,14 +1,13 @@
 import { Box } from "@mui/material";
-import { DeleteButton, EditActionsProps, SaveButton, Toolbar, ToolbarProps } from "react-admin";
-import { useForm, useFormState } from "react-final-form";
+import { DeleteButton, SaveButton, Toolbar, ToolbarProps } from "react-admin";
+import { useFormState } from "react-hook-form";
 
 export interface TemplateToolbarProps extends ToolbarProps {
     create: boolean;
 }
 
 const TemplateToolbar = (props: TemplateToolbarProps) => {
-    const form = useForm();
-    const formState = useFormState();
+    const { isValid, isDirty } = useFormState();
 
     return (
         <Toolbar {...props}>
@@ -29,8 +28,7 @@ const TemplateToolbar = (props: TemplateToolbarProps) => {
             <Box sx={{ flex: '1 1 auto' }} />
             <SaveButton
                 label={(props.create) ? "layout.button.create" : "layout.button.save"}
-                redirect="show"
-                disabled={(formState.invalid || !formState.dirty) ? true : false}
+                disabled={(!isValid || !isDirty) ? true : false}
             />
         </Toolbar>
     )

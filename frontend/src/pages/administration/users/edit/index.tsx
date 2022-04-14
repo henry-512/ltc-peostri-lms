@@ -4,7 +4,7 @@ import transformer from "../transformer";
 import validateUser from "../validation";
 
 const UserEdit = (props: any) => (
-    <Edit {...props} transform={transformer} actions={<UserEditToolbar />} title={<UserEditTitle />}>
+    <Edit {...props} transform={transformer} actions={<UserEditToolbar />} title={<UserEditTitle />} redirect="edit">
         <SimpleForm
             validate={validateUser}
             toolbar={

@@ -10,16 +10,14 @@ import NotificationsItem from "./NotificationsItem"
 const PREFIX = 'NotificationsMenu';
 
 const classes = {
-    root: `${PREFIX}-root`
+    headerRoot: `${PREFIX}-header`,
+    footerRoot: `${PREFIX}-footer`,
+    loader: `${PREFIX}-loader`,
+    paper: `${PREFIX}-paper`
 };
 
-// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
-const Root = styled('div')((
-    {
-        theme
-    }
-) => ({
-    [`& .${classes.root}`]: {
+const HeaderRoot = styled('div')(({ theme }) => ({
+    [`& .${classes.headerRoot}`]: {
         borderRadius: '0 0 10px 10px',
         padding: '.5rem 0'
     }
@@ -29,7 +27,7 @@ const Header = ({disabled, markAllRead}: {disabled: boolean, markAllRead: any}) 
     const translate = useTranslate();
 
     return (
-        (<Root>
+        <HeaderRoot>
             <Box display="flex" padding=".5rem 1rem" alignItems="center" >
                 <Typography variant="subtitle1">
                 {translate('notification.title')}
@@ -42,23 +40,18 @@ const Header = ({disabled, markAllRead}: {disabled: boolean, markAllRead: any}) 
                 }
             </Box>
             <Divider />
-        </Root>)
+        </HeaderRoot>
     );
 }
 
-const useFooterStyles = makeStyles((
-    {
-        theme
-    }
-) => ({
-    [`& .${classes.root}`]: {
+const FooterRoot = styled('div')(({ theme }) => ({
+    [`& .${classes.footerRoot}`]: {
         borderRadius: '0 0 10px 10px',
         padding: '.5rem 0'
     }
 }))
 
 const Footer = ({disabled, handleClose}: {disabled?: boolean, handleClose: Function}) => {
-    const classes = useFooterStyles();
     const navigate = useNavigate();
     const translate = useTranslate();
 
@@ -68,7 +61,7 @@ const Footer = ({disabled, handleClose}: {disabled?: boolean, handleClose: Funct
     }
 
     return (
-        <>
+        <FooterRoot>
             {(disabled) ? null : (
                 <>
                     <Divider />
@@ -79,7 +72,7 @@ const Footer = ({disabled, handleClose}: {disabled?: boolean, handleClose: Funct
                     </Box>
                 </>
             )}
-        </>
+        </FooterRoot>
     )
 }
 
@@ -96,18 +89,28 @@ export type NotificationsMenuProps = {
     fetch: Function
 }
 
+const Root = styled('div')(({ theme }) => ({
+    [`& .${classes.loader}`]: {
+        padding: '4rem 1rem 1rem 1rem',
+        height: 'auto'
+    },
+
+    [`& .${classes.paper}`]: {
+        minWidth: '300px'
+    }
+}))
+
 const NotificationsMenu = (props: NotificationsMenuProps) => {
     const { anchorEl, AnchorOrigin, TransformOrigin, open, handleClose, data = [], id, loading = false, markAllRead, fetch } = props;
 
 
     return (
-        <>
+        <Root>
             <Popover
                 id={id}
                 anchorEl={anchorEl}
                 anchorOrigin={AnchorOrigin}
                 transformOrigin={TransformOrigin}
-                getContentAnchorEl={null}
                 open={open}
                 onClose={handleClose}
                 classes={classes}
@@ -126,7 +129,7 @@ const NotificationsMenu = (props: NotificationsMenuProps) => {
                 }
                 <Footer handleClose={handleClose} />
             </Popover>
-        </>
+        </Root>
     )
 }
 

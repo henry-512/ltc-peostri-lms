@@ -46,8 +46,6 @@ export type CreatorProps = {
 
 const Creator = (props: CreatorProps) => {
     const translate = useTranslate();
-    const form = useForm();
-    const formData = form.getState().values;
 
     const handleClose = () => {
         if (props.cancelAction) {
@@ -70,7 +68,7 @@ const Creator = (props: CreatorProps) => {
         props.setOpen(false);
     }
 
-    const formGroupState = useFormGroup(props.ariaLabel);
+    const { isValid } = useFormGroup(props.ariaLabel);
 
     return (
         <Root>
@@ -112,7 +110,7 @@ const Creator = (props: CreatorProps) => {
                         {translate('project.layout.cancel')}
                     </Button>
                     <Box sx={{ flex: '1 1 auto' }} />
-                    <Button onClick={handleSubmit} color="primary" disabled={formGroupState.invalid ? true : false}>
+                    <Button onClick={handleSubmit} color="primary" disabled={isValid ? false : true}>
                         {props.create ? translate('project.layout.create') : translate('project.layout.save')}
                     </Button>
                 </DialogActions>

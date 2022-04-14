@@ -4,7 +4,7 @@ import TaskManager from "src/packages/TaskManager";
 import { SectionTitle, IDField } from "src/components/misc";
 import { ModuleTemplateTaskFields } from ".";
 import { useEffect } from "react";
-import { useForm } from "react-final-form";
+import { useForm } from "react-hook-form";
 import { ITaskTemplate } from "src/util/types";
 import get from "lodash.get";
 
@@ -19,7 +19,8 @@ const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
     const validateTitle = [required(), minLength(2), maxLength(150)];
     const form = useForm();
 
-    const recalculateTTC = (data: any) => {
+    // TODO CHANGE TO USEFORMCONTEXT()
+    /*const recalculateTTC = (data: any) => {
         const formData = form.getState().values;
         if (!get(formData, getSource?.('tasks') || "")) return;
 
@@ -35,10 +36,10 @@ const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
 
         if (module_ttc == get(formData, getSource?.('ttc') || "")) return;
 
-        form.change(getSource?.('ttc'), module_ttc);
-    }
+        //form.change(getSource?.('ttc'), module_ttc);
+    }*/
 
-    useEffect(() => (props.calculateTTC) ? props.calculateTTC() : null, [get(form.getState().values, getSource?.('ttc'))])
+    //useEffect(() => (props.calculateTTC) ? props.calculateTTC() : null, [get(form.getState().values, getSource?.('ttc'))])
 
     return (
         <>
@@ -84,7 +85,7 @@ const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
                         />
                     </Grid>
                 </Grid>
-                <TaskManager source={getSource?.('tasks') || ""} fields={<ModuleTemplateTaskFields calculateTTC={recalculateTTC} />}/>
+                <TaskManager source={getSource?.('tasks') || ""} fields={<ModuleTemplateTaskFields calculateTTC={/*recalculateTTC TODO */ () => {}} />}/>
             </Box>
         </>
     )

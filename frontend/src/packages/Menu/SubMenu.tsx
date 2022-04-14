@@ -1,4 +1,4 @@
-import { Fragment, ReactElement, ReactNode } from 'react';
+import { ReactElement, ReactNode } from 'react';
 import { styled } from '@mui/material/styles';
 import {
     List,
@@ -19,12 +19,7 @@ const classes = {
     sidebarIsClosed: `${PREFIX}-sidebarIsClosed`
 };
 
-// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
-const Root = styled('div')((
-    {
-        theme
-    }
-) => ({
+const Root = styled('div')(({ theme }) => ({
     [`& .${classes.icon}`]: { minWidth: theme.spacing(5) },
 
     [`& .${classes.sidebarIsOpen}`]: {
@@ -58,7 +53,7 @@ const SubMenu = (props: SubMenuProps) => {
     const [sidebarIsOpen] = useSidebarState();
 
     const header = (
-        <MenuItem dense={dense} button onClick={handleToggle}>
+        <MenuItem dense={dense} onClick={handleToggle}>
             <ListItemIcon className={classes.icon}>
                 {isOpen ? <ExpandMore /> : icon}
             </ListItemIcon>

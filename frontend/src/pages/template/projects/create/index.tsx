@@ -9,7 +9,7 @@ export default function ProjectTemplateCreate(props: any) {
     const translate = useTranslate();
 
     return (
-        <Create title={translate('template.project.layout.create_title')} {...props} transform={transformer}>
+        <Create title={translate('template.project.layout.create_title')} {...props} transform={transformer} redirect="list">
             <FormStepper validate={validateProjectTemplate} create={true} {...props}>
                 <General title={translate('template.project.steps.general')} validator="general" getSource={(src: string) => src} {...props} />
 

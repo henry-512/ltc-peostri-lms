@@ -6,7 +6,7 @@ import transformer from "../transformer";
 import validateTeam from "../validation";
 
 const TeamEdit = (props: any) => (
-    <Edit {...props} transform={transformer} title='team.layout.editing'>
+    <Edit {...props} transform={transformer} title='team.layout.editing' redirect="edit">
         <SimpleForm
             validate={validateTeam}
             toolbar={

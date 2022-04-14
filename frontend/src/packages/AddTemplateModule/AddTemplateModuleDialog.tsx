@@ -1,49 +1,27 @@
 import { FormGroupContextProvider, ReferenceInput, required, AutocompleteInput, useDataProvider, useFormGroup, useTranslate } from "react-admin";
 import { styled } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
-import { useForm } from "react-final-form";
 
 const PREFIX = 'AddTemplateModuleDialog';
 
 const classes = {
-    root: `${PREFIX}-root`
+    dialog: `${PREFIX}-dialog`,
+    dialogContent: `${PREFIX}-content`,
+    dialogActions: `${PREFIX}-actions`
 };
 
-// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
-const Root = styled('div')((
-    {
-        theme
-    }
-) => ({
-    [`& .${classes.root}`]: {
+const Root = styled('div')(({ theme }) => ({
+    [`& .${classes.dialog}`]: {
         margin: 0,
         padding: theme.spacing(2),
         borderBottom: '1px solid ' + theme.palette.borderColor?.main
-    }
-}));
-
-const useDialogStyles = makeStyles((
-    {
-        theme
-    }
-) => ({
-    [`& .${classes.root}`]: {
-        margin: 0,
-        padding: theme.spacing(2),
-        borderBottom: '1px solid ' + theme.palette.borderColor?.main
-    }
-}));
-
-const useDialogContentStyles = makeStyles((theme) => ({
-    root: {
+    },
+    [`& .${classes.dialogContent}`]: {
         padding: theme.spacing(2),
         paddingTop: theme.spacing(1),
         paddingBottom: theme.spacing(1)
-    }
-}));
-
-const useDialogActionsStyles = makeStyles((theme) => ({
-    root: {
+    },
+    [`& .${classes.dialogActions}`]: {
         margin: 0,
         padding: theme.spacing(2),
         borderTop: '1px solid ' + theme.palette.borderColor?.main,
@@ -67,16 +45,12 @@ export type AddTemplateModuleDialogProps = {
 }
 
 const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
-    const dialogStyles = useDialogStyles();
-    const dialogActionStyles = useDialogActionsStyles();
-    const dialogContentStyles = useDialogContentStyles();
-
     const translate = useTranslate();
-    const formGroupState = useFormGroup(props.ariaLabel);
+    const { isValid } = useFormGroup(props.ariaLabel);
     const dataProvider = useDataProvider();
-    const form = useForm();
 
-    const updateForm = ({ data }: any) => {
+    // TODO
+    /*const updateForm = ({ data }: any) => {
         if (!props.isTemplate) {
             delete data.id;
         } else {
@@ -114,30 +88,33 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
         }
         props.setOpen(false);
         form.change('module_template_id', '');
-    }
+    }*/
+
+    const handleClose = () => true
+    const handleSubmit = () => true
 
     return (
-        (<Root>
+        <Root>
             <Dialog open={props.open} onClose={handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'sm')}>
-                <DialogTitle id={props.ariaLabel} classes={dialogStyles}>{props.label}</DialogTitle>
-                <DialogContent classes={dialogContentStyles}>
+                <DialogTitle id={props.ariaLabel} className={classes.dialog}>{props.label}</DialogTitle>
+                <DialogContent className={classes.dialogContent}>
                     <FormGroupContextProvider name={props.ariaLabel} >
                         <ReferenceInput label="project.layout.select_module_template" source="module_template_id" reference="admin/template/modules">
                             <AutocompleteInput optionText="title" optionValue="id" fullWidth validate={[required()]} helperText=" " />
                         </ReferenceInput>
                     </FormGroupContextProvider>
                 </DialogContent>
-                <DialogActions classes={dialogActionStyles}>
+                <DialogActions className={classes.dialogActions}>
                     <Button onClick={handleClose} color="primary">
                         {translate('project.layout.cancel')}
                     </Button>
                     <Box sx={{ flex: '1 1 auto' }} />
-                    <Button onClick={handleSubmit} color="primary" disabled={formGroupState.invalid ? true : false}>
+                    <Button onClick={handleSubmit} color="primary" disabled={!isValid}>
                         {translate('project.layout.create')}
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Root>)
+        </Root>
     );
 }
 

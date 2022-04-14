@@ -4,7 +4,7 @@ import { AdminProjectList, AdminProjectCreate, AdminProjectEdit } from './pages/
 import DashboardPage from './pages/dashboard';
 import polyglotI18nProvider from 'ra-i18n-polyglot';
 import englishMessages from 'ra-language-english';
-import domainMessages from './util/language';
+import domainMessages from 'src/config/language';
 import auth from './util/authProvider';
 import LoginPage from './pages/login';
 import { UserCreate, UserEdit, UserList } from './pages/administration/users';
@@ -13,7 +13,7 @@ import { ProjectTemplateCreate, ProjectTemplateEdit, ProjectTemplateList } from 
 import { ModuleTemplateCreate, ModuleTemplateEdit, ModuleTemplateList } from './pages/template/modules';
 import Layout from 'src/packages/Layout';
 import { ProjectShow, ProjectList } from './pages/projects';
-import { lightTheme } from './util/themes';
+import { lightTheme } from 'src/config/themes';
 
 const API_URL = process.env.REACT_APP_API_URL + "/" + process.env.REACT_APP_API_VERSION || "http://localhost:5000/api/v1";
 

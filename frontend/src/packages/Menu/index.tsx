@@ -10,7 +10,6 @@ import {
 } from 'react-admin';
 
 import SubMenu from './SubMenu';
-import { AppState } from 'src/util/types';
 import SettingsIcon from '@mui/icons-material/Settings';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import { AdminProjectIcon } from '../../pages/administration/project';
@@ -28,11 +27,7 @@ const classes = {
     closed: `${PREFIX}-closed`
 };
 
-const Root = styled('div')((
-    {
-        theme
-    }
-) => ({
+const Root = styled('div')(({ theme }) => ({
     [`&.${classes.root}`]: {
         marginTop: theme.spacing(1),
         marginBottom: theme.spacing(1),
@@ -76,16 +71,14 @@ const Menu = ({ dense = false }: MenuProps) => {
             <DashboardMenuItem />
             <MenuItemLink
                 to={{
-                    pathname: '/tasks',
-                    state: { _scrollToTop: true },
+                    pathname: '/tasks'
                 }}
                 primaryText={translate("layout.menu.my_tasks")}
                 leftIcon={<AdminProjectIcon />}
             />
             <MenuItemLink
                 to={{
-                    pathname: '/projects',
-                    state: { _scrollToTop: true },
+                    pathname: '/projects'
                 }}
                 primaryText={translate("layout.menu.my_projects")}
                 leftIcon={<AdminProjectIcon />}
@@ -99,32 +92,28 @@ const Menu = ({ dense = false }: MenuProps) => {
             >
                 <MenuItemLink
                     to={{
-                        pathname: '/admin/projects',
-                        state: { _scrollToTop: true },
+                        pathname: '/admin/projects'
                     }}
                     primaryText={translate("layout.menu.projects")}
                     leftIcon={<AdminProjectIcon />}
                 />
                 <MenuItemLink
                     to={{
-                        pathname: '/admin/users',
-                        state: { _scrollToTop: true },
+                        pathname: '/admin/users'
                     }}
                     primaryText={translate("layout.menu.users")}
                     leftIcon={<UserIcon />}
                 />
                 <MenuItemLink
                     to={{
-                        pathname: '/admin/ranks',
-                        state: { _scrollToTop: true },
+                        pathname: '/admin/ranks'
                     }}
                     primaryText={translate("layout.menu.ranks")}
                     leftIcon={<PermissionIcon />}
                 />
                 <MenuItemLink
                     to={{
-                        pathname: '/admin/teams',
-                        state: { _scrollToTop: true },
+                        pathname: '/admin/teams'
                     }}
                     primaryText={translate("layout.menu.teams")}
                     leftIcon={<TeamIcon />}
@@ -139,16 +128,14 @@ const Menu = ({ dense = false }: MenuProps) => {
             >
                 <MenuItemLink
                     to={{
-                        pathname: '/admin/template/projects',
-                        state: { _scrollToTop: true },
+                        pathname: '/admin/template/projects'
                     }}
                     primaryText={translate("layout.menu.project_templates")}
                     leftIcon={<ProjectTemplateIcon />}
                 />
                 <MenuItemLink
                     to={{
-                        pathname: '/admin/template/modules',
-                        state: { _scrollToTop: true },
+                        pathname: '/admin/template/modules'
                     }}
                     primaryText={translate("layout.menu.module_templates")}
                     leftIcon={<ModuleTemplateIcon />}

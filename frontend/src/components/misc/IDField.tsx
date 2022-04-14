@@ -1,12 +1,10 @@
 import { Hidden } from "@mui/material";
 import { useEffect, useState } from "react";
 import { TextInput } from "react-admin";
-import { useForm } from "react-final-form";
 import { generateBase64UUID } from "src/util/uuidProvider";
 
 const IDField = ({source, id}: {source: string, id?: string}) => {
      const [nid, setID] = useState(id);
-     const form = useForm();
 
      useEffect(()=>{
           if (!id) {
@@ -15,7 +13,7 @@ const IDField = ({source, id}: {source: string, id?: string}) => {
      }, [])
      return (
           <Hidden xlDown implementation="css">
-               <TextInput source={source} disabled defaultValue={nid} defaultValue={nid}/>
+               <TextInput source={source} disabled defaultValue={nid} />
           </Hidden>
      )
 }

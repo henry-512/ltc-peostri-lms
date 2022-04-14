@@ -1,12 +1,13 @@
 import React from "react";
 import { SimpleForm } from "react-admin"
+import { FieldValues } from "react-hook-form";
 import StepHeader from "./StepHeader";
 import StepToolbar from "./StepToolbar"
 
 export type FormStepperProps = {
     create?: boolean
     children: JSX.Element[]
-    validate: Function
+    validate: (data: FieldValues) => FieldValues | Promise<FieldValues>
     defaultValues?: any
 }
 
@@ -72,7 +73,7 @@ export default function FormStepper(props: FormStepperProps) {
     };
 
     return (
-        <SimpleForm submitOnEnter={false} redirect="show" toolbar={
+        <SimpleForm redirect="show" toolbar={
             <StepToolbar
                 active={activeStep}
                 optional={isStepOptional(activeStep)}
@@ -84,7 +85,7 @@ export default function FormStepper(props: FormStepperProps) {
                 validator={validator}
                 create={props.create || false}
             />
-        } {...props} validation={props.validate}>
+        } validate={props.validate} defaultValues={props.defaultValues}>
             <StepHeader
                 active={activeStep}
                 children={props.children}
