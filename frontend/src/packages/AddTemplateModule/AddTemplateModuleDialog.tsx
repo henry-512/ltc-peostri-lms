@@ -52,8 +52,13 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
             delete data.updatedAt;
         }
         setValue(props.getSource(), data);
-        props.updateComponent();
         props.calculateTTC?.();
+
+        if (props.submitAction) {
+            props.submitAction();
+        }
+        props.setOpen(false);
+        setValue('module_template_id', '');
     }
     
     const handleSubmit = async () => {
@@ -68,12 +73,6 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
             .then(response  => updateForm(response))
             .catch((e) => handleClose());
         }
-
-        if (props.submitAction) {
-            props.submitAction();
-        }
-        props.setOpen(false);
-        setValue('module_template_id', '');
     }
 
     const handleClose = () => {
