@@ -98,6 +98,7 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
                         optionValue="id"
                         defaultValue="AWAITING"
                         label="project.fields.task_status"
+                        validate={[required()]}
                         fullWidth
                         helperText=" "
                     />

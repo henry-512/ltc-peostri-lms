@@ -109,6 +109,7 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                         optionValue="id"
                         disabled={false}
                         defaultValue="AWAITING"
+                        validate={[required()]}
                         label="project.fields.module_status"
                         fullWidth
                         helperText=" "

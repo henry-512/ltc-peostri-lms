@@ -62,6 +62,7 @@ const ProjectTemplateFields = (props: ProjectTemplateFieldsProps) => {
                             optionValue="id"
                             defaultValue="AWAITING"
                             label="template.project.fields.status"
+                            validate={[required()]}
                             fullWidth
                             helperText=" "
                         />

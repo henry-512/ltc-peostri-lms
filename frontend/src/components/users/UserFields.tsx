@@ -98,6 +98,7 @@ export default function UserFields(props: any) {
                         optionValue="id"
                         disabled={false}
                         defaultValue="ACTIVE"
+                        validate={[required()]}
                         helperText=" "
                         style={{
                             width: '50%'

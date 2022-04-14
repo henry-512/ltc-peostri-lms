@@ -70,6 +70,7 @@ const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
                             optionValue="id"
                             defaultValue="AWAITING"
                             label="template.module.fields.status"
+                            validate={[required()]}
                             fullWidth
                             helperText=" "
                         />

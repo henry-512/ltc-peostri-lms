@@ -99,6 +99,7 @@ const TaskFields = (props: TaskFieldsProps) => {
                         optionValue="id"
                         disabled={false}
                         defaultValue="AWAITING"
+                        validate={[required()]}
                         label="project.fields.task_status"
                         fullWidth
                         helperText=" "

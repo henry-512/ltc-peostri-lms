@@ -43,6 +43,7 @@ const General = (props: ProjectTemplateGeneralProps) => {
                                 optionText={choice => `${choice.name}`}
                                 optionValue="id"
                                 defaultValue="AWAITING"
+                                validate={[required()]}
                                 label="template.project.fields.status"
                                 fullWidth
                                 helperText=" "
