@@ -11,7 +11,6 @@ const classes = {
     use_email: `${PREFIX}-use_email`
 };
 
-// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
 const Root = styled('div')({
     width: '100%',
 
@@ -88,6 +87,14 @@ export default function UserFields(props: any) {
                             helperText=" "
                         />
                     </ReferenceInput>
+                    <ReferenceArrayInput reference="admin/teams" source="teams">
+                        <AutocompleteArrayInput 
+                            optionText={choice => `${choice.name}`} 
+                            optionValue="id" 
+                            source="teams"
+                            fullWidth
+                        />
+                    </ReferenceArrayInput>
                     <SelectInput
                         source="status"
                         choices={[
@@ -106,18 +113,10 @@ export default function UserFields(props: any) {
                         helperText=" "
                         fullWidth
                     />
-                    <ReferenceArrayInput reference="admin/teams" source="teams">
-                        <AutocompleteArrayInput 
-                            optionText={choice => `${choice.name}`} 
-                            optionValue="id" 
-                            source="teams"
-                            fullWidth
-                        />
-                    </ReferenceArrayInput>
                 </Box>
             </Box>
             <SectionTitle label="user.layout.security" />
-            <Box display="flex" width="50%" flexDirection="column">
+            <Box display="flex" width="calc(50% - 16px)" flexDirection="column">
                 <Box display="flex" alignItems="center" style={{
                     gap: "32px"
                 }}>
@@ -128,7 +127,8 @@ export default function UserFields(props: any) {
                     <BooleanInput label="user.layout.use_email" source="useEmail" className={classes.use_email} helperText=" " />
                 </Box>
                 <Box display="flex" style={{
-                    gap: "32px"
+                    gap: "32px",
+                    width: '100%'
                 }}>
                     <PasswordInput
                         source="password"
