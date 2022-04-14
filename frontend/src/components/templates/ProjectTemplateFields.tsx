@@ -61,7 +61,7 @@ const ProjectTemplateFields = (props: ProjectTemplateFieldsProps) => {
                             ]}
                             optionText={choice => `${choice.name}`}
                             optionValue="id"
-                            initialValue="AWAITING"
+                            defaultValue="AWAITING"
                             label="template.project.fields.status"
                             fullWidth
                             helperText=" "

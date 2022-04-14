@@ -15,7 +15,7 @@ const IDField = ({source, id}: {source: string, id?: string}) => {
      }, [])
      return (
           <Hidden xlDown implementation="css">
-               <TextInput source={source} disabled defaultValue={nid} initialValue={nid}/>
+               <TextInput source={source} disabled defaultValue={nid} defaultValue={nid}/>
           </Hidden>
      )
 }

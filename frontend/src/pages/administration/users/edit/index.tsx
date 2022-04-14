@@ -12,8 +12,8 @@ const UserEdit = (props: any) => (
                     create={false}
                 />
             }
-            initialValues={{
-                useEmail: (props.initialValues && props.initialValues.email === props.initialValues.username) ? true : false
+            defaultValues={{
+                useEmail: (props.defaultValues && props.defaultValues.email === props.defaultValues.username) ? true : false
             }}
         >
             <UserFields />

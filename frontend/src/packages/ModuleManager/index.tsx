@@ -10,7 +10,7 @@ import React from "react";
 import AddTemplateModule from "../AddTemplateModule";
 
 export type ModuleManagerProps = {
-    initialValue?: IModuleStep;
+    defaultValue?: IModuleStep;
     isTemplate?: boolean;
     fields?: JSX.Element;
     calculateTTC?: Function

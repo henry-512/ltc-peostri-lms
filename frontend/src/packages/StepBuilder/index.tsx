@@ -101,7 +101,7 @@ export type StepBuilderProps = {
     updateForm?: Function,
     createLabel?: string,
     createAction?: MouseEventHandler<Element>,
-    initialValue?: any,
+    defaultValue?: any,
     renderData?: any,
     changeStep: Function,
     changeIndex: Function,
@@ -111,7 +111,7 @@ export type StepBuilderProps = {
 }
 
 const StepBuilder = (props: StepBuilderProps) => {
-    const { title, help, save, children, changeOnAction, updateForm, createLabel, createAction, initialValue, renderData, changeStep, changeIndex, updateComponent, emptyText, actions } = props;
+    const { title, help, save, children, changeOnAction, updateForm, createLabel, createAction, defaultValue, renderData, changeStep, changeIndex, updateComponent, emptyText, actions } = props;
 
     const form = useForm();
 

@@ -15,7 +15,7 @@ const UserCreate = (props: any) => {
                         create={true}
                     />
                 }
-                initialValues={{
+                defaultValues={{
                     useEmail: true
                 }}
             >

@@ -36,6 +36,7 @@ const App = () => {
             i18nProvider={i18nProvider}
             disableTelemetry
             theme={lightTheme}
+            requireAuth
         >
             <Resource name='admin/projects' list={AdminProjectList} create={AdminProjectCreate} edit={AdminProjectEdit} show={ShowGuesser} />
 

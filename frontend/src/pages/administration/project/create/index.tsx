@@ -56,7 +56,7 @@ export default function AdminProjectCreate(props: any) {
 
     return (
         <StyledCreate title={translate('project.create.title')} {...props} transform={transformer}>
-            <FormStepper validate={validateProject} create={true} initialValues={props.history?.location?.state?.record || {}}>
+            <FormStepper validate={validateProject} create={true} defaultValues={props.history?.location?.state?.record || {}}>
 
                 <General classes={classes} title={translate('project.steps.general')} style={{ width: "100%" }} validator="general" {...props} />
 

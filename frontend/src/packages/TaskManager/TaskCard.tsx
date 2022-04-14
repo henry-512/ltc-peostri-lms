@@ -131,7 +131,7 @@ const TaskCard = ({ info, index, stepKey, baseSource, changeStep, changeIndex, u
                             deleteAction={deleteCreator}
                             maxWidth="md"
                         >
-                            {(fields) ? React.cloneElement(fields, { getSource: getSource, initialValues: info }) : <TaskFields getSource={getSource} initialValues={info} calculateTTC={calculateTTC} />}
+                            {(fields) ? React.cloneElement(fields, { getSource: getSource, defaultValues: info }) : <TaskFields getSource={getSource} defaultValues={info} calculateTTC={calculateTTC} />}
                         </Creator>
                     </div>
                 )}

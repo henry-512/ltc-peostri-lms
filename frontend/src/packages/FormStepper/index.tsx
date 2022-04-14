@@ -7,7 +7,7 @@ export type FormStepperProps = {
     create?: boolean
     children: JSX.Element[]
     validate: Function
-    initialValues?: any
+    defaultValues?: any
 }
 
 export default function FormStepper(props: FormStepperProps) {

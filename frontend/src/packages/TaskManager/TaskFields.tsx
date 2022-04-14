@@ -47,7 +47,7 @@ const Root = styled('div')((
 
 export type TaskFieldsProps = {
     getSource: Function,
-    initialValues?: any,
+    defaultValues?: any,
     calculateTTC?: Function
 }
 
@@ -63,7 +63,7 @@ const TaskFields = (props: TaskFieldsProps) => {
     return (
         (<Root>
             <Grid container spacing={4} className={classes.taskFieldWrapper}>
-                <IDField source={getSource?.('id') || ""} id={props.initialValues?.id} />
+                <IDField source={getSource?.('id') || ""} id={props.defaultValues?.id} />
                 <Grid item xs={5}>
                     <TextInput
                         source={getSource?.('title') || ""}
@@ -104,7 +104,7 @@ const TaskFields = (props: TaskFieldsProps) => {
                         optionText={choice => `${choice.name}`}
                         optionValue="id"
                         disabled={false}
-                        initialValue="AWAITING"
+                        defaultValue="AWAITING"
                         label="project.fields.task_status"
                         fullWidth
                         helperText=" "

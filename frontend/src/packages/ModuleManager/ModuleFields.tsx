@@ -51,16 +51,16 @@ const Root = styled('div')((
 
 export type ModuleFieldsProps = {
     getSource: Function,
-    initialValues?: any,
+    defaultValues?: any,
     calculateTTC?: Function
 }
 
 const ModuleFields = (props: ModuleFieldsProps) => {
-    const { getSource, initialValues } = props
+    const { getSource, defaultValues } = props
 
     const translate = useTranslate();
     const validateTitle = [required(), minLength(2), maxLength(150)];
-    const [showFileUpload, setShowFileUpload] = useState(initialValues?.waive_module || false);
+    const [showFileUpload, setShowFileUpload] = useState(defaultValues?.waive_module || false);
 
     const form = useForm();
 
@@ -90,7 +90,7 @@ const ModuleFields = (props: ModuleFieldsProps) => {
             <Grid container spacing={2} style={{
                 marginTop: '.1rem'
             }}>
-                <IDField source={getSource('id') || ""} id={props.initialValues?.id} />
+                <IDField source={getSource('id') || ""} id={props.defaultValues?.id} />
                 <Grid item xs={4}>
                     <TextInput
                         source={getSource('title') || ""}
@@ -114,7 +114,7 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                         optionText={choice => `${choice.name}`}
                         optionValue="id"
                         disabled={false}
-                        initialValue="AWAITING"
+                        defaultValue="AWAITING"
                         label="project.fields.module_status"
                         fullWidth
                         helperText=" "

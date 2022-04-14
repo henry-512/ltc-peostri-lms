@@ -6,11 +6,11 @@ import { Step } from "src/packages/FormStepper/Step"
 export type ProjectTemplateGeneralProps = {
     validator: string
     getSource?: Function
-    initialValues?: any
+    defaultValues?: any
 }
 
 const General = (props: ProjectTemplateGeneralProps) => {
-    const { getSource, validator, initialValues, ...rest } = props;
+    const { getSource, validator, defaultValues, ...rest } = props;
     const validateTitle = [required(), minLength(2), maxLength(150)];
 
     return (
@@ -42,7 +42,7 @@ const General = (props: ProjectTemplateGeneralProps) => {
                                 ]}
                                 optionText={choice => `${choice.name}`}
                                 optionValue="id"
-                                initialValue="AWAITING"
+                                defaultValue="AWAITING"
                                 label="template.project.fields.status"
                                 fullWidth
                                 helperText=" "

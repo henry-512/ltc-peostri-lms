@@ -133,7 +133,7 @@ const ModuleCard = ({ info, index, stepKey, changeStep, changeIndex, fields, upd
                             submitAction={submitCreator}
                             deleteAction={deleteCreator}
                         >
-                            {(fields) ? React.cloneElement(fields, { getSource: getSource, initialValues: info }) : <ModuleFields getSource={getSource} initialValues={info} calculateTTC={calculateTTC} />}
+                            {(fields) ? React.cloneElement(fields, { getSource: getSource, defaultValues: info }) : <ModuleFields getSource={getSource} defaultValues={info} calculateTTC={calculateTTC} />}
                         </Creator>
                     </div>
                 )}

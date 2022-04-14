@@ -10,7 +10,7 @@ import get from "lodash.get";
 
 export type ModuleTemplateFieldsProps = {
     getSource?: Function,
-    initialValues?: any,
+    defaultValues?: any,
     calculateTTC?: Function
 }
 
@@ -46,7 +46,7 @@ const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
                 <SectionTitle label="template.module.layout.general" />
                 <Grid container spacing={4}>
                     <Grid item xs={5}>
-                        <IDField source={getSource?.('id') || ""} id={props.initialValues?.id} />
+                        <IDField source={getSource?.('id') || ""} id={props.defaultValues?.id} />
                         <TextInput
                             source={getSource?.('title') || ""}
                             label="template.module.fields.title"
@@ -67,7 +67,7 @@ const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
                             ]}
                             optionText={choice => `${choice.name}`}
                             optionValue="id"
-                            initialValue="AWAITING"
+                            defaultValue="AWAITING"
                             label="template.module.fields.status"
                             fullWidth
                             helperText=" "

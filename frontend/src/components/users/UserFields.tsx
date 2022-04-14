@@ -104,7 +104,7 @@ export default function UserFields(props: any) {
                         optionText={choice => `${choice.name}`}
                         optionValue="id"
                         disabled={false}
-                        initialValue="ACTIVE"
+                        defaultValue="ACTIVE"
                         helperText=" "
                         style={{
                             width: '50%'
