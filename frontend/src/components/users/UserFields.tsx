@@ -13,6 +13,8 @@ const classes = {
 
 // TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
 const Root = styled('div')({
+    width: '100%',
+
     [`& .${classes.username}`]: {
         width: "75%",
         flexShrink: 3
@@ -74,7 +76,7 @@ export default function UserFields(props: any) {
                     <SectionTitle label="user.layout.permissions" />
                     <ReferenceInput
                         label="project.fields.rank"
-                        reference="ranks"
+                        reference="admin/ranks"
                         source="rank"
                         style={{
                             width: '50%'
@@ -102,9 +104,7 @@ export default function UserFields(props: any) {
                         emptyValue={null}
                         emptyText={<></>}
                         helperText=" "
-                        style={{
-                            width: '50%'
-                        }}
+                        fullWidth
                     />
                     <ReferenceArrayInput reference="admin/teams" source="teams">
                         <AutocompleteArrayInput 
