@@ -1,8 +1,8 @@
 import { Grid } from "@material-ui/core"
 import { AutocompleteArrayInput, BooleanInput, DateInput, FormGroupContextProvider, NumberInput, ReferenceArrayInput, ReferenceInput, SelectInput, TextInput, useTranslate } from "react-admin"
 import { useForm } from "react-final-form";
-import { SectionTitle } from "src/components/index";
-import { Step } from "src/components/FormStepper/Step"
+import { SectionTitle } from "src/components/misc";
+import { Step } from "src/packages/FormStepper/Step"
 import { dateFormatter, dateParser } from "src/util/dateFormatter";
 
 const UserInput = (props: { team?: string }) => {

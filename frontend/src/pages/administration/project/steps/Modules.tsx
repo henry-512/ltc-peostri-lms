@@ -1,6 +1,6 @@
-import { Step } from "src/components/FormStepper/Step";
+import { Step } from "src/packages/FormStepper/Step";
 import { FormGroupContextProvider } from "react-admin";
-import ModuleManager from "src/components/ModuleManager";
+import ModuleManager from "src/packages/ModuleManager";
 import { IModuleTemplate } from "src/util/types";
 import { useForm } from "react-final-form";
 

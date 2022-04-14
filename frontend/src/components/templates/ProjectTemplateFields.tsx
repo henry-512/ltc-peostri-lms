@@ -2,8 +2,8 @@ import { Box, Grid, makeStyles } from "@material-ui/core";
 import { maxLength, minLength, NumberInput, required, SelectInput, TextInput } from "react-admin";
 import { useForm, useFormState } from "react-final-form";
 import { IModuleTemplate } from "src/util/types";
-import { SectionTitle } from "../index";
-import ModuleManager from "../ModuleManager";
+import { SectionTitle } from "src/components/misc";
+import ModuleManager from "src/packages/ModuleManager";
 import ModuleTemplateFields from "./ModuleTemplateFields";
 
 export type ProjectTemplateFieldsProps = {

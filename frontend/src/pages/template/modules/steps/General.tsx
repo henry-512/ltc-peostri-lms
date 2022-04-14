@@ -1,7 +1,7 @@
 import { Box, Grid } from "@material-ui/core"
 import { FormGroupContextProvider, maxLength, minLength, NumberInput, required, SelectInput, TextInput } from "react-admin"
-import { SectionTitle, IDField } from "src/components/index";
-import { Step } from "src/components/FormStepper/Step"
+import { SectionTitle, IDField } from "src/components/misc";
+import { Step } from "src/packages/FormStepper/Step"
 
 export type ModuleTemplateGeneralStepProps = {
     validator: string

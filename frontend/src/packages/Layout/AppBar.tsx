@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Typography } from '@material-ui/core';
 
 import NotificationsWidget from '../NotificationsWidget';
-import Logo from '../Logo';
+import { Logo } from 'src/components/misc';
 
 const useStyles = makeStyles({
     title: {

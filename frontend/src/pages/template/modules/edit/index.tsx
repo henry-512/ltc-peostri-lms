@@ -1,5 +1,5 @@
 import { Edit, useTranslate } from "react-admin";
-import FormStepper from "src/components/FormStepper";
+import FormStepper from "src/packages/FormStepper";
 import General from "../steps/General";
 import Tasks from "../steps/Tasks";
 import transformer from "../transformer";

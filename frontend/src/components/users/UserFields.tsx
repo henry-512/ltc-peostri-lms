@@ -1,7 +1,7 @@
 import { Box, makeStyles, Theme } from "@material-ui/core";
 import { Styles } from "@material-ui/core/styles/withStyles";
 import { AutocompleteArrayInput, BooleanInput, email, PasswordInput, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput } from "react-admin";
-import { SectionTitle } from "../index";
+import { SectionTitle } from "src/components/misc";
 import AutoFillUserName from "./AutoFillUserName";
 
 export const styles: Styles<Theme, any> = {

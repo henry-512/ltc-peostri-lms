@@ -9,7 +9,7 @@ import {
     CreateButton,
     ClassesOverride,
 } from 'react-admin';
-import CreateProjectFromTemplate from 'src/components/CreateProjectFromTemplate';
+import CreateProjectFromTemplate from 'src/packages/CreateProjectFromTemplate';
 
 const ProjectEmptyList = (props: EmptyProps) => {
     const { basePath, hasCreate } = useListContext(props);

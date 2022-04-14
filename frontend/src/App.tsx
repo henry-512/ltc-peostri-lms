@@ -12,7 +12,7 @@ import { UserCreate, UserEdit, UserList } from './pages/administration/users';
 import { TeamCreate, TeamEdit, TeamList } from './pages/administration/teams';
 import { ProjectTemplateCreate, ProjectTemplateEdit, ProjectTemplateList } from './pages/template/projects';
 import { ModuleTemplateCreate, ModuleTemplateEdit, ModuleTemplateList } from './pages/template/modules';
-import Layout from './components/Layout';
+import Layout from 'src/packages/Layout';
 import { ProjectShow, ProjectList } from './pages/projects';
 
 const API_URL = process.env.REACT_APP_API_URL + "/" + process.env.REACT_APP_API_VERSION || "http://localhost:5000/api/v1";

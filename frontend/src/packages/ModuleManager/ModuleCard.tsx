@@ -6,7 +6,7 @@ import { useTranslate } from "react-admin";
 import { Draggable } from "react-beautiful-dnd";
 import { useForm } from "react-final-form";
 import { IModule, ITaskStep } from "src/util/types";
-import Creator from "../Creator";
+import { Creator } from "src/components/misc";
 import ModuleFields from "./ModuleFields";
 
 const useStyles = makeStyles(theme => ({

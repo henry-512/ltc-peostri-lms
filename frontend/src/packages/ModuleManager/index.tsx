@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { useForm } from "react-final-form";
 import { IModule, IModuleStep } from "src/util/types";
-import Steps from "../StepBuilder";
+import Steps from "src/packages/StepBuilder";
 import ModuleCard from "./ModuleCard";
-import Creator from "../Creator";
+import { Creator } from "src/components/misc";
 import { useTranslate } from "react-admin";
 import ModuleFields from "./ModuleFields";
 import React from "react";
