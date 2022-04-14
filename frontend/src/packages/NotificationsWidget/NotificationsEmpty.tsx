@@ -9,7 +9,6 @@ const classes = {
     fontSizeLarge: `${PREFIX}-fontSizeLarge`
 };
 
-// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
 const Root = styled('div')(({ theme }) => ({
     [`& .${classes.fontSizeLarge}`]: {
         fontSize: '48px'
