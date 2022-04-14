@@ -88,10 +88,6 @@ export interface ITaskApproval extends ITask {
     type: "DOCUMENT_APPROVE";
 }
 
-export interface ITaskWaiver extends ITask {
-    type: "MODULE_WAIVER";
-}
-
 export interface ITaskWaiverReview extends ITask {
     type: "MODULE_WAIVER_APPROVAL";
 }

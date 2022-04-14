@@ -73,8 +73,7 @@ const TaskFields = (props: TaskFieldsProps) => {
                         choices={[
                             { id: 'DOCUMENT_UPLOAD', name: translate('tasks.types.document_upload') },
                             { id: 'DOCUMENT_REVIEW', name: translate('tasks.types.document_review') },
-                            { id: 'DOCUMENT_APPROVE', name: translate('tasks.types.document_approve') },
-                            //{ id: 'MODULE_WAIVER', name: translate('tasks.types.module_waiver'), not_available: true },                                                                                               
+                            { id: 'DOCUMENT_APPROVE', name: translate('tasks.types.document_approve') },                                                                                              
                             { id: 'MODULE_WAIVER_APPROVAL', name: translate('tasks.types.module_waiver_approval'), not_available: false },
                         ]}
                         optionText={choice => `${choice.name}`}

@@ -57,7 +57,7 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
         <Root>
             <Grid container spacing={4} className={classes.taskFieldWrapper}>
                 <IDField source={getSource?.('id') || ""} id={props.defaultValues?.id} />
-                <Grid item xs={5}>
+                <Grid item xs={5} style={{ marginTop: '-18px'}}>
                     <TextInput
                         source={getSource?.('title') || ""}
                         label="project.fields.task_title"
@@ -66,14 +66,13 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
                         validate={validateTitle}
                     />
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={4} style={{ marginTop: '-18px'}}>
                     <SelectInput
                         source={getSource?.('type') || ""}
                         choices={[
                             { id: 'DOCUMENT_UPLOAD', name: translate('tasks.types.document_upload') },
                             { id: 'DOCUMENT_REVIEW', name: translate('tasks.types.document_review') },
-                            { id: 'DOCUMENT_APPROVE', name: translate('tasks.types.document_approve') },
-                            { id: 'MODULE_WAIVER', name: translate('tasks.types.module_waiver') },                                                                                               
+                            { id: 'DOCUMENT_APPROVE', name: translate('tasks.types.document_approve') },                                                                                  
                             { id: 'MODULE_WAIVER_APPROVAL', name: translate('tasks.types.module_waiver_approval') },
                         ]}
                         optionText={choice => `${choice.name}`}
@@ -87,7 +86,7 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
                         disableValue="not_available"
                     />
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={3} style={{ marginTop: '-18px'}}>
                     <SelectInput
                         source={getSource?.('status') || ""}
                         choices={[
