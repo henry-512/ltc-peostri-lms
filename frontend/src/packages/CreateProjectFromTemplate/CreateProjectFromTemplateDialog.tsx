@@ -10,7 +10,8 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
         borderBottom: '1px solid ' + theme.palette.borderColor?.main
     },
     '& .MuiDialogContent-root': {
-        padding: theme.spacing(2),
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(2),
         paddingTop: theme.spacing(1),
         paddingBottom: theme.spacing(1)
     },

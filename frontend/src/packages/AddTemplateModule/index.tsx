@@ -1,3 +1,4 @@
+import { styled } from "@mui/material";
 import { MouseEventHandler } from "react";
 import { useTranslate } from "react-admin";
 import AddTemplateModuleButton from "./AddTemplateModuleButton";
