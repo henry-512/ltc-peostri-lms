@@ -95,7 +95,6 @@ const UserList = (props: UserListProps) => {
                     }}
                     rowClick="edit"
                 >
-                    {/*<TextField source="id" /> // TODO: Temporarily removing ID due to illegible ID's */}
                     <AvatarField className={classes.avatar} />
                     <TextField source="firstName" label="user.info.first_name" />
                     <TextField source="lastName" label="user.info.last_name" />
