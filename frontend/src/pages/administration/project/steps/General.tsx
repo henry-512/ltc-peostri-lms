@@ -1,4 +1,4 @@
-import { Grid } from "@material-ui/core"
+import { Grid } from "@mui/material"
 import { AutocompleteArrayInput, BooleanInput, DateInput, FormGroupContextProvider, NumberInput, ReferenceArrayInput, ReferenceInput, SelectInput, TextInput, useTranslate } from "react-admin"
 import { useForm } from "react-final-form";
 import { SectionTitle } from "src/components/misc";

@@ -1,11 +1,35 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, makeStyles } from '@material-ui/core';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import React from 'react';
 import { FormGroupContextProvider, useFormGroup, useTranslate, Button as RAButton } from 'react-admin';
 import { useForm } from 'react-final-form';
-import DeleteIcon from '@material-ui/icons/Delete';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-const useDialogStyles = makeStyles(theme => ({
-    root: {
+const PREFIX = 'Creator';
+
+const classes = {
+    root: `${PREFIX}-root`
+};
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')((
+    {
+        theme
+    }
+) => ({
+    [`& .${classes.root}`]: {
+        margin: 0,
+        padding: theme.spacing(2),
+        borderBottom: '1px solid ' + theme.palette.borderColor?.main
+    }
+}));
+
+const useDialogStyles = makeStyles((
+    {
+        theme
+    }
+) => ({
+    [`& .${classes.root}`]: {
         margin: 0,
         padding: theme.spacing(2),
         borderBottom: '1px solid ' + theme.palette.borderColor?.main
@@ -75,7 +99,7 @@ const Creator = (props: CreatorProps) => {
     const formGroupState = useFormGroup(props.ariaLabel);
 
     return (
-        <>
+        (<Root>
             <Dialog open={props.open} onClose={handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'lg')}>
                 <DialogTitle id={props.ariaLabel} classes={dialogStyles}>{props.label}</DialogTitle>
                 <DialogContent classes={dialogContentStyles}>
@@ -119,8 +143,8 @@ const Creator = (props: CreatorProps) => {
                     </Button>
                 </DialogActions>
             </Dialog>
-        </>
-    )
+        </Root>)
+    );
 }
 
 export default Creator;

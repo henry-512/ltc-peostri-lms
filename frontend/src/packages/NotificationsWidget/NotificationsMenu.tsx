@@ -1,16 +1,35 @@
-import { Box, Divider, Link, Button, Popover, PopoverOrigin, Typography, makeStyles } from "@material-ui/core"
+import { Box, Divider, Link, Button, Popover, PopoverOrigin, Typography } from "@mui/material";
+import { styled } from '@mui/material/styles';
 import React from "react"
 import { Loading, useTranslate } from "react-admin"
-import { useHistory } from "react-router-dom"
+import { useNavigate } from "react-router"
 import { INotification } from "src/util/types"
 import NotificationsEmpty from "./NotificationsEmpty"
 import NotificationsItem from "./NotificationsItem"
 
+const PREFIX = 'NotificationsMenu';
+
+const classes = {
+    root: `${PREFIX}-root`
+};
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')((
+    {
+        theme
+    }
+) => ({
+    [`& .${classes.root}`]: {
+        borderRadius: '0 0 10px 10px',
+        padding: '.5rem 0'
+    }
+}));
+
 const Header = ({disabled, markAllRead}: {disabled: boolean, markAllRead: any}) => {
     const translate = useTranslate();
 
-    return (    
-        <>
+    return (
+        (<Root>
             <Box display="flex" padding=".5rem 1rem" alignItems="center" >
                 <Typography variant="subtitle1">
                 {translate('notification.title')}
@@ -23,12 +42,16 @@ const Header = ({disabled, markAllRead}: {disabled: boolean, markAllRead: any}) 
                 }
             </Box>
             <Divider />
-        </>
-    )
+        </Root>)
+    );
 }
 
-const useFooterStyles = makeStyles(theme => ({
-    root: {
+const useFooterStyles = makeStyles((
+    {
+        theme
+    }
+) => ({
+    [`& .${classes.root}`]: {
         borderRadius: '0 0 10px 10px',
         padding: '.5rem 0'
     }
@@ -36,11 +59,11 @@ const useFooterStyles = makeStyles(theme => ({
 
 const Footer = ({disabled, handleClose}: {disabled?: boolean, handleClose: Function}) => {
     const classes = useFooterStyles();
-    const history = useHistory();
+    const navigate = useNavigate();
     const translate = useTranslate();
 
     const viewAllNotifications = (e: any) => {
-        history.push('/notifications');
+        navigate('/notifications', { replace: true });
         handleClose();
     }
 
@@ -73,19 +96,9 @@ export type NotificationsMenuProps = {
     fetch: Function
 }
 
-const useStyles = makeStyles(theme => ({
-    loader: {
-        padding: '4rem 1rem 1rem 1rem',
-        height: 'auto'
-    },
-    paper: {
-        minWidth: '300px'
-    }
-}));
-
 const NotificationsMenu = (props: NotificationsMenuProps) => {
     const { anchorEl, AnchorOrigin, TransformOrigin, open, handleClose, data = [], id, loading = false, markAllRead, fetch } = props;
-    const classes = useStyles();
+
 
     return (
         <>

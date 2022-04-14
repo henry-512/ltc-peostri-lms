@@ -1,4 +1,4 @@
-import { Box } from "@material-ui/core";
+import { Box } from "@mui/material";
 import { AutocompleteArrayInput, Edit, ReferenceArrayInput, SimpleForm, TextInput } from "react-admin";
 import { SectionTitle } from "src/components/misc";
 import TeamToolbar from "src/components/teams/TeamToolbar";

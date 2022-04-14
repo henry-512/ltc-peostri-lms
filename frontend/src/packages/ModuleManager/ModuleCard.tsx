@@ -1,4 +1,5 @@
-import { Card, makeStyles, Typography } from "@material-ui/core";
+import { Card, Typography } from "@mui/material";
+import { styled } from '@mui/material/styles';
 import get from "lodash.get";
 import React from "react";
 import { useState } from "react";
@@ -9,20 +10,36 @@ import { IModule, ITaskStep } from "src/util/types";
 import { Creator } from "src/components/misc";
 import ModuleFields from "./ModuleFields";
 
-const useStyles = makeStyles(theme => ({
-    root: {
+const PREFIX = 'ModuleCard';
+
+const classes = {
+    root: `${PREFIX}-root`,
+    cardContent: `${PREFIX}-cardContent`,
+    cardText: `${PREFIX}-cardText`
+};
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')((
+    {
+        theme
+    }
+) => ({
+    [`& .${classes.root}`]: {
         marginBottom: '0',
         height: 'auto'
     },
-    cardContent: {
+
+    [`& .${classes.cardContent}`]: {
         padding: theme.spacing(1),
         display: 'flex',
         flexDirection: 'column'
     },
-    cardText: {
+
+    [`& .${classes.cardText}`]: {
         margin: '0',
     }
 }));
+
 export type ModuleCardProps = {
     steps?: any,
     info?: IModule,
@@ -39,7 +56,7 @@ export type ModuleCardProps = {
 
 const ModuleCard = ({ info, index, stepKey, changeStep, changeIndex, fields, updateComponent, calculateTTC }: ModuleCardProps) => {
     const translate = useTranslate();
-    const classes = useStyles();
+
 
     const [open, setOpen] = useState(false);
     const form = useForm();
@@ -80,7 +97,7 @@ const ModuleCard = ({ info, index, stepKey, changeStep, changeIndex, fields, upd
     }
 
     return (
-        <>
+        (<Root>
             <Draggable draggableId={"module-" + stepKey + "-" + index || ""} index={index || 0} key={info?.id || ""}>
                 {(provided, snapshot) => (
                     <div
@@ -121,8 +138,8 @@ const ModuleCard = ({ info, index, stepKey, changeStep, changeIndex, fields, upd
                     </div>
                 )}
             </Draggable>
-        </>
-    )
+        </Root>)
+    );
 }
 
 export default ModuleCard

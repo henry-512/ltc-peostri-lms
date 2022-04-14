@@ -1,12 +1,17 @@
-import { Chip, makeStyles } from "@material-ui/core";
+import { Chip } from "@mui/material";
+import { styled } from '@mui/material/styles';
 import { IUser } from "src/util/types";
 
-const useStyles = makeStyles(
-    {
-        chip: { margin: 4, cursor: 'inherit' },
-    },
-    { name: 'RaChipField' }
-);
+const PREFIX = 'RaChipField';
+
+const classes = {
+    chip: `${PREFIX}-chip`
+};
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')({
+    [`& .${classes.chip}`]: { margin: 4, cursor: 'inherit' },
+});
 
 export type UserChipProps = {
     basePath?: string
@@ -16,7 +21,7 @@ export type UserChipProps = {
 }
 
 const UserChip = (props: UserChipProps) => {
-    const classes = useStyles();
+
     
     return (props.record) ?
     (
@@ -24,7 +29,7 @@ const UserChip = (props: UserChipProps) => {
             className={classes.chip}
             label={props.record.firstName + " " + props.record.lastName} 
         />
-    ) : (<></>)
+    ) : ((<Root></Root>));
 }
 
 export default UserChip

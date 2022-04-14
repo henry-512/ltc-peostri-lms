@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core";
+import { styled } from '@mui/material/styles';
 import { Create, useTranslate } from "react-admin";
 import FormStepper from "src/packages/FormStepper";
 import General from "../steps/General";
@@ -6,36 +6,56 @@ import Modules from "../steps/Modules";
 import transformer from "../transformer";
 import validateProject from "../validation";
 
-const useStyles = makeStyles(theme => ({
-    root: {},
-    content: {
+const PREFIX = 'index';
+
+const classes = {
+    root: `${PREFIX}-root`,
+    content: `${PREFIX}-content`,
+    usersTitle: `${PREFIX}-usersTitle`,
+    taskBox: `${PREFIX}-taskBox`,
+    fieldTitle: `${PREFIX}-fieldTitle`,
+    alignCenter: `${PREFIX}-alignCenter`
+};
+
+const StyledCreate = styled(Create)((
+    {
+        theme
+    }
+) => ({
+    [`& .${classes.root}`]: {},
+
+    [`& .${classes.content}`]: {
         marginTop: theme.spacing(2)
     },
-    usersTitle: {
+
+    [`& .${classes.usersTitle}`]: {
         display: 'flex',
         alignItems: 'center'
     },
-    taskBox: {
+
+    [`& .${classes.taskBox}`]: {
         font: 'inherit'
     },
-    fieldTitle: {
+
+    [`& .${classes.fieldTitle}`]: {
         borderBottom: '2px solid ' + theme.palette.primary.main,
         paddingBottom: '.25rem',
         lineHeight: '1',
         color: theme.palette.text.primary,
         marginBottom: '.25rem'
     },
-    alignCenter: {
+
+    [`& .${classes.alignCenter}`]: {
         alignItems: 'center'
     }
 }));
 
 export default function AdminProjectCreate(props: any) {
     const translate = useTranslate();
-    const classes = useStyles();
+
 
     return (
-        <Create title={translate('project.create.title')} {...props} transform={transformer}>
+        <StyledCreate title={translate('project.create.title')} {...props} transform={transformer}>
             <FormStepper validate={validateProject} create={true} initialValues={props.history?.location?.state?.record || {}}>
 
                 <General classes={classes} title={translate('project.steps.general')} style={{ width: "100%" }} validator="general" {...props} />
@@ -43,6 +63,6 @@ export default function AdminProjectCreate(props: any) {
                 <Modules classes={classes} title={translate('project.steps.modules')} className={classes.content} validator="modules" {...props} />
 
             </FormStepper>
-        </Create>
-    )
+        </StyledCreate>
+    );
 }

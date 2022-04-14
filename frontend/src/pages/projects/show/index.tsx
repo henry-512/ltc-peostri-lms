@@ -1,4 +1,4 @@
-import { Box } from "@material-ui/core";
+import { Box } from "@mui/material";
 import { FunctionField, FunctionFieldProps, ReferenceField, Show, SimpleShowLayout, TextField } from "react-admin";
 import { SectionTitle, Separator } from "src/components/misc";
 import getProgressStatus from "src/util/getProgressStatus";

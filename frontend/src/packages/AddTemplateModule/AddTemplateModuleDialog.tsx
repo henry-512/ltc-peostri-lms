@@ -1,9 +1,33 @@
 import { FormGroupContextProvider, ReferenceInput, required, AutocompleteInput, useDataProvider, useFormGroup, useTranslate } from "react-admin";
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, makeStyles } from "@material-ui/core";
+import { styled } from '@mui/material/styles';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { useForm } from "react-final-form";
 
-const useDialogStyles = makeStyles(theme => ({
-    root: {
+const PREFIX = 'AddTemplateModuleDialog';
+
+const classes = {
+    root: `${PREFIX}-root`
+};
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')((
+    {
+        theme
+    }
+) => ({
+    [`& .${classes.root}`]: {
+        margin: 0,
+        padding: theme.spacing(2),
+        borderBottom: '1px solid ' + theme.palette.borderColor?.main
+    }
+}));
+
+const useDialogStyles = makeStyles((
+    {
+        theme
+    }
+) => ({
+    [`& .${classes.root}`]: {
         margin: 0,
         padding: theme.spacing(2),
         borderBottom: '1px solid ' + theme.palette.borderColor?.main
@@ -93,7 +117,7 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
     }
 
     return (
-        <>
+        (<Root>
             <Dialog open={props.open} onClose={handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'sm')}>
                 <DialogTitle id={props.ariaLabel} classes={dialogStyles}>{props.label}</DialogTitle>
                 <DialogContent classes={dialogContentStyles}>
@@ -113,8 +137,8 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
                     </Button>
                 </DialogActions>
             </Dialog>
-        </>
-    )
+        </Root>)
+    );
 }
 
 export default AddTemplateModuleDialog;

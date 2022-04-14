@@ -1,27 +1,36 @@
-import { Box, makeStyles, Theme } from "@material-ui/core";
-import { Styles } from "@material-ui/core/styles/withStyles";
+import { Box, Theme } from "@mui/material";
+import { styled } from '@mui/material/styles';
+import { Styles } from '@mui/styles';
 import { AutocompleteArrayInput, BooleanInput, email, PasswordInput, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput } from "react-admin";
 import { SectionTitle } from "src/components/misc";
 import AutoFillUserName from "./AutoFillUserName";
 
-export const styles: Styles<Theme, any> = {
-    username: {
+const PREFIX = 'UserFields';
+
+const classes = {
+    username: `${PREFIX}-username`,
+    use_email: `${PREFIX}-use_email`
+};
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')({
+    [`& .${classes.username}`]: {
         width: "75%",
         flexShrink: 3
     },
-    use_email: {
+    [`& .${classes.use_email}`]: {
         width: "25%",
         flexGrow: 3
     }
-};
+});
 
-const useStyles = makeStyles(styles);
+export {};
 
 export default function UserFields(props: any) {
-    const classes = useStyles(props);
+
     
     return (
-        <>
+        (<Root>
             <Box display="flex" justifyContent="flex-start" width="100%" style={{
                     gap: "32px"
                 }}>
@@ -143,6 +152,6 @@ export default function UserFields(props: any) {
                     />
                 </Box>
             </Box>
-        </>
-    )
+        </Root>)
+    );
 }

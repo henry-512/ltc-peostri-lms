@@ -1,15 +1,30 @@
-import { Grid, makeStyles } from "@material-ui/core"
+import { Grid } from "@mui/material";
+import { styled } from '@mui/material/styles';
 import get from "lodash.get";
 import { useEffect } from "react";
 import { maxLength, minLength, NumberInput, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
 import { useForm, useFormState } from "react-final-form";
 import { IDField } from "src/components/misc";
 
-const useStyles = makeStyles(theme => ({
-    taskForm: {
+const PREFIX = 'ModuleTemplateTaskFields';
+
+const classes = {
+    taskForm: `${PREFIX}-taskForm`,
+    taskTitle: `${PREFIX}-taskTitle`,
+    taskFieldWrapper: `${PREFIX}-taskFieldWrapper`
+};
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')((
+    {
+        theme
+    }
+) => ({
+    [`& .${classes.taskForm}`]: {
         marginTop: '1.75rem'
     },
-    taskTitle: {
+
+    [`& .${classes.taskTitle}`]: {
         position: 'absolute',
         width: 'auto',
         display: 'inline-block',
@@ -22,11 +37,12 @@ const useStyles = makeStyles(theme => ({
         color: theme.palette.text.primary,
         whiteSpace: 'nowrap'
     },
-    taskFieldWrapper: {
+
+    [`& .${classes.taskFieldWrapper}`]: {
         alignItems: 'flex-start',
         marginTop: '0'
     }
-}))
+}));
 
 export type ModuleTemplateTaskFieldsProps = {
     getSource?: Function,
@@ -36,7 +52,7 @@ export type ModuleTemplateTaskFieldsProps = {
 
 const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
     const { getSource } = props;
-    const classes = useStyles();
+
     const translate = useTranslate();
     const validateTitle = [required(), minLength(2), maxLength(150)];
     const formData = useFormState().values
@@ -45,7 +61,7 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
     useEffect(() => props.calculateTTC(), [get(form.getState().values, getSource?.('ttc'))]);
 
     return (
-        <>
+        (<Root>
             <Grid container spacing={4} className={classes.taskFieldWrapper}>
                 <IDField source={getSource?.('id') || ""} id={props.initialValues?.id} />
                 <Grid item xs={5}>
@@ -119,8 +135,8 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
                     />
                 </Grid>
             </Grid>
-        </>
-    )
+        </Root>)
+    );
 }
 
 export default ModuleTemplateTaskFields;

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { styled } from '@mui/material/styles';
 import PropTypes from 'prop-types';
 import { Field, withTypes } from 'react-final-form';
 import { useLocation } from 'react-router-dom';
@@ -11,14 +12,31 @@ import {
     CircularProgress,
     CssBaseline,
     TextField,
-} from '@material-ui/core';
-import { createTheme, makeStyles } from '@material-ui/core/styles';
-import { ThemeProvider } from '@material-ui/styles';
+    adaptV4Theme,
+} from '@mui/material';
+import { createTheme } from '@mui/material/styles';
+import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/styles';
 import { Notification, useTranslate, useLogin, useNotify } from 'react-admin';
 import { lightTheme } from '../../util/themes';
 
-const useStyles = makeStyles(theme => ({
-    main: {
+
+const PREFIX = 'LoginPage';
+
+const classes = {
+    main: `${PREFIX}-main`,
+    card: `${PREFIX}-card`,
+    logo: `${PREFIX}-logo`,
+    form: `${PREFIX}-form`,
+    input: `${PREFIX}-input`,
+    actions: `${PREFIX}-actions`
+};
+
+const StyledStyledEngineProvider = styled(StyledEngineProvider)((
+    {
+        theme
+    }
+) => ({
+    [`& .${classes.main}`]: {
         display: 'flex',
         flexDirection: 'column',
         minHeight: '100vh',
@@ -28,10 +46,12 @@ const useStyles = makeStyles(theme => ({
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'cover',
     },
-    card: {
+
+    [`& .${classes.card}`]: {
         minWidth: 300,
     },
-    logo: {
+
+    [`& .${classes.logo}`]: {
         display: "flex",
         maxWidth: "300px",
         margin: "1em .5em",
@@ -41,16 +61,25 @@ const useStyles = makeStyles(theme => ({
             display: "block"
         }
     },
-    form: {
+
+    [`& .${classes.form}`]: {
         padding: '0 1em 1em 1em',
     },
-    input: {
+
+    [`& .${classes.input}`]: {
         marginTop: '.5em'
     },
-    actions: {
+
+    [`& .${classes.actions}`]: {
         padding: '0 1em 1em 1em',
-    },
+    }
 }));
+
+
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
 
 
 const renderInput = ({
@@ -77,7 +106,7 @@ const { Form } = withTypes<FormValues>();
 const Login = () => {
     const [loading, setLoading] = useState(false);
     const translate = useTranslate();
-    const classes = useStyles();
+
     const notify = useNotify();
     const login = useLogin();
     const location = useLocation<{ nextPathname: string } | null>();
@@ -190,13 +219,15 @@ Login.propTypes = {
 };
 
 // We need to put the ThemeProvider decoration in another component
-// Because otherwise the useStyles() hook used in Login won't get
+
 // the right theme
 const LoginPage = (props: any) => (
-    <ThemeProvider theme={createTheme(lightTheme)}>
-        <CssBaseline />
-        <Login {...props} />
-    </ThemeProvider>
+    <StyledStyledEngineProvider injectFirst>
+        <ThemeProvider theme={createTheme(adaptV4Theme(lightTheme))}>
+            <CssBaseline />
+            <Login {...props} />
+        </ThemeProvider>
+    </StyledStyledEngineProvider>
 );
 
 export default LoginPage;

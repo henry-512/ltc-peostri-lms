@@ -1,23 +1,27 @@
 import * as React from 'react';
+import { styled } from '@mui/material/styles';
 import { FC, createElement } from 'react';
-import { Card, Box, Typography, Divider } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Card, Box, Typography, Divider } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { ReactNode } from 'react';
 
 import cartouche from './cartouche.png';
 import { useTranslate } from 'react-admin';
 
-export type CardWithIconProps = {
-    icon: FC<any>;
-    to: string;
-    title?: string;
-    subtitle?: string | number;
-    children?: ReactNode;
-}
+const PREFIX = 'CardWithIcon';
 
-const useStyles = makeStyles(theme => ({
-    card: {
+const classes = {
+    card: `${PREFIX}-card`,
+    main: `${PREFIX}-main`,
+    title: `${PREFIX}-title`
+};
+
+const StyledCard = styled(Card)((
+    {
+        theme
+    }
+) => ({
+    [`&.${classes.card}`]: {
         minHeight: 52,
         display: 'flex',
         flexDirection: 'column',
@@ -27,7 +31,8 @@ const useStyles = makeStyles(theme => ({
             color: 'inherit',
         },
     },
-    main: (props: CardWithIconProps) => ({
+
+    [`& .${classes.main}`]: (props: CardWithIconProps) => ({
         overflow: 'inherit',
         padding: 16,
         background: `url(${
@@ -37,18 +42,27 @@ const useStyles = makeStyles(theme => ({
         justifyContent: 'space-between',
         alignItems: 'center',
         '& .icon': {
-            color: theme.palette.type === 'dark' ? 'inherit' : '#dc2440',
+            color: theme.palette.mode === 'dark' ? 'inherit' : '#dc2440',
         },
     }),
-    title: {},
+
+    [`& .${classes.title}`]: {}
 }));
+
+export type CardWithIconProps = {
+    icon: FC<any>;
+    to: string;
+    title?: string;
+    subtitle?: string | number;
+    children?: ReactNode;
+}
 
 const CardWithIcon = (props: CardWithIconProps) => {
     const { icon, title, subtitle, to, children } = props;
-    const classes = useStyles(props);
+
     const translate = useTranslate();
     return (
-        <Card className={classes.card}>
+        <StyledCard className={classes.card}>
             <Link to={to} replace>
                 <div className={classes.main}>
                     <Box width="3em" className="icon">
@@ -69,7 +83,7 @@ const CardWithIcon = (props: CardWithIconProps) => {
             </Link>
             {children && <Divider />}
             {children}
-        </Card>
+        </StyledCard>
     );
 };
 

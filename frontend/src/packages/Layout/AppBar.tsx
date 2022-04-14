@@ -1,27 +1,34 @@
 import { AppBar, UserMenu } from 'react-admin';
-import { makeStyles } from '@material-ui/core/styles';
-import { Typography } from '@material-ui/core';
+import { styled } from '@mui/material/styles';
+import { Typography } from '@mui/material';
 
 import NotificationsWidget from '../NotificationsWidget';
 import { Logo } from 'src/components/misc';
 
-const useStyles = makeStyles({
-    title: {
+const PREFIX = 'CustomAppBar';
+
+const classes = {
+    title: `${PREFIX}-title`,
+    spacer: `${PREFIX}-spacer`
+};
+
+const StyledAppBar = styled(AppBar)({
+    [`& .${classes.title}`]: {
         flex: 1,
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
         overflow: 'hidden',
     },
-    spacer: {
+    [`& .${classes.spacer}`]: {
         flex: 1,
     },
 });
 
 const CustomAppBar = (props: any) => {
-    const classes = useStyles();
+
     
     return (
-        <AppBar {...props} elevation={1} userMenu={<UserMenu />}>
+        <StyledAppBar {...props} elevation={1} userMenu={<UserMenu />}>
             <Typography
                 variant="h6"
                 color="inherit"
@@ -31,7 +38,7 @@ const CustomAppBar = (props: any) => {
             <Logo />
             <span className={classes.spacer} />
             <NotificationsWidget label="layout.appbar.notifications" />
-        </AppBar>
+        </StyledAppBar>
     );
 };
 

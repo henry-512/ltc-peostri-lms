@@ -1,6 +1,6 @@
 import { MouseEventHandler } from "react";
 import { Button } from "react-admin";
-import RemoveCircleOutline from '@material-ui/icons/RemoveCircleOutline';
+import RemoveCircleOutline from '@mui/icons-material/RemoveCircleOutline';
 
 export type RemoveStepButtonProps = {
     label: string | undefined,

@@ -1,4 +1,4 @@
-import { Box, Typography } from "@material-ui/core"
+import { Box, Typography } from "@mui/material"
 import { MouseEventHandler } from "react";
 import { Button, DeleteButton, SaveButton, Toolbar, ToolbarProps, useFormGroup, useTranslate } from "react-admin"
 import { useForm } from "react-final-form";

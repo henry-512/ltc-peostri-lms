@@ -1,4 +1,4 @@
-import { Box } from "@material-ui/core"
+import { Box } from "@mui/material"
 import { DeleteButton, SaveButton, Toolbar, ToolbarProps } from "react-admin"
 import { useFormState } from "react-final-form";
 

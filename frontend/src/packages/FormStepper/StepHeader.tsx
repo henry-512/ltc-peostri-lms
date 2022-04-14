@@ -1,6 +1,23 @@
-import { makeStyles, Step, StepLabel, Stepper, Typography } from "@material-ui/core";
+import { Step, StepLabel, Stepper, Typography } from "@mui/material";
+import { styled } from '@mui/material/styles';
 import React from "react";
 import { StepSettings } from "./Step";
+
+const PREFIX = 'StepHeader';
+
+const classes = {
+    root: `${PREFIX}-root`
+};
+
+const StyledStepper = styled(Stepper)((
+    {
+        theme
+    }
+) => ({
+    [`&.${classes.root}`]: {
+        flexGrow: 1
+    }
+}));
 
 export type StepHeaderProps = {
     active: number
@@ -17,16 +34,10 @@ export type StepProps = {
     completed: boolean
 }
 
-const useStyles = makeStyles(theme => ({
-    root: {
-        flexGrow: 1
-    }
-}));
-
 export default function StepHeader(props: StepHeaderProps) {
-    const classes = useStyles();
+
     return (
-        <Stepper activeStep={props.active} {...props} className={classes.root}>
+        <StyledStepper activeStep={props.active} {...props} className={classes.root}>
             {(React.Children.map(props.children, (element, index) => {
                 if (!React.isValidElement(element)) return;
                 const labelProps: LabelProps = {} as LabelProps;
@@ -51,6 +62,6 @@ export default function StepHeader(props: StepHeaderProps) {
                     </Step>
                 );
             }))}
-        </Stepper>
-    )
+        </StyledStepper>
+    );
 }

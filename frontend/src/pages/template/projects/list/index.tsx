@@ -1,21 +1,51 @@
-import { makeStyles } from '@material-ui/core';
+import { styled } from '@mui/material/styles';
 import { Datagrid, DateField, FunctionField, List, ListProps, NumberField, TextField } from 'react-admin';
 import { IModuleTemplate } from 'src/util/types';
 import { dateOptions } from 'src/util/dateFormatter';
 
-const useListStyles = makeStyles({
-    headerRow: {
+const PREFIX = 'ProjectTemplateList';
+
+const classes = {
+    headerRow: `${PREFIX}-headerRow`,
+    headerCell: `${PREFIX}-headerCell`,
+    rowCell: `${PREFIX}-rowCell`,
+    comment: `${PREFIX}-comment`
+};
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')({
+    [`& .${classes.headerRow}`]: {
         borderLeftColor: 'transparent',
         borderLeftWidth: 5,
         borderLeftStyle: 'solid',
     },
-    headerCell: {
+    [`& .${classes.headerCell}`]: {
         padding: '6px 8px 6px 8px',
     },
-    rowCell: {
+    [`& .${classes.rowCell}`]: {
         padding: '6px 8px 6px 8px',
     },
-    comment: {
+    [`& .${classes.comment}`]: {
+        maxWidth: '18em',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+    },
+});
+
+const useListStyles = makeStyles({
+    [`& .${classes.headerRow}`]: {
+        borderLeftColor: 'transparent',
+        borderLeftWidth: 5,
+        borderLeftStyle: 'solid',
+    },
+    [`& .${classes.headerCell}`]: {
+        padding: '6px 8px 6px 8px',
+    },
+    [`& .${classes.rowCell}`]: {
+        padding: '6px 8px 6px 8px',
+    },
+    [`& .${classes.comment}`]: {
         maxWidth: '18em',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
@@ -27,7 +57,7 @@ const ProjectTemplateList = (props: ListProps) => {
     const classes = useListStyles();
 
     return (
-        <>
+        (<Root>
             <List {...props}
                 perPage={25}
             >
@@ -48,7 +78,7 @@ const ProjectTemplateList = (props: ListProps) => {
                     <FunctionField label="Steps" render={(record: Record<string, IModuleTemplate> | undefined) => `${Object.keys(record?.modules || {}).length}`} />
                 </Datagrid>
             </List>
-        </>
+        </Root>)
     );
 }
 

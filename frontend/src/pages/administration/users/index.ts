@@ -1,7 +1,7 @@
 import UserCreate from './create'
 import UserEdit from './edit'
 import UserList from './list'
-import PersonIcon from '@material-ui/icons/Person';
+import PersonIcon from '@mui/icons-material/Person';
 
 const UserIcon = PersonIcon;
 

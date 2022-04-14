@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { styled } from '@mui/material/styles';
 import PropTypes from 'prop-types';
 import {
     NumberField,
@@ -22,18 +23,40 @@ import {
     Step,
     StepLabel,
     StepContent,
-} from '@material-ui/core';
+} from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import AccessTimeIcon from '@material-ui/icons/AccessTime';
-import { makeStyles } from '@material-ui/core/styles';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+const PREFIX = 'Aside';
 
-const useAsideStyles = makeStyles(theme => ({
-    root: {
+const classes = {
+    root: `${PREFIX}-root`
+};
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')((
+    {
+        theme
+    }
+) => ({
+    [`& .${classes.root}`]: {
         width: 400,
-        [theme.breakpoints.down('md')]: {
+        [theme.breakpoints.down('lg')]: {
             display: 'none',
         },
-    },
+    }
+}));
+
+const useAsideStyles = makeStyles((
+    {
+        theme
+    }
+) => ({
+    [`& .${classes.root}`]: {
+        width: 400,
+        [theme.breakpoints.down('lg')]: {
+            display: 'none',
+        },
+    }
 }));
 
 interface AsideProps {
@@ -74,7 +97,7 @@ const EventList = ({ record, basePath }: EventListProps) => {
     const locale = useLocale();
 
     return (
-        <>
+        (<Root>
             <Box m="0 0 1em 1em">
                 <Card>
                     <CardContent>
@@ -130,7 +153,7 @@ const EventList = ({ record, basePath }: EventListProps) => {
                     </CardContent>
                 </Card>
             </Box>
-        </>
+        </Root>)
     );
 };
 

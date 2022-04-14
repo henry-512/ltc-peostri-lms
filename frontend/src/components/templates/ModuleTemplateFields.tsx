@@ -1,4 +1,4 @@
-import { Box, Grid } from "@material-ui/core"
+import { Box, Grid } from "@mui/material"
 import { maxLength, minLength, NumberInput, required, SelectInput, TextInput } from "react-admin";
 import TaskManager from "src/packages/TaskManager";
 import { SectionTitle, IDField } from "src/components/misc";

@@ -1,4 +1,5 @@
-import { Box, Grid, makeStyles } from "@material-ui/core";
+import { Box, Grid } from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
 import { maxLength, minLength, NumberInput, required, SelectInput, TextInput } from "react-admin";
 import { useForm, useFormState } from "react-final-form";
 import { IModuleTemplate } from "src/util/types";

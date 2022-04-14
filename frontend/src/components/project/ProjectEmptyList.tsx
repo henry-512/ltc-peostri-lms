@@ -1,20 +1,57 @@
-import { Typography } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import Inbox from '@material-ui/icons/Inbox';
+import { Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import Inbox from '@mui/icons-material/Inbox';
 import {
     useTranslate,
     useListContext,
     useResourceContext,
     useGetResourceLabel,
     CreateButton,
-    ClassesOverride,
+    useResourceDefinition
 } from 'react-admin';
 import CreateProjectFromTemplate from 'src/packages/CreateProjectFromTemplate';
 
+const PREFIX = 'RaEmpty';
+
+const classes = {
+    message: `${PREFIX}-message`,
+    icon: `${PREFIX}-icon`,
+    toolbar: `${PREFIX}-toolbar`
+};
+
+
+const Root = styled('div')(({ theme }) => ({
+    [`& .${classes.message}`]: {
+        textAlign: 'center',
+        opacity: theme.palette.mode === 'light' ? 0.5 : 0.8,
+        margin: '0 1em',
+        color:
+            theme.palette.mode === 'light'
+                ? 'inherit'
+                : theme.palette.text.primary,
+    },
+
+    [`& .${classes.icon}`]: {
+        width: '9em',
+        height: '9em',
+    },
+
+    [`& .${classes.toolbar}`]: {
+        textAlign: 'center',
+        marginTop: '2em',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: '1em',
+        width: '100%'
+    }
+}));
+
 const ProjectEmptyList = (props: EmptyProps) => {
-    const { basePath, hasCreate } = useListContext(props);
+    const { hasCreate } = useResourceDefinition();
     const resource = useResourceContext(props);
-    const classes = useStyles(props);
+
     const translate = useTranslate();
 
     const getResourceLabel = useGetResourceLabel();
@@ -28,63 +65,36 @@ const ProjectEmptyList = (props: EmptyProps) => {
 
     return (
         <>
-            <div className={classes.message}>
-                <Inbox className={classes.icon} />
-                <Typography variant="h4" paragraph>
-                    {translate(`resources.${resource}.empty`, {
-                        _: emptyMessage,
-                    })}
-                </Typography>
-                {hasCreate && (
-                    <Typography variant="body1">
-                        {translate(`resources.${resource}.invite`, {
-                            _: inviteMessage,
+            <Root>
+                <div className={classes.message}>
+                    <Inbox className={classes.icon} />
+                    <Typography variant="h4" paragraph>
+                        {translate(`resources.${resource}.empty`, {
+                            _: emptyMessage,
                         })}
                     </Typography>
-                )}
-            </div>
-            {hasCreate && (
-                <div className={classes.toolbar}>
-                    <CreateButton variant="contained" basePath={basePath} />
-                    <CreateProjectFromTemplate />
+                    {hasCreate && (
+                        <Typography variant="body1">
+                            {translate(`resources.${resource}.invite`, {
+                                _: inviteMessage,
+                            })}
+                        </Typography>
+                    )}
                 </div>
-            )}
+                {hasCreate && (
+                    <div className={classes.toolbar}>
+                        <CreateButton variant="contained" />
+                        <CreateProjectFromTemplate />
+                    </div>
+                )}
+            </Root>
         </>
     );
 };
 
 export type EmptyProps = {
-    classes?: ClassesOverride<typeof useStyles>;
+
     resource?: string;
 }
-
-const useStyles = makeStyles(
-    theme => ({
-        message: {
-            textAlign: 'center',
-            opacity: theme.palette.type === 'light' ? 0.5 : 0.8,
-            margin: '0 1em',
-            color:
-                theme.palette.type === 'light'
-                    ? 'inherit'
-                    : theme.palette.text.primary,
-        },
-        icon: {
-            width: '9em',
-            height: '9em',
-        },
-        toolbar: {
-            textAlign: 'center',
-            marginTop: '2em',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '1em',
-            width: '100%'
-        },
-    }),
-    { name: 'RaEmpty' }
-);
 
 export default ProjectEmptyList;

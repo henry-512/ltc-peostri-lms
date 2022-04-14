@@ -1,25 +1,37 @@
-import { makeStyles } from "@material-ui/core";
+import { styled } from '@mui/material/styles';
 import { Button } from "react-admin";
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 
-const useStyles = makeStyles(theme => ({
-     button: {
+const PREFIX = 'StepUpButton';
+
+const classes = {
+     button: `${PREFIX}-button`,
+     label: `${PREFIX}-label`
+};
+
+const StyledButton = styled(Button)((
+     {
+          theme
+     }
+) => ({
+     [`& .${classes.button}`]: {
           minWidth: '0px',
           width: 'auto',
           padding: '.25rem'
      },
-     label: {
+
+     [`& .${classes.label}`]: {
           width: 'auto'
      }
 }));
 
 const StepUpButton = ({label, onClick, disabled}: {label: string, onClick: any, disabled: boolean}) => {
-     const classes = useStyles();
+
      return (
-          <Button label={label} onClick={onClick} classes={classes} disabled={disabled}>
+          <StyledButton label={label} onClick={onClick} classes={classes} disabled={disabled}>
                <ArrowUpwardIcon />
-          </Button>
-     )
+          </StyledButton>
+     );
 }
 
 export default StepUpButton;

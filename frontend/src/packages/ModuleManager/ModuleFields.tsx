@@ -1,4 +1,5 @@
-import { Grid, makeStyles, Typography } from "@material-ui/core"
+import { Grid, Typography } from "@mui/material";
+import { styled } from '@mui/material/styles';
 import { IDField } from "src/components/misc";
 import WaiverInput from "./WaiverInput";
 import classNames from "classnames";
@@ -10,26 +11,43 @@ import { useForm } from "react-final-form";
 import get from "lodash.get";
 import { ITaskTemplate } from "src/util/types";
 
-const useStyles = makeStyles(theme => ({
-    modulesForm: {
+const PREFIX = 'ModuleFields';
+
+const classes = {
+    modulesForm: `${PREFIX}-modulesForm`,
+    modulesArrayInput: `${PREFIX}-modulesArrayInput`,
+    waiverWrapper: `${PREFIX}-waiverWrapper`,
+    waiverWrapperOpen: `${PREFIX}-waiverWrapperOpen`
+};
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')((
+    {
+        theme
+    }
+) => ({
+    [`& .${classes.modulesForm}`]: {
         marginTop: '0px'
     },
-    modulesArrayInput: {
+
+    [`& .${classes.modulesArrayInput}`]: {
         marginTop: '10px'
     },
-    waiverWrapper: {
+
+    [`& .${classes.waiverWrapper}`]: {
         position: 'relative',
         height: '0px',
         transition: 'height 0.3s ease',
         overflow: 'hidden',
     },
-    waiverWrapperOpen: {
+
+    [`& .${classes.waiverWrapperOpen}`]: {
         transition: 'height 0.3s ease',
         height: '190px',
         marginBottom: '-30px',
         maxHeight: 'unset'
     }
-}))
+}));
 
 export type ModuleFieldsProps = {
     getSource: Function,
@@ -39,7 +57,7 @@ export type ModuleFieldsProps = {
 
 const ModuleFields = (props: ModuleFieldsProps) => {
     const { getSource, initialValues } = props
-    const classes = useStyles();
+
     const translate = useTranslate();
     const validateTitle = [required(), minLength(2), maxLength(150)];
     const [showFileUpload, setShowFileUpload] = useState(initialValues?.waive_module || false);
@@ -68,7 +86,7 @@ const ModuleFields = (props: ModuleFieldsProps) => {
     useEffect(() => (props.calculateTTC) ? props.calculateTTC() : null, [get(form.getState().values, getSource?.('ttc'))])
 
     return (
-        <>
+        (<Root>
             <Grid container spacing={2} style={{
                 marginTop: '.1rem'
             }}>
@@ -121,7 +139,6 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                     <WaiverInput source={getSource?.() || ""} setShowSteps={setShowFileUpload} />
                 </Grid>
             </Grid>
-
             <Grid container spacing={4} className={classNames(classes.waiverWrapper, {
                 [classes.waiverWrapperOpen]: showFileUpload
             })}>
@@ -146,8 +163,8 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                     <TaskManager source={getSource?.('tasks') || ""} calculateTTC={recalculateTTC} />
                 </Grid>
             </Grid>
-        </>
-    )
+        </Root>)
+    );
 }
 
 export default ModuleFields;
