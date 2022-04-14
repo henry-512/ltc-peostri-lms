@@ -17,9 +17,9 @@ export interface StepToolbarProps extends ToolbarProps {
 
 export default function StepToolbar(props: StepToolbarProps) {
     const translate = useTranslate();
-    const { isValid, isDirty } = useFormGroup(props.validator);
+    const { isValid, isDirty, errors } = useFormGroup(props.validator);
 
-    console.log(isValid, isDirty)
+    console.log(isValid, isDirty, errors)
 
     return (
         <Toolbar {...props}>
@@ -62,7 +62,7 @@ export default function StepToolbar(props: StepToolbarProps) {
             ) : (
                 <SaveButton
                     label={(props.create) ? "layout.button.create" : "layout.button.save"}
-                    disabled={!isValid}
+                    disabled={!isValid ? true : false}
                 />
             )}
         </Toolbar>

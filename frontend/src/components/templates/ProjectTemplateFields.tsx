@@ -1,5 +1,5 @@
 import { Box, Grid } from "@mui/material";
-import { maxLength, minLength, NumberInput, required, SelectInput, TextInput } from "react-admin";
+import { maxLength, minLength, required, SelectInput, TextInput } from "react-admin";
 import { IModuleTemplate } from "src/util/types";
 import { SectionTitle } from "src/components/misc";
 import ModuleManager from "src/packages/ModuleManager";

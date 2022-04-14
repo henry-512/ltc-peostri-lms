@@ -41,7 +41,7 @@ const General = (props: any) => {
                                 />
                             </Grid>
                             <Grid item xs={3}>
-                                <NumberInput
+                                <TextInput
                                     source="ttc"
                                     label="template.project.fields.ttc"
                                     fullWidth

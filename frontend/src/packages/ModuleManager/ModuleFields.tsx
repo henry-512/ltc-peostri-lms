@@ -123,7 +123,7 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                 </Grid>
 
                 <Grid item xs={3}>
-                    <NumberInput
+                    <TextInput
                         source={getSource?.('ttc') || ""}
                         label="template.module.fields.ttc"
                         fullWidth
