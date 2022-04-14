@@ -12,7 +12,7 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
         paddingLeft: theme.spacing(2),
         paddingRight: theme.spacing(2),
-        paddingTop: theme.spacing(1),
+        paddingTop: theme.spacing(1) + " !important",
         paddingBottom: theme.spacing(1)
     },
     '& .MuiDialogActions-root': {

@@ -1,6 +1,7 @@
 import { FormGroupContextProvider, ReferenceInput, required, AutocompleteInput, useDataProvider, useFormGroup, useTranslate } from "react-admin";
 import { styled } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import { useFormContext } from "react-hook-form";
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogTitle-root': {
@@ -10,7 +11,7 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
     },
     '& .MuiDialogContent-root': {
         padding: theme.spacing(2),
-        paddingTop: theme.spacing(1),
+        paddingTop: theme.spacing(1) + " !important",
         paddingBottom: theme.spacing(1)
     },
     '& .MuiDialogActions-root': {
@@ -41,21 +42,22 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
     const { isValid } = useFormGroup(props.ariaLabel);
     const dataProvider = useDataProvider();
 
-    // TODO
-    /*const updateForm = ({ data }: any) => {
+    const { setValue, getValues } = useFormContext();
+
+    const updateForm = ({ data }: any) => {
         if (!props.isTemplate) {
             delete data.id;
         } else {
             delete data.createdAt;
             delete data.updatedAt;
         }
-        form.change(props.getSource(), data);
+        setValue(props.getSource(), data);
         props.updateComponent();
         props.calculateTTC?.();
     }
     
     const handleSubmit = async () => {
-        const template_id = form.getState().values.module_template_id
+        const template_id = getValues('module_template_id');
 
         if (props.isTemplate) {
             dataProvider.getOne('admin/template/modules', { id: template_id })
@@ -71,7 +73,7 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
             props.submitAction();
         }
         props.setOpen(false);
-        form.change('module_template_id', '');
+        setValue('module_template_id', '');
     }
 
     const handleClose = () => {
@@ -79,11 +81,8 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
             props.cancelAction();
         }
         props.setOpen(false);
-        form.change('module_template_id', '');
-    }*/
-
-    const handleClose = () => true
-    const handleSubmit = () => true
+        setValue('module_template_id', '');
+    }
 
     return (
         <>
