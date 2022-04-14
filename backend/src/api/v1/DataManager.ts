@@ -138,6 +138,7 @@ export class DataManager<Type> extends IErrorable {
         parentFn?: (value: any, data: IField) => Promise<any>
     ): Promise<any> {
         for (let [key, data] of this.fieldEntries) {
+            if (data.dummy) continue
             if (allFn && (await allFn({ obj: doc, key }, data))) {
                 continue
             }
@@ -254,6 +255,7 @@ export class DataManager<Type> extends IErrorable {
         skippable?: (data: T) => boolean
     ): Promise<Type> {
         for (let [fkey, data] of entries) {
+            if (data.dummy) continue
             if (skippable && skippable(data)) continue
 
             if (!(fkey in doc)) {

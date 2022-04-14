@@ -77,24 +77,18 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             for (let [key, value] of Object.entries(filter)) {
                 let f: IFilterOpts = { key }
 
-                if (key === 'q') {
+                if (f.key === 'q') {
                     f.key = this.defaultFilter
-                } else if (key === 'id') {
-                    // Filtering by ID filters by _key
-                    f.key = '_key'
                 } else if (
-                    !(key in this.fieldData) ||
-                    this.fieldData[key].hideGetAll
+                    !(f.key in this.fieldData) ||
+                    this.fieldData[f.key].hideGetAll
                 ) {
-                    console.warn(`Invalid filtering id ${key}`)
+                    console.warn(`Invalid filtering id ${f.key}`)
                     console.warn(f)
                     continue
                 }
 
-                let data = this.fieldData[key]
-
-                console.log(value)
-                console.log(str(data))
+                let data = this.fieldData[f.key]
 
                 if (data.type === 'array') {
                     if (typeof value === 'string') {
@@ -124,7 +118,6 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                         continue
                     }
                 }
-                console.log(f)
 
                 opts.filters.push(f)
             }

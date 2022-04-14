@@ -131,7 +131,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
                 query = aql`${query} FILTER ${k} IN ${filter.in}`
             }
             if (filter.q !== undefined) {
-                query = aql`${query} FILTER CONTAINS(${k},${filter.q})`
+                query = aql`${query} FILTER REGEX_TEST(${k},${filter.q},true)`
             }
         }
 

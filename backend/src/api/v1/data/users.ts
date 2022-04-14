@@ -60,6 +60,10 @@ class User extends DBManager<IUser> {
                     type: 'string',
                     optional: true,
                 },
+                name: {
+                    type: 'string',
+                    dummy: true,
+                },
             },
             {
                 // This has custom functionality in UserArangoWrapper
