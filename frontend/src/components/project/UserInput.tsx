@@ -1,4 +1,5 @@
-import { AutocompleteArrayInput, ReferenceArrayInput } from "react-admin";
+import { useEffect } from "react";
+import { AutocompleteArrayInput, ReferenceArrayInput, TextField, useRecordContext } from "react-admin";
 import { useWatch } from "react-hook-form";
 
 export type UserInputProps = {
@@ -6,7 +7,7 @@ export type UserInputProps = {
 }
 
 const UserInput = (props: UserInputProps) => {
-    const team = useWatch({ name: "team" })
+    const team = useWatch({ name: "team", defaultValue: "", exact: true })
 
     return (
         <>

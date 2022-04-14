@@ -1,23 +1,9 @@
-import { Step, StepLabel, Stepper, Typography } from "@mui/material";
+import { Paper, Step, StepLabel, Stepper, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import React from "react";
 import { StepSettings } from "./Step";
 
 const PREFIX = 'StepHeader';
-
-const classes = {
-    root: `${PREFIX}-root`
-};
-
-const StyledStepper = styled(Stepper)((
-    {
-        theme
-    }
-) => ({
-    [`&.${classes.root}`]: {
-        flexGrow: 1
-    }
-}));
 
 export type StepHeaderProps = {
     active: number
@@ -37,31 +23,33 @@ export type StepProps = {
 export default function StepHeader(props: StepHeaderProps) {
 
     return (
-        <StyledStepper activeStep={props.active} {...props} className={classes.root}>
-            {(React.Children.map(props.children, (element, index) => {
-                if (!React.isValidElement(element)) return;
-                const labelProps: LabelProps = {} as LabelProps;
-                const stepProps: StepProps = {} as StepProps;
+        <Paper square sx={{ width: '100%' }}>
+            <Stepper activeStep={props.active} {...props} style={{ padding: 24 }}>
+                {(React.Children.map(props.children, (element, index) => {
+                    if (!React.isValidElement(element)) return;
+                    const labelProps: LabelProps = {} as LabelProps;
+                    const stepProps: StepProps = {} as StepProps;
 
-                const elProps: StepSettings = element.props as StepSettings;
+                    const elProps: StepSettings = element.props as StepSettings;
 
-                if (elProps.optional) {
-                    props.setStepOptional(index);
-                    labelProps.optional = (
-                        <Typography variant="caption">Optional</Typography>
+                    if (elProps.optional) {
+                        props.setStepOptional(index);
+                        labelProps.optional = (
+                            <Typography variant="caption">Optional</Typography>
+                        );
+                    }
+
+                    if (props.isStepSkipped(index)) {
+                        stepProps.completed = false;
+                    }
+
+                    return (
+                        <Step key={elProps.title} {...stepProps} >
+                            <StepLabel {...labelProps}>{elProps.title}</StepLabel>
+                        </Step>
                     );
-                }
-
-                if (props.isStepSkipped(index)) {
-                    stepProps.completed = false;
-                }
-
-                return (
-                    <Step key={elProps.title} {...stepProps} >
-                        <StepLabel {...labelProps}>{elProps.title}</StepLabel>
-                    </Step>
-                );
-            }))}
-        </StyledStepper>
+                }))}
+            </Stepper>
+        </Paper>
     );
 }

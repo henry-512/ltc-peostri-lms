@@ -21,6 +21,8 @@ const CreateProjectFromTemplate = (props: CreateProjectFromTemplateProps) => {
                 }}
                 hidden={true}
                 toolbar={<></>}
+                mode="onBlur"
+                warnWhenUnsavedChanges
             >
                 <CreateProjectFromTemplateDialog ariaLabel={"project_template_selection"} label={translate("project.layout.select_template")} open={dialogOpen} setOpen={setDialogOpen} />
             </SimpleForm>

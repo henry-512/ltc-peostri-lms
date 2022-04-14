@@ -1,4 +1,3 @@
-import get from "lodash.get";
 import { useCallback, useState } from "react";
 import { BooleanInput } from "react-admin";
 import { useFormContext } from "react-hook-form";
@@ -73,7 +72,7 @@ const WaiverInput = (props: WaiverInputProps): JSX.Element => {
 
     return (
         <>
-            <BooleanInput label="project.layout.waive_module" source={props.source + ".waive_module"} helperText=" " defaultValue={false} onChange={handleChange} />
+            <BooleanInput label="project.layout.waive_module" source={props.source + ".waive_module"} helperText=" " defaultValue={false} onChange={(e) => handleChange(e.target.checked)} />
         </>
     )
 }

@@ -2,24 +2,25 @@ import { styled } from '@mui/material/styles';
 import StepDownButton from "./StepDownButton";
 import StepUpButton from "./StepUpButton";
 
-const PREFIX = 'StepMover';
-
-const classes = {
-    stepMover: `${PREFIX}-stepMover`
-};
-
 const Root = styled('div')(({ theme }) => ({
-    [`&.${classes.stepMover}`]: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    [`& .MuiButton-root`]: {
+        minWidth: '0px',
+        width: 'auto',
+        padding: '.25rem'
+    },
+
+    [`& .MuiButton-startIcon`]: {
+        margin: '0'
     }
 }));
 
 const StepMover = ({ up, down, topEdge, botEdge }: { up: any, down: any, topEdge: boolean, botEdge: boolean }) => {
 
     return (
-        <Root className={classes.stepMover}>
+        <Root>
             <StepDownButton label="" onClick={down} disabled={(botEdge ? true : false)} />
             <StepUpButton label="" onClick={up} disabled={(topEdge ? true : false)} />
         </Root>

@@ -60,13 +60,6 @@ export const lightTheme = merge({}, defaultTheme, {
                 }
             }
         },
-        RaDatagrid: {
-            styleOverrides: {
-                headerRow: {
-                    borderBottom: '1px solid rgba(224, 224, 224, 1)'
-                }
-            }
-        },
         MuiPaper: {
             styleOverrides: {
                 elevation1: {

@@ -17,6 +17,8 @@ const TeamCreate = (props: any) => {
                         create={true}
                     />
                 }
+                mode="onBlur"
+                warnWhenUnsavedChanges
             >
                 <Box display="flex" width="calc(50% - 16px)" flexDirection="column">
                     <SectionTitle label="team.layout.general" />

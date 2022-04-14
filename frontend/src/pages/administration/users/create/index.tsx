@@ -18,6 +18,8 @@ const UserCreate = (props: any) => {
                 defaultValues={{
                     useEmail: true
                 }}
+                mode="onBlur"
+                warnWhenUnsavedChanges
             >
                 <UserFields />
             </SimpleForm>

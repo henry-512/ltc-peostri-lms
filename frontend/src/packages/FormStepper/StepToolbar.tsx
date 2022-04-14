@@ -17,8 +17,9 @@ export interface StepToolbarProps extends ToolbarProps {
 
 export default function StepToolbar(props: StepToolbarProps) {
     const translate = useTranslate();
-    const formGroupState = useFormGroup(props.validator);
-    const { isValid, isDirty } = useFormState();
+    const { isValid, isDirty } = useFormGroup(props.validator);
+
+    console.log(isValid, isDirty)
 
     return (
         <Toolbar {...props}>
@@ -57,11 +58,11 @@ export default function StepToolbar(props: StepToolbarProps) {
                     label={translate('layout.button.skip')} />
             )}
             {(props.active !== props.stepCount - 1) ? (
-                <Button onClick={props.handleNext} label={translate('layout.button.next')} disabled={!isValid && isDirty ? true : false} />
+                <Button onClick={props.handleNext} label={translate('layout.button.next')} disabled={!isValid || !isDirty} />
             ) : (
                 <SaveButton
                     label={(props.create) ? "layout.button.create" : "layout.button.save"}
-                    disabled={!isValid ? true : false}
+                    disabled={!isValid || !isDirty}
                 />
             )}
         </Toolbar>

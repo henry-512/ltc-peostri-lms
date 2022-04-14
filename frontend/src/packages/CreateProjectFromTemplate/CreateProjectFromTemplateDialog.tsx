@@ -3,26 +3,18 @@ import { styled } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { useFormContext, useFormState } from "react-hook-form";
 
-const PREFIX = 'CreateProjectFromTemplateDialog';
-
-const classes = {
-    dialog: `${PREFIX}-dialog`,
-    dialogContent: `${PREFIX}-content`,
-    dialogActions: `${PREFIX}-actions`
-};
-
-const Root = styled('div')(({ theme }) => ({
-    [`& .${classes.dialog}`]: {
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+    '& .MuiDialogTitle-root': {
         margin: 0,
         padding: theme.spacing(2),
         borderBottom: '1px solid ' + theme.palette.borderColor?.main
     },
-    [`& .${classes.dialogContent}`]: {
+    '& .MuiDialogContent-root': {
         padding: theme.spacing(2),
         paddingTop: theme.spacing(1),
         paddingBottom: theme.spacing(1)
     },
-    [`& .${classes.dialogActions}`]: {
+    '& .MuiDialogActions-root': {
         margin: 0,
         padding: theme.spacing(2),
         borderTop: '1px solid ' + theme.palette.borderColor?.main,
@@ -74,15 +66,15 @@ const CreateProjectFromTemplateDialog = (props: CreateProjectFromTemplateDialogP
     }
 
     return (
-        <Root>
-            <Dialog open={props.open} onClose={handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'sm')}>
-                <DialogTitle id={props.ariaLabel} className={classes.dialog}>{props.label}</DialogTitle>
-                <DialogContent className={classes.dialogContent}>
+        <>
+            <StyledDialog open={props.open} onClose={handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'sm')}>
+                <DialogTitle id={props.ariaLabel}>{props.label}</DialogTitle>
+                <DialogContent>
                     <ReferenceInput label="project.layout.select_template" source="project_template_id" reference="admin/template/projects">
                         <AutocompleteInput optionText="title" optionValue="id" fullWidth validate={[required()]} helperText=" " />
                     </ReferenceInput>
                 </DialogContent>
-                <DialogActions className={classes.dialogActions}>
+                <DialogActions>
                     <Button onClick={handleClose} color="primary">
                         {translate('project.layout.cancel')}
                     </Button>
@@ -91,8 +83,8 @@ const CreateProjectFromTemplateDialog = (props: CreateProjectFromTemplateDialogP
                         {translate('project.layout.create')}
                     </Button>
                 </DialogActions>
-            </Dialog>
-        </Root>
+            </StyledDialog>
+        </>
     );
 }
 

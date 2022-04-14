@@ -1,5 +1,5 @@
 import { Grid } from "@mui/material"
-import { BooleanInput, DateInput, FormGroupContextProvider, NumberInput, ReferenceInput, SelectInput, TextInput, useTranslate } from "react-admin"
+import { BooleanInput, DateInput, FormGroupContextProvider, NumberInput, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin"
 import { SectionTitle } from "src/components/misc";
 import UserInput from "src/components/project/UserInput";
 import { Step } from "src/packages/FormStepper/Step"
@@ -23,7 +23,7 @@ const General = (props: any) => {
                                 <TextInput
                                     label={translate('project.fields.title')}
                                     source="title"
-                                    required
+                                    validate={[required()]}
                                     fullWidth
                                     helperText=" "
                                 />
@@ -34,6 +34,7 @@ const General = (props: any) => {
                                     format={dateFormatter} 
                                     parse={dateParser}
                                     source="start"
+                                    defaultValue={Date.now()}
                                     required
                                     fullWidth
                                     helperText=" "

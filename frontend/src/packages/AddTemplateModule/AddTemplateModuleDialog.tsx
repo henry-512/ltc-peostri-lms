@@ -2,26 +2,18 @@ import { FormGroupContextProvider, ReferenceInput, required, AutocompleteInput, 
 import { styled } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 
-const PREFIX = 'AddTemplateModuleDialog';
-
-const classes = {
-    dialog: `${PREFIX}-dialog`,
-    dialogContent: `${PREFIX}-content`,
-    dialogActions: `${PREFIX}-actions`
-};
-
-const Root = styled('div')(({ theme }) => ({
-    [`& .${classes.dialog}`]: {
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+    '& .MuiDialogTitle-root': {
         margin: 0,
         padding: theme.spacing(2),
         borderBottom: '1px solid ' + theme.palette.borderColor?.main
     },
-    [`& .${classes.dialogContent}`]: {
+    '& .MuiDialogContent-root': {
         padding: theme.spacing(2),
         paddingTop: theme.spacing(1),
         paddingBottom: theme.spacing(1)
     },
-    [`& .${classes.dialogActions}`]: {
+    '& .MuiDialogActions-root': {
         margin: 0,
         padding: theme.spacing(2),
         borderTop: '1px solid ' + theme.palette.borderColor?.main,
@@ -94,17 +86,17 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
     const handleSubmit = () => true
 
     return (
-        <Root>
-            <Dialog open={props.open} onClose={handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'sm')}>
-                <DialogTitle id={props.ariaLabel} className={classes.dialog}>{props.label}</DialogTitle>
-                <DialogContent className={classes.dialogContent}>
+        <>
+            <StyledDialog open={props.open} onClose={handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'sm')}>
+                <DialogTitle id={props.ariaLabel}>{props.label}</DialogTitle>
+                <DialogContent>
                     <FormGroupContextProvider name={props.ariaLabel} >
                         <ReferenceInput label="project.layout.select_module_template" source="module_template_id" reference="admin/template/modules">
                             <AutocompleteInput optionText="title" optionValue="id" fullWidth validate={[required()]} helperText=" " />
                         </ReferenceInput>
                     </FormGroupContextProvider>
                 </DialogContent>
-                <DialogActions className={classes.dialogActions}>
+                <DialogActions>
                     <Button onClick={handleClose} color="primary">
                         {translate('project.layout.cancel')}
                     </Button>
@@ -113,8 +105,8 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
                         {translate('project.layout.create')}
                     </Button>
                 </DialogActions>
-            </Dialog>
-        </Root>
+            </StyledDialog>
+        </>
     );
 }
 

@@ -15,6 +15,8 @@ const UserEdit = (props: any) => (
             defaultValues={{
                 useEmail: (props.defaultValues && props.defaultValues.email === props.defaultValues.username) ? true : false
             }}
+            mode="onBlur"
+            warnWhenUnsavedChanges
         >
             <UserFields />
         </SimpleForm>

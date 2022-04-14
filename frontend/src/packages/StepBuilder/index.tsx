@@ -23,13 +23,15 @@ const classes = {
 };
 
 const Root = styled('div')(({ theme }) => ({
+    width: '100%',
+
     [`& .${classes.root}`]: {
         marginTop: '1rem'
     },
 
     [`& .${classes.subRoot}`]: {
         flex: 1,
-        '&:first-child': {
+        '&:first-of-type': {
             borderTopLeftRadius: 5,
         },
         '&:last-child': {
@@ -238,7 +240,7 @@ const StepBuilder = (props: StepBuilderProps) => {
                             <Typography align="center" variant="subtitle1">
                                 {help}
                             </Typography>
-                            <Box width="35%" display="flex" justifyContent="flex-end" gap={10}>
+                            <Box width="35%" display="flex" justifyContent="flex-end" gap={1}>
                                 {
                                     actions?.map((element, i) => {
                                         return React.cloneElement(element, {

@@ -4,30 +4,22 @@ import React from 'react';
 import { FormGroupContextProvider, useFormGroup, useTranslate, Button as RAButton } from 'react-admin';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-const PREFIX = 'Creator';
-
-const classes = {
-    dialog: `${PREFIX}-dialog`,
-    dialogContent: `${PREFIX}-content`,
-    dialogActions: `${PREFIX}-actions`
-};
-
-const Root = styled('div')(({ theme }) => ({
-    [`& .${classes.dialog}`]: {
-        margin: 0,
-        padding: theme.spacing(2),
-        borderBottom: '1px solid ' + theme.palette.borderColor?.main
-    },
-    [`& .${classes.dialogContent}`]: {
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+    '& .MuiDialogContent-root': {
         padding: theme.spacing(2),
         paddingTop: 0
     },
-    [`& .${classes.dialogActions}`]: {
+    '& .MuiDialogActions-root': {
         margin: 0,
         padding: theme.spacing(2),
         borderTop: '1px solid ' + theme.palette.borderColor?.main,
         display: 'flex',
         justifyContent: 'space-between'
+    },
+    '& .MuiDialogTitle-root': {
+        margin: 0,
+        padding: theme.spacing(2),
+        borderBottom: '1px solid ' + theme.palette.borderColor?.main
     }
 }));
 
@@ -71,10 +63,10 @@ const Creator = (props: CreatorProps) => {
     const { isValid } = useFormGroup(props.ariaLabel);
 
     return (
-        <Root>
-            <Dialog open={props.open} onClose={handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'lg')}>
-                <DialogTitle id={props.ariaLabel} className={classes.dialog}>{props.label}</DialogTitle>
-                <DialogContent className={classes.dialogContent}>
+        <>
+            <StyledDialog open={props.open} onClose={handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'lg')}>
+                <DialogTitle id={props.ariaLabel}>{props.label}</DialogTitle>
+                <DialogContent>
                     <FormGroupContextProvider name={props.ariaLabel}>
                         {React.Children.map(props.children, (child, index) => {
                             return React.cloneElement(child, {
@@ -84,7 +76,7 @@ const Creator = (props: CreatorProps) => {
                         })}
                     </FormGroupContextProvider>
                 </DialogContent>
-                <DialogActions className={classes.dialogActions}>
+                <DialogActions>
                     {
                         (!props.create) ? (
                             <RAButton onClick={handleDelete} variant="outlined" label="layout.button.delete"
@@ -114,8 +106,8 @@ const Creator = (props: CreatorProps) => {
                         {props.create ? translate('project.layout.create') : translate('project.layout.save')}
                     </Button>
                 </DialogActions>
-            </Dialog>
-        </Root>
+            </StyledDialog>
+        </>
     );
 }
 
