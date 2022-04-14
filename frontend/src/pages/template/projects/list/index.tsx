@@ -18,7 +18,6 @@ const ProjectTemplateList = (props: ListProps) => {
                 }}
                 rowClick="edit"
             >
-                {/*<TextField source="id" /> // TODO: Temporarily removing ID due to illegible ID's */}
                 <TextField source="title" />
                 <DateField source="createdAt" showTime options={dateOptions} />
                 <DateField source="updatedAt" showTime options={dateOptions} />
