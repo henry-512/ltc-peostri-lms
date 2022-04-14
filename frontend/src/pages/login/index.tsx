@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { styled } from '@mui/material/styles';
+import { createTheme, styled } from '@mui/material/styles';
 import PropTypes from 'prop-types';
 import { useLocation } from 'react-router-dom';
 
@@ -8,9 +8,10 @@ import {
     Button,
     Card,
     CardActions,
-    CircularProgress
+    CircularProgress,
+    CssBaseline
 } from '@mui/material';
-import { Notification, useTranslate, useLogin, useNotify, Form, TextInput, required } from 'react-admin';
+import { Notification, useTranslate, useLogin, useNotify, Form, TextInput, required, ThemeProvider } from 'react-admin';
 import { lightTheme } from 'src/config/themes';
 
 
@@ -26,15 +27,16 @@ const classes = {
 };
 
 const Root = styled('div')(({ theme }) => ({
+    background: 'url(/login-bg.jpg)',
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: 'cover',
+    
     [`& .${classes.main}`]: {
         display: 'flex',
         flexDirection: 'column',
         minHeight: '100vh',
         alignItems: 'center',
         justifyContent: 'flex-start',
-        background: 'url(/login-bg.jpg)',
-        backgroundRepeat: 'no-repeat',
-        backgroundSize: 'cover',
     },
 
     [`& .${classes.card}`]: {
@@ -182,4 +184,14 @@ Login.propTypes = {
     previousRoute: PropTypes.string,
 };
 
-export default Login;
+// We need to put the ThemeProvider decoration in another component
+// Because otherwise the useStyles() hook used in Login won't get
+// the right theme
+const LoginPage = (props: any) => (
+    <ThemeProvider theme={createTheme(lightTheme)}>
+        <CssBaseline />
+        <Login {...props} />
+    </ThemeProvider>
+);
+
+export default LoginPage;
