@@ -34,7 +34,7 @@ const General = (props: any) => {
                                     format={dateFormatter} 
                                     parse={dateParser}
                                     source="start"
-                                    defaultValue={Date.now()}
+                                    defaultValue={new Date().toISOString()}
                                     required
                                     fullWidth
                                     helperText=" "
