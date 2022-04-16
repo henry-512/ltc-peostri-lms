@@ -1,9 +1,10 @@
 import get from "lodash.get";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { AutocompleteArrayInput, useChoicesContext } from "react-admin";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
 export interface AutoAssignArrayInputProps {
+    getSource?: Function
     source?: string
     label: string
 }
@@ -14,27 +15,34 @@ const AutoAssignArrayInput = (props: AutoAssignArrayInputProps) => {
     } = useChoicesContext(props);
 
     const { getValues, setValue } = useFormContext();
+    
+    const rank = useWatch({ name: props.getSource?.('rank'), exact: true });
 
     const autoAssign = () => {
-        const [users, autoAssign] = getValues(["users", "auto_assign"])
-        if (!users) return;
-        if (!autoAssign) return;
-        if (!props.source) return;
-        const data = getValues(props.source)
-        if (!data) return;
+        const [users, autoAssign] = getValues(["users", "auto_assign"]);
+        if (!autoAssign || !users) return;
+        
+        if (!rank) return;
+
+        const currentUsers = getValues(props.getSource?.('users'));
 
         allChoices.forEach((user: any, i: number) => {
-            if (user.rank.id != data.rank) return;
+            console.log(user.rank.id, rank);
+            if (user.rank.id != rank) return;
             if (!users.includes(user.id)) return;
-            if (typeof data.users != 'undefined' && data.users.includes(user.id)) return;
+            if (currentUsers && currentUsers.includes(user.id)) return;
 
-            setValue(`${props.source}.users`, [...(data.users || []), user.id]);
+            setValue(`${props.getSource?.('users')}`, [...(currentUsers || []), user.id]);
         })
     }
 
-    useEffect(() => {
-        autoAssign();
-    });
+    autoAssign();
+
+    // TODO FIX RE-RENDERS
+
+    //useCallback(() => autoAssign(), [rank])
+
+    //useEffect(() => autoAssign(), [])
 
     return (
         <>
@@ -43,7 +51,8 @@ const AutoAssignArrayInput = (props: AutoAssignArrayInputProps) => {
                 optionValue="id"
                 helperText=" "
                 fullWidth
-                {...props}
+                source={props.source}
+                label={props.label}
             />
         </>
     )

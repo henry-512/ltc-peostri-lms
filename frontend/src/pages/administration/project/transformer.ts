@@ -1,10 +1,16 @@
-import { IProject } from "src/util/types";
+import { IModule, IProject, ITask } from "src/util/types";
 
 const transformer = (data: IProject) => {
     //Remove form values used for client processing.
-    delete data.auto_assign;
     delete data.module_template_id;
+    delete data.auto_assign;
 
+    //Fix Empty Team Issue causing bad request.
+    if (data.team && data.team.length <= 0) {
+        delete data.team;
+    }
+
+    //Integer the TTC
     data.ttc = parseInt(`${data.ttc}`);
 
     let mStepCounter = 0; //Keep track of current step, in case of deletion and need for refactoring.

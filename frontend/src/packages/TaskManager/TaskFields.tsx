@@ -143,7 +143,7 @@ const TaskFields = (props: TaskFieldsProps) => {
                         reference="admin/users"
                         source={getSource?.('users') || ""}
                     >
-                        <AutoAssignArrayInput label="project.fields.member" />
+                        <AutoAssignArrayInput label="project.fields.member" getSource={getSource} source={getSource?.('users') || ""} />
                     </ReferenceArrayInput>
                 </Grid>
             </Grid>

@@ -71,9 +71,10 @@ export interface IComment extends RaRecord, ICreateUpdate {
 export interface ITask extends RaRecord {
     title: string;
     status: Status;
-    assigned?: Array<string> | Array<IUser>;
+    users?: Array<string> | Array<IUser>;
     module?: string | IModule;
     type?: TaskTypes;
+    rank?: string
 }
 
 export interface ITaskReview extends ITask {
