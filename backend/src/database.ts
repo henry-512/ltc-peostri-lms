@@ -139,7 +139,14 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
                 query = aql`${query} FILTER ${k} IN ${filter.in}`
             }
             if (filter.q !== undefined) {
-                query = aql`${query} FILTER REGEX_TEST(${k},${filter.q},true)`
+                let f = filter.q.charAt(0)
+                if (f === '/') {
+                    query = aql`${query} FILTER REGEX_TEST(${k},${filter.q.substring(
+                        1
+                    )},true)`
+                } else {
+                    query = aql`${query} FILTER CONTAINS(LOWER(${k}),LOWER(${filter.q}))`
+                }
             }
             if (filter.intersect) {
                 query = aql`${query} FILTER LENGTH(INTERSECTION(${k}, ${filter.intersect}))!=0`
@@ -161,6 +168,8 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         } else {
             query = this.returnQuery(query)
         }
+
+        console.log(query)
 
         return query
     }
