@@ -150,3 +150,11 @@ export interface ISender {
     // THIS IS A KEY !!!
     id: string
 }
+
+export interface IUserLog extends IArangoIndexes {
+    content: string
+    sender: ISender
+    project?: string
+    module?: string
+    task?: string
+}
