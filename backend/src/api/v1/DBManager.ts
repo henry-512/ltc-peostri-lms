@@ -176,6 +176,22 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         }
     }
 
+    public async runQueryWithFilter(q: any, ...filters: IFilterOpts[]) {
+        let opts = this.parseQuery(q)
+        if (filters.length !== 0) {
+            opts.filters = opts.filters.concat(filters)
+        }
+        return this.runQuery(opts)
+    }
+
+    public async queryLengthWithFilter(q: any, ...filters: IFilterOpts[]) {
+        let opts = this.parseQuery(q)
+        if (filters.length !== 0) {
+            opts.filters = opts.filters.concat(filters)
+        }
+        return this.db.queryGetCount(opts)
+    }
+
     /**
      * Gets the document with the passed key from the database
      * @param id A (valid) db id for the document

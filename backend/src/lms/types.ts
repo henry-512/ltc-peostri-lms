@@ -86,15 +86,22 @@ export interface IProject extends IArangoIndexes, ICreateUpdate {
     users: Array<string> | Array<IUser>
 }
 
+export type ApiPerm = keyof IPermission
+export type FetchType = 'ASSIGNED' | 'TEAM' | 'ALL'
+
 export interface IPermission {
-    perm1: boolean
-    perm2: boolean
-    perm3: boolean
+    taskFetching: FetchType
+    projectFetching: FetchType
+}
+
+export const defaultPermissions: IPermission = {
+    taskFetching: 'ASSIGNED',
+    projectFetching: 'ASSIGNED',
 }
 
 export interface IRank extends IArangoIndexes {
     name: string
-    permissions?: string | IPermission
+    permissions?: IPermission
 }
 
 export interface ITaskTemplate extends IArangoIndexes {

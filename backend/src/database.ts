@@ -107,6 +107,16 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         this.idRegex = new RegExp(`^${dbName}\/([0-9]|[a-z]|[A-Z]|-|_)+$`)
     }
 
+    protected getFilterKey(filter: IFilterOpts) {
+        return filter.ref
+            ? aql`DOCUMENT(z.${filter.key}).${filter.ref}`
+            : aql`z.${filter.key}`
+    }
+
+    protected returnQuery(query: GeneratedAqlQuery) {
+        return aql`${query} RETURN {${this.getAllQueryFields}}`
+    }
+
     protected getAllQuery(
         sort: ISortOpts,
         offset: number,
@@ -118,9 +128,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         let query = aql`FOR z IN ${this.collection}`
 
         for (const filter of filters) {
-            let k = filter.ref
-                ? aql`DOCUMENT(z.${filter.key}).${filter.ref}`
-                : aql`z.${filter.key}`
+            let k = this.getFilterKey(filter)
             if (filter.inArray) {
                 query = aql`${query} FILTER ${filter.inArray} IN ${k}`
             }
@@ -133,6 +141,9 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
             if (filter.q !== undefined) {
                 query = aql`${query} FILTER REGEX_TEST(${k},${filter.q},true)`
             }
+            if (filter.intersect) {
+                query = aql`${query} FILTER LENGTH(INTERSECTION(${k}, ${filter.intersect}))!=0`
+            }
         }
 
         query = sort.ref
@@ -141,14 +152,14 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
 
         query = aql`${query} ${
             sort.desc ? 'DESC' : 'ASC'
-        } LIMIT ${offset}, ${count} RETURN`
+        } LIMIT ${offset}, ${count}`
 
         if (justIds) {
-            query = aql`${query} z._id`
+            query = aql`${query} RETURN z._id`
         } else if (raw) {
-            query = aql`${query} z`
+            query = aql`${query} RETURN z`
         } else {
-            query = aql`${query} {${this.getAllQueryFields}}`
+            query = this.returnQuery(query)
         }
 
         return query
@@ -357,6 +368,8 @@ export interface IFilterOpts {
     eq?: string
     // Checks if the passed string is in the array target
     inArray?: string
+    // Checks if the passed array intersects with the array target
+    intersect?: string[]
 }
 
 export interface ISortOpts {

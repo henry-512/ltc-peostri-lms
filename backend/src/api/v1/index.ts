@@ -14,7 +14,7 @@ import { TeamManager } from './data/teams'
 import { ModuleTempManager } from './data/template/moduleTemplates'
 import { ProjectTempManager } from './data/template/projectTemplates'
 import { UserManager } from './data/users'
-import { APIRouter, sendRange } from './Router'
+import { AdminRouter, sendRange, UserRouter } from './Router'
 
 export function routerBuilder(version: string) {
     // Resolve dependency issue
@@ -23,15 +23,15 @@ export function routerBuilder(version: string) {
 
     return (
         new Router({ prefix: `${version}/` })
-            .use(new APIRouter('ranks', RankManager).routes())
-            .use(new APIRouter('tasks', TaskManager).routes())
-            .use(new APIRouter('modules', ModuleManager).routes())
-            .use(new APIRouter('comments', CommentManager).routes())
-            .use(new APIRouter('projects', ProjectManager).routes())
-            .use(new APIRouter('teams', TeamManager).routes())
-            .use(new APIRouter('log/users', UserLogManager).routes())
+            .use(new AdminRouter('ranks', RankManager).routes())
+            .use(new AdminRouter('tasks', TaskManager).routes())
+            .use(new AdminRouter('modules', ModuleManager).routes())
+            .use(new AdminRouter('comments', CommentManager).routes())
+            .use(new AdminRouter('projects', ProjectManager).routes())
+            .use(new AdminRouter('teams', TeamManager).routes())
+            .use(new AdminRouter('log/users', UserLogManager).routes())
             .use(
-                new APIRouter('notifications', NotificationManager)
+                new AdminRouter('notifications', NotificationManager)
                     .put('/read/:id', async (ctx) => {
                         // TODO: validate recipient?
 
@@ -47,7 +47,7 @@ export function routerBuilder(version: string) {
             )
             // Templates
             .use(
-                new APIRouter('template/modules', ModuleTempManager)
+                new AdminRouter('template/modules', ModuleTempManager)
                     .get('/instance/:id', async (ctx) => {
                         let id = await ModuleTempManager.db.assertKeyExists(
                             ctx.params.id
@@ -59,7 +59,7 @@ export function routerBuilder(version: string) {
                     .routes()
             )
             .use(
-                new APIRouter('template/projects', ProjectTempManager)
+                new AdminRouter('template/projects', ProjectTempManager)
                     // Builds a project matching the passed project template ID
                     .get('/instance/:id', async (ctx) => {
                         let id = await ProjectTempManager.db.assertKeyExists(
@@ -74,7 +74,7 @@ export function routerBuilder(version: string) {
                     .routes()
             )
             // Files
-            .use(new APIRouter('filemeta', FilemetaManager).routes())
+            .use(new AdminRouter('filemeta', FilemetaManager).routes())
             .use(
                 new Router({ prefix: 'files' })
                     .get('/:id', async (ctx) => {
@@ -94,87 +94,14 @@ export function routerBuilder(version: string) {
             )
             // User routes
             // Default
-            .use(new APIRouter('users', UserManager).routes())
+            .use(new AdminRouter('users', UserManager).routes())
+            // Tasks
+            .use(new UserRouter('tasks', TaskManager).build())
+            .use(new UserRouter('projects', ProjectManager).build())
             .use(
-                new Router()
-                    .get('tasks/count', async (ctx) => {
-                        let user: AuthUser = ctx.state.user
-                        let id = user.getId()
-
-                        await UserManager.db.assertIdExists(id)
-
-                        ctx.body = await TaskManager.getNumTasksAssignedToUser(
-                            id,
-                            ctx.request.query
-                        )
-                        ctx.status = HTTPStatus.OK
-                    })
-                    .get('tasks/list', async (ctx) => {
-                        let user: AuthUser = ctx.state.user
-                        let id = user.getId()
-
-                        await UserManager.db.assertIdExists(id)
-
-                        let results = await TaskManager.getTasksAssignedToUser(
-                            id,
-                            ctx.request.query
-                        )
-
-                        sendRange(results, ctx)
-                    })
-                    .get('tasks/list/:id', async (ctx) => {
-                        let id = await TaskManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
-
-                        ctx.body = await TaskManager.getFromDB(
-                            ctx.state.user,
-                            id,
-                            true
-                        )
-                        ctx.status = HTTPStatus.OK
-                    })
-                    .get('projects/count', async (ctx) => {
-                        let user: AuthUser = ctx.state.user
-                        let id = user.getId()
-
-                        await UserManager.db.assertIdExists(id)
-
-                        ctx.body =
-                            await ProjectManager.getNumProjectsAssignedToUser(
-                                id,
-                                ctx.request.query
-                            )
-                        ctx.status = HTTPStatus.OK
-                    })
-                    .get('projects/list', async (ctx) => {
-                        let user: AuthUser = ctx.state.user
-                        let id = user.getId()
-
-                        await UserManager.db.assertIdExists(id)
-
-                        let results =
-                            await ProjectManager.getProjectsAssignedToUser(
-                                id,
-                                ctx.request.query
-                            )
-
-                        sendRange(results, ctx)
-                    })
-                    .get('projects/list/:id', async (ctx) => {
-                        let id = await ProjectManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
-
-                        ctx.body = await ProjectManager.getFromDB(
-                            ctx.state.user,
-                            id,
-                            true
-                        )
-                        ctx.status = HTTPStatus.OK
-                    })
+                new Router({ prefix: 'notifications/' })
                     // NOTIFICATIONS
-                    .get('notifications/list', async (ctx) => {
+                    .get('list', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 
@@ -188,7 +115,7 @@ export function routerBuilder(version: string) {
 
                         sendRange(results, ctx)
                     })
-                    .put('notifications/readall', async (ctx) => {
+                    .put('readall', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.getId()
 
@@ -198,7 +125,7 @@ export function routerBuilder(version: string) {
 
                         ctx.status = HTTPStatus.NO_CONTENT
                     })
-                    .put('notifications/read/:id', async (ctx) => {
+                    .put('read/:id', async (ctx) => {
                         // TODO: validate recipient?
 
                         let id = await NotificationManager.db.assertKeyExists(

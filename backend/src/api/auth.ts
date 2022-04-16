@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt'
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken'
 import { config } from '../config'
 import { APIError, HTTPStatus } from '../lms/errors'
-import { IRank, IUser } from '../lms/types'
+import { ApiPerm, defaultPermissions, IPermission, IRank, IUser } from '../lms/types'
 import { isDBKey } from '../lms/util'
 import { RankManager } from './v1/data/ranks'
 import { UserManager } from './v1/data/users'
@@ -97,6 +97,18 @@ export class AuthUser {
             this.rank = await RankManager.db.get(this.user.rank as string)
 
         return this.rank
+    }
+
+    async getPermission(perm: ApiPerm) {
+        let rank = await this.getRank()
+        // This is redundant and i hate typescript
+        let perms = rank.permissions as any
+
+        if (perms) {
+            return perms[perm] ?? defaultPermissions[perm]
+        } else {
+            return defaultPermissions[perm]
+        }
     }
 
     public static authRouter() {

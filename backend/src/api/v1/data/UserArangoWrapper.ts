@@ -10,56 +10,18 @@ export class UserArangoWrapper extends ArangoWrapper<IUser> {
         super(DB_NAME, fields)
     }
 
-    // Dereferences the usergroup ID and name
-    protected override getAllQuery(
-        sort: ISortOpts,
-        offset: number,
-        count: number,
-        filters: IFilterOpts[],
-        justIds: boolean,
-        raw: boolean
+    // 'name' concats first and last names
+    protected override getFilterKey(filter: IFilterOpts): GeneratedAqlQuery {
+        return filter.key === 'name'
+            ? aql`CONCAT(z.firstName, ' ', z.lastName)`
+            : super.getFilterKey(filter)
+    }
+
+    // Modify return query to resolve user rank
+    protected override returnQuery(
+        query: GeneratedAqlQuery
     ): GeneratedAqlQuery {
-        let query = aql`FOR z IN ${this.collection}`
-
-        for (const filter of filters) {
-            let k =
-                filter.key === 'name'
-                    ? aql`CONCAT(z.firstName, ' ', z.lastName)`
-                    : filter.ref
-                    ? aql`DOCUMENT(z.${filter.key}).${filter.ref}`
-                    : aql`z.${filter.key}`
-
-            if (filter.inArray) {
-                query = aql`${query} FILTER ${filter.inArray} IN ${k}`
-            }
-            if (filter.eq !== undefined) {
-                query = aql`${query} FILTER ${k} == ${filter.eq}`
-            }
-            if (filter.in !== undefined) {
-                query = aql`${query} FILTER ${k} IN ${filter.in}`
-            }
-            if (filter.q !== undefined) {
-                query = aql`${query} FILTER REGEX_TEST(${k},${filter.q},true)`
-            }
-        }
-
-        query = sort.ref
-            ? aql`${query} SORT DOCUMENT(z.${sort.key}).${sort.ref}`
-            : aql`${query} SORT z.${sort.key}`
-
-        query = aql`${query} ${
-            sort.desc ? 'DESC' : 'ASC'
-        } LIMIT ${offset}, ${count} LET a = (RETURN DOCUMENT(z.rank))[0] RETURN`
-
-        if (justIds) {
-            query = aql`${query} z._id`
-        } else if (raw) {
-            query = aql`${query} z`
-        } else {
-            query = aql`${query} {rank:(RETURN {id:a._key,name:a.name})[0],${this.getAllQueryFields}}`
-        }
-
-        return query
+        return aql`${query} LET a = (RETURN DOCUMENT(z.rank))[0] RETURN {rank:(RETURN {id:a._key,name:a.name})[0],${this.getAllQueryFields}}`
     }
 
     public async getFromUsername(username: string) {

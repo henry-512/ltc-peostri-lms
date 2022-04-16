@@ -2,12 +2,13 @@ import Router from '@koa/router'
 import fs from 'fs'
 import { ParameterizedContext } from 'koa'
 import { config } from '../../config'
-import { IGetAllQueryResults, IQueryGetOpts } from '../../database'
+import { IFilterOpts, IGetAllQueryResults, IQueryGetOpts } from '../../database'
 import { HTTPStatus } from '../../lms/errors'
-import { IArangoIndexes } from '../../lms/types'
+import { ApiPerm, FetchType, IArangoIndexes } from '../../lms/types'
+import { AuthUser } from '../auth'
 import { DBManager } from './DBManager'
 
-export interface APIRouterOpts {
+export interface AdminRouterOpts {
     noDebugRoute?: boolean
     noListGetAll?: boolean
     noListGetId?: boolean
@@ -16,7 +17,7 @@ export interface APIRouterOpts {
     noListDelete?: boolean
 }
 
-export const allDisabled: APIRouterOpts = {
+export const allDisabled: AdminRouterOpts = {
     noDebugRoute: true,
     noListGetAll: true,
     noListGetId: true,
@@ -25,14 +26,14 @@ export const allDisabled: APIRouterOpts = {
     noListDelete: true,
 }
 
-export class APIRouter<Type extends IArangoIndexes> extends Router {
+export class AdminRouter<Type extends IArangoIndexes> extends Router {
     /**
      * Create a new router.
      */
     constructor(
         prefix: string,
         private manager: DBManager<Type>,
-        private apiOpts?: APIRouterOpts
+        private apiOpts?: AdminRouterOpts
     ) {
         // Apply prefix
         super({ prefix: `admin/${prefix}` })
@@ -121,6 +122,73 @@ export class APIRouter<Type extends IArangoIndexes> extends Router {
     }
 }
 
+export interface UserRouterOpts {
+    noAssigned?: boolean
+    noAll?: boolean
+    noDefault?: boolean
+    noListGet?: boolean
+}
+
+export class UserRouter<Type extends IArangoIndexes> extends Router {
+    /**
+     * Create a new router.
+     */
+    constructor(
+        prefix: string,
+        private manager: DBManager<Type>,
+        private routerOpts?: UserRouterOpts
+    ) {
+        // Apply prefix
+        super({ prefix: `${prefix}/` })
+    }
+
+    public build(cb?: (r: Router, manager: DBManager<Type>) => void) {
+        if (cb) cb(this, this.manager)
+
+        if (!this.routerOpts?.noListGet) {
+            this.get('list/:id', async (ctx) => {
+                let id = await this.manager.db.assertKeyExists(ctx.params.id)
+
+                ctx.body = await this.manager.getFromDB(
+                    ctx.state.user,
+                    id,
+                    true
+                )
+                ctx.status = HTTPStatus.OK
+            })
+        }
+
+        if (!this.routerOpts?.noAssigned) {
+            this.get('assigned/count', async (ctx) => {
+                await getProjectStatusCount(ctx, this.manager, 'ASSIGNED')
+            })
+            this.get('assigned/list', async (ctx) => {
+                await getProjectStatusList(ctx, this.manager, 'ASSIGNED')
+            })
+        }
+
+        if (!this.routerOpts?.noAll) {
+            this.get('all/count', async (ctx) => {
+                await getProjectStatusCount(ctx, this.manager, 'ALL')
+            })
+            this.get('all/list', async (ctx) => {
+                await getProjectStatusList(ctx, this.manager, 'ALL')
+            })
+        }
+
+        if (!this.routerOpts?.noDefault) {
+            this.get('default/count', async (ctx) => {
+                await getProjectStatusCount(ctx, this.manager)
+            })
+            this.get('default/list', async (ctx) => {
+                await getProjectStatusList(ctx, this.manager)
+            })
+        }
+
+        return super.routes()
+    }
+}
+
 export async function parseBody<Type extends IArangoIndexes>(req: any) {
     // Multipart form requests put the POST data in a different spot
     if (req.files && req.files.json) {
@@ -165,4 +233,72 @@ export function sendRange(
         `documents ${results.low}-${results.high}/${results.size}`
     )
     ctx.set('Access-Control-Expose-Headers', 'Content-Range')
+}
+
+export async function queryFilter(
+    ctx: ParameterizedContext,
+    manager: DBManager<any>,
+    ...filters: IFilterOpts[]
+) {
+    let results = await manager.runQueryWithFilter(
+        ctx.request.query,
+        ...filters
+    )
+    sendRange(results, ctx)
+}
+
+export async function queryFilterCount(
+    ctx: ParameterizedContext,
+    manager: DBManager<any>,
+    ...filters: IFilterOpts[]
+) {
+    ctx.body = await manager.queryLengthWithFilter(
+        ctx.request.query,
+        ...filters
+    )
+    ctx.status = HTTPStatus.OK
+}
+
+export async function permission<T>(ctx: ParameterizedContext, perm: ApiPerm) {
+    return (<AuthUser>ctx.state.user).getPermission(perm) as any as T
+}
+
+export async function getProjectStatusCount(
+    ctx: ParameterizedContext,
+    m: DBManager<any>,
+    fetch?: FetchType
+) {
+    if (fetch === undefined) {
+        fetch = await permission<FetchType>(ctx, 'taskFetching')
+    }
+
+    switch (fetch) {
+        case 'ASSIGNED':
+            return await queryFilterCount(ctx, m, {
+                key: 'users',
+                inArray: (<AuthUser>ctx.state.user).getId(),
+            })
+        default:
+            return await queryFilterCount(ctx, m)
+    }
+}
+
+export async function getProjectStatusList(
+    ctx: ParameterizedContext,
+    m: DBManager<any>,
+    fetch?: FetchType
+) {
+    if (fetch === undefined) {
+        fetch = await permission<FetchType>(ctx, 'taskFetching')
+    }
+
+    switch (fetch) {
+        case 'ASSIGNED':
+            return await queryFilter(ctx, m, {
+                key: 'users',
+                inArray: (<AuthUser>ctx.state.user).getId(),
+            })
+        default:
+            return await queryFilter(ctx, m)
+    }
 }
