@@ -21,8 +21,6 @@ export default function StepToolbar(props: StepToolbarProps) {
     const record = useRecordContext();
     const translate = useTranslate();
 
-    console.log(isValid, isDirty, errors)
-
     return (
         <Toolbar {...props}>
             {(!props.create) ? (

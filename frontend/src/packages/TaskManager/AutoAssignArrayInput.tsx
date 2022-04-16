@@ -27,7 +27,6 @@ const AutoAssignArrayInput = (props: AutoAssignArrayInputProps) => {
         const currentUsers = getValues(props.getSource?.('users'));
 
         allChoices.forEach((user: any, i: number) => {
-            console.log(user.rank.id, rank);
             if (user.rank.id != rank) return;
             if (!users.includes(user.id)) return;
             if (currentUsers && currentUsers.includes(user.id)) return;
