@@ -18,7 +18,7 @@ class NotificationSender extends DataManager<ISender> {
     }
 }
 
-const SenderManager = new NotificationSender()
+export const SenderManager = new NotificationSender()
 
 class Notification extends DBManager<INotification> {
     constructor() {

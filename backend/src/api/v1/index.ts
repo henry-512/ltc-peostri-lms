@@ -4,6 +4,7 @@ import { AuthUser } from '../auth'
 import { CommentManager } from './data/comments'
 import { FilemetaManager } from './data/filemeta'
 import { FiledataManager } from './data/files'
+import { UserLogManager } from './data/log/userLog'
 import { ModuleManager } from './data/modules'
 import { NotificationManager } from './data/notifications'
 import { ProjectManager } from './data/projects'
@@ -28,6 +29,7 @@ export function routerBuilder(version: string) {
             .use(new APIRouter('comments', CommentManager).routes())
             .use(new APIRouter('projects', ProjectManager).routes())
             .use(new APIRouter('teams', TeamManager).routes())
+            .use(new APIRouter('log/users', UserLogManager).routes())
             .use(
                 new APIRouter('notifications', NotificationManager)
                     .put('/read/:id', async (ctx) => {
