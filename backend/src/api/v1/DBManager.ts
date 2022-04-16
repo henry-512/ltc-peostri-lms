@@ -119,6 +119,11 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                     }
                 }
 
+                // ids are _keys
+                if (f.key === 'id') {
+                    f.key = '_key'
+                }
+
                 opts.filters.push(f)
             }
         }
