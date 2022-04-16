@@ -1,20 +1,37 @@
-import { Box, Typography, makeStyles } from "@material-ui/core";
+import { Box, Typography } from "@mui/material";
+import { styled } from '@mui/material/styles';
 import React, { MouseEventHandler, useEffect } from "react";
 import { useState } from "react";
 import { DragDropContext, Droppable, OnDragEndResponder } from "react-beautiful-dnd";
-import { useForm } from "react-final-form";
+import { useFormContext } from "react-hook-form";
 import AddNewButton from "./AddNewButton";
 import AddStepButton from "./AddStepButton";
 import RemoveStepButton from "./RemoveStepButton";
 import StepMover from "./StepMover";
 
-const useStyles = makeStyles(theme => ({
-    root: {
+const PREFIX = 'StepBuilder';
+
+const classes = {
+    root: `${PREFIX}-root`,
+    subRoot: `${PREFIX}-subRoot`,
+    droppable: `${PREFIX}-droppable`,
+    toolbar: `${PREFIX}-toolbar`,
+    orderTitle: `${PREFIX}-orderTitle`,
+    sideToolbar: `${PREFIX}-sideToolbar`,
+    stepWrapper: `${PREFIX}-stepWrapper`,
+    moduleDropper: `${PREFIX}-moduleDropper`
+};
+
+const Root = styled('div')(({ theme }) => ({
+    width: '100%',
+
+    [`& .${classes.root}`]: {
         marginTop: '1rem'
     },
-    subRoot: {
+
+    [`& .${classes.subRoot}`]: {
         flex: 1,
-        '&:first-child': {
+        '&:first-of-type': {
             borderTopLeftRadius: 5,
         },
         '&:last-child': {
@@ -23,7 +40,8 @@ const useStyles = makeStyles(theme => ({
         border: '1px solid ' + theme.palette.borderColor?.main,
         overflow: 'hidden'
     },
-    droppable: {
+
+    [`& .${classes.droppable}`]: {
         flex: 1,
         display: 'flex',
         borderRadius: 5,
@@ -39,7 +57,8 @@ const useStyles = makeStyles(theme => ({
             transition: 'all .3s ease',
         },
     },
-    toolbar: {
+
+    [`& .${classes.toolbar}`]: {
         width: '100%',
         display: 'flex',
         justifyContent: 'space-between',
@@ -48,22 +67,26 @@ const useStyles = makeStyles(theme => ({
         boxSizing: 'border-box',
         backgroundColor: '#f5f5f5'
     },
-    orderTitle: {
+
+    [`& .${classes.orderTitle}`]: {
         lineHeight: '1',
         color: theme.palette.text.primary,
         width: 'fit-content'
     },
-    sideToolbar: {
+
+    [`& .${classes.sideToolbar}`]: {
         width: '25%'
     },
-    stepWrapper: {
+
+    [`& .${classes.stepWrapper}`]: {
         '&:not(:last-child)': {
             borderBottom: '1px solid ' + theme.palette.borderColor?.main
         }
     },
-    moduleDropper: {
 
-    },
+    [`& .${classes.moduleDropper}`]: {
+
+    }
 }));
 
 export type StepBuilderProps = {
@@ -75,7 +98,7 @@ export type StepBuilderProps = {
     updateForm?: Function,
     createLabel?: string,
     createAction?: MouseEventHandler<Element>,
-    initialValue?: any,
+    defaultValue?: any,
     renderData?: any,
     changeStep: Function,
     changeIndex: Function,
@@ -85,9 +108,9 @@ export type StepBuilderProps = {
 }
 
 const StepBuilder = (props: StepBuilderProps) => {
-    const { title, help, save, children, changeOnAction, updateForm, createLabel, createAction, initialValue, renderData, changeStep, changeIndex, updateComponent, emptyText, actions } = props;
-    const classes = useStyles();
-    const form = useForm();
+    const { title, help, save, children, changeOnAction, updateForm, createLabel, createAction, defaultValue, renderData, changeStep, changeIndex, updateComponent, emptyText, actions } = props;
+
+    const { setValue } = useFormContext();
 
     const [canAddSteps, setCanAddSteps] = useState(false);
 
@@ -107,7 +130,7 @@ const StepBuilder = (props: StepBuilderProps) => {
             return;
         }
 
-        form.change(save || "", newValue || renderData);
+        setValue(save || "", newValue || renderData);
         updateComponent?.();
     }
 
@@ -204,7 +227,7 @@ const StepBuilder = (props: StepBuilderProps) => {
     }
 
     return (
-        <>
+        <Root>
             <DragDropContext onDragEnd={onDragEnd}>
                 <Box display="flex" flexDirection="column" className={classes.root}>
                     <div className={classes.subRoot}>
@@ -217,7 +240,7 @@ const StepBuilder = (props: StepBuilderProps) => {
                             <Typography align="center" variant="subtitle1">
                                 {help}
                             </Typography>
-                            <Box width="35%" display="flex" justifyContent="flex-end" gridGap={10}>
+                            <Box width="35%" display="flex" justifyContent="flex-end" gap={1}>
                                 {
                                     actions?.map((element, i) => {
                                         return React.cloneElement(element, {
@@ -279,8 +302,8 @@ const StepBuilder = (props: StepBuilderProps) => {
                     </div>
                 </Box>
             </DragDropContext>
-        </>
-    )
+        </Root>
+    );
 }
 
 export default StepBuilder;

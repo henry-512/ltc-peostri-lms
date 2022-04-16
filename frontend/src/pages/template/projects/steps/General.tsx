@@ -1,4 +1,4 @@
-import { Box, Grid } from "@material-ui/core"
+import { Box, Grid } from "@mui/material"
 import { FormGroupContextProvider, maxLength, minLength, NumberInput, required, SelectInput, TextInput } from "react-admin"
 import { SectionTitle } from "src/components/misc";
 import { Step } from "src/packages/FormStepper/Step"
@@ -6,11 +6,11 @@ import { Step } from "src/packages/FormStepper/Step"
 export type ProjectTemplateGeneralProps = {
     validator: string
     getSource?: Function
-    initialValues?: any
+    defaultValues?: any
 }
 
 const General = (props: ProjectTemplateGeneralProps) => {
-    const { getSource, validator, initialValues, ...rest } = props;
+    const { getSource, validator, defaultValues, ...rest } = props;
     const validateTitle = [required(), minLength(2), maxLength(150)];
 
     return (
@@ -42,7 +42,10 @@ const General = (props: ProjectTemplateGeneralProps) => {
                                 ]}
                                 optionText={choice => `${choice.name}`}
                                 optionValue="id"
-                                initialValue="AWAITING"
+                                defaultValue="AWAITING"
+                                validate={[required()]}
+                                emptyValue={null}
+                                emptyText={<></>}
                                 label="template.project.fields.status"
                                 fullWidth
                                 helperText=" "
@@ -50,7 +53,7 @@ const General = (props: ProjectTemplateGeneralProps) => {
                         </Grid>
                         
                         <Grid item xs={3}>
-                            <NumberInput
+                            <TextInput
                                 source="ttc"
                                 label="template.project.fields.ttc"
                                 fullWidth

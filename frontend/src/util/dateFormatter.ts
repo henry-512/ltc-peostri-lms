@@ -1,14 +1,14 @@
 export const dateFormatToString = (dateString: string, words?: boolean) => {
     const date = new Date(dateString);
 
-    const dateOptions: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+    const dateOptions: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' };
 
     if (words) return `${date.toLocaleDateString('en-GB', dateOptions)} at ${date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: undefined })}`;
 
     return `${date.getHours()}:${date.getMinutes()} ${date.getMonth()}/${date.getDate()}/${date.getFullYear()}`
 }
 
-export const dateOptions = { hour12: false, weekday: undefined, year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', second: undefined  }
+export const dateOptions = { hour12: false, weekday: undefined, year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: undefined  }
 
 const dateFormatRegex = /^\d{4}-\d{2}-\d{2}$/;
 const dateParseRegex = /(\d{4})-(\d{2})-(\d{2})/;

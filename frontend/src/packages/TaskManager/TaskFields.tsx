@@ -1,16 +1,26 @@
-import { Grid, makeStyles } from "@material-ui/core"
+import { Grid } from "@mui/material";
+import { styled } from '@mui/material/styles';
 import get from "lodash.get";
 import { useEffect } from "react";
 import { maxLength, minLength, NumberInput, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
-import { useForm } from "react-final-form";
 import AutoAssignArrayInput from "./AutoAssignArrayInput";
 import { IDField } from "src/components/misc";
+import { useFormContext } from "react-hook-form";
 
-const useStyles = makeStyles(theme => ({
-    taskForm: {
+const PREFIX = 'TaskFields';
+
+const classes = {
+    taskForm: `${PREFIX}-taskForm`,
+    taskTitle: `${PREFIX}-taskTitle`,
+    taskFieldWrapper: `${PREFIX}-taskFieldWrapper`
+};
+
+const Root = styled('div')(({ theme }) => ({
+    [`& .${classes.taskForm}`]: {
         marginTop: '1.75rem'
     },
-    taskTitle: {
+
+    [`& .${classes.taskTitle}`]: {
         position: 'absolute',
         width: 'auto',
         display: 'inline-block',
@@ -23,32 +33,36 @@ const useStyles = makeStyles(theme => ({
         color: theme.palette.text.primary,
         whiteSpace: 'nowrap'
     },
-    taskFieldWrapper: {
+
+    [`& .${classes.taskFieldWrapper}`]: {
         alignItems: 'flex-start',
         marginTop: '0'
     }
-}))
+}));
 
 export type TaskFieldsProps = {
     getSource: Function,
-    initialValues?: any,
+    defaultValues?: any,
     calculateTTC?: Function
 }
 
 const TaskFields = (props: TaskFieldsProps) => {
     const { getSource } = props;
-    const classes = useStyles();
+
     const translate = useTranslate();
     const validateTitle = [required(), minLength(2), maxLength(150)];
-    const form = useForm();
 
-    useEffect(() => props.calculateTTC?.(), [get(form.getState().values, getSource?.('ttc'))]);
+    const { getValues } = useFormContext();
+
+    useEffect(() => {
+        props.calculateTTC?.();
+    }, [getValues(getSource?.('ttc'))])
 
     return (
-        <>
+        <Root>
             <Grid container spacing={4} className={classes.taskFieldWrapper}>
-                <IDField source={getSource?.('id') || ""} id={props.initialValues?.id} />
-                <Grid item xs={5}>
+                <IDField source={getSource?.('id') || ""} id={props.defaultValues?.id} />
+                <Grid item xs={5} style={{ marginTop: '-18px' }}>
                     <TextInput
                         source={getSource?.('title') || ""}
                         label="project.fields.task_title"
@@ -57,14 +71,13 @@ const TaskFields = (props: TaskFieldsProps) => {
                         validate={validateTitle}
                     />
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={4} style={{ marginTop: '-18px' }}>
                     <SelectInput
                         source={getSource?.('type') || ""}
                         choices={[
                             { id: 'DOCUMENT_UPLOAD', name: translate('tasks.types.document_upload') },
                             { id: 'DOCUMENT_REVIEW', name: translate('tasks.types.document_review') },
-                            { id: 'DOCUMENT_APPROVE', name: translate('tasks.types.document_approve') },
-                            //{ id: 'MODULE_WAIVER', name: translate('tasks.types.module_waiver'), not_available: true },                                                                                               
+                            { id: 'DOCUMENT_APPROVE', name: translate('tasks.types.document_approve') },                                                                                              
                             { id: 'MODULE_WAIVER_APPROVAL', name: translate('tasks.types.module_waiver_approval'), not_available: false },
                         ]}
                         optionText={choice => `${choice.name}`}
@@ -73,10 +86,12 @@ const TaskFields = (props: TaskFieldsProps) => {
                         fullWidth
                         helperText=" "
                         validate={[required()]}
+                        emptyValue={null}
+                        emptyText={<></>}
                         disableValue="not_available"
                     />
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={3} style={{ marginTop: '-18px'}}>
                     <SelectInput
                         source={getSource?.('status') || ""}
                         choices={[
@@ -88,7 +103,10 @@ const TaskFields = (props: TaskFieldsProps) => {
                         optionText={choice => `${choice.name}`}
                         optionValue="id"
                         disabled={false}
-                        initialValue="AWAITING"
+                        defaultValue="AWAITING"
+                        validate={[required()]}
+                        emptyValue={null}
+                        emptyText={<></>}
                         label="project.fields.task_status"
                         fullWidth
                         helperText=" "
@@ -97,11 +115,11 @@ const TaskFields = (props: TaskFieldsProps) => {
 
                 <Grid item xs={6} style={{ marginTop: '-32px' }}>
                     <ReferenceInput
-                        label="project.fields.rank"
                         reference="admin/ranks"
                         source={getSource?.('rank') || ""}
                     >
                         <SelectInput
+                            label="project.fields.rank"
                             optionText={choice => `${choice.name}`}
                             optionValue="id"
                             helperText=" "
@@ -111,7 +129,7 @@ const TaskFields = (props: TaskFieldsProps) => {
                 </Grid>
 
                 <Grid item xs={6} style={{ marginTop: '-32px' }}>
-                    <NumberInput
+                    <TextInput
                         source={getSource?.('ttc') || ""}
                         label="template.module.fields.ttc"
                         fullWidth
@@ -122,16 +140,15 @@ const TaskFields = (props: TaskFieldsProps) => {
 
                 <Grid item xs={12} style={{ marginTop: '-32px' }}>
                     <ReferenceArrayInput
-                        label="project.fields.member"
-                        reference="users"
+                        reference="admin/users"
                         source={getSource?.('users') || ""}
                     >
-                        <AutoAssignArrayInput source={getSource?.()} />
+                        <AutoAssignArrayInput label="project.fields.member" />
                     </ReferenceArrayInput>
                 </Grid>
             </Grid>
-        </>
-    )
+        </Root>
+    );
 }
 
 export default TaskFields;

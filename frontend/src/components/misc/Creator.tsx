@@ -1,31 +1,25 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, makeStyles } from '@material-ui/core';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import React from 'react';
 import { FormGroupContextProvider, useFormGroup, useTranslate, Button as RAButton } from 'react-admin';
-import { useForm } from 'react-final-form';
-import DeleteIcon from '@material-ui/icons/Delete';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-const useDialogStyles = makeStyles(theme => ({
-    root: {
-        margin: 0,
-        padding: theme.spacing(2),
-        borderBottom: '1px solid ' + theme.palette.borderColor?.main
-    }
-}));
-
-const useDialogContentStyles = makeStyles((theme) => ({
-    root: {
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+    '& .MuiDialogContent-root': {
         padding: theme.spacing(2),
         paddingTop: 0
-    }
-}));
-
-const useDialogActionsStyles = makeStyles((theme) => ({
-    root: {
+    },
+    '& .MuiDialogActions-root': {
         margin: 0,
         padding: theme.spacing(2),
         borderTop: '1px solid ' + theme.palette.borderColor?.main,
         display: 'flex',
         justifyContent: 'space-between'
+    },
+    '& .MuiDialogTitle-root': {
+        margin: 0,
+        padding: theme.spacing(2),
+        borderBottom: '1px solid ' + theme.palette.borderColor?.main
     }
 }));
 
@@ -44,12 +38,6 @@ export type CreatorProps = {
 
 const Creator = (props: CreatorProps) => {
     const translate = useTranslate();
-    const form = useForm();
-    const formData = form.getState().values;
-
-    const dialogStyles = useDialogStyles();
-    const dialogContentStyles = useDialogContentStyles();
-    const dialogActionStyles = useDialogActionsStyles();
 
     const handleClose = () => {
         if (props.cancelAction) {
@@ -72,13 +60,13 @@ const Creator = (props: CreatorProps) => {
         props.setOpen(false);
     }
 
-    const formGroupState = useFormGroup(props.ariaLabel);
+    const { isValid, isDirty } = useFormGroup(props.ariaLabel);
 
     return (
         <>
-            <Dialog open={props.open} onClose={handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'lg')}>
-                <DialogTitle id={props.ariaLabel} classes={dialogStyles}>{props.label}</DialogTitle>
-                <DialogContent classes={dialogContentStyles}>
+            <StyledDialog open={props.open} onClose={handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'lg')}>
+                <DialogTitle id={props.ariaLabel}>{props.label}</DialogTitle>
+                <DialogContent>
                     <FormGroupContextProvider name={props.ariaLabel}>
                         {React.Children.map(props.children, (child, index) => {
                             return React.cloneElement(child, {
@@ -88,7 +76,7 @@ const Creator = (props: CreatorProps) => {
                         })}
                     </FormGroupContextProvider>
                 </DialogContent>
-                <DialogActions classes={dialogActionStyles}>
+                <DialogActions>
                     {
                         (!props.create) ? (
                             <RAButton onClick={handleDelete} variant="outlined" label="layout.button.delete"
@@ -114,13 +102,13 @@ const Creator = (props: CreatorProps) => {
                         {translate('project.layout.cancel')}
                     </Button>
                     <Box sx={{ flex: '1 1 auto' }} />
-                    <Button onClick={handleSubmit} color="primary" disabled={formGroupState.invalid ? true : false}>
+                    <Button onClick={handleSubmit} color="primary" disabled={(props.create) ? (!isValid || !isDirty) : (!isValid)}>
                         {props.create ? translate('project.layout.create') : translate('project.layout.save')}
                     </Button>
                 </DialogActions>
-            </Dialog>
+            </StyledDialog>
         </>
-    )
+    );
 }
 
 export default Creator;

@@ -1,136 +1,81 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import {
-    NumberField,
-    TextField,
     DateField,
     useTranslate,
     useGetList,
-    Record,
-    RecordMap,
-    Identifier,
-    ReferenceField,
-    useLocale,
+    RecordContextProvider,
+    useLocaleState,
+    useRecordContext,
 } from 'react-admin';
 import {
     Typography,
     Card,
     CardContent,
     Box,
-    Link,
     Stepper,
     Step,
     StepLabel,
     StepContent,
-} from '@material-ui/core';
-import { Link as RouterLink } from 'react-router-dom';
-import AccessTimeIcon from '@material-ui/icons/AccessTime';
-import { makeStyles } from '@material-ui/core/styles';
+    Grid,
+} from '@mui/material';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
-const useAsideStyles = makeStyles(theme => ({
-    root: {
-        width: 400,
-        [theme.breakpoints.down('md')]: {
-            display: 'none',
-        },
-    },
-}));
-
-interface AsideProps {
-    record?: Record;
-    basePath?: string;
-}
-
-const Aside = ({ record, basePath }: AsideProps) => {
-    const classes = useAsideStyles();
+const Aside = () => {
+    const record = useRecordContext();
     return (
-        <div className={classes.root}>
-            {record && <EventList record={record} basePath={basePath} />}
-        </div>
+        <Box width={400} display={{ xs: 'none', lg: 'block' }}>
+            {record && <EventList />}
+        </Box>
     );
 };
 
-Aside.propTypes = {
-    record: PropTypes.any,
-    basePath: PropTypes.string,
-};
-
-interface EventListProps {
-    record?: Record;
-    basePath?: string;
-}
-
-const useEventStyles = makeStyles({
-    stepper: {
-        background: 'none',
-        border: 'none',
-        marginLeft: '0.3em',
-    },
-});
-
-const EventList = ({ record, basePath }: EventListProps) => {
+const EventList = () => {
+    const record = useRecordContext();
     const translate = useTranslate();
-    const classes = useEventStyles();
-    const locale = useLocale();
+    const [locale] = useLocaleState();
 
     return (
-        <>
-            <Box m="0 0 1em 1em">
-                <Card>
-                    <CardContent>
-                        <Typography variant="h6" gutterBottom>
-                            {translate(
-                                'resources.customers.fieldGroups.history'
-                            )}
-                        </Typography>
-                        <Box display="flex">
+        <Box ml={2}>
+            <Card>
+                <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                        {translate('resources.customers.fieldGroups.history')}
+                    </Typography>
+                    <Grid container rowSpacing={1} columnSpacing={1}>
+                        <Grid item xs={6} display="flex" gap={1}>
+                            <AccessTimeIcon fontSize="small" color="disabled" />
                             <Box flexGrow={1}>
-                                <Box display="flex" mb="1em">
-                                    <Box mr="1em">
-                                        <AccessTimeIcon
-                                            fontSize="small"
-                                            color="disabled"
-                                        />
-                                    </Box>
-                                    <Box flexGrow={1}>
-                                        <Typography>
-                                            {translate(
-                                                'resources.customers.fields.first_seen'
-                                            )}
-                                        </Typography>
-                                        <DateField
-                                            record={record}
-                                            source="first_seen"
-                                        />
-                                    </Box>
-                                </Box>
+                                <Typography variant="body2">
+                                    {translate(
+                                        'resources.customers.fields.first_seen'
+                                    )}
+                                </Typography>
+                                <DateField
+                                    record={record}
+                                    source="first_seen"
+                                />
                             </Box>
+                        </Grid>
+                        
+                        <Grid item xs={6} display="flex" gap={1}>
+                            <AccessTimeIcon fontSize="small" color="disabled" />
                             <Box flexGrow={1}>
-                                <Box display="flex" mb="1em">
-                                    <Box mr="1em">
-                                        <AccessTimeIcon
-                                            fontSize="small"
-                                            color="disabled"
-                                        />
-                                    </Box>
-                                    <Box flexGrow={1}>
-                                        <Typography>
-                                            {translate(
-                                                'resources.customers.fields.last_seen'
-                                            )}
-                                        </Typography>
-                                        <DateField
-                                            record={record}
-                                            source="last_seen"
-                                        />
-                                    </Box>
-                                </Box>
+                                <Typography variant="body2">
+                                    {translate(
+                                        'resources.customers.fields.last_seen'
+                                    )}
+                                </Typography>
+                                <DateField record={record} source="last_seen" />
                             </Box>
-                        </Box>
-                    </CardContent>
-                </Card>
-            </Box>
-        </>
+                        </Grid>
+                        
+                    </Grid>
+                </CardContent>
+            </Card>
+
+            <Stepper orientation="vertical" sx={{ mt: 1 }}>
+                
+            </Stepper>
+        </Box>
     );
 };
 

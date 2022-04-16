@@ -1,4 +1,4 @@
-import { PopoverOrigin } from "@material-ui/core";
+import { PopoverOrigin } from "@mui/material";
 import { useEffect, useState } from "react";
 import NotificationsMenu from "./NotificationsMenu";
 import NotificationsButton from "./NotificationsButton";

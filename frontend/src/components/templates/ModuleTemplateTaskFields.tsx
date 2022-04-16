@@ -1,15 +1,25 @@
-import { Grid, makeStyles } from "@material-ui/core"
+import { Grid } from "@mui/material";
+import { styled } from '@mui/material/styles';
 import get from "lodash.get";
 import { useEffect } from "react";
 import { maxLength, minLength, NumberInput, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
-import { useForm, useFormState } from "react-final-form";
+import { useFormContext } from "react-hook-form";
 import { IDField } from "src/components/misc";
 
-const useStyles = makeStyles(theme => ({
-    taskForm: {
+const PREFIX = 'ModuleTemplateTaskFields';
+
+const classes = {
+    taskForm: `${PREFIX}-taskForm`,
+    taskTitle: `${PREFIX}-taskTitle`,
+    taskFieldWrapper: `${PREFIX}-taskFieldWrapper`
+};
+
+const Root = styled('div')(({ theme }) => ({
+    [`& .${classes.taskForm}`]: {
         marginTop: '1.75rem'
     },
-    taskTitle: {
+
+    [`& .${classes.taskTitle}`]: {
         position: 'absolute',
         width: 'auto',
         display: 'inline-block',
@@ -22,33 +32,36 @@ const useStyles = makeStyles(theme => ({
         color: theme.palette.text.primary,
         whiteSpace: 'nowrap'
     },
-    taskFieldWrapper: {
+
+    [`& .${classes.taskFieldWrapper}`]: {
         alignItems: 'flex-start',
         marginTop: '0'
     }
-}))
+}));
 
 export type ModuleTemplateTaskFieldsProps = {
     getSource?: Function,
-    initialValues?: any,
+    defaultValues?: any,
     calculateTTC: any
 }
 
 const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
     const { getSource } = props;
-    const classes = useStyles();
+
     const translate = useTranslate();
     const validateTitle = [required(), minLength(2), maxLength(150)];
-    const formData = useFormState().values
-    const form = useForm();
 
-    useEffect(() => props.calculateTTC(), [get(form.getState().values, getSource?.('ttc'))]);
+    const { getValues } = useFormContext();
+
+    useEffect(() => {
+        props.calculateTTC();
+    }, [getValues(getSource?.('ttc'))])
 
     return (
-        <>
+        <Root>
             <Grid container spacing={4} className={classes.taskFieldWrapper}>
-                <IDField source={getSource?.('id') || ""} id={props.initialValues?.id} />
-                <Grid item xs={5}>
+                <IDField source={getSource?.('id') || ""} id={props.defaultValues?.id} />
+                <Grid item xs={5} style={{ marginTop: '-18px'}}>
                     <TextInput
                         source={getSource?.('title') || ""}
                         label="project.fields.task_title"
@@ -57,14 +70,13 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
                         validate={validateTitle}
                     />
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={4} style={{ marginTop: '-18px'}}>
                     <SelectInput
                         source={getSource?.('type') || ""}
                         choices={[
                             { id: 'DOCUMENT_UPLOAD', name: translate('tasks.types.document_upload') },
                             { id: 'DOCUMENT_REVIEW', name: translate('tasks.types.document_review') },
-                            { id: 'DOCUMENT_APPROVE', name: translate('tasks.types.document_approve') },
-                            { id: 'MODULE_WAIVER', name: translate('tasks.types.module_waiver') },                                                                                               
+                            { id: 'DOCUMENT_APPROVE', name: translate('tasks.types.document_approve') },                                                                                  
                             { id: 'MODULE_WAIVER_APPROVAL', name: translate('tasks.types.module_waiver_approval') },
                         ]}
                         optionText={choice => `${choice.name}`}
@@ -73,10 +85,12 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
                         fullWidth
                         helperText=" "
                         validate={[required()]}
+                        emptyValue={null}
+                        emptyText={<></>}
                         disableValue="not_available"
                     />
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={3} style={{ marginTop: '-18px'}}>
                     <SelectInput
                         source={getSource?.('status') || ""}
                         choices={[
@@ -87,8 +101,11 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
                         ]}
                         optionText={choice => `${choice.name}`}
                         optionValue="id"
-                        initialValue="AWAITING"
+                        defaultValue="AWAITING"
                         label="project.fields.task_status"
+                        validate={[required()]}
+                        emptyValue={null}
+                        emptyText={<></>}
                         fullWidth
                         helperText=" "
                     />
@@ -96,7 +113,6 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
 
                 <Grid item xs={3} style={{ marginTop: '-32px' }}>
                     <ReferenceInput
-                        label="project.fields.rank"
                         reference="admin/ranks"
                         source={getSource?.('rank') || ""}
                     >
@@ -104,6 +120,7 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
                             optionText={choice => `${choice.name}`}
                             optionValue="id"
                             helperText=" "
+                            label="project.fields.rank"
                             fullWidth
                         />
                     </ReferenceInput>
@@ -119,8 +136,8 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
                     />
                 </Grid>
             </Grid>
-        </>
-    )
+        </Root>
+    );
 }
 
 export default ModuleTemplateTaskFields;

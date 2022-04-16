@@ -1,28 +1,29 @@
-import { makeStyles } from '@material-ui/core';
+import { styled } from '@mui/material/styles';
 import React from 'react';
 import { BulkDeleteButton, ChipField, Datagrid, DateField, FieldProps, List, ListProps, ReferenceArrayField, ReferenceField, ReferenceInput, SearchInput, SelectInput, SingleFieldList, TextField, TextInput } from 'react-admin';
 import { AvatarField } from 'src/components/users';
 import { dateOptions } from 'src/util/dateFormatter';
 import { IUser } from 'src/util/types';
 
-const useListStyles = makeStyles(theme => ({
-    headerRow: {
-        borderLeftColor: 'transparent',
-        borderLeftWidth: 5,
-        borderLeftStyle: 'solid',
-    },
-    headerCell: {
-        padding: '6px 8px 6px 8px',
-    },
-    rowCell: {
-        padding: '6px 8px 6px 8px',
-    },
-    avatar: {
+const PREFIX = 'UserList';
+
+const classes = {
+    headerRow: `${PREFIX}-headerRow`,
+    headerCell: `${PREFIX}-headerCell`,
+    rowCell: `${PREFIX}-rowCell`,
+    avatar: `${PREFIX}-avatar`,
+    filter: `${PREFIX}-filter`,
+    select: `${PREFIX}-select`
+};
+
+const Root = styled('div')(({ theme }) => ({
+    [`& .${classes.avatar}`]: {
         marginRight: theme.spacing(1),
         marginTop: -theme.spacing(0.5),
         marginBottom: -theme.spacing(0.5),
     },
-    filter: {
+
+    [`& .${classes.filter}`]: {
         marginTop: '32px',
         '& .MuiInputBase-root': {
             fontSize: '.8rem'
@@ -38,7 +39,8 @@ const useListStyles = makeStyles(theme => ({
             paddingTop: '16px'
         }
     },
-    select: {
+
+    [`& .${classes.select}`]: {
         marginTop: '32px',
         '& .MuiInputBase-root': {
             fontSize: '.8rem'
@@ -67,8 +69,6 @@ export interface UserListProps extends FieldProps<IUser>, ListProps {
 }
 
 const UserList = (props: UserListProps) => {
-    const classes = useListStyles();
-
     const UserListFilters = [
         <SearchInput source="q" alwaysOn />,
         <TextInput source="firstName" className={classes.filter} />,
@@ -79,21 +79,22 @@ const UserList = (props: UserListProps) => {
     ];
 
     return (
-        <>
+        <Root>
             <List {...props}
                 perPage={25}
                 bulkActionButtons={<BulkUserToolbar />}
                 filters={UserListFilters}
             >
                 <Datagrid
-                    classes={{
-                        headerRow: classes.headerRow,
-                        headerCell: classes.headerCell,
-                        rowCell: classes.rowCell,
+                    sx={{
+                        [`& .RaDatagrid-headerRow`]: {
+                            borderLeftColor: 'transparent',
+                            borderLeftWidth: 5,
+                            borderLeftStyle: 'solid',
+                        }
                     }}
                     rowClick="edit"
                 >
-                    {/*<TextField source="id" /> // TODO: Temporarily removing ID due to illegible ID's */}
                     <AvatarField className={classes.avatar} />
                     <TextField source="firstName" label="user.info.first_name" />
                     <TextField source="lastName" label="user.info.last_name" />
@@ -112,7 +113,7 @@ const UserList = (props: UserListProps) => {
                     </ReferenceArrayField>
                 </Datagrid>
             </List>
-        </>
+        </Root>
     );
 }
 

@@ -1,4 +1,4 @@
-import { Box, Grid } from "@material-ui/core"
+import { Box, Grid } from "@mui/material"
 import { FormGroupContextProvider, maxLength, minLength, NumberInput, required, SelectInput, TextInput } from "react-admin"
 import { SectionTitle, IDField } from "src/components/misc";
 import { Step } from "src/packages/FormStepper/Step"
@@ -6,11 +6,11 @@ import { Step } from "src/packages/FormStepper/Step"
 export type ModuleTemplateGeneralStepProps = {
     validator: string
     getSource?: Function
-    initialValues?: any
+    defaultValues?: any
 }
 
 const General = (props: ModuleTemplateGeneralStepProps) => {
-    const { getSource, validator, initialValues, ...rest } = props;
+    const { getSource, validator, defaultValues, ...rest } = props;
     const validateTitle = [required(), minLength(2), maxLength(150)];
 
     return (
@@ -22,7 +22,7 @@ const General = (props: ModuleTemplateGeneralStepProps) => {
                     <SectionTitle label="template.module.layout.general" />
                     <Grid container spacing={4}>
                         <Grid item xs={5}>
-                            <IDField source={getSource?.('id') || ""} id={props.initialValues?.id} />
+                            <IDField source={getSource?.('id') || ""} id={props.defaultValues?.id} />
                             <TextInput
                                 source={getSource?.('title') || ""}
                                 label="template.module.fields.title"
@@ -43,7 +43,10 @@ const General = (props: ModuleTemplateGeneralStepProps) => {
                                 ]}
                                 optionText={choice => `${choice.name}`}
                                 optionValue="id"
-                                initialValue="AWAITING"
+                                defaultValue="AWAITING"
+                                validate={[required()]}
+                                emptyValue={null}
+                                emptyText={<></>}
                                 label="template.module.fields.status"
                                 fullWidth
                                 helperText=" "
@@ -51,7 +54,7 @@ const General = (props: ModuleTemplateGeneralStepProps) => {
                         </Grid>
                         
                         <Grid item xs={3}>
-                            <NumberInput
+                            <TextInput
                                 source={getSource?.('ttc') || ""}
                                 label="template.module.fields.ttc"
                                 fullWidth

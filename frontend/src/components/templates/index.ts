@@ -1,9 +1,9 @@
-import TemplateToolbar from './TemplateToolbar';
 import ModuleTemplateFields from './ModuleTemplateFields';
 import ModuleTemplateTaskFields from './ModuleTemplateTaskFields';
+import TemplateEditToolbar from './TemplateEditToolbar';
 
 export {
-    TemplateToolbar,
     ModuleTemplateFields,
-    ModuleTemplateTaskFields
+    ModuleTemplateTaskFields,
+    TemplateEditToolbar
 }

@@ -1,10 +1,10 @@
-import { Box, Grid, makeStyles } from "@material-ui/core";
-import { maxLength, minLength, NumberInput, required, SelectInput, TextInput } from "react-admin";
-import { useForm, useFormState } from "react-final-form";
+import { Box, Grid } from "@mui/material";
+import { maxLength, minLength, required, SelectInput, TextInput } from "react-admin";
 import { IModuleTemplate } from "src/util/types";
 import { SectionTitle } from "src/components/misc";
 import ModuleManager from "src/packages/ModuleManager";
 import ModuleTemplateFields from "./ModuleTemplateFields";
+import { useFormContext } from "react-hook-form";
 
 export type ProjectTemplateFieldsProps = {
 
@@ -12,26 +12,26 @@ export type ProjectTemplateFieldsProps = {
 
 const ProjectTemplateFields = (props: ProjectTemplateFieldsProps) => {
     const validateTitle = [required(), minLength(2), maxLength(150)];
-    const formData = useFormState().values;
-    const form = useForm();
+
+    const { getValues, setValue } = useFormContext();
 
     const recalculateTTC = () => {
-        const formData = form.getState().values;
-        if (!formData.modules) return;
+        const modules = getValues('modules');
+        if (!modules) return;
 
         let project_ttc = 0;
-        for (let [stepKey, step] of Object.entries<IModuleTemplate[]>(formData.modules)) {
+        for (let [stepKey, step] of Object.entries<IModuleTemplate[]>(modules)) {
             let stepTTC: number = 0;
             for (let [moduleKey, module] of Object.entries<IModuleTemplate>(step)) {
-                if (module.ttc < stepTTC) continue;
-                stepTTC = module.ttc;
+                if (parseInt(`${module.ttc}`) < stepTTC) continue;
+                stepTTC = parseInt(`${module.ttc}`);
             }
             project_ttc += stepTTC;
         }
 
-        if (project_ttc == formData.ttc) return;
+        if (project_ttc == getValues('ttc')) return;
 
-        form.change('ttc', project_ttc);
+        setValue('ttc', project_ttc);
     }
 
     return (
@@ -60,15 +60,18 @@ const ProjectTemplateFields = (props: ProjectTemplateFieldsProps) => {
                             ]}
                             optionText={choice => `${choice.name}`}
                             optionValue="id"
-                            initialValue="AWAITING"
+                            defaultValue="AWAITING"
                             label="template.project.fields.status"
+                            validate={[required()]}
+                            emptyValue={null}
+                            emptyText={<></>}
                             fullWidth
                             helperText=" "
                         />
                     </Grid>
                     
                     <Grid item xs={3}>
-                        <NumberInput
+                        <TextInput
                             source="ttc"
                             label="template.project.fields.ttc"
                             fullWidth

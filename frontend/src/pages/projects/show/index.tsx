@@ -1,12 +1,10 @@
-import { Box } from "@material-ui/core";
-import { FunctionField, FunctionFieldProps, ReferenceField, Show, SimpleShowLayout, TextField } from "react-admin";
-import { SectionTitle, Separator } from "src/components/misc";
+import { Box } from "@mui/material";
+import { FunctionField, ReferenceField, Show, SimpleShowLayout, TextField } from "react-admin";
+import { SectionTitle } from "src/components/misc";
 import getProgressStatus from "src/util/getProgressStatus";
-import { IProject } from "src/util/types";
 import Aside from "./Aside";
 
 const ProjectShow = (props: any) => {
-    console.log(props);
 
     return (
         <Show {...props} aside={<Aside />} title={"Viewing Project: " + props.id}>

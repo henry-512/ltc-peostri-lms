@@ -4,7 +4,7 @@ import transformer from "../transformer";
 import validateUser from "../validation";
 
 const UserEdit = (props: any) => (
-    <Edit {...props} transform={transformer} actions={<UserEditToolbar />} title={<UserEditTitle />}>
+    <Edit {...props} transform={transformer} actions={<UserEditToolbar />} title={<UserEditTitle />} redirect="edit">
         <SimpleForm
             validate={validateUser}
             toolbar={
@@ -12,9 +12,11 @@ const UserEdit = (props: any) => (
                     create={false}
                 />
             }
-            initialValues={{
-                useEmail: (props.initialValues && props.initialValues.email === props.initialValues.username) ? true : false
+            defaultValues={{
+                useEmail: (props.defaultValues && props.defaultValues.email === props.defaultValues.username) ? true : false
             }}
+            mode="onBlur"
+            warnWhenUnsavedChanges
         >
             <UserFields />
         </SimpleForm>

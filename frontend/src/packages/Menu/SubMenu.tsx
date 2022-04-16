@@ -1,5 +1,5 @@
-import { Fragment, ReactElement, ReactNode } from 'react';
-import { useSelector } from 'react-redux';
+import { ReactElement, ReactNode } from 'react';
+import { styled } from '@mui/material/styles';
 import {
     List,
     MenuItem,
@@ -7,25 +7,34 @@ import {
     Typography,
     Collapse,
     Tooltip,
-} from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import ExpandMore from '@material-ui/icons/ExpandMore';
-import { useTranslate, ReduxState } from 'react-admin';
+} from '@mui/material';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import { useTranslate, useSidebarState } from 'react-admin';
 
-const useStyles = makeStyles(theme => ({
-    icon: { minWidth: theme.spacing(5) },
-    sidebarIsOpen: {
+const PREFIX = 'SubMenu';
+
+const classes = {
+    icon: `${PREFIX}-icon`,
+    sidebarIsOpen: `${PREFIX}-sidebarIsOpen`,
+    sidebarIsClosed: `${PREFIX}-sidebarIsClosed`
+};
+
+const Root = styled('div')(({ theme }) => ({
+    [`& .${classes.icon}`]: { minWidth: theme.spacing(5) },
+
+    [`& .${classes.sidebarIsOpen}`]: {
         '& a': {
             transition: 'padding-left 195ms cubic-bezier(0.4, 0, 0.6, 1) 0ms',
             paddingLeft: theme.spacing(4),
         },
     },
-    sidebarIsClosed: {
+
+    [`& .${classes.sidebarIsClosed}`]: {
         '& a': {
             transition: 'padding-left 195ms cubic-bezier(0.4, 0, 0.6, 1) 0ms',
             paddingLeft: theme.spacing(2),
         },
-    },
+    }
 }));
 
 export type SubMenuProps = {
@@ -40,13 +49,11 @@ export type SubMenuProps = {
 const SubMenu = (props: SubMenuProps) => {
     const { handleToggle, isOpen, name, icon, children, dense } = props;
     const translate = useTranslate();
-    const classes = useStyles();
-    const sidebarIsOpen = useSelector<ReduxState, boolean>(
-        state => state.admin.ui.sidebarOpen
-    );
+
+    const [sidebarIsOpen] = useSidebarState();
 
     const header = (
-        <MenuItem dense={dense} button onClick={handleToggle}>
+        <MenuItem dense={dense} onClick={handleToggle}>
             <ListItemIcon className={classes.icon}>
                 {isOpen ? <ExpandMore /> : icon}
             </ListItemIcon>
@@ -57,7 +64,7 @@ const SubMenu = (props: SubMenuProps) => {
     );
 
     return (
-        <Fragment>
+        <Root>
             {sidebarIsOpen || isOpen ? (
                 header
             ) : (
@@ -79,7 +86,7 @@ const SubMenu = (props: SubMenuProps) => {
                     {children}
                 </List>
             </Collapse>
-        </Fragment>
+        </Root>
     );
 };
 

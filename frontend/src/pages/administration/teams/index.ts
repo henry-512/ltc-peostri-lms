@@ -1,7 +1,7 @@
 import TeamCreate from './create'
 import TeamEdit from './edit'
 import TeamList from './list'
-import GroupWorkIcon from '@material-ui/icons/GroupWork';
+import GroupWorkIcon from '@mui/icons-material/GroupWork';
 
 const TeamIcon = GroupWorkIcon;
 
