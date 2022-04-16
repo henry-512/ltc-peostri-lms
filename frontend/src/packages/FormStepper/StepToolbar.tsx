@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material"
 import { MouseEventHandler } from "react";
-import { Button, DeleteButton, SaveButton, Toolbar, ToolbarProps, useFormGroup, useTranslate } from "react-admin"
+import { Button, DeleteWithConfirmButton, SaveButton, Toolbar, ToolbarProps, useFormGroup, useTranslate } from "react-admin"
 import { useFormState } from "react-hook-form";
 
 export interface StepToolbarProps extends ToolbarProps {
@@ -24,7 +24,7 @@ export default function StepToolbar(props: StepToolbarProps) {
     return (
         <Toolbar {...props}>
             {(!props.create) ? (
-                <DeleteButton
+                <DeleteWithConfirmButton
                     label={"layout.button.delete"}
                     redirect="list"
                     variant="outlined"

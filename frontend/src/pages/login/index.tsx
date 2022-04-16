@@ -127,12 +127,23 @@ const Login = () => {
                         transform: "translateY(-50%)",
                         gap: '1em'
                     }} >
-                        <Card className={classes.card}>
-                            <div className={classes.logo}>
+                        <Card sx={{ minWidth: 300, marginTop: '6em' }}>
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    maxWidth: "300px",
+                                    margin: "1em .5em",
+                                    justifyContent: "center",
+                                    "& img": {
+                                        maxWidth: "70%",
+                                        display: "block"
+                                    }
+                                }}
+                            >
                                 <img src="/logo.png" alt="PEO STRI" />
-                            </div>
-                            <div className={classes.form}>
-                                <div className={classes.input}>
+                            </Box>
+                            <Box sx={{ padding: '0 1em 1em 1em' }}>
+                                <Box sx={{ marginTop: '1em' }}>
                                     <TextInput
                                         autoFocus
                                         source="username"
@@ -141,9 +152,9 @@ const Login = () => {
                                         validate={required()}
                                         helperText=" "
                                         fullWidth
-                                    />  
-                                </div>
-                                <div className={classes.input}>
+                                    />
+                                </Box>
+                                <Box sx={{ marginTop: '.25em' }}>
                                     <TextInput
                                         source="password"
                                         label={translate('ra.auth.password')}
@@ -153,9 +164,9 @@ const Login = () => {
                                         helperText=" "
                                         fullWidth
                                     />
-                                </div>
-                            </div>
-                            <CardActions className={classes.actions}>
+                                </Box>
+                            </Box>
+                            <CardActions sx={{ padding: '0 1em 1em 1em' }}>
                                 <Button
                                     variant="contained"
                                     type="submit"
@@ -164,10 +175,7 @@ const Login = () => {
                                     fullWidth
                                 >
                                     {loading && (
-                                        <CircularProgress
-                                            size={25}
-                                            thickness={2}
-                                        />
+                                        <CircularProgress size={25} thickness={2} />
                                     )}
                                     {translate('ra.auth.sign_in')}
                                 </Button>

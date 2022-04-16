@@ -1,5 +1,5 @@
 import { Box } from "@mui/material"
-import { DeleteButton, SaveButton, Toolbar, ToolbarProps } from "react-admin"
+import { DeleteWithConfirmButton, SaveButton, Toolbar, ToolbarProps } from "react-admin"
 import { useFormState } from "react-hook-form";
 
 export interface TeamToolbarProps extends ToolbarProps {
@@ -12,7 +12,7 @@ export default function TeamToolbar(props: TeamToolbarProps) {
     return (
         <Toolbar {...props}>
             {(!props.create) ? (
-                <DeleteButton
+                <DeleteWithConfirmButton
                     label={"layout.button.delete"}
                     redirect="list"
                     variant="outlined"
