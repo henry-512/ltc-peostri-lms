@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material"
 import { MouseEventHandler } from "react";
-import { Button, DeleteWithConfirmButton, SaveButton, Toolbar, ToolbarProps, useFormGroup, useTranslate } from "react-admin"
+import { Button, DeleteWithConfirmButton, SaveButton, Toolbar, ToolbarProps, useFormGroup, useRecordContext, useTranslate } from "react-admin"
 import { useFormState } from "react-hook-form";
 
 export interface StepToolbarProps extends ToolbarProps {
@@ -16,10 +16,10 @@ export interface StepToolbarProps extends ToolbarProps {
 }
 
 export default function StepToolbar(props: StepToolbarProps) {
-    const translate = useTranslate();
     const { isValid, isDirty, errors } = useFormGroup(props.validator);
 
-    console.log(isValid, isDirty, errors)
+    const record = useRecordContext();
+    const translate = useTranslate();
 
     return (
         <Toolbar {...props}>
@@ -33,6 +33,7 @@ export default function StepToolbar(props: StepToolbarProps) {
                         padding: '6px 16px',
                         marginRight: '8px'
                     }}
+                    confirmTitle={translate("layout.button.confirm_delete_title", { name: record.title })}
                 />
             ) : (
                 <></>
