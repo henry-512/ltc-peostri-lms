@@ -139,8 +139,10 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
                 query = aql`${query} FILTER ${k} IN ${filter.in}`
             }
             if (filter.q !== undefined) {
-                let f = filter.q.charAt(0)
-                if (f === '/') {
+                if (
+                    typeof filter.q === 'string' &&
+                    filter.q.charAt(0) === '/'
+                ) {
                     query = aql`${query} FILTER REGEX_TEST(${k},${filter.q.substring(
                         1
                     )},true)`
@@ -168,8 +170,6 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         } else {
             query = this.returnQuery(query)
         }
-
-        console.log(query)
 
         return query
     }
