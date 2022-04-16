@@ -66,7 +66,6 @@ class ProjectTemplate extends DBManager<IProjectTemplate> {
             start: new Date().toJSON(),
             suspense: new Date().toJSON(),
             status: temp.status,
-            comments: [],
             modules: mods,
             users: [],
             ttc: temp.ttc,

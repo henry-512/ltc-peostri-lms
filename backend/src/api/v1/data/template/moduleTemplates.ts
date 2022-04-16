@@ -4,7 +4,7 @@ import {
     ITask,
     ITaskTemplate,
 } from '../../../../lms/types'
-import { IStepper } from '../../../../lms/util'
+import { convertToKey, IStepper } from '../../../../lms/util'
 import { AuthUser } from '../../../auth'
 import { DataManager } from '../../DataManager'
 import { DBManager } from '../../DBManager'
@@ -91,7 +91,7 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
                     title: t.title,
                     status: t.status,
                     users: [],
-                    rank: t.rank,
+                    rank: t.rank && convertToKey(t.rank),
                     type: t.type,
                     ttc: temp.ttc,
                 } as ITask
@@ -105,6 +105,7 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
             comments: [],
             status: 'AWAITING',
             ttc: temp.ttc,
+            files: [],
         }
     }
 }
