@@ -21,6 +21,8 @@ export default function StepToolbar(props: StepToolbarProps) {
     const record = useRecordContext();
     const translate = useTranslate();
 
+    console.log(isValid, isDirty, errors)
+
     return (
         <Toolbar {...props}>
             {(!props.create) ? (
@@ -63,7 +65,8 @@ export default function StepToolbar(props: StepToolbarProps) {
             ) : (
                 <SaveButton
                     label={(props.create) ? "layout.button.create" : "layout.button.save"}
-                    disabled={!isValid ? true : false}
+                    disabled={(props.create) ? (!isValid || !isDirty) : (!isValid)}
+                    alwaysEnable={(props.defaultValue) ? true : false}
                 />
             )}
         </Toolbar>

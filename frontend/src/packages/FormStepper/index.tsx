@@ -84,6 +84,7 @@ export default function FormStepper(props: FormStepperProps) {
                 backText={backText}
                 validator={validator}
                 create={props.create || false}
+                defaultValue={props.defaultValues}
             />
         } validate={props.validate} defaultValues={props.defaultValues} mode="onBlur" warnWhenUnsavedChanges>
             <StepHeader
