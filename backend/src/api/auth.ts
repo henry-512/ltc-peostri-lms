@@ -152,7 +152,9 @@ export class AuthUser {
                     let token = jsonwebtoken.sign(
                         {
                             user: dbUserWOPass.id,
-                            exp: Math.floor(Date.now() / 1000) + 3600,
+                            // 3600: 1hour
+                            // 86 400: 1day
+                            exp: Math.floor(Date.now() / 1000) + 86400,
                         },
                         config.secret
                     )
