@@ -1,25 +1,50 @@
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { makeStyles } from '@material-ui/core/styles';
+import { styled } from '@mui/material/styles';
 import classnames from 'classnames';
 import {
     useTranslate,
     DashboardMenuItem,
     MenuItemLink,
     MenuProps,
-    ReduxState,
+    useSidebarState,
 } from 'react-admin';
 
 import SubMenu from './SubMenu';
-import { AppState } from 'src/util/types';
-import SettingsIcon from '@material-ui/icons/Settings';
-import FileCopyIcon from '@material-ui/icons/FileCopy';
+import SettingsIcon from '@mui/icons-material/Settings';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
 import { AdminProjectIcon } from '../../pages/administration/project';
 import { ProjectTemplateIcon } from '../../pages/template/projects';
 import { ModuleTemplateIcon } from '../../pages/template/modules';
 import { UserIcon } from '../../pages/administration/users';
 import { TeamIcon } from '../../pages/administration/teams';
-import PermissionIcon from '@material-ui/icons/Security';
+import PermissionIcon from '@mui/icons-material/Security';
+
+const PREFIX = 'Menu';
+
+const classes = {
+    root: `${PREFIX}-root`,
+    open: `${PREFIX}-open`,
+    closed: `${PREFIX}-closed`
+};
+
+const Root = styled('div')(({ theme }) => ({
+    [`&.${classes.root}`]: {
+        marginTop: theme.spacing(1),
+        marginBottom: theme.spacing(1),
+        transition: theme.transitions.create('width', {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+        }),
+    },
+
+    [`&.${classes.open}`]: {
+        width: 220
+    },
+
+    [`&.${classes.closed}`]: {
+        width: 55,
+    }
+}));
 
 export type MenuName = 'menuAdmin' | 'menuTemplate';
 
@@ -29,16 +54,15 @@ const Menu = ({ dense = false }: MenuProps) => {
         menuTemplate: true
     });
     const translate = useTranslate();
-    const open = useSelector((state: ReduxState) => state.admin.ui.sidebarOpen);
-    useSelector((state: AppState) => state.theme); // force rerender on theme change
-    const classes = useStyles();
+    const [open] = useSidebarState();
+
 
     const handleToggle = (menu: MenuName) => {
         setState(state => ({ ...state, [menu]: !state[menu] }));
     };
 
     return (
-        <div
+        <Root
             className={classnames(classes.root, {
                 [classes.open]: open,
                 [classes.closed]: !open,
@@ -47,16 +71,14 @@ const Menu = ({ dense = false }: MenuProps) => {
             <DashboardMenuItem />
             <MenuItemLink
                 to={{
-                    pathname: '/tasks',
-                    state: { _scrollToTop: true },
+                    pathname: '/tasks'
                 }}
                 primaryText={translate("layout.menu.my_tasks")}
                 leftIcon={<AdminProjectIcon />}
             />
             <MenuItemLink
                 to={{
-                    pathname: '/projects',
-                    state: { _scrollToTop: true },
+                    pathname: '/projects'
                 }}
                 primaryText={translate("layout.menu.my_projects")}
                 leftIcon={<AdminProjectIcon />}
@@ -70,32 +92,28 @@ const Menu = ({ dense = false }: MenuProps) => {
             >
                 <MenuItemLink
                     to={{
-                        pathname: '/admin/projects',
-                        state: { _scrollToTop: true },
+                        pathname: '/admin/projects'
                     }}
                     primaryText={translate("layout.menu.projects")}
                     leftIcon={<AdminProjectIcon />}
                 />
                 <MenuItemLink
                     to={{
-                        pathname: '/admin/users',
-                        state: { _scrollToTop: true },
+                        pathname: '/admin/users'
                     }}
                     primaryText={translate("layout.menu.users")}
                     leftIcon={<UserIcon />}
                 />
                 <MenuItemLink
                     to={{
-                        pathname: '/admin/ranks',
-                        state: { _scrollToTop: true },
+                        pathname: '/admin/ranks'
                     }}
                     primaryText={translate("layout.menu.ranks")}
                     leftIcon={<PermissionIcon />}
                 />
                 <MenuItemLink
                     to={{
-                        pathname: '/admin/teams',
-                        state: { _scrollToTop: true },
+                        pathname: '/admin/teams'
                     }}
                     primaryText={translate("layout.menu.teams")}
                     leftIcon={<TeamIcon />}
@@ -110,40 +128,21 @@ const Menu = ({ dense = false }: MenuProps) => {
             >
                 <MenuItemLink
                     to={{
-                        pathname: '/admin/template/projects',
-                        state: { _scrollToTop: true },
+                        pathname: '/admin/template/projects'
                     }}
                     primaryText={translate("layout.menu.project_templates")}
                     leftIcon={<ProjectTemplateIcon />}
                 />
                 <MenuItemLink
                     to={{
-                        pathname: '/admin/template/modules',
-                        state: { _scrollToTop: true },
+                        pathname: '/admin/template/modules'
                     }}
                     primaryText={translate("layout.menu.module_templates")}
                     leftIcon={<ModuleTemplateIcon />}
                 />
             </SubMenu>
-        </div>
+        </Root>
     );
 };
-
-const useStyles = makeStyles(theme => ({
-    root: {
-        marginTop: theme.spacing(1),
-        marginBottom: theme.spacing(1),
-        transition: theme.transitions.create('width', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-        }),
-    },
-    open: {
-        width: 220
-    },
-    closed: {
-        width: 55,
-    },
-}));
 
 export default Menu;

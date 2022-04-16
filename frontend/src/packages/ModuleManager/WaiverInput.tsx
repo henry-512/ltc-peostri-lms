@@ -1,7 +1,6 @@
-import get from "lodash.get";
 import { useCallback, useState } from "react";
 import { BooleanInput } from "react-admin";
-import { useForm } from "react-final-form";
+import { useFormContext } from "react-hook-form";
 import { ITaskStep, ITaskWaiverReview } from "src/util/types";
 
 export type WaiverInputProps = {
@@ -10,16 +9,10 @@ export type WaiverInputProps = {
 }
 
 const WaiverInput = (props: WaiverInputProps): JSX.Element => {
-    const form = useForm();
-    const formData = form.getState().values;
+    const { getValues, setValue } = useFormContext();
     const [cacheTasks, setCacheTasks] = useState(undefined);
 
     const createWaiverTasks = (): ITaskStep => {
-        /*const waiveTask: ITaskWaiver =  {
-             title: "Module Waiver",
-             status: "IN_PROGRESS",
-             type: "MODULE_WAIVER"
-        }*/
         const waiveApproval: ITaskWaiverReview = {
             id: "",
             title: "Module Waiver Approval",
@@ -36,25 +29,25 @@ const WaiverInput = (props: WaiverInputProps): JSX.Element => {
 
     const addWaiveTasks = () => {
         //Set the waive status to true on the form.
-        form.change(props.source + ".waive_module", true);
+        setValue(props.source + ".waive_module", true);
 
         //Save steps for caching.
-        setCacheTasks(get(formData, props.source + ".tasks"));
+        setCacheTasks(getValues(props.source + ".tasks"));
 
         //Set the tasks.
-        form.change(props.source + ".tasks", createWaiverTasks());
+        setValue(props.source + ".tasks", createWaiverTasks());
 
         props.setShowSteps(true);
     }
 
     const removeWaiveTasks = () => {
         //Set the waive status to true on the form.
-        form.change(props.source + ".waive_module", false);
+        setValue(props.source + ".waive_module", false);
 
         if (cacheTasks) {
-            form.change(props.source + ".tasks", cacheTasks);
+            setValue(props.source + ".tasks", cacheTasks);
         } else {
-            form.change(props.source + ".tasks", {
+            setValue(props.source + ".tasks", {
                 ["0"]: [{}]
             })
         }
@@ -79,7 +72,7 @@ const WaiverInput = (props: WaiverInputProps): JSX.Element => {
 
     return (
         <>
-            <BooleanInput label="project.layout.waive_module" source={props.source + ".waive_module"} helperText=" " defaultValue={false} onChange={handleChange} />
+            <BooleanInput label="project.layout.waive_module" source={props.source + ".waive_module"} helperText=" " defaultValue={false} onChange={(e) => handleChange(e.target.checked)} />
         </>
     )
 }

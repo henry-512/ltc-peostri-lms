@@ -1,25 +1,21 @@
 import { ReferenceInput, required, AutocompleteInput, useDataProvider, useTranslate, useRedirect } from "react-admin";
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, makeStyles } from "@material-ui/core";
-import { useForm } from "react-final-form";
+import { styled } from '@mui/material/styles';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import { useFormContext, useFormState } from "react-hook-form";
 
-const useDialogStyles = makeStyles(theme => ({
-    root: {
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+    '& .MuiDialogTitle-root': {
         margin: 0,
         padding: theme.spacing(2),
         borderBottom: '1px solid ' + theme.palette.borderColor?.main
-    }
-}));
-
-const useDialogContentStyles = makeStyles((theme) => ({
-    root: {
-        padding: theme.spacing(2),
-        paddingTop: theme.spacing(1),
+    },
+    '& .MuiDialogContent-root': {
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(2),
+        paddingTop: theme.spacing(1) + " !important",
         paddingBottom: theme.spacing(1)
-    }
-}));
-
-const useDialogActionsStyles = makeStyles((theme) => ({
-    root: {
+    },
+    '& .MuiDialogActions-root': {
         margin: 0,
         padding: theme.spacing(2),
         borderTop: '1px solid ' + theme.palette.borderColor?.main,
@@ -42,17 +38,14 @@ const omitID = (data: any) => {
 }
 
 const CreateProjectFromTemplateDialog = (props: CreateProjectFromTemplateDialogProps) => {
-    const dialogStyles = useDialogStyles();
-    const dialogActionStyles = useDialogActionsStyles();
-    const dialogContentStyles = useDialogContentStyles();
-
     const translate = useTranslate();
     const dataProvider = useDataProvider();
-    const form = useForm();
     const redirect = useRedirect();
+    const { isValid } = useFormState();
+    const { getValues, setValue } = useFormContext();
     
     const handleSubmit = async () => {
-        const template_id = form.getState().values.project_template_id;
+        const template_id = getValues('project_template_id');
         
         dataProvider.getOne('admin/template/projects/instance', { id: template_id })
         .then(response => {
@@ -70,30 +63,30 @@ const CreateProjectFromTemplateDialog = (props: CreateProjectFromTemplateDialogP
         props.setOpen(false);
 
         //Reset the field to empty
-        form.change('project_template_id', '');
+        setValue('project_template_id', '');
     }
 
     return (
         <>
-            <Dialog open={props.open} onClose={handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'sm')}>
-                <DialogTitle id={props.ariaLabel} classes={dialogStyles}>{props.label}</DialogTitle>
-                <DialogContent classes={dialogContentStyles}>
+            <StyledDialog open={props.open} onClose={handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'sm')}>
+                <DialogTitle id={props.ariaLabel}>{props.label}</DialogTitle>
+                <DialogContent>
                     <ReferenceInput label="project.layout.select_template" source="project_template_id" reference="admin/template/projects">
                         <AutocompleteInput optionText="title" optionValue="id" fullWidth validate={[required()]} helperText=" " />
                     </ReferenceInput>
                 </DialogContent>
-                <DialogActions classes={dialogActionStyles}>
+                <DialogActions>
                     <Button onClick={handleClose} color="primary">
                         {translate('project.layout.cancel')}
                     </Button>
                     <Box sx={{ flex: '1 1 auto' }} />
-                    <Button onClick={handleSubmit} color="primary" disabled={form.getState().invalid ? true : false}>
+                    <Button onClick={handleSubmit} color="primary" disabled={!isValid}>
                         {translate('project.layout.create')}
                     </Button>
                 </DialogActions>
-            </Dialog>
+            </StyledDialog>
         </>
-    )
+    );
 }
 
 export default CreateProjectFromTemplateDialog;

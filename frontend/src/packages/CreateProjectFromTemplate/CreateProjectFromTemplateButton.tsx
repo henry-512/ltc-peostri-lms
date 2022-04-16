@@ -1,5 +1,5 @@
 import { Button } from 'react-admin';
-import AddIcon from '@material-ui/icons/Add';
+import AddIcon from '@mui/icons-material/Add';
 import { MouseEventHandler } from 'react';
 
 const CreateProjectFromTemplateButton = ({ label, onClick, variant = "contained" }: { label: string | undefined, onClick: MouseEventHandler | undefined, variant?: 'contained' | 'outlined' | 'text' }) => (

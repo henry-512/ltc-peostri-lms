@@ -1,7 +1,8 @@
-import { Box, Divider, Link, Button, Popover, PopoverOrigin, Typography, makeStyles } from "@material-ui/core"
+import { Box, Divider, Link, Button, Popover, PopoverOrigin, Typography } from "@mui/material";
+import { styled } from '@mui/material/styles';
 import React from "react"
 import { Loading, useTranslate } from "react-admin"
-import { useHistory } from "react-router-dom"
+import { useNavigate } from "react-router"
 import { INotification } from "src/util/types"
 import NotificationsEmpty from "./NotificationsEmpty"
 import NotificationsItem from "./NotificationsItem"
@@ -9,7 +10,7 @@ import NotificationsItem from "./NotificationsItem"
 const Header = ({disabled, markAllRead}: {disabled: boolean, markAllRead: any}) => {
     const translate = useTranslate();
 
-    return (    
+    return (
         <>
             <Box display="flex" padding=".5rem 1rem" alignItems="center" >
                 <Typography variant="subtitle1">
@@ -24,23 +25,15 @@ const Header = ({disabled, markAllRead}: {disabled: boolean, markAllRead: any}) 
             </Box>
             <Divider />
         </>
-    )
+    );
 }
 
-const useFooterStyles = makeStyles(theme => ({
-    root: {
-        borderRadius: '0 0 10px 10px',
-        padding: '.5rem 0'
-    }
-}))
-
 const Footer = ({disabled, handleClose}: {disabled?: boolean, handleClose: Function}) => {
-    const classes = useFooterStyles();
-    const history = useHistory();
+    const navigate = useNavigate();
     const translate = useTranslate();
 
     const viewAllNotifications = (e: any) => {
-        history.push('/notifications');
+        navigate('/notifications', { replace: true });
         handleClose();
     }
 
@@ -50,7 +43,10 @@ const Footer = ({disabled, handleClose}: {disabled?: boolean, handleClose: Funct
                 <>
                     <Divider />
                     <Box display="flex" padding="0" justifyContent="center">
-                        <Button onClick={viewAllNotifications} disableElevation size="small" fullWidth classes={classes}>
+                        <Button onClick={viewAllNotifications} disableElevation size="small" fullWidth sx={{
+                            borderRadius: '0 0 10px 10px',
+                            padding: '.5rem 0'
+                        }}>
                             {translate('notification.see_all')}
                         </Button>
                     </Box>
@@ -73,19 +69,8 @@ export type NotificationsMenuProps = {
     fetch: Function
 }
 
-const useStyles = makeStyles(theme => ({
-    loader: {
-        padding: '4rem 1rem 1rem 1rem',
-        height: 'auto'
-    },
-    paper: {
-        minWidth: '300px'
-    }
-}));
-
 const NotificationsMenu = (props: NotificationsMenuProps) => {
     const { anchorEl, AnchorOrigin, TransformOrigin, open, handleClose, data = [], id, loading = false, markAllRead, fetch } = props;
-    const classes = useStyles();
 
     return (
         <>
@@ -94,13 +79,16 @@ const NotificationsMenu = (props: NotificationsMenuProps) => {
                 anchorEl={anchorEl}
                 anchorOrigin={AnchorOrigin}
                 transformOrigin={TransformOrigin}
-                getContentAnchorEl={null}
                 open={open}
                 onClose={handleClose}
-                classes={classes}
+                sx={{
+                    paper: {
+                        minWidth: '300px'
+                    }
+                }}
             >
                 <Header disabled={(data && data.length > 0) ? false : true} markAllRead={markAllRead} />
-                {(loading) ? <Loading className={classes.loader} loadingPrimary="" loadingSecondary="Loading Notifications.." /> :
+                {(loading) ? <Loading loadingPrimary="" loadingSecondary="Loading Notifications.." /> :
                     (data && data.length > 0) ? 
                         data.map((notification, index) => {
                             return React.cloneElement(<NotificationsItem record={notification} last={data.length - 1 == index} fetch={fetch} handleClose={handleClose} />, {

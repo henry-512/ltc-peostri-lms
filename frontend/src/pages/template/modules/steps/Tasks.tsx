@@ -1,11 +1,9 @@
-import { FormGroupContextProvider, maxLength, minLength, required } from "react-admin";
-import { ITaskTemplate } from "src/util/types";
-import { useForm } from "react-final-form";
-import get from "lodash.get";
-import { useEffect } from "react";
+import { FormGroupContextProvider } from "react-admin";
 import { Step } from "src/packages/FormStepper/Step";
 import { ModuleTemplateTaskFields } from "src/components/templates";
 import TaskManager from "src/packages/TaskManager";
+import { useFormContext } from "react-hook-form";
+import { ITaskTemplate } from "src/util/types";
 
 export type ModuleTemplateTasksProps = {
     getSource: Function,
@@ -16,28 +14,28 @@ export type ModuleTemplateTasksProps = {
 const Tasks = (props: ModuleTemplateTasksProps) => {    
     const { getSource, calculateTTC, validator, ...rest } = props;
 
-    const form = useForm();
+    const { setValue, getValues } = useFormContext();
 
-    const recalculateTTC = (data: any) => {
-        const formData = form.getState().values;
-        if (!get(formData, getSource?.('tasks') || "")) return;
+    const recalculateTTC = () => {
+        const tasks = getValues(getSource?.('tasks'));
+        if (!tasks) return;
 
         let module_ttc = 0;
-        for (let [stepKey, step] of Object.entries<ITaskTemplate[]>(get(formData, getSource?.('tasks') || ""))) {
+        for (let [stepKey, step] of Object.entries<ITaskTemplate[]>(tasks)) {
             let stepTTC: number = 0;
             for (let [taskKey, task] of Object.entries<ITaskTemplate>(step)) {
-                if (task.ttc < stepTTC) continue;
-                stepTTC = task.ttc;
+                if (parseInt(`${`${task.ttc}`}`) < stepTTC) continue;
+                stepTTC = parseInt(`${`${task.ttc}`}`);
             }
             module_ttc += stepTTC;
         }
 
-        if (module_ttc == get(formData, getSource?.('ttc') || "")) return;
+        if (module_ttc == getValues(getSource?.('ttc'))) return;
 
-        form.change(getSource?.('ttc'), module_ttc);
+        setValue(getSource?.('ttc'), module_ttc);
+
+        if (props.calculateTTC) props.calculateTTC()
     }
-
-    useEffect(() => (props.calculateTTC) ? props.calculateTTC() : null, [get(form.getState().values, getSource?.('ttc'))])
 
     return (
         <>

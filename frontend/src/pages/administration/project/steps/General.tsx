@@ -1,35 +1,12 @@
-import { Grid } from "@material-ui/core"
-import { AutocompleteArrayInput, BooleanInput, DateInput, FormGroupContextProvider, NumberInput, ReferenceArrayInput, ReferenceInput, SelectInput, TextInput, useTranslate } from "react-admin"
-import { useForm } from "react-final-form";
+import { Grid } from "@mui/material"
+import { BooleanInput, DateInput, FormGroupContextProvider, NumberInput, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin"
 import { SectionTitle } from "src/components/misc";
+import UserInput from "src/components/project/UserInput";
 import { Step } from "src/packages/FormStepper/Step"
 import { dateFormatter, dateParser } from "src/util/dateFormatter";
 
-const UserInput = (props: { team?: string }) => {
-    const { team } = props;
-
-    return (
-        <>
-            <ReferenceArrayInput
-                label="project.fields.member"
-                reference="admin/users"
-                source="users"
-                filter={(team) ? { teams: team } : undefined}
-            >
-                <AutocompleteArrayInput
-                    optionText={choice => `${choice.firstName} ${choice.lastName}`}
-                    optionValue="id"
-                    helperText=" "
-                    fullWidth
-                />
-            </ReferenceArrayInput>
-        </>
-    )
-}
-
 const General = (props: any) => {
     const translate = useTranslate();
-    const form = useForm();
 
     return (
         <Step validator={props.validator} {...props}>
@@ -46,7 +23,7 @@ const General = (props: any) => {
                                 <TextInput
                                     label={translate('project.fields.title')}
                                     source="title"
-                                    required
+                                    validate={[required()]}
                                     fullWidth
                                     helperText=" "
                                 />
@@ -57,13 +34,14 @@ const General = (props: any) => {
                                     format={dateFormatter} 
                                     parse={dateParser}
                                     source="start"
+                                    defaultValue={Date.now()}
                                     required
                                     fullWidth
                                     helperText=" "
                                 />
                             </Grid>
                             <Grid item xs={3}>
-                                <NumberInput
+                                <TextInput
                                     source="ttc"
                                     label="template.project.fields.ttc"
                                     fullWidth
@@ -96,13 +74,12 @@ const General = (props: any) => {
                                         optionValue="id"
                                         helperText=" "
                                         fullWidth
-                                        allowEmpty={true}
                                         resettable={true}
                                     />
                                 </ReferenceInput>
                             </Grid>
                             <Grid item xs={6}>
-                                <UserInput team={form.getState().values.team} />
+                                <UserInput />
                             </Grid>
                         </Grid>
                     </Grid>

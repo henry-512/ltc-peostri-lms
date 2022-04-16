@@ -1,25 +1,20 @@
 import { FormGroupContextProvider, ReferenceInput, required, AutocompleteInput, useDataProvider, useFormGroup, useTranslate } from "react-admin";
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, makeStyles } from "@material-ui/core";
-import { useForm } from "react-final-form";
+import { styled } from '@mui/material/styles';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import { useFormContext } from "react-hook-form";
 
-const useDialogStyles = makeStyles(theme => ({
-    root: {
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+    '& .MuiDialogTitle-root': {
         margin: 0,
         padding: theme.spacing(2),
         borderBottom: '1px solid ' + theme.palette.borderColor?.main
-    }
-}));
-
-const useDialogContentStyles = makeStyles((theme) => ({
-    root: {
+    },
+    '& .MuiDialogContent-root': {
         padding: theme.spacing(2),
-        paddingTop: theme.spacing(1),
+        paddingTop: theme.spacing(1) + " !important",
         paddingBottom: theme.spacing(1)
-    }
-}));
-
-const useDialogActionsStyles = makeStyles((theme) => ({
-    root: {
+    },
+    '& .MuiDialogActions-root': {
         margin: 0,
         padding: theme.spacing(2),
         borderTop: '1px solid ' + theme.palette.borderColor?.main,
@@ -43,14 +38,11 @@ export type AddTemplateModuleDialogProps = {
 }
 
 const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
-    const dialogStyles = useDialogStyles();
-    const dialogActionStyles = useDialogActionsStyles();
-    const dialogContentStyles = useDialogContentStyles();
-
     const translate = useTranslate();
-    const formGroupState = useFormGroup(props.ariaLabel);
+    const { isValid } = useFormGroup(props.ariaLabel);
     const dataProvider = useDataProvider();
-    const form = useForm();
+
+    const { setValue, getValues } = useFormContext();
 
     const updateForm = ({ data }: any) => {
         if (!props.isTemplate) {
@@ -59,13 +51,18 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
             delete data.createdAt;
             delete data.updatedAt;
         }
-        form.change(props.getSource(), data);
-        props.updateComponent();
+        setValue(props.getSource(), data);
         props.calculateTTC?.();
+
+        if (props.submitAction) {
+            props.submitAction();
+        }
+        props.setOpen(false);
+        setValue('module_template_id', '');
     }
     
     const handleSubmit = async () => {
-        const template_id = form.getState().values.module_template_id
+        const template_id = getValues('module_template_id');
 
         if (props.isTemplate) {
             dataProvider.getOne('admin/template/modules', { id: template_id })
@@ -76,12 +73,6 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
             .then(response  => updateForm(response))
             .catch((e) => handleClose());
         }
-
-        if (props.submitAction) {
-            props.submitAction();
-        }
-        props.setOpen(false);
-        form.change('module_template_id', '');
     }
 
     const handleClose = () => {
@@ -89,32 +80,32 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
             props.cancelAction();
         }
         props.setOpen(false);
-        form.change('module_template_id', '');
+        setValue('module_template_id', '');
     }
 
     return (
         <>
-            <Dialog open={props.open} onClose={handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'sm')}>
-                <DialogTitle id={props.ariaLabel} classes={dialogStyles}>{props.label}</DialogTitle>
-                <DialogContent classes={dialogContentStyles}>
+            <StyledDialog open={props.open} onClose={handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'sm')}>
+                <DialogTitle id={props.ariaLabel}>{props.label}</DialogTitle>
+                <DialogContent>
                     <FormGroupContextProvider name={props.ariaLabel} >
                         <ReferenceInput label="project.layout.select_module_template" source="module_template_id" reference="admin/template/modules">
                             <AutocompleteInput optionText="title" optionValue="id" fullWidth validate={[required()]} helperText=" " />
                         </ReferenceInput>
                     </FormGroupContextProvider>
                 </DialogContent>
-                <DialogActions classes={dialogActionStyles}>
+                <DialogActions>
                     <Button onClick={handleClose} color="primary">
                         {translate('project.layout.cancel')}
                     </Button>
                     <Box sx={{ flex: '1 1 auto' }} />
-                    <Button onClick={handleSubmit} color="primary" disabled={formGroupState.invalid ? true : false}>
+                    <Button onClick={handleSubmit} color="primary" disabled={!isValid}>
                         {translate('project.layout.create')}
                     </Button>
                 </DialogActions>
-            </Dialog>
+            </StyledDialog>
         </>
-    )
+    );
 }
 
 export default AddTemplateModuleDialog;

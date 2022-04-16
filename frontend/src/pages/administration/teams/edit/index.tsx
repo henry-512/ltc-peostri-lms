@@ -1,4 +1,4 @@
-import { Box } from "@material-ui/core";
+import { Box } from "@mui/material";
 import { AutocompleteArrayInput, Edit, ReferenceArrayInput, SimpleForm, TextInput } from "react-admin";
 import { SectionTitle } from "src/components/misc";
 import TeamToolbar from "src/components/teams/TeamToolbar";
@@ -6,7 +6,7 @@ import transformer from "../transformer";
 import validateTeam from "../validation";
 
 const TeamEdit = (props: any) => (
-    <Edit {...props} transform={transformer} title='team.layout.editing'>
+    <Edit {...props} transform={transformer} title='team.layout.editing' redirect="edit">
         <SimpleForm
             validate={validateTeam}
             toolbar={
@@ -14,13 +14,15 @@ const TeamEdit = (props: any) => (
                     create={false}
                 />
             }
+            mode="onBlur"
+            warnWhenUnsavedChanges
         >
             <Box display="flex" width="calc(50% - 16px)" flexDirection="column">
                 <SectionTitle label="team.layout.general" />
                 <TextInput source="name" fullWidth/>
                 <ReferenceArrayInput reference="admin/users" source="users">
                     <AutocompleteArrayInput 
-                        optionText={choice => `${choice.firstName} ${choice.lastName}`} 
+                        optionText={choice => `${choice.firstName} ${choice.lastName} (${choice.id.substring(0, 4)})`} 
                         optionValue="id" 
                         source="users"
                         fullWidth

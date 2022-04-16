@@ -1,6 +1,6 @@
-import { IModuleTemplate, IProject } from "src/util/types";
+import { FieldValues } from "react-hook-form";
 
-export default function validateModuleTemplate(module: IModuleTemplate) {
+export default function validateModuleTemplate(module: FieldValues) {
     const errors: any = {};
 
     return errors

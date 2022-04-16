@@ -1,12 +1,16 @@
-import { Chip, makeStyles } from "@material-ui/core";
+import { Chip } from "@mui/material";
+import { styled } from '@mui/material/styles';
 import { IUser } from "src/util/types";
 
-const useStyles = makeStyles(
-    {
-        chip: { margin: 4, cursor: 'inherit' },
-    },
-    { name: 'RaChipField' }
-);
+const PREFIX = 'RaChipField';
+
+const classes = {
+    chip: `${PREFIX}-chip`
+};
+
+const Root = styled('div')({
+    [`& .${classes.chip}`]: { margin: 4, cursor: 'inherit' },
+});
 
 export type UserChipProps = {
     basePath?: string
@@ -16,15 +20,17 @@ export type UserChipProps = {
 }
 
 const UserChip = (props: UserChipProps) => {
-    const classes = useStyles();
+
     
     return (props.record) ?
     (
-        <Chip
-            className={classes.chip}
-            label={props.record.firstName + " " + props.record.lastName} 
-        />
-    ) : (<></>)
+        <Root>
+            <Chip
+                className={classes.chip}
+                label={props.record.firstName + " " + props.record.lastName} 
+            />
+        </Root>
+    ) : ((<></>));
 }
 
 export default UserChip

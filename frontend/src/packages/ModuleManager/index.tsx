@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { useForm } from "react-final-form";
 import { IModule, IModuleStep } from "src/util/types";
 import Steps from "src/packages/StepBuilder";
 import ModuleCard from "./ModuleCard";
@@ -8,12 +7,13 @@ import { useTranslate } from "react-admin";
 import ModuleFields from "./ModuleFields";
 import React from "react";
 import AddTemplateModule from "../AddTemplateModule";
+import { useFormContext } from "react-hook-form";
 
 export type ModuleManagerProps = {
-    initialValue?: IModuleStep;
+    defaultValue?: IModuleStep;
     isTemplate?: boolean;
     fields?: JSX.Element;
-    calculateTTC?: Function
+    calculateTTC?: Function;
 }
 /**
  * @name ModuleManager
@@ -22,15 +22,16 @@ export type ModuleManagerProps = {
  * @returns Module Manager Component
  */
 const ModuleManager = (props: ModuleManagerProps) => {
+    const { getValues, setValue } = useFormContext();
+
     const translate = useTranslate();
-    const form = useForm();
 
     //Dialogs open
     const [creatorOpen, setCreatorOpen] = useState(false);
     const [templateSelectorOpen, setTemplateSelectorOpen] = useState(false);
 
     //Main Modules Data
-    const [modules, setModules] = useState(form.getState().values.modules || {
+    const [modules, setModules] = useState(getValues('modules') || {
         "key-0": []
     } as IModuleStep);
 
@@ -52,9 +53,7 @@ const ModuleManager = (props: ModuleManagerProps) => {
         return (modules[`key-${step}`] && modules[`key-${step}`].length > 0) ? (modules[`key-${step}`].length) : 0
     }
 
-    const updateComponent = () => {
-        setModules(form.getState().values.modules);
-    }
+    const updateComponent = () => setModules(getValues('modules'));
 
     //Current Step Key
     const [step, setStep] = useState(() => calculateStep());
@@ -76,10 +75,7 @@ const ModuleManager = (props: ModuleManagerProps) => {
         stepArray.push({} as IModule);
 
         // Update form with blank step added.
-        form.change('modules', {
-            ...modules,
-            [`key-${step}`]: stepArray
-        });
+        setValue(`modules.key-${step}`, stepArray);
 
         // Open the creator window.
         setCreatorOpen(true);
@@ -90,13 +86,12 @@ const ModuleManager = (props: ModuleManagerProps) => {
      * @description Cancel the creator by removing the empty module structure created.
      */
     const cancelCreator = () => {
-        let cacheModules = modules;
+        if (!modules[`key-${step}`]) return;
 
-        if (!cacheModules[`key-${step}`]) return;
+        let stepArray = modules[`key-${step}`]
+        stepArray.pop();
 
-        cacheModules[`key-${step}`].pop();
-
-        form.change('modules', cacheModules);
+        setValue(`modules.key-${step}`, stepArray);
 
         updateComponent();
     }
@@ -122,10 +117,7 @@ const ModuleManager = (props: ModuleManagerProps) => {
         stepArray.push({} as IModule);
 
         // Update form with blank step added.
-        form.change('modules', {
-            ...modules,
-            [`key-${step}`]: stepArray
-        });
+        setValue(`modules.key-${step}`, stepArray);
 
         // Open the template selector window.
         setTemplateSelectorOpen(true);
@@ -136,12 +128,12 @@ const ModuleManager = (props: ModuleManagerProps) => {
      * @description Cancel the template selection by removing the empty module structure created.
      */
     const cancelTemplate = () => {
-        let cacheModules = modules;
+        if (!modules[`key-${step}`]) return;
 
-        if (!cacheModules[`key-${step}`]) return;
-        cacheModules[`key-${step}`].pop();
+        let stepArray = modules[`key-${step}`]
+        stepArray.pop();
 
-        form.change('modules', cacheModules);
+        setValue(`modules.key-${step}`, stepArray);
 
         updateComponent();
     }

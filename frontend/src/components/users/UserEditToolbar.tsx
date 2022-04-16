@@ -1,8 +1,8 @@
 import { EditActionsProps, ShowButton, TopToolbar } from "react-admin";
 
-const UserEditToolbar = ({ basePath, data, resource }: EditActionsProps) => (
+const UserEditToolbar = ({ data, resource }: EditActionsProps) => (
     <TopToolbar>
-        <ShowButton basePath={basePath} record={data} />
+        <ShowButton record={data} />
     </TopToolbar>
 )
 

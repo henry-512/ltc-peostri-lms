@@ -1,78 +1,94 @@
-import { Grid, makeStyles, Typography } from "@material-ui/core"
+import { Grid, Typography } from "@mui/material";
+import { styled } from '@mui/material/styles';
 import { IDField } from "src/components/misc";
 import WaiverInput from "./WaiverInput";
 import classNames from "classnames";
-import RichTextInput from "ra-input-rich-text";
+import { RichTextInput } from "ra-input-rich-text";
 import { FileField, FileInput, maxLength, minLength, NumberInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import TaskManager from "../TaskManager";
-import { useForm } from "react-final-form";
-import get from "lodash.get";
-import { ITaskTemplate } from "src/util/types";
+import { ITask } from "src/util/types";
+import { useFormContext } from "react-hook-form";
 
-const useStyles = makeStyles(theme => ({
-    modulesForm: {
+const PREFIX = 'ModuleFields';
+
+const classes = {
+    modulesForm: `${PREFIX}-modulesForm`,
+    modulesArrayInput: `${PREFIX}-modulesArrayInput`,
+    waiverWrapper: `${PREFIX}-waiverWrapper`,
+    waiverWrapperOpen: `${PREFIX}-waiverWrapperOpen`
+};
+
+const Root = styled('div')(({ theme }) => ({
+    [`& .${classes.modulesForm}`]: {
         marginTop: '0px'
     },
-    modulesArrayInput: {
+
+    [`& .${classes.modulesArrayInput}`]: {
         marginTop: '10px'
     },
-    waiverWrapper: {
+
+    [`& .${classes.waiverWrapper}`]: {
         position: 'relative',
         height: '0px',
         transition: 'height 0.3s ease',
         overflow: 'hidden',
     },
-    waiverWrapperOpen: {
+
+    [`& .${classes.waiverWrapperOpen}`]: {
         transition: 'height 0.3s ease',
         height: '190px',
         marginBottom: '-30px',
         maxHeight: 'unset'
+    },
+
+    '& .MuiFilledInput-root': {
+        height: '100%'
     }
-}))
+}));
 
 export type ModuleFieldsProps = {
     getSource: Function,
-    initialValues?: any,
+    defaultValues?: any,
     calculateTTC?: Function
 }
 
 const ModuleFields = (props: ModuleFieldsProps) => {
-    const { getSource, initialValues } = props
-    const classes = useStyles();
+    const { getSource, defaultValues } = props
+
     const translate = useTranslate();
     const validateTitle = [required(), minLength(2), maxLength(150)];
-    const [showFileUpload, setShowFileUpload] = useState(initialValues?.waive_module || false);
+    const [showFileUpload, setShowFileUpload] = useState(defaultValues?.waive_module || false);
 
-    const form = useForm();
+    const { setValue, getValues } = useFormContext();
 
-    const recalculateTTC = (data: any) => {
-        const formData = form.getState().values;
-        if (!get(formData, getSource?.('tasks') || "")) return;
+    const recalculateTTC = () => {
+        const tasks = getValues(getSource?.('tasks'));
+        if (!tasks) return;
 
         let module_ttc = 0;
-        for (let [stepKey, step] of Object.entries<ITaskTemplate[]>(get(formData, getSource?.('tasks') || ""))) {
+        for (let [stepKey, step] of Object.entries<ITask[]>(tasks)) {
             let stepTTC: number = 0;
-            for (let [taskKey, task] of Object.entries<ITaskTemplate>(step)) {
-                if (task.ttc < stepTTC) continue;
-                stepTTC = task.ttc;
+            for (let [taskKey, task] of Object.entries<ITask>(step)) {
+                if (parseInt(`${task.ttc}`) < stepTTC) continue;
+                stepTTC = parseInt(`${task.ttc}`);
             }
             module_ttc += stepTTC;
         }
 
-        if (module_ttc == get(formData, getSource?.('ttc') || "")) return;
+        if (module_ttc == getValues(getSource?.('ttc'))) return;
 
-        form.change(getSource?.('ttc'), module_ttc);
+        setValue(getSource?.('ttc'), module_ttc);
+
+        if (props.calculateTTC) props.calculateTTC()
     }
 
-    useEffect(() => (props.calculateTTC) ? props.calculateTTC() : null, [get(form.getState().values, getSource?.('ttc'))])
-
     return (
-        <>
+        <Root>
             <Grid container spacing={2} style={{
                 marginTop: '.1rem'
             }}>
-                <IDField source={getSource('id') || ""} id={props.initialValues?.id} />
+                <IDField source={getSource('id') || ""} id={props.defaultValues?.id} />
                 <Grid item xs={4}>
                     <TextInput
                         source={getSource('title') || ""}
@@ -96,7 +112,10 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                         optionText={choice => `${choice.name}`}
                         optionValue="id"
                         disabled={false}
-                        initialValue="AWAITING"
+                        defaultValue="AWAITING"
+                        validate={[required()]}
+                        emptyValue={null}
+                        emptyText={<></>}
                         label="project.fields.module_status"
                         fullWidth
                         helperText=" "
@@ -104,7 +123,7 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                 </Grid>
 
                 <Grid item xs={3}>
-                    <NumberInput
+                    <TextInput
                         source={getSource?.('ttc') || ""}
                         label="template.module.fields.ttc"
                         fullWidth
@@ -121,7 +140,6 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                     <WaiverInput source={getSource?.() || ""} setShowSteps={setShowFileUpload} />
                 </Grid>
             </Grid>
-
             <Grid container spacing={4} className={classNames(classes.waiverWrapper, {
                 [classes.waiverWrapperOpen]: showFileUpload
             })}>
@@ -131,10 +149,17 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                     </Typography>
                 </Grid>
                 <Grid item xs={6} style={{ marginTop: '-32px' }}>
-                    <RichTextInput source={getSource?.('waive.comment') || ""} toolbar={[['bold', 'italic', 'underline']]} label="" helperText=" " />
+                    <TextInput source={getSource?.('waive.comment') || ""} label="project.fields.waive_comment" multiline fullWidth helperText=" " sx={{
+                        
+                            height: 'calc(100% - 1rem)',
+                    
+                        '& .MuiFilledInput-root': {
+                            height: '100%'
+                        }
+                    }} />
                 </Grid>
                 <Grid item xs={6} style={{ marginTop: '-32px' }}>
-                    <FileInput source={getSource?.('waive.file') || ""} accept="application/pdf" fullWidth label="" labelSingle="project.fields.waiver_file" helperText=" ">
+                    <FileInput source={getSource?.('waive.file') || ""} accept="application/pdf" fullWidth label="project.fields.waive_file_upload" labelSingle="project.fields.waiver_file" helperText=" ">
                         <FileField source="src" title="title" download={true} />
                     </FileInput>
                 </Grid>
@@ -146,8 +171,8 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                     <TaskManager source={getSource?.('tasks') || ""} calculateTTC={recalculateTTC} />
                 </Grid>
             </Grid>
-        </>
-    )
+        </Root>
+    );
 }
 
 export default ModuleFields;

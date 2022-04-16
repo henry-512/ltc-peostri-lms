@@ -1,7 +1,7 @@
 import ProjectTemplateCreate from './create'
 import ProjectTemplateEdit from './edit'
 import ProjectTemplateList from './list'
-import ListAltIcon from '@material-ui/icons/ListAlt';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 
 const ProjectTemplateIcon = ListAltIcon;
 

@@ -1,13 +1,61 @@
 import { INotification, NotificationTypes } from "src/util/types";
-import CheckBoxIcon from '@material-ui/icons/CheckBox';
-import ViewModuleIcon from '@material-ui/icons/ViewModule';
-import AssignmentIcon from '@material-ui/icons/Assignment';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import { Box, Divider, makeStyles, Typography } from "@material-ui/core";
+import { styled } from '@mui/material/styles';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { Box, Divider, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-import { linkToRecord, useDataProvider } from "react-admin";
+import { useCreatePath, useDataProvider } from "react-admin";
 import classnames from "classnames";
 import { dateFormatToString } from "src/util/dateFormatter";
+
+const PREFIX = 'NotificationsItem';
+
+const classes = {
+    root: `${PREFIX}-root`,
+    read: `${PREFIX}-read`,
+    iconWrapper: `${PREFIX}-iconWrapper`,
+    infoWrapper: `${PREFIX}-infoWrapper`
+};
+
+const Root = styled('div')(({ theme }) => ({
+    [`& .${classes.root}`]: {
+        maxWidth: "400px",
+        display: "flex",
+        minHeight: "50px",
+        alignItems: "center",
+        transition: 'all .3s',
+        padding: '.5rem .75rem',
+        gap: '.75rem',
+        color: theme.palette.primary.main,
+        '&:hover': {
+            backgroundColor: theme.palette?.borderColor?.main,
+            transition: 'all .3s'
+        }
+    },
+
+    [`& .${classes.read}`]: {
+        backgroundColor: theme.palette?.borderColor?.light,
+        transition: 'all .3s',
+        color: "#808080"
+    },
+
+    [`& .${classes.iconWrapper}`]: {
+        maxWidth: "25%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: 'transparent'
+    },
+
+    [`& .${classes.infoWrapper}`]: {
+        display: "flex",
+        flexDirection: "column",
+        backgroundColor: 'transparent',
+        color: 'rgba(0, 0, 0, 0.87)',
+    }
+}));
 
 export type NotificationIconProps = {
     type: NotificationTypes
@@ -28,41 +76,6 @@ const NotificationIcon = (props: NotificationIconProps) => {
     }
 }
 
-const useStyles = makeStyles(theme => ({
-    root: {
-        maxWidth: "400px",
-        display: "flex",
-        minHeight: "50px",
-        alignItems: "center",
-        transition: 'all .3s',
-        padding: '.5rem .75rem',
-        gap: '.75rem',
-        color: theme.palette.primary.main,
-        '&:hover': {
-            backgroundColor: theme.palette?.borderColor?.main,
-            transition: 'all .3s'
-        }
-    },
-    read: {
-        backgroundColor: theme.palette?.borderColor?.light,
-        transition: 'all .3s',
-        color: "#808080"
-    },
-    iconWrapper: {
-        maxWidth: "25%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: 'transparent'
-    },
-    infoWrapper: {
-        display: "flex",
-        flexDirection: "column",
-        backgroundColor: 'transparent',
-        color: 'rgba(0, 0, 0, 0.87)',
-    }
-}))
-
 export type NotificationsItemProps = {
     record: INotification
     last: boolean
@@ -71,9 +84,9 @@ export type NotificationsItemProps = {
 }
 
 const NotificationsItem = (props: NotificationsItemProps) => {
-    const recordLink = linkToRecord(`${props.record.sender.resource}`, props.record.sender.id, 'show');
+    const createPath = useCreatePath();
 
-    const classes = useStyles();
+
     const dataProvider = useDataProvider();
 
     const markRead = () => {
@@ -87,8 +100,8 @@ const NotificationsItem = (props: NotificationsItemProps) => {
     }
     
     return (
-        <>
-            <Link to={recordLink} replace style={{
+        (<Root>
+            <Link to={createPath({ resource: `${props.record.sender.resource}`, id: props.record.sender.id, type: 'show' })} replace style={{
                 textDecoration: 'none'
             }} onClick={markRead}>
                 <Box className={classnames(classes.root, {
@@ -108,8 +121,8 @@ const NotificationsItem = (props: NotificationsItemProps) => {
                 </Box>
             </Link>
             {(props.last) ? null : <Divider />}
-        </>
-    )
+        </Root>)
+    );
 }
 
 export default NotificationsItem;

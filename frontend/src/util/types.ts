@@ -1,17 +1,11 @@
-import { Record, ReduxState } from "react-admin";
-
-export type ThemeName = 'light' | 'dark';
-
-export interface AppState extends ReduxState {
-    theme: ThemeName;
-}
+import { RaRecord } from "react-admin";
 
 export interface LoginInformation {
     username: string,
     password: string
 }
 
-export interface ITeam extends Record {
+export interface ITeam extends RaRecord {
     name: string
     users: IUser[] | string[]
 }
@@ -21,7 +15,7 @@ export type Status = "IN_PROGRESS" | "COMPLETED" | "ARCHIVED" | "AWAITING";
 export type TaskTypes = "DOCUMENT_UPLOAD" | "DOCUMENT_REVIEW" | "MODULE_WAIVER" | "MODULE_WAIVER_APPROVAL" | "DOCUMENT_APPROVE";
 export type UserStatus = 'ACTIVE' | 'LOCKED' | 'INACTIVE' | 'SUSPENDED';
 
-export interface INotification extends Record {
+export interface INotification extends RaRecord {
     recipient: string | IUser
     content: string
     read: boolean
@@ -55,7 +49,7 @@ export interface ICreateUpdate {
     updatedAt?: string | Date;
 }
 
-export interface IUser extends Record {
+export interface IUser extends RaRecord {
     firstName: string;
     lastName: string;
     avatar: null | string;
@@ -68,13 +62,13 @@ export interface IUser extends Record {
     status?: UserStatus;
 }
 
-export interface IComment extends Record, ICreateUpdate {
+export interface IComment extends RaRecord, ICreateUpdate {
     content: string;
     author: string | IUser;
     parent?: string | IModule | IProject;
 }
 
-export interface ITask extends Record {
+export interface ITask extends RaRecord {
     title: string;
     status: Status;
     assigned?: Array<string> | Array<IUser>;
@@ -94,10 +88,6 @@ export interface ITaskApproval extends ITask {
     type: "DOCUMENT_APPROVE";
 }
 
-export interface ITaskWaiver extends ITask {
-    type: "MODULE_WAIVER";
-}
-
 export interface ITaskWaiverReview extends ITask {
     type: "MODULE_WAIVER_APPROVAL";
 }
@@ -108,7 +98,7 @@ export interface IFile {
     src: string;
 }
 
-export interface IModule extends Record {
+export interface IModule extends RaRecord {
     title: string;
     tasks: ITaskStep;
     comments: Array<string> | Array<IComment>;
@@ -121,9 +111,10 @@ export interface IModule extends Record {
         comment: string;
     };
     file?: any;
+    ttc?: number | string
 }
 
-export interface IProject extends Record, ICreateUpdate {
+export interface IProject extends RaRecord, ICreateUpdate {
     title: string;
     start: Date | string;
     suspense: Date | string;
@@ -133,6 +124,7 @@ export interface IProject extends Record, ICreateUpdate {
     auto_assign?: boolean;
     author?: IUser | string;
     module_template_id?: string;
+    ttc?: number | string
 }
 
 export interface IRank extends IArangoIndexes {
@@ -154,11 +146,11 @@ export interface IFileMetadata extends IArangoIndexes, ICreateUpdate {
 }
 
 export interface ITaskTemplate extends ITask {
-    ttc: number;
+    ttc: string | number;
 }
 
 export interface IModuleTemplate extends IModule {
-    ttc: number;
+    ttc: string | number;
     tasks: {
         [id: string | number]: ITaskTemplate[]
     }
@@ -167,7 +159,7 @@ export interface IModuleTemplate extends IModule {
 
 export interface IProjectTemplate extends IArangoIndexes, ICreateUpdate {
     title: string;
-    ttc: number;
+    ttc: string | number;
     modules: Array<IModule>;
     module_template_id?: string;
 }

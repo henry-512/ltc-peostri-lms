@@ -1,35 +1,29 @@
 import { AppBar, UserMenu } from 'react-admin';
-import { makeStyles } from '@material-ui/core/styles';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 
 import NotificationsWidget from '../NotificationsWidget';
 import { Logo } from 'src/components/misc';
 
-const useStyles = makeStyles({
-    title: {
-        flex: 1,
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-    },
-    spacer: {
-        flex: 1,
-    },
-});
-
 const CustomAppBar = (props: any) => {
-    const classes = useStyles();
     
     return (
         <AppBar {...props} elevation={1} userMenu={<UserMenu />}>
             <Typography
                 variant="h6"
                 color="inherit"
-                className={classes.title}
                 id="react-admin-title"
+                sx={{
+                    flex: 1,
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                }}
             />
-            <Logo />
-            <span className={classes.spacer} />
+            <Logo sx={{
+                position: 'absolute',
+                left: '50%',
+                transform: 'translateX(-50%)'
+            }}/>
             <NotificationsWidget label="layout.appbar.notifications" />
         </AppBar>
     );

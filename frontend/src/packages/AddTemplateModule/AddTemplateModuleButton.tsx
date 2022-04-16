@@ -1,5 +1,5 @@
 import { Button } from 'react-admin';
-import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { MouseEventHandler } from 'react';
 
 export type AddTemplateModuleButtonProps = {

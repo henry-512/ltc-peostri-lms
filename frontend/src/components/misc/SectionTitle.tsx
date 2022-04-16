@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { Typography } from "@mui/material";
 import { useTranslate } from "react-admin";
 
 const SectionTitle = ({ label, disableGutter }: { label: string, disableGutter?: boolean }) => {

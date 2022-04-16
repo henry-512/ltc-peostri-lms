@@ -1,44 +1,43 @@
-import { Box, Grid } from "@material-ui/core"
-import { maxLength, minLength, NumberInput, required, SelectInput, TextInput } from "react-admin";
+import { Box, Grid } from "@mui/material"
+import { maxLength, minLength, required, SelectInput, TextInput } from "react-admin";
 import TaskManager from "src/packages/TaskManager";
 import { SectionTitle, IDField } from "src/components/misc";
 import { ModuleTemplateTaskFields } from ".";
-import { useEffect } from "react";
-import { useForm } from "react-final-form";
+import { useFormContext } from "react-hook-form";
 import { ITaskTemplate } from "src/util/types";
-import get from "lodash.get";
 
 export type ModuleTemplateFieldsProps = {
     getSource?: Function,
-    initialValues?: any,
+    defaultValues?: any,
     calculateTTC?: Function
 }
 
 const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
     const { getSource } = props;
     const validateTitle = [required(), minLength(2), maxLength(150)];
-    const form = useForm();
 
-    const recalculateTTC = (data: any) => {
-        const formData = form.getState().values;
-        if (!get(formData, getSource?.('tasks') || "")) return;
+    const { setValue, getValues } = useFormContext();
+
+    const recalculateTTC = () => {
+        const tasks = getValues(getSource?.('tasks'));
+        if (!tasks) return;
 
         let module_ttc = 0;
-        for (let [stepKey, step] of Object.entries<ITaskTemplate[]>(get(formData, getSource?.('tasks') || ""))) {
+        for (let [stepKey, step] of Object.entries<ITaskTemplate[]>(tasks)) {
             let stepTTC: number = 0;
             for (let [taskKey, task] of Object.entries<ITaskTemplate>(step)) {
-                if (task.ttc < stepTTC) continue;
-                stepTTC = task.ttc;
+                if (parseInt(`${task.ttc}`) < stepTTC) continue;
+                stepTTC = parseInt(`${task.ttc}`);
             }
             module_ttc += stepTTC;
         }
 
-        if (module_ttc == get(formData, getSource?.('ttc') || "")) return;
+        if (module_ttc == getValues(getSource?.('ttc'))) return;
 
-        form.change(getSource?.('ttc'), module_ttc);
+        setValue(getSource?.('ttc'), module_ttc);
+
+        if (props.calculateTTC) props.calculateTTC()
     }
-
-    useEffect(() => (props.calculateTTC) ? props.calculateTTC() : null, [get(form.getState().values, getSource?.('ttc'))])
 
     return (
         <>
@@ -46,7 +45,7 @@ const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
                 <SectionTitle label="template.module.layout.general" />
                 <Grid container spacing={4}>
                     <Grid item xs={5}>
-                        <IDField source={getSource?.('id') || ""} id={props.initialValues?.id} />
+                        <IDField source={getSource?.('id') || ""} id={props.defaultValues?.id} />
                         <TextInput
                             source={getSource?.('title') || ""}
                             label="template.module.fields.title"
@@ -67,15 +66,18 @@ const ModuleTemplateFields = (props: ModuleTemplateFieldsProps) => {
                             ]}
                             optionText={choice => `${choice.name}`}
                             optionValue="id"
-                            initialValue="AWAITING"
+                            defaultValue="AWAITING"
                             label="template.module.fields.status"
+                            validate={[required()]}
+                            emptyValue={null}
+                            emptyText={<></>}
                             fullWidth
                             helperText=" "
                         />
                     </Grid>
                     
                     <Grid item xs={3}>
-                        <NumberInput
+                        <TextInput
                             source={getSource?.('ttc') || ""}
                             label="template.module.fields.ttc"
                             fullWidth

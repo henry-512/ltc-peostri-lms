@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { TextInput } from "react-admin";
-import { useForm, useFormState } from "react-final-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
 export type AutoFillUserNameProps = {
     validate: any;
@@ -8,22 +8,23 @@ export type AutoFillUserNameProps = {
 }
 
 const AutoFillUserName = (props: AutoFillUserNameProps) => {
-    const form = useForm();
-    const { values } = useFormState();
+    const { setValue } = useFormContext();
+    
+    const [email, useEmail, username] = useWatch({ name: ["email", "useEmail", "username"] });
 
     useEffect(() => {
-        if (values.email === values.username) {
-            form.change('useEmail', true);
+        if (email === username) {
+            setValue('useEmail', true);
         }
     }, []);
 
     useEffect(() => {
-        if (values.useEmail) {
-            form.change('username', values.email);
+        if (useEmail) {
+            setValue('username', email);
         } else {
-            form.change('username', values.username || "");
+            setValue('username', username || "");
         }
-    }, [values.useEmail, values.email]);
+    }, [useEmail, email]);
 
     return (
         <>
@@ -32,10 +33,10 @@ const AutoFillUserName = (props: AutoFillUserNameProps) => {
                 className={props.className}
                 validate={props.validate}
                 value={
-                    (values.useEmail) ? values.email : ""
+                    (useEmail) ? email : ""
                 }
                 disabled={
-                    (values.useEmail) ? true : false
+                    (useEmail) ? true : false
                 }
                 helperText=" "
             />

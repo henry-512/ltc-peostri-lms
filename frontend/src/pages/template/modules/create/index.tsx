@@ -9,7 +9,7 @@ export default function ModuleTemplateCreate(props: any) {
     const translate = useTranslate();
 
     return (
-        <Create title={translate('template.module.layout.create_title')} {...props} transform={transformer}>
+        <Create title={translate('template.module.layout.create_title')} {...props} transform={transformer} redirect="list">
             <FormStepper validate={validateModuleTemplate} create={true}>
 
                 <General title={translate('template.module.steps.general')} validator="general" getSource={(src: string) => src} {...props} />

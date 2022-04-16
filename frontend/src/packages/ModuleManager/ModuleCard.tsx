@@ -1,28 +1,39 @@
-import { Card, makeStyles, Typography } from "@material-ui/core";
-import get from "lodash.get";
+import { Card, Typography } from "@mui/material";
+import { styled } from '@mui/material/styles';
 import React from "react";
 import { useState } from "react";
 import { useTranslate } from "react-admin";
 import { Draggable } from "react-beautiful-dnd";
-import { useForm } from "react-final-form";
 import { IModule, ITaskStep } from "src/util/types";
 import { Creator } from "src/components/misc";
 import ModuleFields from "./ModuleFields";
+import { useFormContext } from "react-hook-form";
 
-const useStyles = makeStyles(theme => ({
-    root: {
+const PREFIX = 'ModuleCard';
+
+const classes = {
+    root: `${PREFIX}-root`,
+    cardContent: `${PREFIX}-cardContent`,
+    cardText: `${PREFIX}-cardText`
+};
+
+const Root = styled('div')(({ theme }) => ({
+    [`& .${classes.root}`]: {
         marginBottom: '0',
         height: 'auto'
     },
-    cardContent: {
+
+    [`& .${classes.cardContent}`]: {
         padding: theme.spacing(1),
         display: 'flex',
         flexDirection: 'column'
     },
-    cardText: {
+
+    [`& .${classes.cardText}`]: {
         margin: '0',
     }
 }));
+
 export type ModuleCardProps = {
     steps?: any,
     info?: IModule,
@@ -39,11 +50,11 @@ export type ModuleCardProps = {
 
 const ModuleCard = ({ info, index, stepKey, changeStep, changeIndex, fields, updateComponent, calculateTTC }: ModuleCardProps) => {
     const translate = useTranslate();
-    const classes = useStyles();
 
     const [open, setOpen] = useState(false);
-    const form = useForm();
     const source = `modules[${stepKey}][${index}]`;
+
+    const { getValues, setValue } = useFormContext();
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -65,12 +76,12 @@ const ModuleCard = ({ info, index, stepKey, changeStep, changeIndex, fields, upd
     }
 
     const deleteCreator = () => {
-        const formData = form.getState().values;
-        const moduleStepCount = Object.keys(formData.modules).length;
+        const moduleSteps = getValues('modules');
+        const moduleStepCount = Object.keys(moduleSteps).length;
 
-        let modules = get(formData, `modules[${stepKey}]`);
+        let modules = getValues(`modules[${stepKey}]`);
         modules.splice(index, 1);
-        form.change(`modules[${stepKey}]`, modules);
+        setValue(`modules[${stepKey}]`, modules);
 
         if (parseInt(stepKey?.split('-')[1] || "0") == (moduleStepCount - 1)) {
             changeIndex(modules.length);
@@ -80,7 +91,7 @@ const ModuleCard = ({ info, index, stepKey, changeStep, changeIndex, fields, upd
     }
 
     return (
-        <>
+        <Root>
             <Draggable draggableId={"module-" + stepKey + "-" + index || ""} index={index || 0} key={info?.id || ""}>
                 {(provided, snapshot) => (
                     <div
@@ -116,13 +127,13 @@ const ModuleCard = ({ info, index, stepKey, changeStep, changeIndex, fields, upd
                             submitAction={submitCreator}
                             deleteAction={deleteCreator}
                         >
-                            {(fields) ? React.cloneElement(fields, { getSource: getSource, initialValues: info }) : <ModuleFields getSource={getSource} initialValues={info} calculateTTC={calculateTTC} />}
+                            {(fields) ? React.cloneElement(fields, { getSource: getSource, defaultValues: info }) : <ModuleFields getSource={getSource} defaultValues={info} calculateTTC={calculateTTC} />}
                         </Creator>
                     </div>
                 )}
             </Draggable>
-        </>
-    )
+        </Root>
+    );
 }
 
 export default ModuleCard

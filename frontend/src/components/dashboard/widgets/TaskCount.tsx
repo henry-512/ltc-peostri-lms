@@ -1,7 +1,7 @@
 import CardWithIcon from "./base/CardWithIcon"
-import ListAltIcon from '@material-ui/icons/ListAlt';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 import { ITask } from "src/util/types";
-import { Box, List, Typography } from "@material-ui/core";
+import { Box, List, Typography } from "@mui/material";
 
 export type TaskItemProps = {
     name: string

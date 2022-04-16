@@ -1,7 +1,6 @@
-import { AnyObject } from "react-final-form";
-import { IUser } from "src/util/types";
+import { FieldValues } from "react-hook-form";
 
-export default function validateUser(user: IUser) {
+export default function validateUser(user: FieldValues) {
     const errors: any = {};
 
     if (user.password && user.confirm_password && user.password !== user.confirm_password) {
@@ -18,7 +17,7 @@ export default function validateUser(user: IUser) {
 export const validatePasswords = ({
     password,
     confirm_password,
-}: AnyObject) => {
+}: FieldValues) => {
     const errors = {} as any;
 
     if (password && confirm_password && password !== confirm_password) {

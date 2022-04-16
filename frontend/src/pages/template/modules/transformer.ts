@@ -2,6 +2,8 @@ import { IModuleTemplate, ITaskTemplate } from "src/util/types";
 
 const transformer = (data: IModuleTemplate) => {
 
+    data.ttc = parseInt(`${data.ttc}`);
+
     //Remove empty steps.
     let stepCounter = 0;
     for (let [stepKey, step] of Object.entries<ITaskTemplate[]>(data.tasks)) {

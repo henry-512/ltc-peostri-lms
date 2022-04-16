@@ -1,7 +1,7 @@
 import AdminProjectCreate from './create'
 import AdminProjectEdit from './edit'
 import AdminProjectList from './list'
-import ListAltIcon from '@material-ui/icons/ListAlt';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 
 const AdminProjectIcon = ListAltIcon;
 
