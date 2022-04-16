@@ -31,6 +31,7 @@ class User extends DBManager<IUser> {
                     instance: 'fkey',
                     foreignApi: 'teams' as any, // Resolve circular dependency
                     optional: true,
+                    getIdKeepAsRef: true,
                     default: [],
                 },
                 status: {
