@@ -52,6 +52,8 @@ const Root = styled('div')(({ theme }) => ({
         background: '#f5f5f5',
         transition: 'all .3s ease',
         alignItems: 'center',
+        gap: '.25rem',
+        flexWrap: 'wrap',
         '&.isDraggingOver': {
             backgroundColor: '#e0e0e3',
             transition: 'all .3s ease',
