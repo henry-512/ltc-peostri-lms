@@ -21,7 +21,8 @@ const domainMessages = {
                 "delete": "Delete",
                 "next": "Next",
                 "save": "Save",
-                "skip": "Skip"
+                "skip": "Skip",
+                "confirm_delete_title": "Delete \"%{name}\""
             },
             "menu": {
                 "administration": "Administration",
