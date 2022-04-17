@@ -82,7 +82,11 @@ class User extends DBManager<IUser> {
     ): Promise<IUser> => {
         // Hash password
         if (doc.password) {
-            doc.password = await bcrypt.hash(doc.password, 5)
+            if (doc.password === '') {
+                delete doc.password
+            } else {
+                doc.password = await bcrypt.hash(doc.password, 5)
+            }
         }
         return doc
     }
