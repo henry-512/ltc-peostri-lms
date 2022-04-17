@@ -3,14 +3,12 @@ const path = require('path');
 const app = express();
 require('dotenv').config()
 
+app.use('/docs', express.static(path.join(__dirname, 'docs')));
+
 app.use(express.static(path.join(__dirname, 'build')));
 
 app.get('/*', function (req, res) {
      res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
-
-app.get('/docs', function (req, res) {
-    res.sendFile(path.join(__dirname, 'docs', 'index.html'));
 });
 
 app.listen(process.env.APP_PORT || 3000);
