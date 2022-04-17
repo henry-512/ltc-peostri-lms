@@ -50,15 +50,17 @@ class Filedata extends DBManager<IFile> {
     }
 
     public async readLatest(user: AuthUser, doc: IFilemeta) {
-        return this.read(user, doc.latest as string)
+        return this.readSource(user, (<IFile>doc.latest).src)
     }
 
     public async read(user: AuthUser, id: string) {
         let file = await this.getFromDB(user, id)
+        return this.readSource(user, file.src)
+    }
 
-        let pathTo = path.join(FILE_PATH, file.src ?? '')
-        let stat = await fs.promises.stat(pathTo)
-        if (!stat.isFile) {
+    public async readSource(user: AuthUser, src: string) {
+        let pathTo = path.join(FILE_PATH, src ?? '')
+        if (!(await fs.promises.stat(pathTo)).isFile) {
             this.internal('readLatest', `${pathTo} is not a file`)
         }
 
