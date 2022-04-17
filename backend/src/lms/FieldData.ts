@@ -22,6 +22,8 @@ export interface IField {
     default?: any
     hideGetAll?: boolean
     hideGetId?: boolean
+    // True if this field is hidden and should not be referenced
+    hidden?: boolean
     // True if this key should be shown in dereferenced docs
     hideGetRef?: boolean
     // True if this key shouldn't be dereferenced

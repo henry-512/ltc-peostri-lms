@@ -53,12 +53,10 @@ export class AdminRouter<Type extends IArangoIndexes> extends Router {
         }
 
         if (!this.apiOpts?.noListGetId) {
-            this.get('/list/:id', async (ctx) => {
-                let id = await this.manager.db.assertKeyExists(ctx.params.id)
-
-                ctx.body = await this.manager.getFromDB(ctx.state.user, id)
-                ctx.status = HTTPStatus.OK
-            })
+            this.get(
+                '/list/:id',
+                async (ctx) => await getOne(ctx, this.manager, ctx.params.id)
+            )
         }
 
         if (!this.apiOpts?.noListPost) {
@@ -187,6 +185,16 @@ export class UserRouter<Type extends IArangoIndexes> extends Router {
 
         return super.routes()
     }
+}
+
+export async function getOne(
+    ctx: ParameterizedContext,
+    manager: DBManager<any>,
+    key: string
+) {
+    let id = await manager.db.assertKeyExists(key)
+    ctx.body = await manager.getFromDB(ctx.state.user, id)
+    ctx.status = HTTPStatus.OK
 }
 
 export async function parseBody<Type extends IArangoIndexes>(req: any) {

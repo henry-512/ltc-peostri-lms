@@ -32,8 +32,7 @@ export interface IComment extends IArangoIndexes, ICreateUpdate {
 export interface IFile extends IArangoIndexes, ICreateUpdate {
     title: string
     author: string | IUser
-    src?: string
-    path?: string
+    src: string
 }
 
 export interface IFilemeta extends IArangoIndexes, ICreateUpdate {

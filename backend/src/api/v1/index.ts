@@ -1,6 +1,7 @@
 import Router from '@koa/router'
 import { HTTPStatus } from '../../lms/errors'
 import { AuthUser } from '../auth'
+import send from 'koa-send'
 import { CommentManager } from './data/comments'
 import { FilemetaManager } from './data/filemeta'
 import { FiledataManager } from './data/files'
@@ -14,7 +15,7 @@ import { TeamManager } from './data/teams'
 import { ModuleTempManager } from './data/template/moduleTemplates'
 import { ProjectTempManager } from './data/template/projectTemplates'
 import { UserManager } from './data/users'
-import { AdminRouter, sendRange, UserRouter } from './Router'
+import { AdminRouter, getOne, sendRange, UserRouter } from './Router'
 
 export function routerBuilder(version: string) {
     // Resolve dependency issue
@@ -76,20 +77,41 @@ export function routerBuilder(version: string) {
             )
             // Files
             .use(new AdminRouter('filemeta', FilemetaManager).routes())
+            .use(new AdminRouter('files', FiledataManager).routes())
+            // Download and management
             .use(
-                new Router({ prefix: 'files' })
-                    .get('/:id', async (ctx) => {
+                new Router({ prefix: 'files/' })
+                    // Get raw metadata
+                    .get(
+                        'list/:id',
+                        async (ctx) =>
+                            await getOne(ctx, FilemetaManager, ctx.params.id)
+                    )
+                    // Send latest for the passed metadata handler
+                    .get('latest/:id', async (ctx) => {
                         let id = await FilemetaManager.db.assertKeyExists(
                             ctx.params.id
                         )
-
                         let meta = await FilemetaManager.getFromDB(
                             ctx.state.user,
                             id
                         )
-                        let buffer = await FiledataManager.readLatest(meta)
-
-                        ctx.ok(buffer)
+                        let pathTo = await FiledataManager.readLatest(
+                            ctx.state.user,
+                            meta
+                        )
+                        // ctx.ok(buffer)
+                        await send(ctx, pathTo)
+                    })
+                    .get('static/:id', async (ctx) => {
+                        let id = await FiledataManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
+                        let pathTo = await FiledataManager.read(
+                            ctx.state.user,
+                            id
+                        )
+                        await send(ctx, pathTo)
                     })
                     .routes()
             )

@@ -13,7 +13,7 @@ const FILE_PATH = path.resolve(config.basePath, 'fs')
 class Filedata extends DBManager<IFile> {
     constructor() {
         super(
-            'file',
+            'files',
             'File',
             {
                 title: { type: 'string' },
@@ -21,12 +21,9 @@ class Filedata extends DBManager<IFile> {
                     type: 'fkey',
                     foreignApi: UserManager,
                 },
-                src: { type: 'string' },
-                path: {
+                src: {
                     type: 'string',
-                    hideGetAll: true,
-                    hideGetId: true,
-                    hideGetRef: true,
+                    hidden: true,
                 },
             },
             {
@@ -37,29 +34,35 @@ class Filedata extends DBManager<IFile> {
         )
     }
 
+    // Write a new file from the file data
     public async writeFile(user: AuthUser, file: IFileData): Promise<IFile> {
         let id = generateBase64UUID()
-        let src: string = id + '-' + file.name
+        let pathTo: string = id + '-' + file.name
 
-        await fs.promises.rename(file.path, path.join(FILE_PATH, src))
+        await fs.promises.rename(file.path, path.join(FILE_PATH, pathTo))
 
         return {
-            src,
+            id,
+            src: pathTo,
             title: file.name,
             author: user.id,
         }
     }
 
-    public async readLatest(doc: IFilemeta) {
-        let latest = await this.getFromDB({} as any, doc.latest as string)
+    public async readLatest(user: AuthUser, doc: IFilemeta) {
+        return this.read(user, doc.latest as string)
+    }
 
-        let src = path.join(FILE_PATH, latest.path ?? '')
-        let stat = await fs.promises.stat(src)
+    public async read(user: AuthUser, id: string) {
+        let file = await this.getFromDB(user, id)
+
+        let pathTo = path.join(FILE_PATH, file.src ?? '')
+        let stat = await fs.promises.stat(pathTo)
         if (!stat.isFile) {
-            this.internal('readLatest', `${src} is not a file`)
+            this.internal('readLatest', `${pathTo} is not a file`)
         }
 
-        return fs.promises.readFile(src)
+        return pathTo
     }
 }
 
