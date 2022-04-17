@@ -82,17 +82,13 @@ export class AuthUser {
         }
     }
 
-    getId() {
-        return UserManager.db.keyToId(this.key)
-    }
-
     async getUser() {
-        if (!this.user) this.user = await UserManager.getUser(this.key)
+        if (!this.user) this.user = await UserManager.getUser(this.id)
         return this.user
     }
 
     async getRank() {
-        if (!this.user) this.user = await UserManager.getUser(this.key)
+        if (!this.user) this.user = await UserManager.getUser(this.id)
         if (!this.rank)
             this.rank = await RankManager.db.get(this.user.rank as string)
 
