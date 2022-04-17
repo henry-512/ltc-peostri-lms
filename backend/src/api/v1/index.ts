@@ -1,6 +1,7 @@
 import Router from '@koa/router'
 import { HTTPStatus } from '../../lms/errors'
 import { AuthUser } from '../auth'
+import send from 'koa-send'
 import { CommentManager } from './data/comments'
 import { FilemetaManager } from './data/filemeta'
 import { FiledataManager } from './data/files'
@@ -79,15 +80,15 @@ export function routerBuilder(version: string) {
             .use(new AdminRouter('files', FiledataManager).routes())
             // Download and management
             .use(
-                new Router({ prefix: 'files' })
+                new Router({ prefix: 'files/' })
                     // Get raw metadata
                     .get(
-                        '/list/:id',
+                        'list/:id',
                         async (ctx) =>
                             await getOne(ctx, FilemetaManager, ctx.params.id)
                     )
-                    // Download a single file
-                    .get('/download/:id', async (ctx) => {
+                    // Send latest for the passed metadata handler
+                    .get('latest/:id', async (ctx) => {
                         let id = await FilemetaManager.db.assertKeyExists(
                             ctx.params.id
                         )
@@ -95,11 +96,20 @@ export function routerBuilder(version: string) {
                             ctx.state.user,
                             id
                         )
-                        let buffer = await FiledataManager.readLatest(
+                        let pathTo = await FiledataManager.readLatest(
                             ctx.state.user,
                             meta
                         )
-                        ctx.ok(buffer)
+                        // ctx.ok(buffer)
+                        await send(ctx, pathTo)
+                    })
+                    .get('static/:id', async (ctx) => {
+                        let id = await FiledataManager.db.assertKeyExists(ctx.params.id)
+                        let pathTo = await FiledataManager.read(
+                            ctx.state.user,
+                            id
+                        )
+                        await send(ctx, pathTo)
                     })
                     .routes()
             )

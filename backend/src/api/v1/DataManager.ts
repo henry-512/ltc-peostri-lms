@@ -356,6 +356,11 @@ export class DataManager<Type> extends IErrorable {
                     foreign: data.parentReferenceKey,
                 }
             }
+            if (data.hidden || data.dummy) {
+                data.hideGetAll = true
+                data.hideGetId = true
+                data.hideGetRef = true
+            }
         }
     }
 
@@ -424,8 +429,14 @@ export class DataManager<Type> extends IErrorable {
                 let o = pointer.obj
                 // Check for missing fields
                 if (k in o) {
-                    // Remove null-like fields
-                    if (o[k] === undefined || o[k] === null || o[k] === '') {
+                    if (
+                        // Remove db-only fields
+                        data.hidden ||
+                        // Remove null-like fields
+                        o[k] === undefined ||
+                        o[k] === null ||
+                        o[k] === ''
+                    ) {
                         delete o[k]
                     } else {
                         return false

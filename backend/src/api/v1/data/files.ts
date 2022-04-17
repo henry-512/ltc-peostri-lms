@@ -23,9 +23,7 @@ class Filedata extends DBManager<IFile> {
                 },
                 src: {
                     type: 'string',
-                    hideGetAll: true,
-                    hideGetId: true,
-                    hideGetRef: true,
+                    hidden: true,
                 },
             },
             {
@@ -52,15 +50,19 @@ class Filedata extends DBManager<IFile> {
     }
 
     public async readLatest(user: AuthUser, doc: IFilemeta) {
-        let latest = await this.getFromDB(user, doc.latest as string)
+        return this.read(user, doc.latest as string)
+    }
 
-        let pathTo = path.join(FILE_PATH, latest.src ?? '')
+    public async read(user: AuthUser, id: string) {
+        let file = await this.getFromDB(user, id)
+
+        let pathTo = path.join(FILE_PATH, file.src ?? '')
         let stat = await fs.promises.stat(pathTo)
         if (!stat.isFile) {
             this.internal('readLatest', `${pathTo} is not a file`)
         }
 
-        return fs.promises.readFile(pathTo)
+        return pathTo
     }
 }
 
