@@ -157,6 +157,8 @@ export type NotificationType = 'PROJECT' | 'MODULE' | 'TASK' | 'USER'
 export type ResourceType = 'projects' | 'users' | 'modules' | 'tasks'
 
 export interface ISender {
+    // Fancy display name
+    display: string
     resource: ResourceType
     // THIS IS A KEY !!!
     id: string

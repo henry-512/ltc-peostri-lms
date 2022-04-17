@@ -74,6 +74,7 @@ class Project extends DBManager<IProject> {
             user.id,
             `Project ${id} created.`,
             {
+                display: d.title,
                 resource: 'projects',
                 id: this.db.asKey(id),
             }
@@ -95,6 +96,7 @@ class Project extends DBManager<IProject> {
             user.id,
             `Project ${id} updated.`,
             {
+                display: doc.title,
                 resource: 'projects',
                 id: this.db.asKey(id),
             }
