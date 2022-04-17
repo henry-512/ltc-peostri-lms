@@ -86,7 +86,6 @@ export type NotificationsItemProps = {
 const NotificationsItem = (props: NotificationsItemProps) => {
     const createPath = useCreatePath();
 
-
     const dataProvider = useDataProvider();
 
     const markRead = () => {
