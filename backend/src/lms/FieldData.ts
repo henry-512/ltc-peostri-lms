@@ -14,6 +14,10 @@ export interface IField {
         | 'step'
     // Name of this field
     name?: string
+
+    // String name of the manager for this type. Used for dependency map resolving and is removed afterwards
+    managerName?: string
+
     // Set if this is a dummy field (dne in database)
     dummy?: boolean
     // If type is an array or step, this is the type of that array or step
@@ -34,6 +38,8 @@ export interface IField {
     foreignApi?: DBManager<IArangoIndexes>
     // The foreign data that manages this field
     foreignData?: DataManager<any>
+    // Parent ApiRoute
+    parentManager?: DBManager<IArangoIndexes>
     // If set, this key is a parent key pointing to the local key set in this document
     // ie. module is a parent of task.
     //   module[tasks] <-> task[module]

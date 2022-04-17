@@ -5,8 +5,6 @@ import { IArangoIndexes, ICreateUpdate } from '../../lms/types'
 import { isDBId, isDBKey, PTR, splitId, str } from '../../lms/util'
 import { AuthUser } from '../auth'
 
-export const Managers: { [dbname: string]: DataManager<IArangoIndexes> } = {}
-
 export class DataManager<Type> extends IErrorable {
     protected hasCreate: boolean
     protected hasUpdate: boolean
@@ -37,21 +35,6 @@ export class DataManager<Type> extends IErrorable {
         files: any,
         doc: any
     ) => Promise<Type>
-
-    // hack
-    public resolveDependencies() {
-        for (let [key, data] of this.fieldEntries) {
-            if (typeof data.foreignApi === 'string') {
-                data.foreignApi = Managers[data.foreignApi] as any
-                if (!data.foreignApi) {
-                    throw this.internal(
-                        'resolveDependencies',
-                        `${data.foreignApi} is not a valid manager`
-                    )
-                }
-            }
-        }
-    }
 
     /**
      * Runs the passed function on each foreign key in the document
@@ -344,13 +327,17 @@ export class DataManager<Type> extends IErrorable {
         for (let [key, data] of this.fieldEntries) {
             // Set data names
             data.name = key
-            if (data.foreignApi) {
+            if (data.type === 'fkey' || data.instance === 'fkey') {
                 this.foreignEntries.push([key, data as IForeignFieldData])
-            }
-            if (data.foreignData) {
+            } else if (data.type === 'data' || data.instance === 'data') {
                 this.dataEntries.push([key, data as IDataFieldData])
-            }
-            if (data.parentReferenceKey) {
+            } else if (data.type === 'parent') {
+                if (!data.parentReferenceKey) {
+                    throw this.internal(
+                        'constructor',
+                        `Data ${str(data)} missing parentReference field`
+                    )
+                }
                 this.parentField = {
                     local: key,
                     foreign: data.parentReferenceKey,

@@ -4,7 +4,6 @@ import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
 import { CommentManager } from './comments'
 import { FilemetaManager } from './filemeta'
-import { TaskManager } from './tasks'
 import { UserManager } from './users'
 
 class Waive extends DataManager<IWaiveData> {
@@ -59,7 +58,8 @@ class Module extends DBManager<IModule> {
                 tasks: {
                     type: 'step',
                     instance: 'fkey',
-                    foreignApi: TaskManager,
+                    managerName: 'tasks',
+                    // foreignApi: TaskManager,
                     freeable: true,
                     acceptNewDoc: true,
                 },
@@ -74,7 +74,9 @@ class Module extends DBManager<IModule> {
                 },
                 project: {
                     type: 'parent',
+                    managerName: 'projects',
                     parentReferenceKey: 'modules',
+                    // parentManager: 'project'
                 },
                 status: {
                     type: 'string',
@@ -87,7 +89,8 @@ class Module extends DBManager<IModule> {
                 files: {
                     type: 'array',
                     instance: 'fkey',
-                    foreignApi: FilemetaManager,
+                    managerName: 'filemeta',
+                    // foreignApi: FilemetaManager,
                     optional: true,
                     default: [],
                     acceptNewDoc: true,

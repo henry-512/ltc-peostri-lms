@@ -6,7 +6,6 @@ import { generateBase64UUID } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { IFileData } from './filemeta'
-import { UserManager } from './users'
 
 const FILE_PATH = path.resolve(config.basePath, 'fs')
 
@@ -19,7 +18,8 @@ class Filedata extends DBManager<IFile> {
                 title: { type: 'string' },
                 author: {
                     type: 'fkey',
-                    foreignApi: UserManager,
+                    managerName: 'users',
+                    // foreignApi: UserManager,
                 },
                 src: {
                     type: 'string',

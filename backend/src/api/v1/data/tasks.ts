@@ -1,8 +1,5 @@
-import { IGetAllQueryResults } from '../../../database'
 import { ITask } from '../../../lms/types'
 import { DBManager } from '../DBManager'
-import { RankManager } from './ranks'
-import { UserManager } from './users'
 
 class Task extends DBManager<ITask> {
     constructor() {
@@ -18,9 +15,10 @@ class Task extends DBManager<ITask> {
                 users: {
                     type: 'array',
                     instance: 'fkey',
+                    managerName: 'users',
+                    // foreignApi: UserManager,
                     default: [],
                     getIdKeepAsRef: true,
-                    foreignApi: UserManager,
                 },
                 suspense: {
                     type: 'string',
@@ -28,12 +26,14 @@ class Task extends DBManager<ITask> {
                 },
                 rank: {
                     type: 'fkey',
+                    managerName: 'ranks',
+                    // foreignApi: RankManager,
                     optional: true,
                     getIdKeepAsRef: true,
-                    foreignApi: RankManager,
                 },
                 module: {
                     type: 'parent',
+                    managerName: 'projects',
                     parentReferenceKey: 'tasks',
                 },
                 type: { type: 'string' },

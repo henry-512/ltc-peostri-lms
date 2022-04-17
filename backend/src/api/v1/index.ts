@@ -16,11 +16,13 @@ import { ModuleTempManager } from './data/template/moduleTemplates'
 import { ProjectTempManager } from './data/template/projectTemplates'
 import { UserManager } from './data/users'
 import { AdminRouter, getOne, sendRange, UserRouter } from './Router'
+import { Managers } from './DBManager'
 
 export function routerBuilder(version: string) {
     // Resolve dependency issue
-    UserManager.resolveDependencies()
-    TeamManager.resolveDependencies()
+    for (const [name, manager] of Object.entries(Managers)) {
+        manager.resolveDependencies()
+    }
 
     return (
         new Router({ prefix: `${version}/` })

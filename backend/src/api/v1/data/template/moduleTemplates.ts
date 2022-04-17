@@ -8,7 +8,6 @@ import { convertToKey, IStepper } from '../../../../lms/util'
 import { AuthUser } from '../../../auth'
 import { DataManager } from '../../DataManager'
 import { DBManager } from '../../DBManager'
-import { RankManager } from '../ranks'
 
 class TaskTemplate extends DataManager<ITaskTemplate> {
     constructor() {
@@ -18,7 +17,8 @@ class TaskTemplate extends DataManager<ITaskTemplate> {
                 title: { type: 'string' },
                 rank: {
                     type: 'fkey',
-                    foreignApi: RankManager,
+                    managerName: 'ranks',
+                    // foreignApi: RankManager,
                     optional: true,
                 },
                 status: {
@@ -106,7 +106,7 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
             status: 'AWAITING',
             ttc: temp.ttc,
             files: [],
-            currentStep: 0
+            currentStep: 0,
         }
     }
 }

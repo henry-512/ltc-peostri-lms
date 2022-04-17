@@ -1,9 +1,6 @@
 import { IUserLog } from '../../../../lms/types'
 import { DBManager } from '../../DBManager'
-import { ModuleManager } from '../modules'
 import { SenderManager } from '../notifications'
-import { ProjectManager } from '../projects'
-import { TaskManager } from '../tasks'
 
 class UserLog extends DBManager<IUserLog> {
     constructor() {
@@ -17,17 +14,20 @@ class UserLog extends DBManager<IUserLog> {
             },
             project: {
                 type: 'fkey',
-                foreignApi: ProjectManager,
+                // foreignApi: ProjectManager,
+                managerName: 'projects',
                 optional: true,
             },
             module: {
                 type: 'fkey',
-                foreignApi: ModuleManager,
+                // foreignApi: ModuleManager,
+                managerName: 'modules',
                 optional: true,
             },
             task: {
                 type: 'fkey',
-                foreignApi: TaskManager,
+                // foreignApi: TaskManager,
+                managerName: 'tasks',
                 optional: true,
             },
         })

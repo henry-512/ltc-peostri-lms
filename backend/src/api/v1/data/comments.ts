@@ -1,7 +1,6 @@
 import { IComment } from '../../../lms/types'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
-import { UserManager } from './users'
 
 class Comment extends DBManager<IComment> {
     constructor() {
@@ -12,7 +11,8 @@ class Comment extends DBManager<IComment> {
                 content: { type: 'string' },
                 author: {
                     type: 'fkey',
-                    foreignApi: UserManager,
+                    managerName: 'users',
+                    // foreignApi: UserManager,
                 },
                 parent: {
                     type: 'parent',

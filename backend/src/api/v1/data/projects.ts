@@ -3,10 +3,8 @@ import { IModule, IProject, ITask } from '../../../lms/types'
 import { IStepper } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
-import { ModuleManager } from './modules'
 import { NotificationManager } from './notifications'
 import { TeamManager } from './teams'
-import { UserManager } from './users'
 
 function addDays(date: Date, days: number) {
     let d = new Date(date)
@@ -33,16 +31,18 @@ class Project extends DBManager<IProject> {
                 modules: {
                     type: 'step',
                     instance: 'fkey',
+                    managerName: 'modules',
+                    // foreignApi: ModuleManager,
                     freeable: true,
                     acceptNewDoc: true,
-                    foreignApi: ModuleManager,
                 },
                 users: {
                     type: 'array',
                     instance: 'fkey',
+                    managerName: 'users',
+                    // foreignApi: UserManager,
                     default: [],
                     getIdKeepAsRef: true,
-                    foreignApi: UserManager,
                 },
                 team: {
                     type: 'fkey',

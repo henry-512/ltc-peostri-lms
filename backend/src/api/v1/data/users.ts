@@ -2,7 +2,6 @@ import bcrypt from 'bcrypt'
 import { IUser } from '../../../lms/types'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
-import { RankManager } from './ranks'
 import { UserArangoWrapper } from './UserArangoWrapper'
 
 export const DB_NAME = 'users'
@@ -22,14 +21,16 @@ class User extends DBManager<IUser> {
                 avatar: { type: 'string' },
                 rank: {
                     type: 'fkey',
-                    foreignApi: RankManager,
+                    managerName: 'ranks',
+                    // foreignApi: RankManager,
                     getIdKeepAsRef: true,
                     acceptNewDoc: false,
                 },
                 teams: {
                     type: 'array',
                     instance: 'fkey',
-                    foreignApi: 'teams' as any, // Resolve circular dependency
+                    // foreignApi: 'teams' as any, // Resolve circular dependency
+                    managerName: 'teams',
                     optional: true,
                     getIdKeepAsRef: true,
                     default: [],

@@ -1,6 +1,11 @@
 import { ParsedUrlQuery } from 'querystring'
 import { IQueryGetOpts } from '../../../database'
-import { INotification, ISender, NotificationType, ResourceType } from '../../../lms/types'
+import {
+    INotification,
+    ISender,
+    NotificationType,
+    ResourceType,
+} from '../../../lms/types'
 import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
 import { UserManager } from './users'
@@ -16,7 +21,7 @@ class Sender extends DataManager<ISender> {
             },
             id: {
                 type: 'string',
-            }
+            },
         })
     }
 }
@@ -31,7 +36,8 @@ class Notification extends DBManager<INotification> {
             {
                 recipient: {
                     type: 'fkey',
-                    foreignApi: UserManager,
+                    managerName: 'users',
+                    // foreignApi: UserManager,
                 },
                 content: {
                     type: 'string',
@@ -41,7 +47,7 @@ class Notification extends DBManager<INotification> {
                     foreignData: SenderManager,
                 },
                 type: {
-                    type: 'string'
+                    type: 'string',
                 },
                 read: {
                     type: 'boolean',
@@ -55,7 +61,7 @@ class Notification extends DBManager<INotification> {
     }
 
     public buildType(t: ResourceType): NotificationType {
-        switch(t) {
+        switch (t) {
             case 'projects':
                 return 'PROJECT'
             case 'users':
@@ -65,10 +71,7 @@ class Notification extends DBManager<INotification> {
             case 'tasks':
                 return 'TASK'
             default:
-                throw this.internal(
-                    'buildType',
-                    `type ${t} is not valid`
-                )
+                throw this.internal('buildType', `type ${t} is not valid`)
         }
     }
 
@@ -87,7 +90,7 @@ class Notification extends DBManager<INotification> {
             content,
             createdAt: new Date().toJSON(),
             read: false,
-            type: this.buildType(sender.resource)
+            type: this.buildType(sender.resource),
         }
 
         return this.db.save(notification)

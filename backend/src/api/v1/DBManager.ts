@@ -10,7 +10,7 @@ import { IField, IForeignFieldData } from '../../lms/FieldData'
 import { IArangoIndexes } from '../../lms/types'
 import { convertToKey, splitId, str } from '../../lms/util'
 import { AuthUser } from '../auth'
-import { DataManager, Managers } from './DataManager'
+import { DataManager } from './DataManager'
 
 /**
  * Returns the ApiRoute instance corresponding to a database id
@@ -18,12 +18,53 @@ import { DataManager, Managers } from './DataManager'
  * @returns The corresponding ApiRoute
  */
 export function getApiInstanceFromId(id: string): DBManager<IArangoIndexes> {
-    return Managers[splitId(id).col] as any
+    return Managers[splitId(id).col]
 }
+export const Managers: { [dbname: string]: DBManager<IArangoIndexes> } = {}
 
 export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
     public db: ArangoWrapper<Type>
     private defaultFilter: string
+
+    // Dependency resolver
+    public resolveDependencies() {
+        for (let [key, data] of this.fieldEntries) {
+            let foreign = data.type === 'fkey' || data.instance === 'fkey'
+
+            if (data.managerName) {
+                if (foreign) {
+                    let m = Managers[data.managerName]
+                    if (!m) {
+                        data.foreignApi = m
+                        continue
+                    }
+                } else if (data.type === 'parent') {
+                    let m = Managers[data.managerName]
+                    if (!m) {
+                        data.parentManager = m
+                        continue
+                    }
+                } else {
+                    continue
+                }
+                throw this.internal(
+                    'resolveDependencies',
+                    `Data ${str(data)} has invalid data.manager field [${
+                        data.managerName
+                    }]`
+                )
+            }
+
+            if (foreign) {
+                throw this.internal(
+                    'resolveDependencies',
+                    `Data ${str(
+                        data
+                    )} has foreign or data type but lacks data.manager field`
+                )
+            }
+        }
+    }
 
     constructor(
         dbName: string,
@@ -102,6 +143,13 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                         continue
                     }
                 } else if (Array.isArray(value)) {
+                    if (data.type === 'parent' && data.parentManager) {
+                        let dbWrapper = data.parentManager.db
+                        f.in = value.map((k) => dbWrapper.keyToId(k))
+                    } else if (data.foreignApi) {
+                        let dbWrapper = data.foreignApi.db
+                        f.in = value.map((k) => dbWrapper.keyToId(k))
+                    }
                     f.in = value
                 } else {
                     let type = typeof value
