@@ -31,12 +31,12 @@ const Root = styled('div')(({ theme }) => ({
     [`& .${classes.waiverWrapper}`]: {
         position: 'relative',
         height: '0px',
-        transition: 'height 0.3s ease',
+        transition: 'height 0.2s ease',
         overflow: 'hidden',
     },
 
     [`& .${classes.waiverWrapperOpen}`]: {
-        transition: 'height 0.3s ease',
+        transition: 'height 0.2s ease',
         height: '190px',
         marginBottom: '-30px',
         maxHeight: 'unset'

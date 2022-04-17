@@ -22,19 +22,19 @@ const Root = styled('div')(({ theme }) => ({
         display: "flex",
         minHeight: "50px",
         alignItems: "center",
-        transition: 'all .3s',
         padding: '.5rem .75rem',
         gap: '.75rem',
+        transition: 'all .2s',
         color: theme.palette.primary.main,
         '&:hover': {
             backgroundColor: theme.palette?.borderColor?.main,
-            transition: 'all .3s'
+            transition: 'all .2s'
         }
     },
 
     [`& .${classes.read}`]: {
         backgroundColor: theme.palette?.borderColor?.light,
-        transition: 'all .3s',
+        transition: 'all .2s',
         color: "#808080"
     },
 

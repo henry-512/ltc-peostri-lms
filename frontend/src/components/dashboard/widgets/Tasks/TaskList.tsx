@@ -31,49 +31,57 @@ const TaskList = (props: TaskListProps) => {
     if (isError) return null;
 
     return (
-        <CardWithIcon icon={TaskAltIcon} to={createPath({ resource: `tasks`, type: 'list' })} title={props.title || "dashboard.widget.tasks.my_title"} subtitle={total || 0}>
-            {(tasks) ? (
-                <List sx={{ display }}>
-                    {tasks?.map((record: ITask) => (
-                        <ListItem
-                            key={record.id}
-                            button
-                            component={Link}
-                            to={createPath({ resource: `tasks`, id: record.id, type: 'show' })}
-                            replace={true}
-                            alignItems="flex-start"
-                        >
-                            <ListItemText
-                                primary={<TaskListItem record={record} />}
+        <CardWithIcon icon={TaskAltIcon} to={createPath({ resource: `tasks`, type: 'list' })} title={props.title || "dashboard.widget.tasks.my_title"} subtitle={(isLoading) ? <Box display="flex" justifyContent="center"><LinearProgress /></Box> : (total || "0")}>
+            {(tasks && tasks.length > 0) ? (
+                <>
+                    <List sx={{ display }}>
+                        {tasks?.map((record: ITask) => (
+                            <ListItem
+                                key={record.id}
+                                button
+                                component={Link}
+                                to={createPath({ resource: `tasks`, id: record.id, type: 'show' })}
+                                replace={true}
+                                alignItems="flex-start"
                                 sx={{
-                                    overflowY: 'hidden',
-                                    height: 'auto',
-                                    display: '-webkit-box',
-                                    WebkitLineClamp: 2,
-                                    WebkitBoxOrient: 'vertical',
-                                    paddingRight: 0,
+                                    transition: 'all .2s',
+                                    color: (theme) => theme.palette.primary.main,
+                                    '&:hover': {
+                                        backgroundColor: (theme) => theme.palette?.borderColor?.main,
+                                        transition: 'all .2s'
+                                    }
                                 }}
-                            />
-                        </ListItem>
-                    ))}
-                </List>
-            ) : (
-                (isLoading) ? <Box display="flex" justifyContent="center"><LinearProgress /></Box> : <TaskEmpty />
-            )}
-            <Divider />
-            <Button
-                sx={{ borderRadius: 0 }}
-                component={Link}
-                to={createPath({ resource: props.resource || `tasks`, type: 'list' })}
-                size="small"
-                color="primary"
-                replace={true}
-                disabled={(!tasks) ? true : false}
-            >
-                <Box p={1} sx={{ color: 'primary.main' }}>
-                    {translate('dashboard.widget.tasks.all')}
-                </Box>
-            </Button>
+                            >
+                                <ListItemText
+                                    primary={<TaskListItem record={record} />}
+                                    sx={{
+                                        overflowY: 'hidden',
+                                        height: 'auto',
+                                        display: '-webkit-box',
+                                        WebkitLineClamp: 2,
+                                        WebkitBoxOrient: 'vertical',
+                                        paddingRight: 0,
+                                    }}
+                                />
+                            </ListItem>
+                        ))}
+                    </List>
+                    <Divider />
+                    <Button
+                        sx={{ borderRadius: 0 }}
+                        component={Link}
+                        to={createPath({ resource: props.resource || `tasks`, type: 'list' })}
+                        size="small"
+                        color="primary"
+                        replace={true}
+                        disabled={(!tasks) ? true : false}
+                    >
+                        <Box p={1} sx={{ color: 'primary.main' }}>
+                            {translate('dashboard.widget.tasks.all')}
+                        </Box>
+                    </Button>
+                </>
+            ) : null }
         </CardWithIcon>
     )
 }
