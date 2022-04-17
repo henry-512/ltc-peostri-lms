@@ -19,7 +19,7 @@ const domainMessages = {
                     "all": "View All"
                 },
                 "tasks": {
-                    "title": "My Tasks",
+                    "my_title": "My Tasks",
                     "all_title": "All Tasks",
                     "team_title": "Team's Tasks",
                     "all": "View All"

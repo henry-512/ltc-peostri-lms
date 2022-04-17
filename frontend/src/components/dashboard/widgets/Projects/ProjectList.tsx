@@ -2,13 +2,16 @@ import CardWithIcon from "../base/CardWithIcon"
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import { IProject } from "src/util/types";
 import { Box, Button, Divider, List, ListItem, ListItemText } from "@mui/material";
-import { LinearProgress, useCreatePath, useGetList, useTranslate } from "react-admin";
+import { LinearProgress, SortPayload, useCreatePath, useGetList, useTranslate } from "react-admin";
 import { Link } from "react-router-dom";
 import ProjectListItem from "./ProjectListItem";
 
 export type ProjectListProps = {
     title?: string
     resource?: string
+    filter?: any
+    sort?: SortPayload
+    showCount?: number
 }
 
 const ProjectList = (props: ProjectListProps) => {
@@ -16,9 +19,9 @@ const ProjectList = (props: ProjectListProps) => {
     const createPath = useCreatePath();
 
     const { data: projects, total, isLoading, isError } = useGetList<IProject>(props.resource || 'projects', {
-        filter: {},
-        sort: { field: 'status', order: 'DESC' },
-        pagination: { page: 1, perPage: 8 },
+        filter: props.filter || {},
+        sort: props.sort || { field: 'suspense', order: 'ASC' },
+        pagination: { page: 1, perPage: props.showCount || 8 },
     });
 
     const display = isLoading ? 'none' : 'block';

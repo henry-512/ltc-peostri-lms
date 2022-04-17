@@ -1,16 +1,19 @@
 import CardWithIcon from "../base/CardWithIcon"
 import { ITask } from "src/util/types";
 import { Box, Button, Divider, List, ListItem, ListItemText } from "@mui/material";
-import { LinearProgress, useCreatePath, useGetList, useTranslate } from "react-admin";
+import { LinearProgress, SortPayload, useCreatePath, useGetList, useTranslate } from "react-admin";
 import { Link } from "react-router-dom";
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import TaskListItem from "./TaskListItem";
 import TaskEmpty from "./TaskEmpty";
+import { AnyNsRecord } from "dns";
 
 export type TaskListProps = {
     title?: string
     resource?: string
     filter?: any
+    sort?: SortPayload
+    showCount?: number
 }
 
 const TaskList = (props: TaskListProps) => {
@@ -18,9 +21,9 @@ const TaskList = (props: TaskListProps) => {
     const createPath = useCreatePath();
     
     const { data: tasks, total, isLoading, isError } = useGetList<ITask>(props.resource || 'tasks', {
-        filter: {},
-        sort: { field: 'status', order: 'DESC' },
-        pagination: { page: 1, perPage: 8 },
+        filter: props.filter || {},
+        sort: props.sort || { field: 'suspense', order: 'ASC' },
+        pagination: { page: 1, perPage: props.showCount || 8 },
     });
 
     const display = isLoading ? 'none' : 'block';
