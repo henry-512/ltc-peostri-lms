@@ -19,7 +19,6 @@ class Filedata extends DBManager<IFile> {
                 author: {
                     type: 'fkey',
                     managerName: 'users',
-                    // foreignApi: UserManager,
                 },
                 src: {
                     type: 'string',

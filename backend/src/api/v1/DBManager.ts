@@ -34,13 +34,13 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             if (data.managerName) {
                 if (foreign) {
                     let m = Managers[data.managerName]
-                    if (!m) {
+                    if (m) {
                         data.foreignApi = m
                         continue
                     }
                 } else if (data.type === 'parent') {
                     let m = Managers[data.managerName]
-                    if (!m) {
+                    if (m) {
                         data.parentManager = m
                         continue
                     }
@@ -51,7 +51,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                     'resolveDependencies',
                     `Data ${str(data)} has invalid data.manager field [${
                         data.managerName
-                    }]`
+                    }] for ${this.className}`
                 )
             }
 
@@ -60,7 +60,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                     'resolveDependencies',
                     `Data ${str(
                         data
-                    )} has foreign or data type but lacks data.manager field`
+                    )} has foreign or data type but lacks data.manager field for ${this.className}`
                 )
             }
         }

@@ -11,7 +11,6 @@ class Team extends DBManager<ITeam> {
                     type: 'array',
                     instance: 'fkey',
                     managerName: 'users',
-                    // foreignApi: 'users' as any,
                     default: [],
                     getIdKeepAsRef: true,
                 },

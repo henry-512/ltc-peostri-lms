@@ -13,28 +13,24 @@ class Filemeta extends DBManager<IFilemeta> {
                 latest: {
                     type: 'fkey',
                     managerName: 'files',
-                    // foreignApi: FiledataManager,
                     acceptNewDoc: true,
                 },
                 old: {
                     type: 'array',
                     instance: 'fkey',
                     managerName: 'files',
-                    // foreignApi: FiledataManager,
                     acceptNewDoc: true,
                 },
                 reviews: {
                     type: 'array',
                     instance: 'fkey',
                     managerName: 'files',
-                    // foreignApi: FiledataManager,
                     acceptNewDoc: true,
                 },
                 oldReviews: {
                     type: 'array',
                     instance: 'fkey',
                     managerName: 'files',
-                    // foreignApi: FiledataManager,
                     acceptNewDoc: true,
                 },
                 module: {

@@ -14,19 +14,16 @@ class UserLog extends DBManager<IUserLog> {
             },
             project: {
                 type: 'fkey',
-                // foreignApi: ProjectManager,
                 managerName: 'projects',
                 optional: true,
             },
             module: {
                 type: 'fkey',
-                // foreignApi: ModuleManager,
                 managerName: 'modules',
                 optional: true,
             },
             task: {
                 type: 'fkey',
-                // foreignApi: TaskManager,
                 managerName: 'tasks',
                 optional: true,
             },

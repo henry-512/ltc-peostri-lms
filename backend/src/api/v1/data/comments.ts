@@ -12,7 +12,6 @@ class Comment extends DBManager<IComment> {
                 author: {
                     type: 'fkey',
                     managerName: 'users',
-                    // foreignApi: UserManager,
                 },
                 parent: {
                     type: 'parent',

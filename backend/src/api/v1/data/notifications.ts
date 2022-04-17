@@ -37,7 +37,6 @@ class Notification extends DBManager<INotification> {
                 recipient: {
                     type: 'fkey',
                     managerName: 'users',
-                    // foreignApi: UserManager,
                 },
                 content: {
                     type: 'string',

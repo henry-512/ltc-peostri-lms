@@ -18,7 +18,6 @@ class TaskTemplate extends DataManager<ITaskTemplate> {
                 rank: {
                     type: 'fkey',
                     managerName: 'ranks',
-                    // foreignApi: RankManager,
                     optional: true,
                 },
                 status: {

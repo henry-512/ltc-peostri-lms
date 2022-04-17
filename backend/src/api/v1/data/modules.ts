@@ -59,14 +59,13 @@ class Module extends DBManager<IModule> {
                     type: 'step',
                     instance: 'fkey',
                     managerName: 'tasks',
-                    // foreignApi: TaskManager,
                     freeable: true,
                     acceptNewDoc: true,
                 },
                 comments: {
                     type: 'array',
                     instance: 'fkey',
-                    foreignApi: CommentManager,
+                    managerName: 'comments',
                     optional: true,
                     default: [],
                     freeable: true,
@@ -76,7 +75,6 @@ class Module extends DBManager<IModule> {
                     type: 'parent',
                     managerName: 'projects',
                     parentReferenceKey: 'modules',
-                    // parentManager: 'project'
                 },
                 status: {
                     type: 'string',
@@ -90,7 +88,6 @@ class Module extends DBManager<IModule> {
                     type: 'array',
                     instance: 'fkey',
                     managerName: 'filemeta',
-                    // foreignApi: FilemetaManager,
                     optional: true,
                     default: [],
                     acceptNewDoc: true,

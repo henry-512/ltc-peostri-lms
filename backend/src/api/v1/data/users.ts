@@ -22,14 +22,12 @@ class User extends DBManager<IUser> {
                 rank: {
                     type: 'fkey',
                     managerName: 'ranks',
-                    // foreignApi: RankManager,
                     getIdKeepAsRef: true,
                     acceptNewDoc: false,
                 },
                 teams: {
                     type: 'array',
                     instance: 'fkey',
-                    // foreignApi: 'teams' as any, // Resolve circular dependency
                     managerName: 'teams',
                     optional: true,
                     getIdKeepAsRef: true,

@@ -16,7 +16,6 @@ class Task extends DBManager<ITask> {
                     type: 'array',
                     instance: 'fkey',
                     managerName: 'users',
-                    // foreignApi: UserManager,
                     default: [],
                     getIdKeepAsRef: true,
                 },
@@ -27,7 +26,6 @@ class Task extends DBManager<ITask> {
                 rank: {
                     type: 'fkey',
                     managerName: 'ranks',
-                    // foreignApi: RankManager,
                     optional: true,
                     getIdKeepAsRef: true,
                 },
