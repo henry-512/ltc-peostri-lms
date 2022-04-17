@@ -1,6 +1,6 @@
 import CardWithIcon from "../base/CardWithIcon"
 import { INotification } from "src/util/types";
-import { Box, Button, Divider, List, ListItem, ListItemText } from "@mui/material";
+import { Box, Button, Divider, List, ListItem, ListItemText, CircularProgress } from "@mui/material";
 import { Identifier, LinearProgress, useCreatePath, useGetList, useIsDataLoaded, useTranslate, useUpdate } from "react-admin";
 import { Link } from "react-router-dom";
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
@@ -36,52 +36,62 @@ const MyNotifications = (props: MyNotificationsProps) => {
         })
     }
 
+    console.log(total);
+
     if (isError) return null;
     
     return (
-        <CardWithIcon icon={NotificationsNoneIcon} to={createPath({ resource: `notifications`, type: 'list' })} replace={true} title={props.title || "dashboard.widget.my_notifications.title"} subtitle={total}>
-            {(notifications) ? (
-                <List sx={{ display }}>
-                    {notifications?.map((record: INotification) => (
-                        <ListItem
-                            key={record.id}
-                            button
-                            component={Link}
-                            to={createPath({ resource: `notifications`, id: record.id, type: 'show' })}
-                            replace={true}
-                            onClick={() => markRead(record.id, record.read)}
-                            alignItems="flex-start"
-                        >
-                            <ListItemText
-                                primary={<NotificationListItem record={record} />}
+        <CardWithIcon icon={NotificationsNoneIcon} to={createPath({ resource: `notifications`, type: 'list' })} replace={true} title={props.title || "dashboard.widget.my_notifications.title"} subtitle={(isLoading) ? <Box display="flex" justifyContent="center"><LinearProgress /></Box> : (total || "0")}>
+            {(notifications && notifications.length > 0) ? (
+                <>
+                    <List sx={{ display }}>
+                        {notifications?.map((record: INotification) => (
+                            <ListItem
+                                key={record.id}
+                                button
+                                component={Link}
+                                to={createPath({ resource: `${record.sender.resource}`, id: record.sender.id, type: 'show' })}
+                                replace={true}
+                                onClick={() => markRead(record.id, record.read)}
+                                alignItems="flex-start"
                                 sx={{
-                                    overflowY: 'hidden',
-                                    height: 'auto',
-                                    display: '-webkit-box',
-                                    WebkitLineClamp: 2,
-                                    WebkitBoxOrient: 'vertical',
-                                    paddingRight: 0,
+                                    transition: 'all .2s',
+                                    color: (theme) => theme.palette.primary.main,
+                                    '&:hover': {
+                                        backgroundColor: (theme) => theme.palette?.borderColor?.main,
+                                        transition: 'all .2s'
+                                    }
                                 }}
-                            />
-                        </ListItem>
-                    ))}
-                </List>
-            ) : (
-                (isLoading) ? <Box display="flex" justifyContent="center"><LinearProgress /></Box> : <NotificationEmpty />
-            )}
-            <Divider />
-            <Button
-                sx={{ borderRadius: 0 }}
-                component={Link}
-                to={createPath({ resource: `notifications`, type: 'list' })}
-                size="small"
-                color="primary"
-                replace={true}
-            >
-                <Box p={1} sx={{ color: 'primary.main' }}>
-                    {translate('dashboard.widget.my_notifications.all')}
-                </Box>
-            </Button>
+                            >
+                                <ListItemText
+                                    primary={<NotificationListItem record={record} />}
+                                    sx={{
+                                        overflowY: 'hidden',
+                                        height: 'auto',
+                                        display: '-webkit-box',
+                                        WebkitLineClamp: 2,
+                                        WebkitBoxOrient: 'vertical',
+                                        paddingRight: 0,
+                                    }}
+                                />
+                            </ListItem>
+                        ))}
+                    </List>
+                    <Divider />
+                    <Button
+                        sx={{ borderRadius: 0 }}
+                        component={Link}
+                        to={createPath({ resource: `notifications`, type: 'list' })}
+                        size="small"
+                        color="primary"
+                        replace={true}
+                    >
+                        <Box p={1} sx={{ color: 'primary.main' }}>
+                            {translate('dashboard.widget.my_notifications.all')}
+                        </Box>
+                    </Button>
+                </>
+            ) : null}
         </CardWithIcon>
     )
 }

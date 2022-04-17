@@ -50,13 +50,13 @@ const Root = styled('div')(({ theme }) => ({
         minHeight: '50px',
         width: '100%',
         background: '#f5f5f5',
-        transition: 'all .3s ease',
+        transition: 'all .2s ease',
         alignItems: 'center',
         gap: '.25rem',
         flexWrap: 'wrap',
         '&.isDraggingOver': {
             backgroundColor: '#e0e0e3',
-            transition: 'all .3s ease',
+            transition: 'all .2s ease',
         },
     },
 

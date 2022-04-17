@@ -10,7 +10,7 @@ export type CardWithIconProps = {
     icon: FC<any>;
     to: string;
     title?: string;
-    subtitle?: string | number;
+    subtitle?: string | number | JSX.Element;
     replace?: boolean
     children?: ReactNode;
 }
