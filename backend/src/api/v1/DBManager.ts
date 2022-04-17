@@ -298,7 +298,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             }
         } catch (err: any) {
             // Delete malformed documents
-            console.error(`Error with saving: ${err}`)
+            console.error(`\nError with saving: ${err}\n`)
             for (let [api, docs] of map) {
                 if (!(api instanceof DBManager)) {
                     continue
@@ -309,14 +309,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                         delete doc._key
                     }
 
-                    let id = doc.id
-
-                    if (!id || !api.db.isDBId(id)) {
-                        throw this.internal(
-                            'create',
-                            `${JSON.stringify(doc)} lacks id field`
-                        )
-                    }
+                    let id = api.db.asId(doc.id)
 
                     if (await api.db.exists(id)) {
                         console.log(`Removing malformed doc w/ id ${id}`)

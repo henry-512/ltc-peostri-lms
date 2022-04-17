@@ -424,7 +424,8 @@ export class DataManager<Type> extends IErrorable {
                 let o = pointer.obj
                 // Check for missing fields
                 if (k in o) {
-                    if (o[k] === undefined || o[k] === null) {
+                    // Remove null-like fields
+                    if (o[k] === undefined || o[k] === null || o[k] === '') {
                         delete o[k]
                     } else {
                         return false

@@ -14,7 +14,7 @@ import { TeamManager } from './data/teams'
 import { ModuleTempManager } from './data/template/moduleTemplates'
 import { ProjectTempManager } from './data/template/projectTemplates'
 import { UserManager } from './data/users'
-import { AdminRouter, sendRange, UserRouter } from './Router'
+import { AdminRouter, getOne, sendRange, UserRouter } from './Router'
 
 export function routerBuilder(version: string) {
     // Resolve dependency issue
@@ -76,19 +76,29 @@ export function routerBuilder(version: string) {
             )
             // Files
             .use(new AdminRouter('filemeta', FilemetaManager).routes())
+            .use(new AdminRouter('files', FiledataManager).routes())
+            // Download and management
             .use(
                 new Router({ prefix: 'files' })
-                    .get('/:id', async (ctx) => {
+                    // Get raw metadata
+                    .get(
+                        '/list/:id',
+                        async (ctx) =>
+                            await getOne(ctx, FilemetaManager, ctx.params.id)
+                    )
+                    // Download a single file
+                    .get('/download/:id', async (ctx) => {
                         let id = await FilemetaManager.db.assertKeyExists(
                             ctx.params.id
                         )
-
                         let meta = await FilemetaManager.getFromDB(
                             ctx.state.user,
                             id
                         )
-                        let buffer = await FiledataManager.readLatest(meta)
-
+                        let buffer = await FiledataManager.readLatest(
+                            ctx.state.user,
+                            meta
+                        )
                         ctx.ok(buffer)
                     })
                     .routes()
