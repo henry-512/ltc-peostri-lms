@@ -60,7 +60,9 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                     'resolveDependencies',
                     `Data ${str(
                         data
-                    )} has foreign or data type but lacks data.manager field for ${this.className}`
+                    )} has foreign or data type but lacks data.manager field for ${
+                        this.className
+                    }`
                 )
             }
         }
