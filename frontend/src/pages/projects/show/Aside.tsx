@@ -23,6 +23,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { getProgressStatus, getProgressStatusColor} from 'src/util/getProgressStatus';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import AvatarGroupField from '../../../components/users/AvatarGroupField';
+import WarningIcon from '@mui/icons-material/Warning';
 
 const Aside = () => {
     const record = useRecordContext();
@@ -37,6 +38,9 @@ const EventList = () => {
     const record = useRecordContext();
     const translate = useTranslate();
     const [locale] = useLocaleState();
+
+    const progressStatus = getProgressStatus(record.suspense);
+    const progressStatusColor = getProgressStatusColor(record.suspense);
 
     return (
         <Box ml={2}>
@@ -57,13 +61,13 @@ const EventList = () => {
                         </Grid>
                         
                         <Grid item xs={6} display="flex" gap={1}>
-                            <AutorenewIcon fontSize="small" color="disabled" />
+                            <WarningIcon fontSize="small" color={(progressStatus === "RED") ? "error" : (progressStatus === "AMBER") ? "warning" : "disabled"} />
                             <Box flexGrow={1}>
                                 <Typography variant="body2">
                                     Progress Status
                                 </Typography>
-                                <FunctionField record={record} render={(record: any) => `${getProgressStatus(record.suspense)}`} sx={{
-                                    color: `${getProgressStatusColor(record.suspense)}`
+                                <FunctionField record={record} render={(record: any) => `${progressStatus}`} sx={{
+                                    color: `${progressStatusColor}`
                                 }} />
                             </Box>
                         </Grid>

@@ -16,7 +16,7 @@ const MyNotifications = (props: MyNotificationsProps) => {
     const createPath = useCreatePath();
     const [update] = useUpdate();
     
-    const { data: notifications, total, isLoading } = useGetList<INotification>('notifications', {
+    const { data: notifications, total, isLoading, isError } = useGetList<INotification>('notifications', {
         filter: { read: false },
         sort: { field: 'read', order: 'ASC' },
         pagination: { page: 1, perPage: 8 },
@@ -35,6 +35,8 @@ const MyNotifications = (props: MyNotificationsProps) => {
             return;
         })
     }
+
+    if (isError) return null;
     
     return (
         <CardWithIcon icon={NotificationsNoneIcon} to={createPath({ resource: `notifications`, type: 'list' })} replace={true} title={props.title || "dashboard.widget.my_notifications.title"} subtitle={total}>

@@ -8,17 +8,21 @@ const domainMessages = {
                 "dev_help_button": "Frontend Documentation"
             },
             "widget": {
-                "my_projects": {
-                    "title": "My Projects",
-                    "all": "View All Projects"
+                "projects": {
+                    "my_title": "My Projects",
+                    "all_title": "All Projects",
+                    "team_title": "Team's Projects",
+                    "all": "View All"
                 },
                 "my_notifications": {
                     "title": "My Notifications",
-                    "all": "View All Notifications"
+                    "all": "View All"
                 },
-                "my_tasks": {
+                "tasks": {
                     "title": "My Tasks",
-                    "all": "View All Tasks"
+                    "all_title": "All Tasks",
+                    "team_title": "Team's Tasks",
+                    "all": "View All"
                 }
             }
         },

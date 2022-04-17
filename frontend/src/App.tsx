@@ -51,6 +51,8 @@ const App = () => {
             <Resource name="tasks" options={{ label: "layout.menu.my_tasks" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
             <Resource name="modules" options={{ label: "layout.menu.my_tasks" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
             <Resource name="projects" options={{ label: "layout.menu.my_projects" }} show={ProjectShow} list={ProjectList} />
+            <Resource name="projects/all" options={{ label: "layout.menu.my_projects" }} list={ProjectList} />
+            <Resource name="projects/team" options={{ label: "layout.menu.my_projects" }} list={ProjectList} />
             <Resource name="notifications" list={ListGuesser} />
         </Admin>
     );

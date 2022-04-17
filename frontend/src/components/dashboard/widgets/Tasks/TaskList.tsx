@@ -1,21 +1,23 @@
 import CardWithIcon from "../base/CardWithIcon"
 import { ITask } from "src/util/types";
 import { Box, Button, Divider, List, ListItem, ListItemText } from "@mui/material";
-import { LinearProgress, useCreatePath, useGetList, useIsDataLoaded, useTranslate } from "react-admin";
+import { LinearProgress, useCreatePath, useGetList, useTranslate } from "react-admin";
 import { Link } from "react-router-dom";
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import TaskListItem from "./TaskListItem";
 import TaskEmpty from "./TaskEmpty";
 
-export type TaskWidgetProps = {
+export type TaskListProps = {
     title?: string
+    resource?: string
+    filter?: any
 }
 
-const MyTasks = (props: TaskWidgetProps) => {
+const TaskList = (props: TaskListProps) => {
     const translate = useTranslate();
     const createPath = useCreatePath();
     
-    const { data: tasks, total, isLoading } = useGetList<ITask>('tasks', {
+    const { data: tasks, total, isLoading, isError } = useGetList<ITask>(props.resource || 'tasks', {
         filter: {},
         sort: { field: 'status', order: 'DESC' },
         pagination: { page: 1, perPage: 8 },
@@ -23,8 +25,10 @@ const MyTasks = (props: TaskWidgetProps) => {
 
     const display = isLoading ? 'none' : 'block';
 
+    if (isError) return null;
+
     return (
-        <CardWithIcon icon={TaskAltIcon} to={createPath({ resource: `tasks`, type: 'list' })} title={props.title || "dashboard.widget.my_tasks.title"} subtitle={total || 0}>
+        <CardWithIcon icon={TaskAltIcon} to={createPath({ resource: `tasks`, type: 'list' })} title={props.title || "dashboard.widget.tasks.my_title"} subtitle={total || 0}>
             {(tasks) ? (
                 <List sx={{ display }}>
                     {tasks?.map((record: ITask) => (
@@ -57,18 +61,18 @@ const MyTasks = (props: TaskWidgetProps) => {
             <Button
                 sx={{ borderRadius: 0 }}
                 component={Link}
-                to={createPath({ resource: `tasks`, type: 'list' })}
+                to={createPath({ resource: props.resource || `tasks`, type: 'list' })}
                 size="small"
                 color="primary"
                 replace={true}
                 disabled={(!tasks) ? true : false}
             >
                 <Box p={1} sx={{ color: 'primary.main' }}>
-                    {translate('dashboard.widget.my_tasks.all')}
+                    {translate('dashboard.widget.tasks.all')}
                 </Box>
             </Button>
         </CardWithIcon>
     )
 }
 
-export default MyTasks;
+export default TaskList;

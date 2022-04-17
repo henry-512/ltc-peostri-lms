@@ -1,11 +1,15 @@
-import MyProjects from "./MyProjects";
-import MyTasks from "./MyTasks";
+import { MyProjects, AllProjects, TeamProjects } from "./Projects";
+import { MyTasks, AllTasks, TeamTasks } from "./Tasks";
 import MyNotifications from "./MyNotifications";
 import WelcomeMessage from "./WelcomeMessage";
 
 export {
     MyProjects,
     MyTasks,
+    AllProjects,
+    TeamProjects,
+    AllTasks, 
+    TeamTasks,
     MyNotifications,
     WelcomeMessage
 }
