@@ -46,13 +46,19 @@ apiRouter().then(
                     e.body = await parseBody(ctx.request)
                     e.files = ctx.request.files
 
-                    let message = `ERROR: ${e.method}:${e.path} ${e.apiName}.${e.fn} ${e.status}:\n  Message: ${e.message}\n  Verbose: ${e.verbose}\n${e.stack}\n\nBODY:\t${JSON.stringify(e.body)}\n\nFILES:\t${JSON.stringify(e.files)}`
+                    let message = `ERROR: ${e.method}:${e.path} ${e.apiName}.${e.fn} ${e.status}:\n  Message: ${e.message}\n  Verbose: ${e.verbose}\n${e.stack}\n\nBODY:\t${JSON.stringify(e.body)}\n\nFILES:\t${JSON.stringify(e.files)}\n`
 
                     console.log(message)
 
                     ctx.status = e.status
                     ctx.body = {
                         error: e.message,
+                    }
+                    if (ctx.state.user instanceof AuthUser) {
+                        let u = ctx.state.user
+                        if (await u.getPermission('verboseLogging')) {
+                            ctx.body.verbose = message
+                        }
                     }
                 } else {
                     console.log('Non-api error thrown:')

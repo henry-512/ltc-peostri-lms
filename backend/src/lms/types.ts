@@ -95,11 +95,13 @@ export type FetchType = 'ASSIGNED' | 'TEAM' | 'ALL'
 export interface IPermission {
     taskFetching: FetchType
     projectFetching: FetchType
+    verboseLogging: boolean
 }
 
 export const defaultPermissions: IPermission = {
     taskFetching: 'ASSIGNED',
     projectFetching: 'ASSIGNED',
+    verboseLogging: false,
 }
 
 export interface IRank extends IArangoIndexes {
