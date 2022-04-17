@@ -34,10 +34,6 @@ const Dashboard = (props: DashboardProps) => {
                     <VerticalSpacer />
                     <AllProjects />
                 </Box>
-                <Spacer />
-                <Box flex="1" display="flex" flexDirection="column">
-                    <MyNotifications />
-                </Box>
             </DashboardWrapper>
         </>
     )
