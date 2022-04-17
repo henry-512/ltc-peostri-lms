@@ -46,7 +46,7 @@ class Filedata extends DBManager<IFile> {
         return {
             src,
             title: file.name,
-            author: user.getId(),
+            author: user.id,
         }
     }
 

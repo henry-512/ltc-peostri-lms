@@ -276,7 +276,7 @@ export async function getProjectStatusCount(
         case 'ASSIGNED':
             return await queryFilterCount(ctx, m, {
                 key: 'users',
-                inArray: (<AuthUser>ctx.state.user).getId(),
+                inArray: (<AuthUser>ctx.state.user).id,
             })
         default:
             return await queryFilterCount(ctx, m)
@@ -296,7 +296,7 @@ export async function getProjectStatusList(
         case 'ASSIGNED':
             return await queryFilter(ctx, m, {
                 key: 'users',
-                inArray: (<AuthUser>ctx.state.user).getId(),
+                inArray: (<AuthUser>ctx.state.user).id,
             })
         default:
             return await queryFilter(ctx, m)

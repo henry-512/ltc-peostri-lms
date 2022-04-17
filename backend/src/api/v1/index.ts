@@ -103,9 +103,7 @@ export function routerBuilder(version: string) {
                     // NOTIFICATIONS
                     .get('list', async (ctx) => {
                         let user: AuthUser = ctx.state.user
-                        let id = user.getId()
-
-                        await UserManager.db.assertIdExists(id)
+                        let id = user.id
 
                         let results =
                             await NotificationManager.getNotificationsAssignedToUser(
@@ -117,9 +115,7 @@ export function routerBuilder(version: string) {
                     })
                     .put('readall', async (ctx) => {
                         let user: AuthUser = ctx.state.user
-                        let id = user.getId()
-
-                        await UserManager.db.assertIdExists(id)
+                        let id = user.id
 
                         await NotificationManager.readAllForUser(id)
 

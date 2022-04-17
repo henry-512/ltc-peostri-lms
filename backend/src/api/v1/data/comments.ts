@@ -29,7 +29,7 @@ class Comment extends DBManager<IComment> {
         doc: any
     ): Promise<IComment> => {
         if (!doc.author) {
-            doc.author = user.getId()
+            doc.author = user.id
         }
         return doc
     }
@@ -46,7 +46,7 @@ class Comment extends DBManager<IComment> {
         let com: IComment = {
             id: this.db.generateDBID(),
             content: str,
-            author: user.getId(),
+            author: user.id,
             parent: par,
         }
         return com

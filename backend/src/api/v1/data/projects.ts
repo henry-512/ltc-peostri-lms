@@ -67,7 +67,7 @@ class Project extends DBManager<IProject> {
         let id = await super.create(user, files, d, real)
 
         await NotificationManager.buildAndSaveNotification(
-            user.getId(),
+            user.id,
             `Project ${id} created.`,
             {
                 resource: 'projects',
@@ -88,7 +88,7 @@ class Project extends DBManager<IProject> {
         await super.update(user, files, id, doc, real)
 
         await NotificationManager.buildAndSaveNotification(
-            user.getId(),
+            user.id,
             `Project ${id} updated.`,
             {
                 resource: 'projects',

@@ -41,7 +41,7 @@ class Waive extends DataManager<IWaiveData> {
         doc: any
     ): Promise<IWaiveData> => {
         if (!doc.author) {
-            doc.author = user.getId()
+            doc.author = user.id
         }
         return doc
     }
