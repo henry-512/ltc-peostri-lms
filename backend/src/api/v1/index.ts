@@ -104,7 +104,9 @@ export function routerBuilder(version: string) {
                         await send(ctx, pathTo)
                     })
                     .get('static/:id', async (ctx) => {
-                        let id = await FiledataManager.db.assertKeyExists(ctx.params.id)
+                        let id = await FiledataManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
                         let pathTo = await FiledataManager.read(
                             ctx.state.user,
                             id
