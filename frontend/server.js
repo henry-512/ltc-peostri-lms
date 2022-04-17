@@ -9,5 +9,9 @@ app.get('/*', function (req, res) {
      res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
+app.get('/docs', function (req, res) {
+    res.sendFile(path.join(__dirname, 'docs', 'index.html'));
+});
+
 app.listen(process.env.APP_PORT || 3000);
 console.log("Server is up and running on port: " + process.env.APP_PORT || 3000);
