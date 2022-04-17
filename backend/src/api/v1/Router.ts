@@ -173,10 +173,12 @@ export class UserRouter<Type extends IArangoIndexes> extends Router {
         }
 
         if (!this.routerOpts?.noAll) {
-            this.get('all/count', async (ctx) => {
+            let prefix =  (this.routerOpts?.noAssigned && this.routerOpts?.noDefault) ? '' : 'all/'
+
+            this.get(`${prefix}count`, async (ctx) => {
                 await getProjectStatusCount(ctx, this.manager, 'ALL')
             })
-            this.get('all/list', async (ctx) => {
+            this.get(`${prefix}list`, async (ctx) => {
                 await getProjectStatusList(ctx, this.manager, 'ALL')
             })
         }

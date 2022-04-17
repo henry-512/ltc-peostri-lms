@@ -14,7 +14,7 @@ apiRouter().then(
     async (api) => {
         // Output all router paths
         console.log(`API Router stack`)
-        console.log(api.stack.map((i) => `${i.path} ${i.methods}`))
+        api.stack.map((i) => console.log(`\t${i.path} ${i.methods}`))
 
         app.use(logger())
         app.use(
