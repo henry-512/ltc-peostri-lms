@@ -1,6 +1,7 @@
 import { stringify } from 'query-string';
 import { fetchUtils, DataProvider } from 'ra-core';
 import { IModule, IProject } from './types';
+import { generateBase64UUID } from './uuidProvider';
 
 /**
  * Maps react-admin queries to a simple REST API
@@ -46,13 +47,15 @@ const client = (url: any, options: fetchUtils.Options = {}) => {
 }
 
 const convertProjectToFormData = (data: IProject) => {
+    const localData = data;
     let formData = new FormData();
 
-    for (let step of Object.values<IModule[]>(data.modules)) {
+    for (let step of Object.values<IModule[]>(localData.modules)) {
         for (let module of step) {
             if (!module.waive_module) continue;
             if (!module.waive) continue;
             if (!module.waive.file) continue;
+            if (!module.id) module.id = generateBase64UUID();
 
             if (module.waive.file) {
                 formData.append(`${module.id}-${module.waive.file.title}`, module.waive.file.rawFile)
@@ -61,7 +64,7 @@ const convertProjectToFormData = (data: IProject) => {
         }
     }
 
-    let jsonData = new Blob([JSON.stringify(data)], {
+    let jsonData = new Blob([JSON.stringify(localData)], {
         type: 'application/json'
     })
 
