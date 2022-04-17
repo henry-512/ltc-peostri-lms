@@ -120,6 +120,12 @@ export function routerBuilder(version: string) {
             .use(new UserRouter('tasks', TaskManager).build())
             .use(new UserRouter('projects', ProjectManager).build())
             .use(
+                new UserRouter('modules', ModuleManager, {
+                    noAssigned: true,
+                    noDefault: true,
+                }).build()
+            )
+            .use(
                 new Router({ prefix: 'notifications/' })
                     // NOTIFICATIONS
                     .get('list', async (ctx) => {

@@ -127,6 +127,13 @@ export interface UserRouterOpts {
     noListGet?: boolean
 }
 
+export const allDisabledUser: UserRouterOpts = {
+    noAssigned: true,
+    noAll: true,
+    noDefault: true,
+    noListGet: true,
+}
+
 export class UserRouter<Type extends IArangoIndexes> extends Router {
     /**
      * Create a new router.
@@ -307,6 +314,6 @@ export async function getProjectStatusList(
                 inArray: (<AuthUser>ctx.state.user).id,
             })
         default:
-            return await queryFilter(ctx, m)
+            return await parseRunSendQuery(m, ctx)
     }
 }
