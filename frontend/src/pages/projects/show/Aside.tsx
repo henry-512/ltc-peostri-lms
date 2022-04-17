@@ -126,6 +126,24 @@ const EventList = () => {
                             </Box>
                         </Grid>
                     </Grid>
+                    <Typography variant="h6" gutterBottom>
+                        Statistics
+                    </Typography>
+                    <Grid container rowSpacing={1} columnSpacing={1}>
+                        <Grid item xs={6} display="flex" gap={1}>
+                            <Box flexGrow={1}>
+                                <Typography variant="body2">
+                                    Steps Complete
+                                </Typography>
+                            </Box>
+                        </Grid>
+                        
+                        <Grid item xs={6} display="flex" gap={1}>
+                            <Box flexGrow={1}>
+                                <FunctionField record={record} render={(record: any) => `0 of ${Object.keys(record.modules).length}`} />
+                            </Box>
+                        </Grid>
+                    </Grid>
                 </CardContent>
             </Card>
         </Box>

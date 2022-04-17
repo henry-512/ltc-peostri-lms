@@ -16,7 +16,7 @@ const Dashboard = (props: DashboardProps) => {
             <WelcomeMessage />
             <DashboardWrapper>
                 <Box flex="1" display="flex" flexDirection="column">
-                    <MyProjects />
+                    <MyNotifications />
                 </Box>
                 <Spacer />
                 <Box flex="1" display="flex" flexDirection="column">
@@ -24,7 +24,7 @@ const Dashboard = (props: DashboardProps) => {
                 </Box>
                 <Spacer />
                 <Box flex="1" display="flex" flexDirection="column">
-                    <MyNotifications />
+                    <MyProjects />
                 </Box>
                 <Spacer />
                 <Box flex="1" display="flex" flexDirection="column">
