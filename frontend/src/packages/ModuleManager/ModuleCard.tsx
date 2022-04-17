@@ -86,8 +86,8 @@ const ModuleCard = ({ info, index, stepKey, changeStep, changeIndex, fields, upd
         if (parseInt(stepKey?.split('-')[1] || "0") == (moduleStepCount - 1)) {
             changeIndex(modules.length);
         }
-
-        updateComponent();
+        
+        return;
     }
 
     return (

@@ -53,7 +53,7 @@ const ModuleManager = (props: ModuleManagerProps) => {
         return (modules[`key-${step}`] && modules[`key-${step}`].length > 0) ? (modules[`key-${step}`].length) : 0
     }
 
-    const updateComponent = () => setModules(getValues('modules'));
+    const updateComponent = () => setModules({...getValues('modules')});
 
     //Current Step Key
     const [step, setStep] = useState(() => calculateStep());
@@ -92,8 +92,6 @@ const ModuleManager = (props: ModuleManagerProps) => {
         stepArray.pop();
 
         setValue(`modules.key-${step}`, stepArray);
-
-        updateComponent();
     }
 
     /**
