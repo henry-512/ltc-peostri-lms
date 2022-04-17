@@ -1,5 +1,6 @@
 import { Box, Card, CardActions, Button, Typography } from '@mui/material';
 import HelpIcon from '@mui/icons-material/Help';
+import CodeIcon from '@mui/icons-material/Code';
 import { useTranslate } from 'react-admin';
 
 import welcomeImage from './welcome.png'
@@ -48,6 +49,14 @@ const WelcomeMessage = () => {
                             startIcon={<HelpIcon />}
                         >
                             {translate('dashboard.welcome.help_button')}
+                        </Button>
+                        <Button
+                            variant="contained"
+                            href="/docs"
+                            target="_blank"
+                            startIcon={<CodeIcon />}
+                        >
+                            {translate('dashboard.welcome.dev_help_button')}
                         </Button>
                     </CardActions>
                 </Box>

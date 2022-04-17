@@ -4,7 +4,8 @@ const domainMessages = {
             "welcome": {
                 "title": "Welcome to the Logistics Management System!",
                 "subtitle": "This is your one stop shop for handling all of your logistics management. If you run into any troubles, please check out the help guide.",
-                "help_button": "User Help Guide"
+                "help_button": "User Help Guide",
+                "dev_help_button": "Frontend Documentation"
             },
             "widget": {
                 "my_projects": {
