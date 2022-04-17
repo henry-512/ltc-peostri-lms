@@ -48,6 +48,7 @@ class Project extends DBManager<IProject> {
                     type: 'fkey',
                     foreignApi: TeamManager,
                     optional: true,
+                    getIdKeepAsRef: true,
                 },
                 ttc: {
                     type: 'number',
@@ -74,6 +75,7 @@ class Project extends DBManager<IProject> {
             user.id,
             `Project ${id} created.`,
             {
+                display: d.title,
                 resource: 'projects',
                 id: this.db.asKey(id),
             }
@@ -95,6 +97,7 @@ class Project extends DBManager<IProject> {
             user.id,
             `Project ${id} updated.`,
             {
+                display: doc.title,
                 resource: 'projects',
                 id: this.db.asKey(id),
             }

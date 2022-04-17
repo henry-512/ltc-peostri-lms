@@ -36,6 +36,10 @@ export class APIError extends Error {
     public path?: string
     // API Method that threw the message
     public method?: string
+    // CTX Body that threw the message
+    public body?: any
+    // CTX Files that threw the message
+    public files?: any
     // Server-side message
     public verbose: string
 

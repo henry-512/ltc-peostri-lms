@@ -3,6 +3,7 @@ import Koa from 'koa'
 import koaBody from 'koa-body'
 import logger from 'koa-logger'
 import { AuthUser } from './api/auth'
+import { parseBody } from './api/v1/Router'
 import { config } from './config'
 import { APIError, HTTPStatus } from './lms/errors'
 import { apiRouter } from './router'
@@ -42,8 +43,10 @@ apiRouter().then(
                 if (e instanceof APIError) {
                     e.path = ctx.request.url
                     e.method = ctx.request.method
+                    e.body = await parseBody(ctx.request)
+                    e.files = ctx.request.files
 
-                    let message = `ERROR: ${e.method}:${e.path} ${e.apiName}.${e.fn} ${e.status}:\n  Message: ${e.message}\n  Verbose: ${e.verbose}\n${e.stack}`
+                    let message = `ERROR: ${e.method}:${e.path} ${e.apiName}.${e.fn} ${e.status}:\n  Message: ${e.message}\n  Verbose: ${e.verbose}\n${e.stack}\n\nBODY:\t${JSON.stringify(e.body)}\n\nFILES:\t${JSON.stringify(e.files)}`
 
                     console.log(message)
 

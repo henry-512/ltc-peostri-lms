@@ -5,9 +5,12 @@ import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
 import { UserManager } from './users'
 
-class NotificationSender extends DataManager<ISender> {
+class Sender extends DataManager<ISender> {
     constructor() {
         super('Sender', {
+            display: {
+                type: 'string',
+            },
             resource: {
                 type: 'string',
             },
@@ -18,7 +21,7 @@ class NotificationSender extends DataManager<ISender> {
     }
 }
 
-export const SenderManager = new NotificationSender()
+export const SenderManager = new Sender()
 
 class Notification extends DBManager<INotification> {
     constructor() {
