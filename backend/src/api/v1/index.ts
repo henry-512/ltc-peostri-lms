@@ -28,6 +28,7 @@ export function routerBuilder(version: string) {
             .use(new AdminRouter('modules', ModuleManager).routes())
             .use(new AdminRouter('comments', CommentManager).routes())
             .use(new AdminRouter('projects', ProjectManager).routes())
+            .use(new AdminRouter('users', UserManager).routes())
             .use(new AdminRouter('teams', TeamManager).routes())
             .use(new AdminRouter('log/users', UserLogManager).routes())
             .use(
@@ -93,8 +94,6 @@ export function routerBuilder(version: string) {
                     .routes()
             )
             // User routes
-            // Default
-            .use(new AdminRouter('users', UserManager).routes())
             // Tasks
             .use(new UserRouter('tasks', TaskManager).build())
             .use(new UserRouter('projects', ProjectManager).build())

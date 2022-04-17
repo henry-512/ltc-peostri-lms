@@ -45,8 +45,8 @@ class Filemeta extends DBManager<IFilemeta> {
         str: string,
         par: string
     ): Promise<IFilemeta> => {
-        if (!files[str]) {
-            this.error(
+        if (files[str] === undefined) {
+            throw this.error(
                 'buildFromString',
                 HTTPStatus.BAD_REQUEST,
                 'Unexpected file metadata',
@@ -54,6 +54,7 @@ class Filemeta extends DBManager<IFilemeta> {
             )
         }
 
+        // Strip the useful information out of the file
         let fileData: IFileData = files[str] as IFileData
         let latest = await FiledataManager.writeFile(user, fileData)
 

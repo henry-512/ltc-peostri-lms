@@ -48,6 +48,7 @@ class Project extends DBManager<IProject> {
                     type: 'fkey',
                     foreignApi: TeamManager,
                     optional: true,
+                    getIdKeepAsRef: true,
                 },
                 ttc: {
                     type: 'number',
