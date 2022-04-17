@@ -1,14 +1,11 @@
 import { INotification, NotificationTypes } from "src/util/types";
 import { styled } from '@mui/material/styles';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Box, Divider, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useCreatePath, useDataProvider } from "react-admin";
 import classnames from "classnames";
 import { dateFormatToString } from "src/util/dateFormatter";
+import NotificationIcon from "src/components/notifications/NotificationIcon";
 
 const PREFIX = 'NotificationsItem';
 
@@ -56,25 +53,6 @@ const Root = styled('div')(({ theme }) => ({
         color: 'rgba(0, 0, 0, 0.87)',
     }
 }));
-
-export type NotificationIconProps = {
-    type: NotificationTypes
-}
-
-const NotificationIcon = (props: NotificationIconProps) => {
-    switch(props.type) {
-        case 'PROJECT':
-            return <CheckBoxIcon fontSize="large" />
-        case 'MODULE':
-            return <ViewModuleIcon fontSize="large" />
-        case 'TASK':
-            return <AssignmentIcon fontSize="large" />
-        case 'USER':
-            return <AccountCircleIcon fontSize="large" />
-        default:
-            return <CheckBoxIcon fontSize="large" />
-    }
-}
 
 export type NotificationsItemProps = {
     record: INotification

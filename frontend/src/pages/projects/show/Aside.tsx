@@ -22,7 +22,7 @@ import {
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { getProgressStatus, getProgressStatusColor} from 'src/util/getProgressStatus';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
-import AvatarGroupField from './AvatarGroupField';
+import AvatarGroupField from '../../../components/users/AvatarGroupField';
 
 const Aside = () => {
     const record = useRecordContext();

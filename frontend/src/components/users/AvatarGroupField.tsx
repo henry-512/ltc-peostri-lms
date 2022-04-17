@@ -8,6 +8,7 @@ type AvatarGroupFieldProps = {
     height?: number
     fontSize?: string
     max?: number
+    color?: string
 }
 
 const AvatarGroupField = (props: AvatarGroupFieldProps) => {
@@ -25,7 +26,8 @@ const AvatarGroupField = (props: AvatarGroupFieldProps) => {
                         <Avatar alt={`${user.firstName} ${user.lastName}`} src={user.avatar} sx={{ 
                             width: props.width || 24, 
                             height: props.height || 24,
-                            fontSize: props.fontSize || '18px'
+                            fontSize: props.fontSize || '18px',
+                            bgColor: props.color || 'inherit'
                         }} />
                     </Tooltip>
                 ))}

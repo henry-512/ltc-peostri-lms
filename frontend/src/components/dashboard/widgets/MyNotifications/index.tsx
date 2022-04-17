@@ -1,53 +1,32 @@
-import CardWithIcon from "./base/CardWithIcon"
+import CardWithIcon from "../base/CardWithIcon"
 import { INotification } from "src/util/types";
-import { Box, Button, Divider, List, ListItem, ListItemText, styled, Typography } from "@mui/material";
-import { Identifier, LinearProgress, useCreatePath, useGetList, useTranslate, useUpdate } from "react-admin";
+import { Box, Button, Divider, List, ListItem, ListItemText } from "@mui/material";
+import { Identifier, LinearProgress, useCreatePath, useGetList, useIsDataLoaded, useTranslate, useUpdate } from "react-admin";
 import { Link } from "react-router-dom";
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
-import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
+import NotificationEmpty from "./NotificationEmpty";
+import NotificationListItem from "./NotificationListItem";
 
-export type ProjectCountProps = {
+export type MyNotificationsProps = {
     title?: string
 }
 
-const classes = {
-    fontSizeLarge: `NotificationsEmpty-fontSizeLarge`
-};
-
-const Root = styled('div')(({ theme }) => ({
-    [`& .${classes.fontSizeLarge}`]: {
-        fontSize: '48px'
-    }
-}));
-
-const NotificationsEmpty = () => {
-    const translate = useTranslate();
-    return (
-        <Root>
-            <Box minWidth='calc(300px - 2rem)' display="flex" justifyContent="center" alignItems="center" padding="1rem 1rem" flexDirection="column" >
-                <NotificationsOffIcon fontSize="large" color='primary' classes={classes} />
-                <Typography variant="subtitle1" >
-                    {translate('notification.empty')}
-                </Typography>
-            </Box>
-        </Root>
-    );
-}
-
-const MyNotifications = (props: ProjectCountProps) => {
+const MyNotifications = (props: MyNotificationsProps) => {
     const translate = useTranslate();
     const createPath = useCreatePath();
     const [update] = useUpdate();
     
     const { data: notifications, total, isLoading } = useGetList<INotification>('notifications', {
-        filter: {},
+        filter: { read: false },
         sort: { field: 'read', order: 'ASC' },
         pagination: { page: 1, perPage: 8 },
     });
 
     const display = isLoading ? 'none' : 'block';
 
-    const markRead = (id: Identifier) => {
+    const markRead = (id: Identifier, read: boolean) => {
+        if (read) return;
+
         update('notifications/read', { id: id, data: {}, previousData: { id: id } })
         .then(() => {
             return;
@@ -68,15 +47,14 @@ const MyNotifications = (props: ProjectCountProps) => {
                             component={Link}
                             to={createPath({ resource: `notifications`, id: record.id, type: 'show' })}
                             replace={true}
-                            onClick={() => markRead(record.id)}
+                            onClick={() => markRead(record.id, record.read)}
                             alignItems="flex-start"
                         >
                             <ListItemText
-                                primary={record.content}
-                                secondary={String(record.read)}
+                                primary={<NotificationListItem record={record} />}
                                 sx={{
                                     overflowY: 'hidden',
-                                    height: '4em',
+                                    height: 'auto',
                                     display: '-webkit-box',
                                     WebkitLineClamp: 2,
                                     WebkitBoxOrient: 'vertical',
@@ -87,7 +65,7 @@ const MyNotifications = (props: ProjectCountProps) => {
                     ))}
                 </List>
             ) : (
-                (isLoading) ? <Box display="flex" justifyContent="center"><LinearProgress /></Box> : <NotificationsEmpty />
+                (isLoading) ? <Box display="flex" justifyContent="center"><LinearProgress /></Box> : <NotificationEmpty />
             )}
             <Divider />
             <Button

@@ -1,45 +1,45 @@
-import CardWithIcon from "./base/CardWithIcon"
-import { ITask } from "src/util/types";
+import CardWithIcon from "../base/CardWithIcon"
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import { IProject } from "src/util/types";
 import { Box, Button, Divider, List, ListItem, ListItemText } from "@mui/material";
-import { LinearProgress, useCreatePath, useGetList, useTranslate } from "react-admin";
+import { LinearProgress, useCreatePath, useGetList, useIsDataLoaded, useTranslate } from "react-admin";
 import { Link } from "react-router-dom";
-import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import ProjectListItem from "./ProjectListItem";
 
-export type TaskWidgetProps = {
+export type ProjectCountProps = {
     title?: string
 }
 
-const MyTasks = (props: TaskWidgetProps) => {
+const MyProjects = (props: ProjectCountProps) => {
     const translate = useTranslate();
     const createPath = useCreatePath();
-    
-    const { data: tasks, total, isLoading } = useGetList<ITask>('tasks', {
+
+    const { data: projects, total, isLoading } = useGetList<IProject>('projects', {
         filter: {},
-        sort: { field: 'read', order: 'DESC' },
+        sort: { field: 'status', order: 'DESC' },
         pagination: { page: 1, perPage: 8 },
     });
 
     const display = isLoading ? 'none' : 'block';
-
+    
     return (
-        <CardWithIcon icon={TaskAltIcon} to={createPath({ resource: `tasks`, type: 'list' })} title={props.title || "dashboard.widget.my_tasks.title"} subtitle={total || 0}>
-            {(tasks) ? (
+        <CardWithIcon icon={ListAltIcon} to={createPath({ resource: `projects`, type: 'list' })} replace={true} title={props.title || "dashboard.widget.my_projects.title"} subtitle={total}>
+            {(projects) ?
                 <List sx={{ display }}>
-                    {tasks?.map((record: ITask) => (
+                    {projects?.map((record: IProject) => (
                         <ListItem
                             key={record.id}
                             button
                             component={Link}
-                            to={createPath({ resource: `tasks`, id: record.id, type: 'show' })}
+                            to={createPath({ resource: `projects`, id: record.id, type: 'show' })}
                             replace={true}
                             alignItems="flex-start"
                         >
                             <ListItemText
-                                primary={record.title}
-                                secondary={record.type}
+                                primary={<ProjectListItem record={record} />}
                                 sx={{
                                     overflowY: 'hidden',
-                                    height: '4em',
+                                    height: 'auto',
                                     display: '-webkit-box',
                                     WebkitLineClamp: 2,
                                     WebkitBoxOrient: 'vertical',
@@ -49,24 +49,24 @@ const MyTasks = (props: TaskWidgetProps) => {
                         </ListItem>
                     ))}
                 </List>
-            ) : (
-                (isLoading) ? <Box display="flex" justifyContent="center"><LinearProgress /></Box> : null
-            )}
+            : (isLoading) ? 
+                <Box display="flex" justifyContent="center"><LinearProgress /></Box> 
+            : null }
             <Divider />
             <Button
                 sx={{ borderRadius: 0 }}
                 component={Link}
-                to={createPath({ resource: `tasks`, type: 'list' })}
+                to={createPath({ resource: `projects`, type: 'list' })}
+                replace={true}
                 size="small"
                 color="primary"
-                replace={true}
             >
                 <Box p={1} sx={{ color: 'primary.main' }}>
-                    {translate('dashboard.widget.my_tasks.all')}
+                    {translate('dashboard.widget.my_projects.all')}
                 </Box>
             </Button>
         </CardWithIcon>
     )
 }
 
-export default MyTasks;
+export default MyProjects;
