@@ -78,7 +78,7 @@ const Menu = ({ dense = false }: MenuProps) => {
             />
             <MenuItemLink
                 to={{
-                    pathname: '/projects'
+                    pathname: '/projects/default'
                 }}
                 primaryText={translate("layout.menu.my_projects")}
                 leftIcon={<AdminProjectIcon />}

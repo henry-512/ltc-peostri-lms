@@ -14,6 +14,7 @@ import { ModuleTemplateCreate, ModuleTemplateEdit, ModuleTemplateList } from './
 import Layout from 'src/packages/Layout';
 import { ProjectShow, ProjectList } from './pages/projects';
 import { lightTheme } from 'src/config/themes';
+import { Timeline } from './packages/Timeline';
 
 const API_URL = process.env.REACT_APP_API_URL + "/" + process.env.REACT_APP_API_VERSION || "http://localhost:5000/api/v1";
 
@@ -49,7 +50,8 @@ const App = () => {
             <Resource name="admin/teams" options={{ label: "layout.menu.teams" }} show={ShowGuesser} list={TeamList} create={TeamCreate} edit={TeamEdit}  />
 
             <Resource name="tasks" options={{ label: "layout.menu.my_tasks" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
-            <Resource name="projects" options={{ label: "layout.menu.my_projects" }} show={ProjectShow} list={ProjectList} />
+            <Resource name="projects" options={{ label: "layout.menu.my_projects" }} show={ProjectShow} />
+            <Resource name="projects/default" options={{ label: "layout.menu.my_projects" }} list={Timeline} />
             <Resource name="notifications" list={ListGuesser} />
         </Admin>
     );
