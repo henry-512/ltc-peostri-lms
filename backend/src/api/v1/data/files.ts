@@ -38,7 +38,10 @@ class Filedata extends DBManager<IFile> {
         let id = generateBase64UUID()
         let pathTo: string = id + '-' + file.name
 
-        await fs.promises.rename(file.path, path.join(FILE_PATH, pathTo))
+        // Spoof upload
+        if (config.releaseFileSystem) {
+            await fs.promises.rename(file.path, path.join(FILE_PATH, pathTo))
+        }
 
         return {
             id,
@@ -59,11 +62,14 @@ class Filedata extends DBManager<IFile> {
 
     public async readSource(user: AuthUser, src: string) {
         let pathTo = path.join(FILE_PATH, src ?? '')
-        if (!(await fs.promises.stat(pathTo)).isFile) {
-            this.internal('readLatest', `${pathTo} is not a file`)
+        if ((await fs.promises.stat(pathTo)).isFile()) {
+            return pathTo
+        } else if(!config.releaseFileSystem) {
+            console.log(`File ${pathTo} dne, using 404.pdf instead`)
+            return path.join(FILE_PATH, '404.pdf')
+        } else {
+            throw this.internal('readLatest', `${pathTo} is not a file`)
         }
-
-        return pathTo
     }
 }
 

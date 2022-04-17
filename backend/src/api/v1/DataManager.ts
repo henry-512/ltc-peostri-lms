@@ -1,7 +1,7 @@
 import { config } from '../../config'
 import { HTTPStatus, IErrorable } from '../../lms/errors'
 import { IDataFieldData, IField, IForeignFieldData } from '../../lms/FieldData'
-import { IArangoIndexes, ICreateUpdate } from '../../lms/types'
+import { ICreateUpdate } from '../../lms/types'
 import { isDBId, isDBKey, PTR, splitId, str } from '../../lms/util'
 import { AuthUser } from '../auth'
 
