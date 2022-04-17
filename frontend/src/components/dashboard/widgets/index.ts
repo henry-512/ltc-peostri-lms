@@ -1,7 +1,11 @@
 import MyProjects from "./MyProjects";
-import TaskCount from "./TaskCount";
+import MyTasks from "./MyTasks";
+import MyNotifications from "./MyNotifications";
+import WelcomeMessage from "./WelcomeMessage";
 
 export {
     MyProjects,
-    TaskCount
+    MyTasks,
+    MyNotifications,
+    WelcomeMessage
 }

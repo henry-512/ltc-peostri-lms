@@ -1,14 +1,10 @@
 import { Box, Typography, Tab, IconButton, Breadcrumbs } from "@mui/material";
 import { useState } from "react";
-import { FunctionField, Link, ReferenceArrayField, ReferenceField, Show, SimpleShowLayout, TextField } from "react-admin";
-import { SectionTitle } from "src/components/misc";
-import getProgressStatus from "src/util/getProgressStatus";
+import { FunctionField, Link, Show, SimpleShowLayout } from "react-admin";
 import Aside from "./Aside";
-import AvatarGroupField from "./AvatarGroupField";
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
-import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { useNavigate } from "react-router";
 
 type ProjectTabs = "DOCS" | "INFO" | "MODULES" | "TASKS"

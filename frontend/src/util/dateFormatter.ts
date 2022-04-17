@@ -1,11 +1,11 @@
-export const dateFormatToString = (dateString: string, words?: boolean) => {
+export const dateFormatToString = (dateString: string | Date, words?: boolean) => {
     const date = new Date(dateString);
 
-    const dateOptions: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' };
+    const dateOptions: Intl.DateTimeFormatOptions = { hour12: false, weekday: undefined, year: 'numeric', month: 'numeric', day: 'numeric', hour: undefined, minute: undefined, second: undefined  };
 
     if (words) return `${date.toLocaleDateString('en-GB', dateOptions)} at ${date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: undefined })}`;
 
-    return `${date.getHours()}:${date.getMinutes()} ${date.getMonth()}/${date.getDate()}/${date.getFullYear()}`
+    return `${date.toLocaleDateString('en-GB', dateOptions)}`
 }
 
 export const dateOptions = { hour12: false, weekday: undefined, year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: undefined  }

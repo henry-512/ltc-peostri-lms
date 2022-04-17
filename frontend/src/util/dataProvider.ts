@@ -108,6 +108,7 @@ const dataProvider = (
 
         switch (resource) {
             case "projects":
+            case "tasks":
                 url = `${apiUrl}/${resource}/default/list?${stringify(query)}`;
 
                 return httpClient(url, options).then(({ headers, json }: HTTPClientPromiseReturn) => {

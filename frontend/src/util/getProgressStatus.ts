@@ -1,3 +1,7 @@
+import green from '@mui/material/colors/green';
+import amber from '@mui/material/colors/amber';
+import red from '@mui/material/colors/red';
+
 const getProgressStatus = (suspense: string | Date) => {
     const recordDate = new Date(suspense);
     const nowTime = Date.now();
@@ -14,4 +18,18 @@ const getProgressStatus = (suspense: string | Date) => {
         return "RED"
 }
 
-export default getProgressStatus;
+const getProgressStatusColor = (suspense: string | Date) => {
+    switch(getProgressStatus(suspense)) {
+        case 'GREEN':
+            return green[500]
+        case 'AMBER':
+            return amber[500]
+        case 'RED':
+            return red[500]
+    }
+}
+
+export {
+    getProgressStatus,
+    getProgressStatusColor   
+};

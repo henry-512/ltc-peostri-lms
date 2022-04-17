@@ -11,6 +11,7 @@ export type CardWithIconProps = {
     to: string;
     title?: string;
     subtitle?: string | number;
+    replace?: boolean
     children?: ReactNode;
 }
 
@@ -32,7 +33,7 @@ const CardWithIcon = (props: CardWithIconProps) => {
                 },
             }}
         >
-            <Link to={to}>
+            <Link to={to} replace={props.replace}>
                 <Box
                     sx={{
                         overflow: 'inherit',

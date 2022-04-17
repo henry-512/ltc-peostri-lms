@@ -1,6 +1,11 @@
 const domainMessages = {
     "en": {
         "dashboard": {
+            "welcome": {
+                "title": "Welcome to the Logistics Management System!",
+                "subtitle": "This is your one stop shop for handling all of your logistics management. If you run into any troubles, please check out the help guide.",
+                "help_button": "User Help Guide"
+            },
             "widget": {
                 "my_projects": {
                     "title": "My Projects",
@@ -10,8 +15,9 @@ const domainMessages = {
                     "title": "My Notifications",
                     "all": "View All Notifications"
                 },
-                "task_count": {
-                    "title": "Awaiting Tasks"
+                "my_tasks": {
+                    "title": "My Tasks",
+                    "all": "View All Tasks"
                 }
             }
         },

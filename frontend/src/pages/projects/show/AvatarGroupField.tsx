@@ -20,7 +20,7 @@ const AvatarGroupField = (props: AvatarGroupFieldProps) => {
             <AvatarGroup max={props.max || 4} sx={{
                 flexDirection: 'row'
             }}>
-                {data.map((user: IUser) => (
+                {data?.map((user: IUser) => (
                     <Tooltip title={`${user.firstName} ${user.lastName}`}>
                         <Avatar alt={`${user.firstName} ${user.lastName}`} src={user.avatar} sx={{ 
                             width: props.width || 24, 

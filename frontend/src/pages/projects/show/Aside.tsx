@@ -20,7 +20,7 @@ import {
     Grid,
 } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import getProgressStatus from 'src/util/getProgressStatus';
+import { getProgressStatus, getProgressStatusColor} from 'src/util/getProgressStatus';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import AvatarGroupField from './AvatarGroupField';
 
@@ -63,7 +63,7 @@ const EventList = () => {
                                     Progress Status
                                 </Typography>
                                 <FunctionField record={record} render={(record: any) => `${getProgressStatus(record.suspense)}`} sx={{
-                                    color: `${getProgressStatus(record.suspense)?.toLowerCase()}`
+                                    color: `${getProgressStatusColor(record.suspense)}`
                                 }} />
                             </Box>
                         </Grid>
