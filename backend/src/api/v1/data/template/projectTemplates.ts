@@ -69,6 +69,7 @@ class ProjectTemplate extends DBManager<IProjectTemplate> {
             modules: mods,
             users: [],
             ttc: temp.ttc,
+            currentStep: 0,
         }
     }
 }

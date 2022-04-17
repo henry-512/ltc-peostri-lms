@@ -53,6 +53,10 @@ class Project extends DBManager<IProject> {
                     type: 'number',
                     optional: true,
                 },
+                currentStep: {
+                    type: 'number',
+                    default: 0,
+                },
             },
             { hasUpdate: true, hasCreate: true, defaultFilter: 'title' }
         )

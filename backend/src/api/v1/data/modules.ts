@@ -101,6 +101,10 @@ class Module extends DBManager<IModule> {
                     type: 'number',
                     optional: true,
                 },
+                currentStep: {
+                    type: 'number',
+                    default: 0,
+                },
             },
             {
                 defaultFilter: 'title',

@@ -65,6 +65,7 @@ export interface IModule extends IArangoIndexes {
     comments: Array<string> | Array<IComment>
     status: Status | 'WAIVED'
     project?: string
+    currentStep: number
 
     files: IFilemeta[]
     waive?: IWaiveData
@@ -86,6 +87,7 @@ export interface IProject extends IArangoIndexes, ICreateUpdate {
     modules: IStepper<IModule> | IStepper<string>
     users: Array<string> | Array<IUser>
     team?: string | ITeam
+    currentStep: number
 }
 
 export type ApiPerm = keyof IPermission
