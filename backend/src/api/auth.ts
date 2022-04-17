@@ -176,7 +176,7 @@ export class AuthUser {
 
                     let user = ctx.state.user
 
-                    ctx.body = await UserManager.getFromDB(user, user.getId())
+                    ctx.body = await UserManager.getFromDB(user, user.id)
                     ctx.status = HTTPStatus.OK
                     // ctx.status = HTTPStatus.NO_CONTENT
                 })

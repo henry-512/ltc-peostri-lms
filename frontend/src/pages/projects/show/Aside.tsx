@@ -1,10 +1,12 @@
 import {
     DateField,
     useTranslate,
-    useGetList,
-    RecordContextProvider,
+    FunctionField,
+    TextField,
     useLocaleState,
     useRecordContext,
+    ReferenceField,
+    ReferenceArrayField,
 } from 'react-admin';
 import {
     Typography,
@@ -18,6 +20,9 @@ import {
     Grid,
 } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import getProgressStatus from 'src/util/getProgressStatus';
+import AutorenewIcon from '@mui/icons-material/Autorenew';
+import AvatarGroupField from './AvatarGroupField';
 
 const Aside = () => {
     const record = useRecordContext();
@@ -38,43 +43,91 @@ const EventList = () => {
             <Card>
                 <CardContent>
                     <Typography variant="h6" gutterBottom>
-                        {translate('resources.customers.fieldGroups.history')}
+                        Status
+                    </Typography>
+                    <Grid container rowSpacing={1} columnSpacing={1} marginBottom="0.35em">
+                        <Grid item xs={6} display="flex" gap={1}>
+                            <AutorenewIcon fontSize="small" color="disabled" />
+                            <Box flexGrow={1}>
+                                <Typography variant="body2">
+                                    Status
+                                </Typography>
+                                <TextField source="status" />
+                            </Box>
+                        </Grid>
+                        
+                        <Grid item xs={6} display="flex" gap={1}>
+                            <AutorenewIcon fontSize="small" color="disabled" />
+                            <Box flexGrow={1}>
+                                <Typography variant="body2">
+                                    Progress Status
+                                </Typography>
+                                <FunctionField record={record} render={(record: any) => `${getProgressStatus(record.suspense)}`} sx={{
+                                    color: `${getProgressStatus(record.suspense)?.toLowerCase()}`
+                                }} />
+                            </Box>
+                        </Grid>
+
+                        <Grid item xs={6} display="flex" gap={1}>
+                            <AccessTimeIcon fontSize="small" color="disabled" />
+                            <Box flexGrow={1}>
+                                <Typography variant="body2">
+                                    Start
+                                </Typography>
+                                <DateField record={record} source="start" />
+                            </Box>
+                        </Grid>
+                        
+                        <Grid item xs={6} display="flex" gap={1}>
+                            <AccessTimeIcon fontSize="small" color="disabled" />
+                            <Box flexGrow={1}>
+                                <Typography variant="body2">
+                                    Suspense
+                                </Typography>
+                                <DateField record={record} source="suspense" />
+                            </Box>
+                        </Grid>
+                    </Grid>
+                    <Typography variant="h6" gutterBottom>
+                        Details
                     </Typography>
                     <Grid container rowSpacing={1} columnSpacing={1}>
+                        {(record.team) ? (<>
+                            <Grid item xs={6} display="flex" gap={1}>
+                                <Box flexGrow={1}>
+                                    <Typography variant="body2">
+                                        Team
+                                    </Typography>
+                                </Box>
+                            </Grid>
+                            
+                            <Grid item xs={6} display="flex" gap={1}>
+                                <Box flexGrow={1}>
+                                    <ReferenceField source="team" reference="admin/teams">
+                                        <TextField source="name" variant="body2" fontWeight="600" />
+                                    </ReferenceField>
+                                </Box>
+                            </Grid>
+                        </>) : null}
+
                         <Grid item xs={6} display="flex" gap={1}>
-                            <AccessTimeIcon fontSize="small" color="disabled" />
                             <Box flexGrow={1}>
                                 <Typography variant="body2">
-                                    {translate(
-                                        'resources.customers.fields.first_seen'
-                                    )}
+                                    Members
                                 </Typography>
-                                <DateField
-                                    record={record}
-                                    source="first_seen"
-                                />
                             </Box>
                         </Grid>
-                        
+
                         <Grid item xs={6} display="flex" gap={1}>
-                            <AccessTimeIcon fontSize="small" color="disabled" />
                             <Box flexGrow={1}>
-                                <Typography variant="body2">
-                                    {translate(
-                                        'resources.customers.fields.last_seen'
-                                    )}
-                                </Typography>
-                                <DateField record={record} source="last_seen" />
+                                <ReferenceArrayField reference="admin/users" source="users">
+                                    <AvatarGroupField height={24} width={24} fontSize="14px" max={6} />
+                                </ReferenceArrayField>
                             </Box>
                         </Grid>
-                        
                     </Grid>
                 </CardContent>
             </Card>
-
-            <Stepper orientation="vertical" sx={{ mt: 1 }}>
-                
-            </Stepper>
         </Box>
     );
 };

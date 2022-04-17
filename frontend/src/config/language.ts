@@ -2,8 +2,13 @@ const domainMessages = {
     "en": {
         "dashboard": {
             "widget": {
-                "project_count": {
-                    "title": "Awaiting Projects"
+                "my_projects": {
+                    "title": "My Projects",
+                    "all": "View All Projects"
+                },
+                "my_notifications": {
+                    "title": "My Notifications",
+                    "all": "View All Notifications"
                 },
                 "task_count": {
                     "title": "Awaiting Tasks"

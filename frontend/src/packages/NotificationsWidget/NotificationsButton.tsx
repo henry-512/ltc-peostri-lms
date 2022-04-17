@@ -1,4 +1,4 @@
-import { IconButton, Tooltip } from "@mui/material";
+import { Badge, BadgeProps, IconButton, styled, Tooltip } from "@mui/material";
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import { useTranslate } from "react-admin";
@@ -8,6 +8,7 @@ export type NotificationsButtonProps = {
     handleMenu: any
     id?: string
     hasNew: boolean
+    count?: number
 }
 
 const NotificationsButton = (props: NotificationsButtonProps) => {
@@ -17,7 +18,9 @@ const NotificationsButton = (props: NotificationsButtonProps) => {
     return <>
         <Tooltip title={label && translate(label, { _: label })}>
             <IconButton color="inherit" onClick={handleMenu} aria-describedby={id} size="large">
-                {(hasNew === true) ? <NotificationsActiveIcon /> : <NotificationsIcon />}
+                <Badge variant="dot" color="primary" invisible={!hasNew}>
+                    {(hasNew === true) ? <NotificationsActiveIcon /> : <NotificationsIcon />}
+                </Badge>
             </IconButton>
         </Tooltip>
     </>;

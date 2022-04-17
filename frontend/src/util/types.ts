@@ -52,7 +52,7 @@ export interface ICreateUpdate {
 export interface IUser extends RaRecord {
     firstName: string;
     lastName: string;
-    avatar: null | string;
+    avatar?: string;
     rank: string | IRank;
     useEmail?: boolean;
     password?: string;

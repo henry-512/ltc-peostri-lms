@@ -1,7 +1,7 @@
-import ProjectCount from "./ProjectCount";
+import MyProjects from "./MyProjects";
 import TaskCount from "./TaskCount";
 
 export {
-    ProjectCount,
+    MyProjects,
     TaskCount
 }

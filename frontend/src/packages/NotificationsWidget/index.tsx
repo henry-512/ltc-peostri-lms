@@ -77,7 +77,7 @@ const NotificationsWidget = (props: NotificationsButtonProps) => {
 
     return (
         <>
-            <NotificationsButton id={id} label={label} handleMenu={handleMenu} hasNew={(notifications && notifications.length > 0)} />
+            <NotificationsButton id={id} label={label} handleMenu={handleMenu} hasNew={(notifications && notifications.length > 0)} count={(notifications?.length)} />
             <NotificationsMenu 
                 id={id}
                 anchorEl={anchorEl} 
