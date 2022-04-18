@@ -1,6 +1,11 @@
 import { IStepper } from './util'
 
-export type Status = 'IN_PROGRESS' | 'COMPLETED' | 'ARCHIVED' | 'AWAITING'
+export type Status =
+    | 'IN_PROGRESS'
+    | 'COMPLETED'
+    | 'ARCHIVED'
+    | 'AWAITING'
+    | 'WAIVED'
 export type TaskTypes =
     | 'DOCUMENT_UPLOAD'
     | 'DOCUMENT_REVIEW'
