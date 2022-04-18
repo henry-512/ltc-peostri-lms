@@ -1,7 +1,7 @@
 import Router from '@koa/router'
+import send from 'koa-send'
 import { HTTPStatus } from '../../lms/errors'
 import { AuthUser } from '../auth'
-import send from 'koa-send'
 import { CommentManager } from './data/comments'
 import { FilemetaManager } from './data/filemeta'
 import { FiledataManager } from './data/files'
@@ -15,8 +15,8 @@ import { TeamManager } from './data/teams'
 import { ModuleTempManager } from './data/template/moduleTemplates'
 import { ProjectTempManager } from './data/template/projectTemplates'
 import { UserManager } from './data/users'
-import { AdminRouter, getOne, sendRange, UserRouter } from './Router'
 import { Managers } from './DBManager'
+import { AdminRouter, getOne, sendRange, UserRouter } from './Router'
 
 export function routerBuilder(version: string) {
     // Resolve dependency issue
