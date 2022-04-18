@@ -73,6 +73,7 @@ const Menu = ({ dense = false }: MenuProps) => {
                 to={{
                     pathname: '/tasks'
                 }}
+                replace={true}
                 primaryText={translate("layout.menu.my_tasks")}
                 leftIcon={<AdminProjectIcon />}
             />
@@ -80,6 +81,7 @@ const Menu = ({ dense = false }: MenuProps) => {
                 to={{
                     pathname: '/projects'
                 }}
+                replace={true}
                 primaryText={translate("layout.menu.my_projects")}
                 leftIcon={<AdminProjectIcon />}
             />
@@ -94,6 +96,7 @@ const Menu = ({ dense = false }: MenuProps) => {
                     to={{
                         pathname: '/admin/projects'
                     }}
+                    replace={true}
                     primaryText={translate("layout.menu.projects")}
                     leftIcon={<AdminProjectIcon />}
                 />
@@ -101,6 +104,7 @@ const Menu = ({ dense = false }: MenuProps) => {
                     to={{
                         pathname: '/admin/users'
                     }}
+                    replace={true}
                     primaryText={translate("layout.menu.users")}
                     leftIcon={<UserIcon />}
                 />
@@ -108,6 +112,7 @@ const Menu = ({ dense = false }: MenuProps) => {
                     to={{
                         pathname: '/admin/ranks'
                     }}
+                    replace={true}
                     primaryText={translate("layout.menu.ranks")}
                     leftIcon={<PermissionIcon />}
                 />
@@ -115,6 +120,7 @@ const Menu = ({ dense = false }: MenuProps) => {
                     to={{
                         pathname: '/admin/teams'
                     }}
+                    replace={true}
                     primaryText={translate("layout.menu.teams")}
                     leftIcon={<TeamIcon />}
                 />
@@ -130,6 +136,7 @@ const Menu = ({ dense = false }: MenuProps) => {
                     to={{
                         pathname: '/admin/template/projects'
                     }}
+                    replace={true}
                     primaryText={translate("layout.menu.project_templates")}
                     leftIcon={<ProjectTemplateIcon />}
                 />
@@ -137,6 +144,7 @@ const Menu = ({ dense = false }: MenuProps) => {
                     to={{
                         pathname: '/admin/template/modules'
                     }}
+                    replace={true}
                     primaryText={translate("layout.menu.module_templates")}
                     leftIcon={<ModuleTemplateIcon />}
                 />
