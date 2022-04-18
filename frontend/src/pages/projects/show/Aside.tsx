@@ -144,7 +144,7 @@ const EventList = () => {
                         
                         <Grid item xs={6} display="flex" gap={1}>
                             <Box flexGrow={1}>
-                                <FunctionField record={record} render={(record: any) => `0 of ${Object.keys(record.modules).length}`} />
+                                <FunctionField record={record} variant="body2" fontWeight="600" render={(record: any) => `${parseInt(String(record.currentStep))} of ${Object.keys(record.modules).length}`} />
                             </Box>
                         </Grid>
                     </Grid>

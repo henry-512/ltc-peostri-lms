@@ -22,7 +22,7 @@ const AvatarGroupField = (props: AvatarGroupFieldProps) => {
                 flexDirection: 'row'
             }}>
                 {data?.map((user: IUser) => (
-                    <Tooltip title={`${user.firstName} ${user.lastName}`}>
+                    <Tooltip title={`${user.firstName} ${user.lastName}`} key={user.id}>
                         <Avatar alt={`${user.firstName} ${user.lastName}`} src={user.avatar} sx={{ 
                             width: props.width || 24, 
                             height: props.height || 24,

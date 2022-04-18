@@ -1,28 +1,20 @@
 import { Box, Typography, Tab, IconButton, Breadcrumbs, Divider, List, ListItem, ListItemText } from "@mui/material";
 import { useState } from "react";
-import { FunctionField, Link, Show, SimpleShowLayout } from "react-admin";
+import { FunctionField, Link, Show, ShowContextProvider, ShowController, SimpleShowLayout, useCreatePath } from "react-admin";
 import Aside from "./Aside";
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { useNavigate } from "react-router";
 import EditIcon from '@mui/icons-material/Edit';
-
-type ProjectTabs = "DOCS" | "COMPLETED_MODULES" | "ACTIVE_MODULES" | "LOGS";
+import TabbedProjectInfo from "./TabbedProjectInfo";
 
 type ProjectShowProps = {
 
 }
 
 const ProjectShow = (props: ProjectShowProps) => {
-    const [tab, setTab] = useState<ProjectTabs>("ACTIVE_MODULES");
-    const navigate = useNavigate();
-
-    const handleChange = (event: React.SyntheticEvent, newValue: ProjectTabs) => {
-        setTab(newValue);
-    };
-
-    const goBack = () => navigate(-1);
+    const createPath = useCreatePath();
 
     return (
         <Show aside={<Aside />} title={"Viewing Project"}>
@@ -49,9 +41,13 @@ const ProjectShow = (props: ProjectShowProps) => {
                             </Breadcrumbs>
                         </Box>
                         <Box>
-                            <IconButton size="small">
-                                <EditIcon />
-                            </IconButton>
+                            <ShowController>
+                                {({record}) => (
+                                    <IconButton size="small" component={Link} to={createPath({ resource: 'admin/projects', id: record.id, type: 'edit' })} replace={true} >
+                                        <EditIcon />
+                                    </IconButton>
+                                )}
+                            </ShowController>
                         </Box>
                     </Box>
                     <Divider sx={{ margin: "0 -15px" }} />
@@ -66,23 +62,7 @@ const ProjectShow = (props: ProjectShowProps) => {
                             </ListItem>
                         </List>
                     </Box>
-                    <TabContext value={tab}>
-                        <Box sx={{ borderBottom: 1, borderColor: 'divider', margin: '-10px 0 0 0' }}>
-                            <TabList onChange={handleChange} aria-label="Project-Tabs" variant="fullWidth">
-                                <Tab label="Active Modules" value="ACTIVE_MODULES" />
-                                <Tab label="Completed Modules" value="COMPLETED_MODULES" />
-                                <Tab label="Documents" value="DOCS" />
-                                <Tab label="Documents" value="LOGS" />
-                            </TabList>
-                        </Box>
-                        <TabPanel value="ACTIVE_MODULES">
-                            {/* IN_PROGRESS MODULES */}
-                            
-                        </TabPanel>
-                        <TabPanel value="COMPLETED_MODULES"></TabPanel>
-                        <TabPanel value="DOCS"></TabPanel>
-                        <TabPanel value="LOGS"></TabPanel>
-                    </TabContext>
+                    <TabbedProjectInfo />
                 </Box>
             </SimpleShowLayout>
         </Show>

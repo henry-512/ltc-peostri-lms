@@ -11,7 +11,7 @@ export interface ITeam extends RaRecord {
 }
 
 export type NotificationTypes = "PROJECT" | "MODULE" | "TASK" | "USER";
-export type Status = "IN_PROGRESS" | "COMPLETED" | "ARCHIVED" | "AWAITING";
+export type Status = "IN_PROGRESS" | "COMPLETED" | "ARCHIVED" | "AWAITING" | "WAIVED";
 export type TaskTypes = "DOCUMENT_UPLOAD" | "DOCUMENT_REVIEW" | "MODULE_WAIVER" | "MODULE_WAIVER_APPROVAL" | "DOCUMENT_APPROVE";
 export type UserStatus = 'ACTIVE' | 'LOCKED' | 'INACTIVE' | 'SUSPENDED';
 
@@ -125,7 +125,8 @@ export interface IProject extends RaRecord, ICreateUpdate {
     auto_assign?: boolean;
     author?: IUser | string;
     module_template_id?: string;
-    ttc?: number | string
+    ttc?: number | string;
+    currentStep?: number | string;
 }
 
 export interface IRank extends IArangoIndexes {
