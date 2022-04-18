@@ -51,17 +51,17 @@ const ProjectShow = (props: ProjectShowProps) => {
                         </Box>
                     </Box>
                     <Divider sx={{ margin: "0 -15px" }} />
-                    <Box>
+                    {/*<Box>
                         <Typography variant="h6">
                             Tasks Needing Your Attention:
                         </Typography>
-                        {/* Fetch and Display MyTasks */}
+                        {/* Fetch and Display MyTasks 
                         <List>
                             <ListItem>
                                 <ListItemText primary="Some Task" />
                             </ListItem>
                         </List>
-                    </Box>
+                    </Box>*/}
                     <TabbedProjectInfo />
                 </Box>
             </SimpleShowLayout>
