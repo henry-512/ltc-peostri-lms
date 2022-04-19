@@ -163,5 +163,54 @@ export function routerBuilder(version: string) {
                     })
                     .routes()
             )
+            // PROCEEDING
+            // Modules
+            .use(
+                new Router({ prefix: 'proceeding/modules/' })
+                    .put('complete/:id', async (ctx) => {
+                        let id = await ModuleManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
+
+                        ctx.body = await ModuleManager.complete(
+                            ctx.state.user,
+                            id,
+                            true
+                        )
+                        ctx.status = HTTPStatus.OK
+                    })
+                    .put('start/:id', async (ctx) => {
+                        let id = await ModuleManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
+
+                        ctx.body = await ModuleManager.start(ctx.state.user, id)
+                        ctx.status = HTTPStatus.OK
+                    })
+                    .put('restart/:id', async (ctx) => {
+                        let id = await ModuleManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
+
+                        ctx.body = await ModuleManager.restart(
+                            ctx.state.user,
+                            id
+                        )
+                        ctx.status = HTTPStatus.OK
+                    })
+                    .put('advance/:id', async (ctx) => {
+                        let id = await ModuleManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
+
+                        ctx.body = await ModuleManager.advance(
+                            ctx.state.user,
+                            id,
+                            true
+                        )
+                        ctx.status = HTTPStatus.OK
+                    })
+                    .routes()
+            )
     )
 }

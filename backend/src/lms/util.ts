@@ -135,7 +135,41 @@ export interface IStepper<T> {
     [key: string]: T[]
 }
 
+/**
+ * Flattens a stepper into an array of its entries
+ */
+export function compressStepper<T>(stepper: IStepper<any>) {
+    let all: T[] = []
+    for (const [_, tasks] of Object.entries(stepper)) {
+        all = all.concat(tasks)
+    }
+    return all
+}
+
 export const str = (obj: any) =>
     JSON.stringify(obj, function (k, v) {
         return k && v && typeof v !== 'number' ? '' + v : v
     })
+
+/**
+ * Builds a stepper key (key-[X]) from a number
+ */
+export function buildStepperKey(num: number) {
+    return `key-${num}`
+}
+
+/**
+ * Converts a stepper key (key-[X]) to its number [X]
+ */
+export function stepperKeyToNum(stepKey: string) {
+    if (stepKey.length <= 4) {
+        throw new APIError(
+            'util',
+            'stepperKeyToNum',
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+            'Invalid system state',
+            `Stepper key ${stepKey} invalid`
+        )
+    }
+    return parseInt(stepKey.slice(4))
+}

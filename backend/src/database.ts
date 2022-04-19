@@ -362,6 +362,24 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
             opts
         )
     }
+
+    /**
+     * @param updates Looks like `name:'Something', status:'AWAITING'`
+     */
+    public async updateFaster(ids: string[], updates: string) {
+        return ArangoWrapper.db.query(
+            aql`FOR i IN ${ids} UPDATE i WITH {${updates}}`
+        )
+    }
+
+    /**
+     * @param ret Looks like `{id:d._key, status:d.status}` or `d.status`
+     */
+    public async getFaster(ids: string[], ret: string) {
+        return ArangoWrapper.db.query(
+            aql`FOR i in ${ids} let d=DOCUMENT(i)RETURN ${ret}`
+        )
+    }
 }
 
 export interface IFilterOpts {
