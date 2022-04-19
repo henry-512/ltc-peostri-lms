@@ -24,6 +24,7 @@ import { getProgressStatus, getProgressStatusColor} from 'src/util/getProgressSt
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import AvatarGroupField from '../../../components/users/AvatarGroupField';
 import WarningIcon from '@mui/icons-material/Warning';
+import { ProgressField } from 'src/components/misc';
 
 const Aside = () => {
     const record = useRecordContext();
@@ -130,6 +131,10 @@ const EventList = () => {
                             <Box flexGrow={1}>
                                 <FunctionField record={record} variant="body2" fontWeight="600" render={(record: any) => `${parseInt(String(record.currentStep))} of ${Object.keys(record.tasks).length}`} />
                             </Box>
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <ProgressField value={parseInt(String(record.currentStep)) / Object.keys(record.tasks).length} />
                         </Grid>
                     </Grid>
                 </CardContent>

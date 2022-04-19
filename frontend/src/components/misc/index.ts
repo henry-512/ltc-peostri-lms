@@ -4,6 +4,7 @@ import Creator from "./Creator";
 import IDField from "./IDField";
 import UserChip from "./UserChip";
 import Logo from "./Logo";
+import ProgressField from "./ProgressField";
 
 export {
     SectionTitle,
@@ -11,5 +12,6 @@ export {
     Creator,
     IDField,
     UserChip,
-    Logo
+    Logo,
+    ProgressField
 }

@@ -1,6 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { display } from "@mui/system";
 import { ReferenceArrayField, ReferenceField, TextField } from "react-admin";
+import { ProgressField } from "src/components/misc";
 import AvatarGroupField from "src/components/users/AvatarGroupField";
 import { dateFormatToString } from "src/util/dateFormatter";
 import { getProgressStatusColor } from "src/util/getProgressStatus";
@@ -15,7 +16,7 @@ const ProjectListItem = ({ record }: ProjectListItemProps) => (
         <Box borderRadius="50%" width="12px" height="12px" sx={{
             backgroundColor: (getProgressStatusColor(record.suspense))
         }}></Box>
-        <Box display="flex" flexDirection="column">
+        <Box display="flex" flexDirection="column" width="100%">
             <Typography>{record.title}</Typography>
             <Box>
                 <Typography variant="caption">({dateFormatToString(record.start)} - {dateFormatToString(record.suspense)})</Typography>
@@ -30,7 +31,7 @@ const ProjectListItem = ({ record }: ProjectListItemProps) => (
             <ReferenceArrayField record={record} reference="admin/users" source="users">
                 <AvatarGroupField height={24} width={24} fontSize="14px" max={6} color='blue' />
             </ReferenceArrayField>
-            {/* Add this once value is cached on Backend and sent <LinearProgress variant="determinate" value={calculateProjectProgress()} /> */}
+            <ProgressField value={parseInt(String(record.currentStep)) / Object.keys(record.modules).length} />
         </Box>
     </Box>
 )
