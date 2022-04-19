@@ -95,8 +95,8 @@ class Project extends DBManager<IProject> {
         let mappedMods: IModule[] = map.get(ModuleManager) ?? []
 
         // Step over the modules
-        stepperForEachInOrder(moduleIdStepper, async (i, v) => {
-            let k = buildStepperKey(i)
+        stepperForEachInOrder(moduleIdStepper, async (modStepNum) => {
+            let k = buildStepperKey(modStepNum)
             let arrayOfModuleIds = moduleIdStepper[k]
 
             let modules: IModule[] = await Promise.all(
@@ -113,8 +113,14 @@ class Project extends DBManager<IProject> {
                 })
             )
 
+            let maxModTTC = 0
+
             // Iterate over all modules
             for (const mod of modules) {
+                stepperForEachInOrder(mod.tasks, async (taskStepNum) => {
+                    let k = buildStepperKey(taskStepNum)
+                })
+
                 let tasks = compressStepper<string>(mod.tasks)
 
                 let taskTTCCursor = await TaskManager.db.getFaster<number>(
@@ -128,8 +134,10 @@ class Project extends DBManager<IProject> {
 
                 mod.ttc = ttc
                 incrementedTTC += ttc
-                mod.suspense = addDays(startDate, incrementedTTC)
+                // mod.suspense = addDays(startDate, incrementedTTC + maxTaskTTC)
             }
+
+            incrementedTTC += maxModTTC
         })
 
         // Set project ttc and suspense
@@ -180,38 +188,38 @@ class Project extends DBManager<IProject> {
         )
     }
 
-    protected override modifyDoc = (
-        user: AuthUser,
-        files: any,
-        doc: any
-    ): Promise<IProject> => {
-        // Calculate start dates from TTC values
-        let modules = doc.modules
+    // protected override modifyDoc = (
+    //     user: AuthUser,
+    //     files: any,
+    //     doc: any
+    // ): Promise<IProject> => {
+    //     // Calculate start dates from TTC values
+    //     let modules = doc.modules
 
-        if (typeof modules !== 'object') {
-            throw this.error(
-                'modifyDoc',
-                HTTPStatus.BAD_REQUEST,
-                'Unexpected type',
-                `${modules} is not a module step object`
-            )
-        }
+    //     if (typeof modules !== 'object') {
+    //         throw this.error(
+    //             'modifyDoc',
+    //             HTTPStatus.BAD_REQUEST,
+    //             'Unexpected type',
+    //             `${modules} is not a module step object`
+    //         )
+    //     }
 
-        // Start date of the project
-        let start = new Date(doc.start)
+    //     // Start date of the project
+    //     let start = new Date(doc.start)
 
-        // Calculate total time for all modules
-        let total = this.getModuleTTCTotal(modules, start, 0)
+    //     // Calculate total time for all modules
+    //     let total = this.getModuleTTCTotal(modules, start, 0)
 
-        // Calculate suspense date
-        doc.suspense = addDays(start, total).toJSON()
-        // doc.suspense = addDays(start, total + doc.ttc).toJSON()
+    //     // Calculate suspense date
+    //     doc.suspense = addDays(start, total).toJSON()
+    //     // doc.suspense = addDays(start, total + doc.ttc).toJSON()
 
-        // set TTC
-        doc.ttc = total
+    //     // set TTC
+    //     doc.ttc = total
 
-        return doc
-    }
+    //     return doc
+    // }
 
     public getModuleTTCTotal(
         modules: IStepper<IModule>,

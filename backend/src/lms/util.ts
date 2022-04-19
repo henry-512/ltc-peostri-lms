@@ -176,7 +176,7 @@ export function stepperKeyToNum(stepKey: string) {
 
 export async function stepperForEachInOrder(
     stepper: IStepper<any>,
-    cb: (i: number, v: any) => Promise<void | false>
+    cb: (i: number) => Promise<void | false>
 ) {
         // All step keys
         let stepKeys = Object.keys(stepper)
@@ -202,7 +202,7 @@ export async function stepperForEachInOrder(
                 return
             }
             // Callback returns false, quit
-            if (await cb(nextStep, stepper[nextStep]) === false) {
+            if (await cb(nextStep) === false) {
                 return
             }
             // Increment counter
