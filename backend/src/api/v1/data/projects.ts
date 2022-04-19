@@ -1,6 +1,11 @@
 import { HTTPStatus } from '../../../lms/errors'
 import { IModule, IProject, ITask } from '../../../lms/types'
-import { compressStepper, IStepper } from '../../../lms/util'
+import {
+    buildStepperKey,
+    compressStepper,
+    IStepper,
+    stepperForEachInOrder,
+} from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
@@ -81,46 +86,55 @@ class Project extends DBManager<IProject> {
             lastDBId
         )
 
-        // Find all modules in this document
-        let moduleIds = compressStepper<string>(p.modules)
-        let mods: IModule[] = map.get(ModuleManager) ?? []
+        // Start date of the project
+        let startDate = new Date(p.start)
+        let incrementedTTC = 0
 
-        for (const id of moduleIds) {
-            let modKey = ModuleManager.db.asKey(id)
-            let found = false
-            // Check if this module has been extracted
-            for (const m of mods) {
-                if (m.id === modKey) {
-                    mods.concat(m)
-                    found = true
-                    break
-                }
-            }
-            if (found) {
-                continue
-            }
-            // Module has not been found, pull it from DB and add it to
-            // the map
-            mods = mods.concat(await ModuleManager.db.get(id))
-        }
+        let moduleIdStepper = p.modules as IStepper<string>
+        // All modules we need to process
+        let mappedMods: IModule[] = map.get(ModuleManager) ?? []
 
-        // Assign TTC values
-        let proTTC = 0
-        for (const mod of mods) {
-            let tasks = compressStepper<string>(mod.tasks)
+        // Step over the modules
+        stepperForEachInOrder(moduleIdStepper, async (i, v) => {
+            let k = buildStepperKey(i)
+            let arrayOfModuleIds = moduleIdStepper[k]
 
-            let taskTTCCursor = await TaskManager.db.getFaster<number>(
-                tasks,
-                'ttc'
+            let modules: IModule[] = await Promise.all(
+                arrayOfModuleIds.map(async (id) => {
+                    let modKey = ModuleManager.db.asKey(id)
+                    for (const m of mappedMods) {
+                        if (m.id === modKey) {
+                            return m
+                        }
+                    }
+                    let mod = await ModuleManager.db.get(id)
+                    mappedMods.push(mod)
+                    return mod
+                })
             )
-            let ttc = 0
-            await taskTTCCursor.forEach((v) => {
-                ttc += v
-            })
-            mod.ttc = ttc
-            proTTC += ttc
-        }
-        p.ttc = proTTC
+
+            // Iterate over all modules
+            for (const mod of modules) {
+                let tasks = compressStepper<string>(mod.tasks)
+
+                let taskTTCCursor = await TaskManager.db.getFaster<number>(
+                    tasks,
+                    'ttc'
+                )
+                let ttc = 0
+                await taskTTCCursor.forEach((v) => {
+                    ttc += v
+                })
+
+                mod.ttc = ttc
+                incrementedTTC += ttc
+                mod.suspense = addDays(startDate, incrementedTTC)
+            }
+        })
+
+        // Set project ttc and suspense
+        p.ttc = incrementedTTC
+        p.suspense = startDate.toJSON()
 
         return p
     }
