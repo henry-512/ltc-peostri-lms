@@ -111,8 +111,9 @@ const dataProvider = (
 
         switch (resource) {
             case "projects":
+            case "modules":
             case "tasks":
-                url = `${apiUrl}/${resource}/default/list?${stringify(query)}`;
+                url = `${apiUrl}/${resource}/assigned/list?${stringify(query)}`;
 
                 return httpClient(url, options).then(({ headers, json }: HTTPClientPromiseReturn) => {
                     if (!headers.has(countHeader)) {
@@ -169,8 +170,17 @@ const dataProvider = (
         const query = {
             filter: JSON.stringify({ id: params.ids }),
         };
-        const url = `${apiUrl}/${resource}/list?${stringify(query)}`;
-        return httpClient(url).then(({ json }) => ({ data: json }));
+        let url = `${apiUrl}/${resource}/list?${stringify(query)}`;
+
+        switch (resource) {
+            case "projects":
+            case "modules":
+            case "tasks":
+                url = `${apiUrl}/${resource}/assigned/list?${stringify(query)}`;
+                return httpClient(url).then(({ json }) => ({ data: json }));
+            default: 
+                return httpClient(url).then(({ json }) => ({ data: json }));
+        }
     },
 
     getManyReference: (resource, params) => {

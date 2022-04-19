@@ -4,17 +4,16 @@ import { useGetList, useShowContext, Datagrid, TextField, ReferenceArrayField, D
 import { useEffect, useState } from "react";
 import { IModuleStep, IModule, IProject } from "src/util/types";
 
-export type ModuleGridProps = {
+export type TaskGridProps = {
 
 }
 
-const ModuleGrid = (props: ModuleGridProps) => {
+const TaskGrid = (props: TaskGridProps) => {
 
     return (
         <>
             <Datagrid
                 bulkActionButtons={false}
-                rowClick="show"
             >
                 <TextField source="title" />
                 <DateField source="suspense" locales="en-GB" />
@@ -25,4 +24,4 @@ const ModuleGrid = (props: ModuleGridProps) => {
     )
 }
 
-export default ModuleGrid;
+export default TaskGrid;
