@@ -63,7 +63,7 @@ export default function StepToolbar(props: StepToolbarProps) {
             ) : (
                 <SaveButton
                     label={(props.create) ? "layout.button.create" : "layout.button.save"}
-                    disabled={(props.create) ? (!isValid || !isDirty) : (!isValid)}
+                    disabled={(props.create) ? (!isValid) : (!isValid)}
                     alwaysEnable={(props.defaultValue || !props.create) ? true : false}
                 />
             )}
