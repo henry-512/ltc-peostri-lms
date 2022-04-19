@@ -370,8 +370,9 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
      * @param key
      */
     public async updateFaster(ids: string[], key: string, value: any) {
+        let keys: string[] = ids.map((id) => this.asKey(id))
         return ArangoWrapper.db.query(
-            aql`FOR i IN ${ids} UPDATE i WITH{${key}:${value}}`
+            aql`FOR k IN ${keys} UPDATE {_key:k} WITH{${key}:${value}} IN ${this.collection}`
         )
     }
 

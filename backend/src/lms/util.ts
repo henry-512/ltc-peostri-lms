@@ -173,3 +173,39 @@ export function stepperKeyToNum(stepKey: string) {
     }
     return parseInt(stepKey.slice(4))
 }
+
+export async function stepperForEachInOrder(
+    stepper: IStepper<any>,
+    cb: (i: number, v: any) => Promise<void | false>
+) {
+        // All step keys
+        let stepKeys = Object.keys(stepper)
+        // Start with -1
+        let currentStep = -1
+        while(true) {
+            // The next step to process
+            // Defaults to 9999 to signify the next step being unfound
+            let nextStep = 9999
+
+            for (let k of stepKeys) {
+                let kNum = stepperKeyToNum(k)
+                // kNum > currentStep <- this step is after the current
+                // If kNum < nextStep <- this step is before the last
+                //                        recorded nextStep
+                if (kNum < nextStep && kNum > currentStep) {
+                    nextStep = kNum
+                }
+            }
+
+            // Next key not found, therefore this module is complete
+            if (nextStep === 9999) {
+                return
+            }
+            // Callback returns false, quit
+            if (await cb(nextStep, stepper[nextStep]) === false) {
+                return
+            }
+            // Increment counter
+            currentStep = nextStep
+        }
+}

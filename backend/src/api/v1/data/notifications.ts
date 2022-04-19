@@ -95,26 +95,19 @@ class Notification extends DBManager<INotification> {
         return this.db.save(notification)
     }
 
-    public async readAllForUser(id: string) {
+    public async readAllForUser(userId: string) {
         let opts: IQueryGetOpts = {
             range: {
                 offset: 0,
                 count: 10,
             },
-            filters: [{ key: 'recipient', eq: id }],
-            raw: true,
+            filters: [{ key: 'recipient', eq: userId }],
+            justIds: true,
         }
 
         let query = await this.db.queryGet(opts)
-
-        let all = await query.cursor.all()
-
-        for (const doc of all) {
-            // Hack the id to be a key
-            doc.id = doc._key
-            doc.read = true
-            await this.db.update(doc, { mergeObjects: false })
-        }
+        let ids = await query.cursor.all()
+        return this.db.updateFaster(ids, 'read', true)
     }
 
     public async read(id: string) {
