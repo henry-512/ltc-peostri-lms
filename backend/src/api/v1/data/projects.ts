@@ -123,6 +123,13 @@ class Project extends DBManager<IProject> {
                 await stepperForEachInOrder(mod.tasks, async (taskStepNum) => {
                     let k = buildStepperKey(taskStepNum)
                     let arrayOfTaskIds = mod.tasks
+
+                    // Build tasks
+                    // let tasks: ITask[] = await Promise.all(
+                    //     // arrayOfTaskIds.map(async (id) => {
+
+                    //     // })
+                    // )
                 })
 
                 let tasks = compressStepper<string>(mod.tasks)
