@@ -41,7 +41,7 @@ type HTTPClientPromiseReturn = {
     json: any
 }
 
-const client = (url: any, options: fetchUtils.Options = {}) => {
+const client = (url: any, options: fetchUtils.Options = {headers: { "Access-Control-Allow-Credentials": "include" }}) => {
     options.credentials = 'include'
     return fetchUtils.fetchJson(url, options);
 }
