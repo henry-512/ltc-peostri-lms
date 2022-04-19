@@ -499,8 +499,10 @@ export class DataManager<Type> extends IErrorable {
             },
             // parent
             async (value, data) => {
-                if (typeof value === 'string' && isDBId(value)) {
-                    return value
+                if (typeof value === 'string') {
+                    return data.parentManager
+                        ? data.parentManager.db.asId(value)
+                        : value
                 }
                 throw this.internal(
                     'verifyAddedDocument.mapEachField',
