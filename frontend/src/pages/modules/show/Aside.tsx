@@ -72,16 +72,6 @@ const EventList = () => {
                                 }} />
                             </Box>
                         </Grid>
-
-                        <Grid item xs={6} display="flex" gap={1}>
-                            <AccessTimeIcon fontSize="small" color="disabled" />
-                            <Box flexGrow={1}>
-                                <Typography variant="body2">
-                                    Start
-                                </Typography>
-                                <DateField record={record} source="start" />
-                            </Box>
-                        </Grid>
                         
                         <Grid item xs={6} display="flex" gap={1}>
                             <AccessTimeIcon fontSize="small" color="disabled" />
@@ -93,7 +83,7 @@ const EventList = () => {
                             </Box>
                         </Grid>
                     </Grid>
-                    <Typography variant="h6" gutterBottom>
+                    {/*<Typography variant="h6" gutterBottom>
                         Details
                     </Typography>
                     <Grid container rowSpacing={1} columnSpacing={1}>
@@ -114,7 +104,7 @@ const EventList = () => {
                                 </Box>
                             </Grid>
                         </>) : null}
-                    </Grid>
+                    </Grid>*/}
                     <Typography variant="h6" gutterBottom>
                         Statistics
                     </Typography>

@@ -1,8 +1,10 @@
 import { Box, Typography, IconButton, Breadcrumbs, Divider } from "@mui/material";
-import { FunctionField, Link, ReferenceField, Show, ShowController, SimpleShowLayout, useCreatePath, TextField } from "react-admin";
+import { FunctionField, Link, ReferenceField, Show, ShowController, SimpleShowLayout, useCreatePath, TextField, ReferenceArrayField } from "react-admin";
 import Aside from "./Aside";
 import EditIcon from '@mui/icons-material/Edit';
 import TabbedProjectInfo from "./TabbedModuleInfo";
+import TaskGrid from "./TaskGrid";
+import AssignedTasksField from "./AssignedTasksField";
 
 type ModuleShowProps = {
 
@@ -42,17 +44,13 @@ const ModuleShow = (props: ModuleShowProps) => {
                         </Box>
                     </Box>
                     <Divider sx={{ margin: "0 -15px" }} />
-                    {/*<Box>
-                        <Typography variant="h6">
-                            Tasks Needing Your Attention:
-                        </Typography>
-                        {/* Fetch and Display MyTasks 
-                        <List>
-                            <ListItem>
-                                <ListItemText primary="Some Task" />
-                            </ListItem>
-                        </List>
-                    </Box>*/}
+                    <ShowController>
+                        {({record}) => (
+                            <ReferenceArrayField record={{ id: record.tasks[`key-${record.currentStep}`] }} reference="tasks" source="id" >
+                                <AssignedTasksField />
+                            </ReferenceArrayField>
+                        )}
+                    </ShowController>
                     <TabbedProjectInfo />
                 </Box>
             </SimpleShowLayout>
