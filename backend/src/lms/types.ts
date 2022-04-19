@@ -71,7 +71,7 @@ export interface IModule extends IArangoIndexes {
     project?: string
     currentStep: number
 
-    files: IFilemeta[]
+    file?: IFilemeta
     waive?: IWaiveData
 }
 

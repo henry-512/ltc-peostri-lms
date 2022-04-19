@@ -86,14 +86,20 @@ class Module extends DBManager<IModule> {
                     type: 'string',
                     optional: true,
                 },
-                files: {
-                    type: 'array',
-                    instance: 'fkey',
+                file: {
+                    type: 'fkey',
                     managerName: 'filemeta',
                     optional: true,
-                    default: [],
                     acceptNewDoc: true,
                 },
+                // files: {
+                //     type: 'array',
+                //     instance: 'fkey',
+                //     managerName: 'filemeta',
+                //     optional: true,
+                //     default: [],
+                //     acceptNewDoc: true,
+                // },
                 waive: {
                     type: 'data',
                     foreignData: WaiveManager,
@@ -197,7 +203,7 @@ class Module extends DBManager<IModule> {
         let mod = await this.db.get(id)
         mod.status = 'AWAITING'
         // Reset files
-        mod.files = []
+        mod.file = undefined
 
         // Set tasks to AWAITING
         let allTasks = compressStepper<string>(mod.tasks)
