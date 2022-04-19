@@ -180,16 +180,20 @@ export class UserRouter<Type extends IArangoIndexes> extends Router {
             })
         }
 
-        if (!this.routerOpts?.noAll) {
-            let prefix =
-                this.routerOpts?.noAssigned && this.routerOpts?.noDefault
-                    ? ''
-                    : 'all/'
+        if (!this.routerOpts?.noTeam) {
+            this.get('team/count', async (ctx) => {
+                await this.getCount(ctx, 'TEAM')
+            })
+            this.get('team/list', async (ctx) => {
+                await this.getList(ctx, 'TEAM')
+            })
+        }
 
-            this.get(`${prefix}count`, async (ctx) => {
+        if (!this.routerOpts?.noAll) {
+            this.get(`all/count`, async (ctx) => {
                 await this.getCount(ctx, 'ALL')
             })
-            this.get(`${prefix}list`, async (ctx) => {
+            this.get(`all/list`, async (ctx) => {
                 await this.getList(ctx, 'ALL')
             })
         }
