@@ -312,9 +312,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                 return v
             },
             // parent
-            async (v, data) => {
-                return convertToKey(v)
-            }
+            async (v, data) => convertToKey(v)
         )
     }
 

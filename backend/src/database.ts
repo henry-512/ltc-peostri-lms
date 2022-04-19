@@ -375,10 +375,17 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         )
     }
 
+    public async getIds(ids: string[]): Promise<ArrayCursor<Type>> {
+        return ArangoWrapper.db.query(aql`FOR i IN ${ids} RETURN DOCUMENT(i)`)
+    }
+
     /**
      * @param ret Looks like `d.status`
      */
-    public async getFaster(ids: string[], ret: string) {
+    public async getFaster<T>(
+        ids: string[],
+        ret: string
+    ): Promise<ArrayCursor<T>> {
         return ArangoWrapper.db.query(
             aql`FOR i in ${ids} let d=DOCUMENT(i)RETURN ${ret}`
         )
@@ -393,7 +400,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         ids: string[],
         key: string,
         equals: string
-    ) {
+    ): Promise<ArrayCursor<string>> {
         return ArangoWrapper.db.query(
             aql`FOR i in ${ids} let d=DOCUMENT(i)FILTER d.${key}==${equals} RETURN i`
         )
@@ -403,7 +410,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         ids: string[],
         key: string,
         equals: string[]
-    ) {
+    ): Promise<ArrayCursor<string>> {
         let q = aql`FOR i in ${ids} let d=DOCUMENT(i)FILTER`
         let notFirst = false
         for (const equal of equals) {
