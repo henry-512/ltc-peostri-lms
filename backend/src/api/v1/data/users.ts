@@ -7,10 +7,6 @@ import { UserArangoWrapper } from './UserArangoWrapper'
 export const DB_NAME = 'users'
 
 class User extends DBManager<IUser> {
-    public async getUser(id: string): Promise<IUser> {
-        return this.db.get(id)
-    }
-
     constructor() {
         super(
             DB_NAME,

@@ -1,4 +1,5 @@
 import Router from '@koa/router'
+import { aql } from 'arangojs/aql'
 import send from 'koa-send'
 import { HTTPStatus } from '../../lms/errors'
 import { AuthUser } from '../auth'
@@ -119,13 +120,32 @@ export function routerBuilder(version: string) {
             )
             // User routes
             // Tasks
-            .use(new UserRouter('tasks', TaskManager).build())
-            .use(new UserRouter('projects', ProjectManager).build())
             .use(
-                new UserRouter('modules', ModuleManager, {
-                    noAssigned: true,
-                    noDefault: true,
-                }).build()
+                new UserRouter(
+                    'tasks',
+                    TaskManager,
+                    'taskFetching',
+                    aql`DOCUMENT(DOCUMENT(z.module).project).team`,
+                    aql`z.users`
+                ).build()
+            )
+            .use(
+                new UserRouter(
+                    'projects',
+                    ProjectManager,
+                    'projectFetching',
+                    aql`z.team`,
+                    aql`z.users`
+                ).build()
+            )
+            .use(
+                new UserRouter(
+                    'modules',
+                    ModuleManager,
+                    'moduleFetching',
+                    aql`DOCUMENT(z.project).team`,
+                    aql`DOCUMENT(z.project).users`
+                ).build()
             )
             .use(
                 new Router({ prefix: 'notifications/' })

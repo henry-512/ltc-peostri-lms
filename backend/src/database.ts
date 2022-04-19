@@ -128,7 +128,9 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         let query = aql`FOR z IN ${this.collection}`
 
         for (const filter of filters) {
-            let k = this.getFilterKey(filter)
+            // Support for custom keys
+            let k = filter.custom ?? this.getFilterKey(filter)
+            // Filter checkings
             if (filter.inArray) {
                 query = aql`${query} FILTER ${filter.inArray} IN ${k}`
             }
@@ -393,7 +395,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         equals: string
     ) {
         return ArangoWrapper.db.query(
-            aql`FOR i in ${ids} let d=DOCUMENT(i)FILTER d.${key}==${equals} RETURN i._id`
+            aql`FOR i in ${ids} let d=DOCUMENT(i)FILTER d.${key}==${equals} RETURN i`
         )
     }
 
@@ -412,6 +414,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
                 q = aql`${q} d.${key}==${equal}`
             }
         }
+        q = aql`${q} RETURN i`
         return ArangoWrapper.db.query(q)
     }
 }
@@ -431,6 +434,8 @@ export interface IFilterOpts {
     inArray?: string
     // Checks if the passed array intersects with the array target
     intersect?: string[]
+    // Runs the passed AQL subquery
+    custom?: GeneratedAqlQuery
 }
 
 export interface ISortOpts {

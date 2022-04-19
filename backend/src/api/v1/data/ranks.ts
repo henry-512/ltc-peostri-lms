@@ -6,6 +6,7 @@ import { DBManager } from '../DBManager'
 const PermissionManager = new DataManager<IPermission>('Permission', {
     taskFetching: { type: 'string' },
     projectFetching: { type: 'string' },
+    moduleFetching: { type: 'string' },
     verboseLogging: { type: 'boolean' },
 })
 

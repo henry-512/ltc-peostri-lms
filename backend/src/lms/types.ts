@@ -99,6 +99,7 @@ export type FetchType = 'ASSIGNED' | 'TEAM' | 'ALL'
 
 export interface IPermission {
     taskFetching: FetchType
+    moduleFetching: FetchType
     projectFetching: FetchType
     verboseLogging: boolean
 }
@@ -106,6 +107,7 @@ export interface IPermission {
 export const defaultPermissions: IPermission = {
     taskFetching: 'ASSIGNED',
     projectFetching: 'ASSIGNED',
+    moduleFetching: 'ASSIGNED',
     verboseLogging: false,
 }
 
@@ -133,6 +135,7 @@ export interface ITask extends IArangoIndexes {
 }
 
 export interface IUser extends IArangoIndexes {
+    teams: string[] | ITeam[]
     firstName: string
     lastName: string
     avatar: null | string

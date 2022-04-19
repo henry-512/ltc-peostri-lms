@@ -83,16 +83,21 @@ export class AuthUser {
     }
 
     async getUser() {
-        if (!this.user) this.user = await UserManager.getUser(this.id)
+        if (!this.user) this.user = await UserManager.db.get(this.id)
         return this.user
     }
 
     async getRank() {
-        if (!this.user) this.user = await UserManager.getUser(this.id)
+        if (!this.user) this.user = await UserManager.db.get(this.id)
         if (!this.rank)
             this.rank = await RankManager.db.get(this.user.rank as string)
 
         return this.rank
+    }
+
+    async getTeams() {
+        if (!this.user) this.user = await UserManager.db.get(this.id)
+        return this.user.teams as string[]
     }
 
     async getPermission(perm: ApiPerm) {

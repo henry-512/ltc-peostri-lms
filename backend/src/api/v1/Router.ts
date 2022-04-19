@@ -1,4 +1,5 @@
 import Router from '@koa/router'
+import { GeneratedAqlQuery } from 'arangojs/aql'
 import fs from 'fs'
 import { ParameterizedContext } from 'koa'
 import { config } from '../../config'
@@ -123,6 +124,7 @@ export class AdminRouter<Type extends IArangoIndexes> extends Router {
 export interface UserRouterOpts {
     noAssigned?: boolean
     noAll?: boolean
+    noTeam?: boolean
     noDefault?: boolean
     noListGet?: boolean
 }
@@ -130,6 +132,7 @@ export interface UserRouterOpts {
 export const allDisabledUser: UserRouterOpts = {
     noAssigned: true,
     noAll: true,
+    noTeam: true,
     noDefault: true,
     noListGet: true,
 }
@@ -141,6 +144,11 @@ export class UserRouter<Type extends IArangoIndexes> extends Router {
     constructor(
         prefix: string,
         private manager: DBManager<Type>,
+        private fetchPermission: ApiPerm,
+        // Aql query to return the team for this object
+        private filterTeam: GeneratedAqlQuery,
+        // Aql query to return users for this object
+        private filterUsers: GeneratedAqlQuery,
         private routerOpts?: UserRouterOpts
     ) {
         // Apply prefix
@@ -165,34 +173,91 @@ export class UserRouter<Type extends IArangoIndexes> extends Router {
 
         if (!this.routerOpts?.noAssigned) {
             this.get('assigned/count', async (ctx) => {
-                await getProjectStatusCount(ctx, this.manager, 'ASSIGNED')
+                await this.getCount(ctx, 'ASSIGNED')
             })
             this.get('assigned/list', async (ctx) => {
-                await getProjectStatusList(ctx, this.manager, 'ASSIGNED')
+                await this.getList(ctx, 'ASSIGNED')
             })
         }
 
         if (!this.routerOpts?.noAll) {
-            let prefix =  (this.routerOpts?.noAssigned && this.routerOpts?.noDefault) ? '' : 'all/'
+            let prefix =
+                this.routerOpts?.noAssigned && this.routerOpts?.noDefault
+                    ? ''
+                    : 'all/'
 
             this.get(`${prefix}count`, async (ctx) => {
-                await getProjectStatusCount(ctx, this.manager, 'ALL')
+                await this.getCount(ctx, 'ALL')
             })
             this.get(`${prefix}list`, async (ctx) => {
-                await getProjectStatusList(ctx, this.manager, 'ALL')
+                await this.getList(ctx, 'ALL')
             })
         }
 
         if (!this.routerOpts?.noDefault) {
             this.get('default/count', async (ctx) => {
-                await getProjectStatusCount(ctx, this.manager)
+                await this.getCount(ctx)
             })
             this.get('default/list', async (ctx) => {
-                await getProjectStatusList(ctx, this.manager)
+                await this.getList(ctx)
             })
         }
 
         return super.routes()
+    }
+
+    private async getCount(
+        ctx: ParameterizedContext,
+        fetchType?: FetchType
+    ) {
+        let f =
+            fetchType ??
+            (await permission<FetchType>(ctx, this.fetchPermission))
+
+        switch (f) {
+            case 'ASSIGNED':
+                return await queryFilterCount(ctx, this.manager, {
+                    key: 'users', // unused
+                    custom: this.filterUsers,
+                    inArray: (<AuthUser>ctx.state.user).id,
+                })
+            case 'TEAM':
+                let user: AuthUser = ctx.state.user
+                return await queryFilterCount(ctx, this.manager, {
+                    key: 'undefined', // This is unused
+                    custom: this.filterTeam,
+                    intersect: await user.getTeams()
+                })
+            default:
+                return await queryFilterCount(ctx, this.manager)
+        }
+    }
+
+    private async getList(
+        ctx: ParameterizedContext,
+        fetch?: FetchType
+    ) {
+        if (fetch === undefined) {
+            fetch = await permission<FetchType>(ctx, 'taskFetching')
+        }
+
+        switch (fetch) {
+            case 'ASSIGNED':
+                return await queryFilter(ctx, this.manager, {
+                    key: 'users', // unused
+                    custom: this.filterUsers,
+                    inArray: (<AuthUser>ctx.state.user).id,
+                })
+            case 'TEAM':
+                let user: AuthUser = ctx.state.user
+                return await queryFilter(ctx, this.manager, {
+                    key: 'undefined',
+                    custom: this.filterTeam,
+                    in: await user.getTeams()
+                })
+            default:
+                return await parseRunSendQuery(this.manager, ctx)
+        }
     }
 }
 
@@ -278,44 +343,4 @@ export async function queryFilterCount(
 
 export async function permission<T>(ctx: ParameterizedContext, perm: ApiPerm) {
     return (<AuthUser>ctx.state.user).getPermission(perm) as any as T
-}
-
-export async function getProjectStatusCount(
-    ctx: ParameterizedContext,
-    m: DBManager<any>,
-    fetch?: FetchType
-) {
-    if (fetch === undefined) {
-        fetch = await permission<FetchType>(ctx, 'taskFetching')
-    }
-
-    switch (fetch) {
-        case 'ASSIGNED':
-            return await queryFilterCount(ctx, m, {
-                key: 'users',
-                inArray: (<AuthUser>ctx.state.user).id,
-            })
-        default:
-            return await queryFilterCount(ctx, m)
-    }
-}
-
-export async function getProjectStatusList(
-    ctx: ParameterizedContext,
-    m: DBManager<any>,
-    fetch?: FetchType
-) {
-    if (fetch === undefined) {
-        fetch = await permission<FetchType>(ctx, 'taskFetching')
-    }
-
-    switch (fetch) {
-        case 'ASSIGNED':
-            return await queryFilter(ctx, m, {
-                key: 'users',
-                inArray: (<AuthUser>ctx.state.user).id,
-            })
-        default:
-            return await parseRunSendQuery(m, ctx)
-    }
 }
