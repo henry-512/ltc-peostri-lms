@@ -113,7 +113,7 @@ const dataProvider = (
             case "projects":
             case "modules":
             case "tasks":
-                url = `${apiUrl}/${resource}/assigned/list?${stringify(query)}`;
+                url = `${apiUrl}/${resource}/all/list?${stringify(query)}`;
 
                 return httpClient(url, options).then(({ headers, json }: HTTPClientPromiseReturn) => {
                     if (!headers.has(countHeader)) {
@@ -176,7 +176,7 @@ const dataProvider = (
             case "projects":
             case "modules":
             case "tasks":
-                url = `${apiUrl}/${resource}/assigned/list?${stringify(query)}`;
+                url = `${apiUrl}/${resource}/all/list?${stringify(query)}`;
                 return httpClient(url).then(({ json }) => ({ data: json }));
             default: 
                 return httpClient(url).then(({ json }) => ({ data: json }));
