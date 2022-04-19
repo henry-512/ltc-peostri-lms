@@ -25,11 +25,11 @@ const StepContainer = (props: StepContainerProps) => (
                     minHeight: '0px',
                     borderBottom: (theme) => '1px solid '+theme.palette.borderColor?.main
                 },
-                '& .Mui-expanded': {
+                '& .MuiAccordionSummary-content': {
                     minHeight: '0px',
                     margin: '.65rem 0'
                 },
-                '& .MuiAccordionSummary-content': {
+                '& .MuiAccordionSummary-content.Mui-expanded': {
                     minHeight: '0px',
                     margin: '.65rem 0'
                 }
