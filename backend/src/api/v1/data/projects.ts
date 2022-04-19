@@ -93,12 +93,14 @@ class Project extends DBManager<IProject> {
         let moduleIdStepper = p.modules as IStepper<string>
         // All modules we need to process
         let mappedMods: IModule[] = map.get(ModuleManager) ?? []
+        let mappedTasks: ITask[] = map.get(TaskManager) ?? []
 
         // Step over the modules
-        stepperForEachInOrder(moduleIdStepper, async (modStepNum) => {
+        await stepperForEachInOrder(moduleIdStepper, async (modStepNum) => {
             let k = buildStepperKey(modStepNum)
             let arrayOfModuleIds = moduleIdStepper[k]
 
+            // Build modules
             let modules: IModule[] = await Promise.all(
                 arrayOfModuleIds.map(async (id) => {
                     let modKey = ModuleManager.db.asKey(id)
@@ -117,32 +119,64 @@ class Project extends DBManager<IProject> {
 
             // Iterate over all modules
             for (const mod of modules) {
-                stepperForEachInOrder(mod.tasks, async (taskStepNum) => {
+                let totalModuleTTC = 0
+                await stepperForEachInOrder(mod.tasks, async (taskStepNum) => {
                     let k = buildStepperKey(taskStepNum)
+                    let arrayOfTaskIds = mod.tasks[k] as string[]
+
+                    // Build tasks
+                    let tasks: ITask[] = await Promise.all(
+                        arrayOfTaskIds.map(async (id) => {
+                            let taskKey = TaskManager.db.asKey(id)
+                            for (const t of mappedTasks) {
+                                if (t.id === taskKey) {
+                                    return t
+                                }
+                            }
+                            let task = await TaskManager.db.get(id)
+                            mappedTasks.push(task)
+                            return task
+                        })
+                    )
+
+                    let maxTaskTime = 0
+
+                    // For each task array
+                    for (const task of tasks) {
+                        let ttc = task.ttc ?? 0
+                        task.suspense = addDays(
+                            startDate,
+                            incrementedTTC + ttc
+                        ).toJSON()
+                        if (ttc > maxTaskTime) {
+                            maxTaskTime = ttc
+                        }
+                    }
+
+                    totalModuleTTC += maxTaskTime
+                    incrementedTTC += maxTaskTime
                 })
+                // Set module suspense and ttc
+                mod.ttc = totalModuleTTC
+                mod.suspense = addDays(
+                    startDate,
+                    incrementedTTC + totalModuleTTC
+                ).toJSON()
 
-                let tasks = compressStepper<string>(mod.tasks)
-
-                let taskTTCCursor = await TaskManager.db.getFaster<number>(
-                    tasks,
-                    'ttc'
-                )
-                let ttc = 0
-                await taskTTCCursor.forEach((v) => {
-                    ttc += v
-                })
-
-                mod.ttc = ttc
-                incrementedTTC += ttc
-                // mod.suspense = addDays(startDate, incrementedTTC + maxTaskTTC)
+                // Update longest moudle
+                if (totalModuleTTC > maxModTTC) {
+                    maxModTTC = totalModuleTTC
+                }
             }
 
+            // Increment project ttc
+            // totalProjectTTC += maxModTTC
             incrementedTTC += maxModTTC
         })
 
         // Set project ttc and suspense
         p.ttc = incrementedTTC
-        p.suspense = startDate.toJSON()
+        p.suspense = addDays(startDate, incrementedTTC)
 
         return p
     }
@@ -186,127 +220,6 @@ class Project extends DBManager<IProject> {
                 id: this.db.asKey(id),
             }
         )
-    }
-
-    // protected override modifyDoc = (
-    //     user: AuthUser,
-    //     files: any,
-    //     doc: any
-    // ): Promise<IProject> => {
-    //     // Calculate start dates from TTC values
-    //     let modules = doc.modules
-
-    //     if (typeof modules !== 'object') {
-    //         throw this.error(
-    //             'modifyDoc',
-    //             HTTPStatus.BAD_REQUEST,
-    //             'Unexpected type',
-    //             `${modules} is not a module step object`
-    //         )
-    //     }
-
-    //     // Start date of the project
-    //     let start = new Date(doc.start)
-
-    //     // Calculate total time for all modules
-    //     let total = this.getModuleTTCTotal(modules, start, 0)
-
-    //     // Calculate suspense date
-    //     doc.suspense = addDays(start, total).toJSON()
-    //     // doc.suspense = addDays(start, total + doc.ttc).toJSON()
-
-    //     // set TTC
-    //     doc.ttc = total
-
-    //     return doc
-    // }
-
-    public getModuleTTCTotal(
-        modules: IStepper<IModule>,
-        start: Date,
-        offset: number
-    ) {
-        let total = 0
-        for (let modStepId in modules) {
-            let modStep = modules[modStepId]
-
-            if (!Array.isArray(modStep)) {
-                throw this.error(
-                    'modifyDoc',
-                    HTTPStatus.BAD_REQUEST,
-                    'Unexpected type',
-                    `${modStep} is not a module array`
-                )
-            }
-
-            // Add the maximum-length task for this module step
-            total += this.getModuleTTCMax(modStep, start, total + offset)
-        }
-        return total
-    }
-
-    // current maximum time to complete modules in this step
-    public getModuleTTCMax(modules: IModule[], start: Date, offset: number) {
-        let max = 0
-        for (let mod of modules) {
-            if (typeof mod.tasks !== 'object') {
-                throw this.error(
-                    'modifyDoc',
-                    HTTPStatus.BAD_REQUEST,
-                    'Unexpected type',
-                    `${mod.tasks} is not a task step object`
-                )
-            }
-
-            // Total task time for this module
-            let taskTTC = this.getTaskTTCTotal(<any>mod.tasks, start, offset)
-            // max = Math.max(max, taskTTC + mod.ttc)
-            max = Math.max(max, taskTTC)
-            // Set suspense date
-            mod.suspense = addDays(start, offset).toJSON()
-            // mod.suspense = addDays(start, offset + mod.ttc).toJSON()
-        }
-        return max
-    }
-
-    public getTaskTTCTotal(
-        tasks: IStepper<ITask>,
-        start: Date,
-        offset: number
-    ) {
-        let total = 0
-        for (let taskStepId in tasks) {
-            let taskStep = tasks[taskStepId]
-
-            if (!Array.isArray(taskStep)) {
-                throw this.error(
-                    'modifyDoc',
-                    HTTPStatus.BAD_REQUEST,
-                    'Unexpected type',
-                    `${taskStep} is not a task array`
-                )
-            }
-
-            // The weight of the task array is the longest element
-            // Appending total
-            total += this.getTaskTTCMax(taskStep, start, total + offset)
-        }
-        return total
-    }
-
-    // Current maximum time to complete the tasks in this step
-    public getTaskTTCMax(tasks: ITask[], start: Date, offset: number) {
-        let max = 0
-        for (let task of tasks) {
-            if (typeof task.ttc !== 'number') {
-                task.ttc = 1
-            }
-
-            max = Math.max(max, task.ttc)
-            task.suspense = addDays(start, offset + task.ttc).toJSON()
-        }
-
-        return max
     }
 
     //
