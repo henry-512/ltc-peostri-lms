@@ -1,5 +1,5 @@
 import { Box, Typography, IconButton, Breadcrumbs, Divider } from "@mui/material";
-import { FunctionField, Link, Show, ShowController, SimpleShowLayout, useCreatePath } from "react-admin";
+import { FunctionField, Link, ReferenceField, Show, ShowController, SimpleShowLayout, useCreatePath, TextField } from "react-admin";
 import Aside from "./Aside";
 import EditIcon from '@mui/icons-material/Edit';
 import TabbedProjectInfo from "./TabbedModuleInfo";
@@ -18,13 +18,9 @@ const ModuleShow = (props: ModuleShowProps) => {
                     <Box display="flex" justifyContent="space-between" alignItems="center">
                         <Box display="flex" alignItems="center">
                             <Breadcrumbs aria-label="breadcrumb">
-                                <Link
-                                    color="inherit"
-                                    to="/projects"
-                                    replace={true}
-                                >
-                                    <Typography variant="h6">My Projects</Typography>
-                                </Link>
+                                <ReferenceField reference="projects" source="project" link="show">
+                                    <TextField variant="h6" source="title" />
+                                </ReferenceField>
                                 <Link
                                     color="text.primary"
                                     to=""
@@ -38,7 +34,7 @@ const ModuleShow = (props: ModuleShowProps) => {
                         <Box>
                             <ShowController>
                                 {({record}) => (
-                                    <IconButton size="small" component={Link} to={createPath({ resource: 'admin/modules', id: record.id, type: 'edit' })} replace={true} >
+                                    <IconButton size="small" component={Link} to={createPath({ resource: 'admin/projects', id: record.project, type: 'edit' })} replace={true} >
                                         <EditIcon />
                                     </IconButton>
                                 )}

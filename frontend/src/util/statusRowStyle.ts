@@ -1,16 +1,14 @@
 import green from '@mui/material/colors/green';
 import amber from '@mui/material/colors/amber';
 import red from '@mui/material/colors/red';
-import { IProject } from 'src/util/types';
+import { IProject, IModule, ITask } from 'src/util/types';
 import { getProgressStatus } from 'src/util/getProgressStatus';
 
-const rowStyle = (record: IProject) => {    
+const statusRowStyle = (record: IProject | IModule | ITask) => {    
     let style = {};
-    if (!record) {
-        return style;
-    }
+    if (!record || !record?.status) return style;
 
-    if (record.status === 'ARCHIVED' || record.status === 'COMPLETED') return style;
+    if (record?.status === 'ARCHIVED' || record?.status === 'COMPLETED') return style;
 
     switch(getProgressStatus(record.suspense)) {
         case 'GREEN':
@@ -41,4 +39,4 @@ const rowStyle = (record: IProject) => {
     return style;
 };
 
-export default rowStyle;
+export default statusRowStyle;

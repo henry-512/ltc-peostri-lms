@@ -1,6 +1,6 @@
 import { Datagrid, DateField, List, ListProps, TextField } from 'react-admin';
 import { ProjectEmptyList, ProjectListActions } from 'src/components/project';
-import rowStyle from './rowStyle';
+import statusRowStyle from 'src/util/statusRowStyle';
 import { dateOptions } from 'src/util/dateFormatter';
 
 const ProjectList = (props: ListProps) => {
@@ -21,8 +21,8 @@ const ProjectList = (props: ListProps) => {
                         }
                     }}
                     // @ts-ignore
-                    rowStyle={rowStyle}
-                    rowClick="edit"
+                    rowStyle={statusRowStyle}
+                    rowClick="show"
                 >
                     <TextField source="title" />
                     <DateField source="createdAt" locales="en-GB" showTime options={dateOptions} />

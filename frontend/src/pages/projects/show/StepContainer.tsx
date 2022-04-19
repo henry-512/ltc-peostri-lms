@@ -14,7 +14,7 @@ export type StepContainerProps = {
 const StepContainer = (props: StepContainerProps) => (
     <Accordion sx={{
         width: '100%'
-    }} defaultExpanded={props.startOpen}>
+    }} defaultExpanded={props.startOpen} disableGutters>
         <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls={props.id}
@@ -35,10 +35,10 @@ const StepContainer = (props: StepContainerProps) => (
                 }
             }}
         >
-            <Typography>{`Step ${(props.id).split('-')[1]}`}</Typography>
+            <Typography>{`Step ${parseInt((props.id).split('-')[1]) + 1}`}</Typography>
         </AccordionSummary>
         <AccordionDetails sx={{
-            padding: '2px'
+            padding: '0'
         }}>
             <ReferenceArrayField record={{id: props.step}} label=" " reference="modules" source="id">
                 <ModuleGrid />

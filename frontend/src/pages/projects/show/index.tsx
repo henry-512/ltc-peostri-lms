@@ -24,13 +24,6 @@ const ProjectShow = (props: ProjectShowProps) => {
                         <Box display="flex" alignItems="center">
                             <Breadcrumbs aria-label="breadcrumb">
                                 <Link
-                                    color="inherit"
-                                    to="/projects"
-                                    replace={true}
-                                >
-                                    <Typography variant="h6">My Projects</Typography>
-                                </Link>
-                                <Link
                                     color="text.primary"
                                     to=""
                                     replace={true}

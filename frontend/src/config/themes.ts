@@ -1,7 +1,4 @@
-import { defaultTheme } from "react-admin";
-import merge from 'lodash.merge'
-
-export const lightTheme = merge({}, defaultTheme, {
+export const lightTheme = {
     palette: {
         primary: {
             main: '#4f3cc9'
@@ -140,4 +137,4 @@ export const lightTheme = merge({}, defaultTheme, {
             }
         }
     }
-});
+};

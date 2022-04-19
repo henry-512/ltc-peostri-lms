@@ -1,6 +1,6 @@
 import { Datagrid, DateField, List, ListProps, TextField } from 'react-admin';
 import { ProjectEmptyList, ProjectListActions } from 'src/components/project';
-import rowStyle from './rowStyle';
+import statusRowStyle from 'src/util/statusRowStyle';
 import { dateOptions } from 'src/util/dateFormatter';
 
 const AdminProjectList = (props: ListProps) => {
@@ -21,7 +21,7 @@ const AdminProjectList = (props: ListProps) => {
                         }
                     }}
                     // @ts-ignore
-                    rowStyle={rowStyle}
+                    rowStyle={statusRowStyle}
                     rowClick="edit"
                 >
                     <TextField source="title" />

@@ -74,8 +74,8 @@ const ModulesTabbedList = () => {
                 </Tabs>
                 {tabOptions?.map((tabOption, index) => (
                     <TabPanel key={`tab-option-${index}`} value={tab} index={index}>
-                        {Object.keys(tabOption?.tasks).map((modKey, index) => (
-                            <StepContainer key={modKey} id={modKey} step={tabOption.tasks[modKey]} startOpen={(index == 0)} />
+                        {Object.keys(tabOption?.tasks).map((taskKey, index) => (
+                            <StepContainer key={taskKey} id={taskKey} step={tabOption.tasks[taskKey]} startOpen={(index == 0)} />
                         ))}
                     </TabPanel>
                 ))}

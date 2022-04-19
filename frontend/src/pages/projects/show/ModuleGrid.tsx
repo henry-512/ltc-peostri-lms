@@ -3,6 +3,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useGetList, useShowContext, Datagrid, TextField, ReferenceArrayField, DateField, BooleanField } from "react-admin";
 import { useEffect, useState } from "react";
 import { IModuleStep, IModule, IProject } from "src/util/types";
+import statusRowStyle from "src/util/statusRowStyle";
 
 export type ModuleGridProps = {
 
@@ -15,6 +16,7 @@ const ModuleGrid = (props: ModuleGridProps) => {
             <Datagrid
                 bulkActionButtons={false}
                 rowClick="show"
+                rowStyle={statusRowStyle}
             >
                 <TextField source="title" />
                 <DateField source="suspense" locales="en-GB" />
