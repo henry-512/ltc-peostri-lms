@@ -1,9 +1,11 @@
 import { HTTPStatus } from '../../../lms/errors'
 import { IModule, IProject, ITask } from '../../../lms/types'
-import { IStepper } from '../../../lms/util'
+import { compressStepper, IStepper } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
+import { ModuleManager } from './modules'
 import { NotificationManager } from './notifications'
+import { TaskManager } from './tasks'
 
 function addDays(date: Date, days: number) {
     let d = new Date(date)
@@ -220,6 +222,84 @@ class Project extends DBManager<IProject> {
         }
 
         return max
+    }
+
+    //
+    // PROCEEDING
+    //
+
+    public async complete(user: AuthUser, id: string, force: boolean) {
+        let pro = await this.db.get(id)
+        return this.postComplete(user, pro, force)
+    }
+
+    public async postComplete(user: AuthUser, pro: IProject, force: boolean) {
+        pro.status = 'COMPLETED'
+        // Retrieve all modules
+        let allModules = compressStepper<string>(pro.modules)
+        // Retrieve all tasks
+        let cursor = await this.db.getFaster(allModules, 'd.tasks')
+        let allTasks: string[] = []
+        while (cursor.hasNext) {
+            let taskStepper = await cursor.next()
+            let taskIds = compressStepper<string>(taskStepper)
+            allTasks = allTasks.concat(taskIds)
+        }
+
+        // Verify all modules/tasks are completed, if required
+        if (!force) {
+            // Verify all modules are completed
+            let invalidModules = await ModuleManager.db.assertOrEqualsFaster(
+                allModules,
+                'status',
+                ['COMPLETED', 'WAIVED']
+            )
+            if (invalidModules.hasNext) {
+                let all = await invalidModules.all()
+                throw this.error(
+                    'postComplete',
+                    HTTPStatus.BAD_REQUEST,
+                    `A Module is uncompleted.`,
+                    `Project ${JSON.stringify(
+                        pro
+                    )} cannot be completed due to incomplete module(s) ${JSON.stringify(
+                        all
+                    )}`
+                )
+            }
+            // Verify all tasks are completed
+            let invalidTasks = await TaskManager.db.assertEqualsFaster(
+                allTasks,
+                'status',
+                'COMPLETED'
+            )
+            if (invalidTasks.hasNext) {
+                let all = await invalidTasks.all()
+                throw this.error(
+                    'postComplete',
+                    HTTPStatus.BAD_REQUEST,
+                    `A Module is uncompleted.`,
+                    `Project ${JSON.stringify(
+                        pro
+                    )} cannot be completed due to incomplete tasks(s) ${JSON.stringify(
+                        all
+                    )}`
+                )
+            }
+        } else {
+            // Mark all modules and their tasks as COMPLETED
+            // BUG: Modules with files are not set to WAIVED
+            await ModuleManager.db.updateFaster(
+                allModules,
+                'status',
+                'COMPLETED'
+            )
+            await TaskManager.db.updateFaster(allTasks, 'status', 'COMPLETED')
+        }
+
+        // Update project
+        await this.db.update(pro, { mergeObjects: false })
+        return pro
     }
 }
 

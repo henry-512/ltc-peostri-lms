@@ -6,6 +6,7 @@ import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
 import { CommentManager } from './comments'
 import { FilemetaManager } from './filemeta'
+import { TaskManager } from './tasks'
 import { UserManager } from './users'
 
 class Waive extends DataManager<IWaiveData> {
@@ -150,33 +151,37 @@ class Module extends DBManager<IModule> {
     private async postComplete(user: AuthUser, mod: IModule, force: boolean) {
         // Files with waives are marked 'WAIVED' instead of completed
         mod.status = mod.waive ? 'WAIVED' : 'COMPLETED'
+
+        // Build an array of all tasks
+        let allTasks = compressStepper<string>(mod.tasks)
+
         if (!force) {
             // Verify all tasks are completed in all steps
-            // Build an array of all tasks
-            let allTasks = compressStepper<string>(mod.tasks)
 
-            // Retrieve task statuses
-            let statuses = await this.db.getFaster(allTasks, 'd.status')
-            while (statuses.hasNext) {
-                let status = await statuses.next()
-                // Verify completion
-                if (status !== 'COMPLETED') {
-                    statuses.kill
-                    // Uncompleted task found, fail this operation
-                    this.error(
-                        'postComplete',
-                        HTTPStatus.BAD_REQUEST,
-                        `A Task is uncompleted.`,
-                        `Module ${JSON.stringify(
-                            mod
-                        )} cannot be completed due to incomplete task`
-                    )
-                }
+            // Verify task statuses
+            let invalids = await TaskManager.db.assertEqualsFaster(
+                allTasks,
+                'd.status',
+                'COMPLETED'
+            )
+            // If invalids has entries, one of the comparisons failed
+            if (invalids.hasNext) {
+                let all = await invalids.all()
+                throw this.error(
+                    'postComplete',
+                    HTTPStatus.BAD_REQUEST,
+                    `A Task is uncompleted.`,
+                    `Module ${JSON.stringify(
+                        mod
+                    )} cannot be completed due to incomplete task(s) ${JSON.stringify(
+                        all
+                    )}`
+                )
             }
+        } else {
+            // Mark all tasks as COMPLETED
+            await TaskManager.db.updateFaster(allTasks, 'status', 'COMPLETED')
         }
-        // Mark all tasks as COMPLETED
-        let allTasks = compressStepper<string>(mod.tasks)
-        await this.db.updateFaster(allTasks, "status:'COMPLETED'")
         // Update module
         await this.db.update(mod, { mergeObjects: false })
         return mod
@@ -207,7 +212,7 @@ class Module extends DBManager<IModule> {
 
         // Set tasks to AWAITING
         let allTasks = compressStepper<string>(mod.tasks)
-        await this.db.updateFaster(allTasks, "status:'AWAITING'")
+        await TaskManager.db.updateFaster(allTasks, 'status', 'AWAITING')
 
         // Start module
         return this.postStartStep(user, mod)
@@ -235,28 +240,34 @@ class Module extends DBManager<IModule> {
                     )
                 }
 
-                // Retrieve task statuses
-                let statuses = await this.db.getFaster(currentStep, 'd.status')
-                while (statuses.hasNext) {
-                    let status = await statuses.next()
-                    // Verify completion
-                    if (status !== 'COMPLETED') {
-                        statuses.kill
-                        // Uncompleted task found, fail this operation
-                        this.error(
-                            'postComplete',
-                            HTTPStatus.BAD_REQUEST,
-                            `A Task is uncompleted.`,
-                            `Module ${JSON.stringify(
-                                mod
-                            )} cannot be completed due to incomplete task`
-                        )
-                    }
+                // Verify task statuses
+                let invalids = await TaskManager.db.assertEqualsFaster(
+                    currentStep,
+                    'd.status',
+                    'COMPLETED'
+                )
+                // If invalids has entries, one of the comparisons failed
+                if (invalids.hasNext) {
+                    let all = await invalids.all()
+                    throw this.error(
+                        'advance',
+                        HTTPStatus.BAD_REQUEST,
+                        `A Task is uncompleted.`,
+                        `Module ${JSON.stringify(
+                            mod
+                        )} cannot be advanced due to incomplete task(s) ${JSON.stringify(
+                            all
+                        )}`
+                    )
                 }
             } else {
                 // Set all tasks in current step as COMPLETED
                 let allTasks = compressStepper<string>(mod.tasks)
-                await this.db.updateFaster(allTasks, "status:'COMPLETED'")
+                await TaskManager.db.updateFaster(
+                    allTasks,
+                    'status',
+                    'COMPLETED'
+                )
             }
         }
         return this.postStartStep(user, mod)
@@ -296,9 +307,10 @@ class Module extends DBManager<IModule> {
         }
 
         // Change tasks in next step to in-progress
-        await this.db.updateFaster(
+        await TaskManager.db.updateFaster(
             mod.tasks[nextStep] as string[],
-            "status:'IN_PROGRESS'"
+            'status',
+            'IN_PROGRESS'
         )
 
         // Update step

@@ -164,6 +164,23 @@ export function routerBuilder(version: string) {
                     .routes()
             )
             // PROCEEDING
+            // Projects
+            .use(
+                new Router({ prefix: 'proceeding/projects/' })
+                    .put('complete/:id', async (ctx) => {
+                        let id = await ProjectManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
+
+                        ctx.body = await ProjectManager.complete(
+                            ctx.state.user,
+                            id,
+                            true
+                        )
+                        ctx.status = HTTPStatus.OK
+                    })
+                    .routes()
+            )
             // Modules
             .use(
                 new Router({ prefix: 'proceeding/modules/' })

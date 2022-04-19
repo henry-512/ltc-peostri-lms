@@ -364,21 +364,55 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 
     /**
-     * @param updates Looks like `name:'Something', status:'AWAITING'`
+     * Updates all `ids` with document(id)[key] = value
+     * @param key
      */
-    public async updateFaster(ids: string[], updates: string) {
+    public async updateFaster(ids: string[], key: string, value: any) {
         return ArangoWrapper.db.query(
-            aql`FOR i IN ${ids} UPDATE i WITH {${updates}}`
+            aql`FOR i IN ${ids} UPDATE i WITH{${key}:${value}}`
         )
     }
 
     /**
-     * @param ret Looks like `{id:d._key, status:d.status}` or `d.status`
+     * @param ret Looks like `d.status`
      */
     public async getFaster(ids: string[], ret: string) {
         return ArangoWrapper.db.query(
             aql`FOR i in ${ids} let d=DOCUMENT(i)RETURN ${ret}`
         )
+    }
+
+    /**
+     * @param key looks like `d.status`
+     * @param equals looks like 'COMPLETED'
+     * @return An array of IDs that are invalid
+     */
+    public async assertEqualsFaster(
+        ids: string[],
+        key: string,
+        equals: string
+    ) {
+        return ArangoWrapper.db.query(
+            aql`FOR i in ${ids} let d=DOCUMENT(i)FILTER d.${key}==${equals} RETURN i._id`
+        )
+    }
+
+    public async assertOrEqualsFaster(
+        ids: string[],
+        key: string,
+        equals: string[]
+    ) {
+        let q = aql`FOR i in ${ids} let d=DOCUMENT(i)FILTER`
+        let notFirst = false
+        for (const equal of equals) {
+            if (notFirst) {
+                q = aql`${q} || d.${key}==${equal}`
+            } else {
+                notFirst = true
+                q = aql`${q} d.${key}==${equal}`
+            }
+        }
+        return ArangoWrapper.db.query(q)
     }
 }
 
