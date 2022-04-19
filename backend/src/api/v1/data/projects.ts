@@ -86,6 +86,8 @@ class Project extends DBManager<IProject> {
             lastDBId
         )
 
+        if (0 === 0) return p
+
         // Start date of the project
         let startDate = new Date(p.start)
         let incrementedTTC = 0
@@ -95,10 +97,11 @@ class Project extends DBManager<IProject> {
         let mappedMods: IModule[] = map.get(ModuleManager) ?? []
 
         // Step over the modules
-        stepperForEachInOrder(moduleIdStepper, async (modStepNum) => {
+        await stepperForEachInOrder(moduleIdStepper, async (modStepNum) => {
             let k = buildStepperKey(modStepNum)
             let arrayOfModuleIds = moduleIdStepper[k]
 
+            // Build modules
             let modules: IModule[] = await Promise.all(
                 arrayOfModuleIds.map(async (id) => {
                     let modKey = ModuleManager.db.asKey(id)
@@ -117,8 +120,9 @@ class Project extends DBManager<IProject> {
 
             // Iterate over all modules
             for (const mod of modules) {
-                stepperForEachInOrder(mod.tasks, async (taskStepNum) => {
+                await stepperForEachInOrder(mod.tasks, async (taskStepNum) => {
                     let k = buildStepperKey(taskStepNum)
+                    let arrayOfTaskIds = mod.tasks
                 })
 
                 let tasks = compressStepper<string>(mod.tasks)
