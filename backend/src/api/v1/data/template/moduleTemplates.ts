@@ -105,7 +105,7 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
             comments: [],
             status: 'AWAITING',
             ttc: temp.ttc,
-            files: [],
+            // files: [],
             currentStep: 0,
         }
     }
