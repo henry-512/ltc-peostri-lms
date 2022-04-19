@@ -273,6 +273,9 @@ const dataProvider = (
                 return httpClient(`${apiUrl}/${resource}/list`, {
                     method: 'POST',
                     body: formData,
+                    headers: {
+                        "Access-Control-Allow-Credentials": "include"
+                    }
                 }).then(({ json }) => ({
                     data: { ...params.data, id: json.id },
                 }))
@@ -280,6 +283,9 @@ const dataProvider = (
                 return httpClient(`${apiUrl}/${resource}/list`, {
                     method: 'POST',
                     body: JSON.stringify(params.data),
+                    headers: {
+                        "Access-Control-Allow-Credentials": "include"
+                    }
                 }).then(({ json }) => ({
                     data: { ...params.data, id: json.id },
                 }))
