@@ -2,6 +2,7 @@ import { HTTPStatus } from '../../../lms/errors'
 import { IModule, IProject, ITask } from '../../../lms/types'
 import { compressStepper, IStepper } from '../../../lms/util'
 import { AuthUser } from '../../auth'
+import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
 import { ModuleManager } from './modules'
 import { NotificationManager } from './notifications'
@@ -60,6 +61,68 @@ class Project extends DBManager<IProject> {
             },
             { hasUpdate: true, hasCreate: true, defaultFilter: 'title' }
         )
+    }
+
+    // Update TTC and set users
+    public override async verifyAddedDocument(
+        user: AuthUser,
+        files: any,
+        doc: IProject,
+        exists: boolean,
+        map: Map<DataManager<any>, any[]>,
+        lastDBId: string
+    ): Promise<IProject> {
+        let p = await super.verifyAddedDocument(
+            user,
+            files,
+            doc,
+            exists,
+            map,
+            lastDBId
+        )
+
+        // Find all modules in this document
+        let moduleIds = compressStepper<string>(p.modules)
+        let mods: IModule[] = map.get(ModuleManager) ?? []
+
+        for (const id of moduleIds) {
+            let modKey = ModuleManager.db.asKey(id)
+            let found = false
+            // Check if this module has been extracted
+            for (const m of mods) {
+                if (m.id === modKey) {
+                    mods.concat(m)
+                    found = true
+                    break
+                }
+            }
+            if (found) {
+                continue
+            }
+            // Module has not been found, pull it from DB and add it to
+            // the map
+            mods = mods.concat(await ModuleManager.db.get(id))
+        }
+
+        // Assign TTC values
+        let proTTC = 0
+        for (const mod of mods) {
+            let tasks = compressStepper<string>(mod.tasks)
+
+            let taskTTCCursor = await TaskManager.db.getFaster<number>(
+                tasks,
+                'ttc'
+            )
+            let ttc = 0
+            await taskTTCCursor.forEach((v) => {
+                ttc += v
+            })
+            mod.ttc = ttc
+            proTTC += ttc
+        }
+        p.ttc = proTTC
+
+        return p
     }
 
     public override async create(
@@ -238,10 +301,14 @@ class Project extends DBManager<IProject> {
         // Retrieve all modules
         let allModules = compressStepper<string>(pro.modules)
         // Retrieve all tasks
-        let cursor = await this.db.getFaster(allModules, 'd.tasks')
+        let cursor = await this.db.getFaster<IStepper<string>>(
+            allModules,
+            'd.tasks'
+        )
         let allTasks: string[] = []
         while (cursor.hasNext) {
             let taskStepper = await cursor.next()
+            if (!taskStepper) break
             let taskIds = compressStepper<string>(taskStepper)
             allTasks = allTasks.concat(taskIds)
         }

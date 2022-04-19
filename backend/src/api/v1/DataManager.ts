@@ -2,7 +2,14 @@ import { config } from '../../config'
 import { HTTPStatus, IErrorable } from '../../lms/errors'
 import { IDataFieldData, IField, IForeignFieldData } from '../../lms/FieldData'
 import { ICreateUpdate } from '../../lms/types'
-import { isDBId, isDBKey, PTR, splitId, str } from '../../lms/util'
+import {
+    convertToKey,
+    isDBId,
+    isDBKey,
+    PTR,
+    splitId,
+    str,
+} from '../../lms/util'
 import { AuthUser } from '../auth'
 
 export class DataManager<Type> extends IErrorable {
@@ -686,6 +693,7 @@ export class DataManager<Type> extends IErrorable {
                 }
                 return false
             },
+            // foreign
             (v, d) => {
                 if (typeof v === 'string' && d.foreignApi.db.isDBId(v)) {
                     return splitId(v).key
@@ -698,6 +706,7 @@ export class DataManager<Type> extends IErrorable {
                     `${this.className} [${v}] expected to be a DB id`
                 )
             },
+            // data
             (v, d) => {
                 if (typeof v === 'object') {
                     return d.foreignData.convertIDtoKEY(v)
@@ -706,7 +715,11 @@ export class DataManager<Type> extends IErrorable {
                     'convertIds',
                     `${this.className} [${v}] expected to be an object`
                 )
-            }
+            },
+            // other
+            undefined,
+            // parent
+            async (v, d) => convertToKey(v)
         )
     }
 }
