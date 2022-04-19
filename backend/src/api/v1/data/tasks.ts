@@ -31,7 +31,7 @@ class Task extends DBManager<ITask> {
                 },
                 module: {
                     type: 'parent',
-                    managerName: 'projects',
+                    managerName: 'modules',
                     parentReferenceKey: 'tasks',
                 },
                 type: { type: 'string' },
