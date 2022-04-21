@@ -2,6 +2,7 @@ import { stringify } from 'query-string';
 import { fetchUtils, DataProvider } from 'ra-core';
 import { IModule, IProject } from './types';
 import { generateBase64UUID } from './uuidProvider';
+import cloneDeep from 'lodash.clonedeep'
 
 /**
  * Maps react-admin queries to a simple REST API
@@ -41,13 +42,14 @@ type HTTPClientPromiseReturn = {
     json: any
 }
 
-const client = (url: any, options: fetchUtils.Options = {headers: { "Access-Control-Allow-Credentials": "include" }}) => {
+const client = (url: any, options: fetchUtils.Options = {}) => {
     options.credentials = 'include'
     return fetchUtils.fetchJson(url, options);
 }
 
 const convertProjectToFormData = (data: IProject) => {
-    const localData = data;
+    let localData = cloneDeep(data);
+
     let formData = new FormData();
 
     for (let step of Object.values<IModule[]>(localData.modules)) {
@@ -272,20 +274,14 @@ const dataProvider = (
 
                 return httpClient(`${apiUrl}/${resource}/list`, {
                     method: 'POST',
-                    body: formData,
-                    headers: {
-                        "Access-Control-Allow-Credentials": "include"
-                    }
+                    body: formData
                 }).then(({ json }) => ({
                     data: { ...params.data, id: json.id },
                 }))
             default: 
                 return httpClient(`${apiUrl}/${resource}/list`, {
                     method: 'POST',
-                    body: JSON.stringify(params.data),
-                    headers: {
-                        "Access-Control-Allow-Credentials": "include"
-                    }
+                    body: JSON.stringify(params.data)
                 }).then(({ json }) => ({
                     data: { ...params.data, id: json.id },
                 }))

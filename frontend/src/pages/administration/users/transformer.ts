@@ -1,6 +1,8 @@
 import { IUser } from "src/util/types";
+import cloneDeep from 'lodash.clonedeep';
 
-const transformer = (data: IUser) => {
+const transformer = (userData: IUser) => {
+    let data = cloneDeep(userData);
     delete data.useEmail;
     delete data.confirm_password;
 

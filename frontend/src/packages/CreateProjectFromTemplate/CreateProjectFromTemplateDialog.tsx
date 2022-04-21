@@ -1,4 +1,4 @@
-import { ReferenceInput, required, AutocompleteInput, useDataProvider, useTranslate, useRedirect } from "react-admin";
+import { ReferenceInput, required, AutocompleteInput, useDataProvider, useTranslate, useRedirect, useNotify } from "react-admin";
 import { styled } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { useFormContext, useFormState } from "react-hook-form";
@@ -43,6 +43,7 @@ const CreateProjectFromTemplateDialog = (props: CreateProjectFromTemplateDialogP
     const redirect = useRedirect();
     const { isValid } = useFormState();
     const { getValues, setValue } = useFormContext();
+    const notify = useNotify();
     
     const handleSubmit = async () => {
         const template_id = getValues('project_template_id');
@@ -52,7 +53,7 @@ const CreateProjectFromTemplateDialog = (props: CreateProjectFromTemplateDialogP
             redirect('create', 'admin/projects', undefined, {}, { record: {...omitID(response.data)}});
         })
         .catch(e => {
-            redirect('list', 'admin/projects');
+            notify(e);
         });
 
         props.setOpen(false);

@@ -1,6 +1,8 @@
 import { IProject } from "src/util/types";
+import cloneDeep from 'lodash.clonedeep';
 
-const transformer = (data: IProject) => {
+const transformer = (projectData: IProject) => {
+    let data = cloneDeep(projectData);
     delete data.module_template_id;
 
     data.ttc = parseInt(`${data.ttc}`);

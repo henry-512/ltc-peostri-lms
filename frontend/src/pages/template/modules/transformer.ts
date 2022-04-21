@@ -1,7 +1,8 @@
 import { IModuleTemplate, ITaskTemplate } from "src/util/types";
+import cloneDeep from 'lodash.clonedeep';
 
-const transformer = (data: IModuleTemplate) => {
-
+const transformer = (moduleData: IModuleTemplate) => {
+    let data = cloneDeep(moduleData);
     data.ttc = parseInt(`${data.ttc}`);
 
     //Remove empty steps.

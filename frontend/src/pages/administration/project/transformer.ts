@@ -1,6 +1,9 @@
 import { IModule, IProject, ITask } from "src/util/types";
+import cloneDeep from 'lodash.clonedeep';
 
-const transformer = (data: IProject) => {
+const transformer = (projectData: IProject) => {
+    let data =  cloneDeep(projectData);
+
     //Remove form values used for client processing.
     delete data.module_template_id;
     delete data.auto_assign;

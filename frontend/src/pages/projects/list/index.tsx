@@ -1,5 +1,5 @@
 import { Datagrid, DateField, List, ListProps, TextField } from 'react-admin';
-import { ProjectEmptyList, ProjectListActions } from 'src/components/project';
+import { ProjectEmptyList } from 'src/components/project';
 import statusRowStyle from 'src/util/statusRowStyle';
 import { dateOptions } from 'src/util/dateFormatter';
 
@@ -10,7 +10,6 @@ const ProjectList = (props: ListProps) => {
             <List {...props}
                 perPage={25}
                 empty={<ProjectEmptyList />}
-                actions={<ProjectListActions />}
             >
                 <Datagrid
                     sx={{
