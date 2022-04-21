@@ -43,7 +43,7 @@ const ModuleShow = (props: ModuleShowProps) => {
                         </Box>
                     </Box>
                     <Divider sx={{ margin: "0 -15px" }} />
-                    {/* TODO: Change this to tasks/assigned */}
+                    {/* TODO: Change this to tasks/assigned TODO: filter={{ status: "IN_PROGRESS" }}*/}
                     <ShowController>
                         {({record}) => (
                             <ReferenceArrayField record={{ id: record.tasks[`key-${record.currentStep}`] }} reference="tasks" source="id" sort={{ field: 'suspense', order: 'ASC' }} >

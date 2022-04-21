@@ -7,6 +7,7 @@ import {
     useRecordContext,
     ReferenceField,
     ReferenceArrayField,
+    FileField
 } from 'react-admin';
 import {
     Typography,
@@ -83,28 +84,26 @@ const EventList = () => {
                             </Box>
                         </Grid>
                     </Grid>
-                    {/*<Typography variant="h6" gutterBottom>
-                        Details
-                    </Typography>
-                    <Grid container rowSpacing={1} columnSpacing={1}>
-                        {(record.team) ? (<>
+                    {(record && record.files && record.files.latest) ? ( <>
+                        <Typography variant="h6" gutterBottom>
+                            Details
+                        </Typography>
+                        <Grid container rowSpacing={1} columnSpacing={1}>
                             <Grid item xs={6} display="flex" gap={1}>
                                 <Box flexGrow={1}>
                                     <Typography variant="body2">
-                                        Team
+                                        File
                                     </Typography>
                                 </Box>
                             </Grid>
                             
                             <Grid item xs={6} display="flex" gap={1}>
                                 <Box flexGrow={1}>
-                                    <ReferenceField source="team" reference="admin/teams">
-                                        <TextField source="name" variant="body2" fontWeight="600" />
-                                    </ReferenceField>
+                                    <FileField source="record.files.latest.src" />
                                 </Box>
                             </Grid>
-                        </>) : null}
-                    </Grid>*/}
+                        </Grid>
+                    </>) : null }
                     <Typography variant="h6" gutterBottom>
                         Statistics
                     </Typography>

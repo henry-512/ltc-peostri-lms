@@ -1,4 +1,4 @@
-import { Admin, EditGuesser, ListGuesser, Resource, ShowGuesser } from 'react-admin';
+import { Admin, CustomRoutes, EditGuesser, ListGuesser, Resource, ShowGuesser } from 'react-admin';
 import dataProvider from './util/dataProvider';
 import { AdminProjectList, AdminProjectCreate, AdminProjectEdit } from './pages/administration/project';
 import DashboardPage from './pages/dashboard';
@@ -15,6 +15,7 @@ import Layout from 'src/packages/Layout';
 import { ProjectShow, ProjectList } from './pages/projects';
 import { ModuleShow } from './pages/modules';
 import { lightTheme } from 'src/config/themes';
+import { Navigate, Route } from 'react-router-dom';
 
 const API_URL = process.env.REACT_APP_API_URL + "/" + process.env.REACT_APP_API_VERSION || "http://localhost:5000/api/v1";
 
@@ -55,6 +56,10 @@ const App = () => {
             <Resource name="projects/all" options={{ label: "layout.menu.my_projects" }} list={ProjectList} />
             <Resource name="projects/team" options={{ label: "layout.menu.my_projects" }} list={ProjectList} />
             <Resource name="notifications" list={ListGuesser} />
+
+            <CustomRoutes>
+                <Route path="/modules" element={<Navigate to="/projects" />} />
+            </CustomRoutes>
         </Admin>
     );
 }

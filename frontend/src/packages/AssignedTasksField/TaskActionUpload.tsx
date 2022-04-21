@@ -5,6 +5,7 @@ import { useFormContext, useFormState } from "react-hook-form";
 import TaskActionDialog from "./TaskActionDialog";
 import { MouseEventHandler } from "react";
 import AddBoxIcon from '@mui/icons-material/AddBox';
+import { useRefresh } from 'react-admin';
 
 export type TaskActionUploadProps = {
     id: string
@@ -15,9 +16,10 @@ export type TaskActionUploadProps = {
 
 const TaskActionUpload = (props: TaskActionUploadProps) => {
     const [update, { isLoading, error }] = useUpdate();
+    const refresh = useRefresh();
 
     const handleSubmit = (data: any) => {
-        update(`proceeding/tasks/upload`, { id: props.id, data, previousData: {} }).finally(() => props.close())        
+        update(`proceeding/tasks/upload`, { id: props.id, data, previousData: {} }).then(() => refresh()).finally(() => props.close())   
     }
 
     const handleClose = () => {

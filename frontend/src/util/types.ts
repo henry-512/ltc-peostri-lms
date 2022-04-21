@@ -111,7 +111,12 @@ export interface IModule extends RaRecord {
         file: any;
         comment: string;
     };
-    file?: any;
+    files?: {
+        latest?: any,
+        old: any[],
+        reviews: any[],
+        oldReviews: any[]
+    };
     ttc?: number | string
     waive_comment?: string
 }
