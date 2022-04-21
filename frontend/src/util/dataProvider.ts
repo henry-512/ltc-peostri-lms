@@ -47,7 +47,7 @@ const client = (url: any, options: fetchUtils.Options = {}) => {
     return fetchUtils.fetchJson(url, options);
 }
 
-const convertProjectToFormData = (data: IProject) => {
+export const convertProjectToFormData = (data: IProject) => {
     let localData = cloneDeep(data);
 
     let formData = new FormData();
@@ -55,13 +55,13 @@ const convertProjectToFormData = (data: IProject) => {
     for (let step of Object.values<IModule[]>(localData.modules)) {
         for (let module of step) {
             if (!module.waive_module) continue;
-            if (!module.waive) continue;
-            if (!module.waive.file) continue;
+            if (!module.file) continue;
+            if (module.file.old) continue;
             if (!module.id) module.id = generateBase64UUID();
 
-            if (module.waive.file) {
-                formData.append(`${module.id}-${module.waive.file.title}`, module.waive.file.rawFile)
-                module.waive.file = `${module.id}-${module.waive.file.title}`
+            if (module.file) {
+                formData.append(`${module.id}-${module.file.title}`, module.file.rawFile)
+                module.file = `${module.id}-${module.file.title}`
             }
         }
     }
@@ -71,6 +71,27 @@ const convertProjectToFormData = (data: IProject) => {
     })
 
     formData.append('json', jsonData, "data");
+
+    return formData;
+}
+
+export type fileBody = { file: any, [x: string]: any }
+export const convertFileUpload = (data: fileBody) => {
+    let localData = cloneDeep(data);
+    
+    let formData = new FormData();
+
+    if (localData.file) {
+        const fileID = generateBase64UUID();
+        formData.append(`${fileID}-${localData.file.title}`, localData.file.rawFile);
+        localData.file = `${fileID}-${localData.file.title}`;
+    }
+
+    let jsonData = new Blob([JSON.stringify(localData)], {
+        type: 'application/json'
+    });
+
+    formData.append('json', jsonData, 'data')
 
     return formData;
 }
@@ -228,6 +249,7 @@ const dataProvider = (
     },
 
     update: (resource, params) => {
+        let formData = new FormData();
         switch(resource) {
             case 'notifications/readall':
                 return httpClient(`${apiUrl}/${resource}`, {
@@ -240,7 +262,7 @@ const dataProvider = (
                     body: JSON.stringify(params.data),
                 }).then(({ json }) => Promise.resolve({ data: { id: "" } }))
             case 'admin/projects':
-                const formData = convertProjectToFormData(params.data as IProject);
+                formData = convertProjectToFormData(params.data as IProject);
 
                 return httpClient(`${apiUrl}/${resource}/list/${params.id}`, {
                     method: 'PUT',
@@ -248,6 +270,13 @@ const dataProvider = (
                 }).then(({ json }) => ({
                     data: { ...params.data, id: json.id },
                 }))
+            case 'proceeding/tasks/upload':
+                formData = convertFileUpload(params.data as fileBody);
+
+                return httpClient(`${apiUrl}/${resource}/${params.id}`, {
+                    method: 'PUT',
+                    body: formData,
+                }).then(({ json }) => Promise.resolve({ data: { id: "" } }))
             default: 
                 return httpClient(`${apiUrl}/${resource}/list/${params.id}`, {
                     method: 'PUT',

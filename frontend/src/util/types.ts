@@ -12,7 +12,7 @@ export interface ITeam extends RaRecord {
 
 export type NotificationTypes = "PROJECT" | "MODULE" | "TASK" | "USER";
 export type Status = "IN_PROGRESS" | "COMPLETED" | "ARCHIVED" | "AWAITING" | "WAIVED";
-export type TaskTypes = "DOCUMENT_UPLOAD" | "DOCUMENT_REVIEW" | "WAIVER_APPROVE" | "DOCUMENT_APPROVE";
+export type TaskTypes = "DOCUMENT_UPLOAD" | "DOCUMENT_REVIEW" | "DOCUMENT_APPROVE" | "WAIVER_APPROVE";
 export type UserStatus = 'ACTIVE' | 'LOCKED' | 'INACTIVE' | 'SUSPENDED';
 
 export interface INotification extends RaRecord {

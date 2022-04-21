@@ -7,17 +7,18 @@ import { getProgressStatusColor } from "src/util/getProgressStatus";
 import { ITask } from "src/util/types";
 import TaskActionUpload from "./TaskActionUpload";
 
-export type AssignedTaskActionButtonProps = {
+export type AssignedTaskActionProps = {
+    id: string
     type?: string
 }
 
-const AssignedTaskAction = ({ type }: AssignedTaskActionButtonProps) => {
+const AssignedTaskAction = ({ id, type }: AssignedTaskActionProps) => {
     const [open, setOpen] = useState<string>("");
 
     switch (type) {
         case 'DOCUMENT_UPLOAD':
             return (
-                <TaskActionUpload open={(open == "DOCUMENT_UPLOAD")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_UPLOAD")} />
+                <TaskActionUpload id={id} open={(open == "DOCUMENT_UPLOAD")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_UPLOAD")} />
             )
         default:
             return null
@@ -45,7 +46,7 @@ const AssignedTaskItem = ({ record }: AssignedTaskItemProps) => (
                 </ReferenceArrayField>
             </Box>
         </Box>
-        <AssignedTaskAction type={record.type} />
+        <AssignedTaskAction id={`${record.id}`} type={record.type} />
     </Box>
 )
 

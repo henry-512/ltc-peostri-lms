@@ -45,6 +45,9 @@ const TaskActionDialog = (props: TaskActionDialogProps) => {
             <StyledDialog open={props.open} onClose={props.handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'sm')}>
                 <Form
                     mode="onBlur"
+                    onSubmit={props.handleSubmit}
+                    defaultValues={{}}
+                    record={{}}
                 >
                     <DialogTitle id={props.ariaLabel}>{props.label}</DialogTitle>
                     <DialogContent>
