@@ -424,8 +424,22 @@ export class DataManager<Type> extends IErrorable {
                 // Check for missing fields
                 if (k in o) {
                     if (
-                        // Remove db-only fields
-                        data.hidden ||
+                        // If the data is hidden but exists in the database,
+                        // its an attempted override
+                        data.hidden &&
+                        exists
+                    ) {
+                        console.warn(
+                            `Overriding hidden key ${str(data)} in doc`
+                        )
+                        return false
+                        // throw this.error(
+                        //     'verifyAddedDocument.mapEachField',
+                        //     HTTPStatus.BAD_REQUEST,
+                        //     'Invalid document',
+                        //     `Attempted to override key ${str(data)} in doc`
+                        // )
+                    } else if (
                         // Remove null-like fields
                         o[k] === undefined ||
                         o[k] === null ||
