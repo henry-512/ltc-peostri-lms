@@ -1,52 +1,13 @@
 import { HTTPStatus } from '../../../lms/errors'
-import { IModule, IWaiveData } from '../../../lms/types'
-import { compressStepper, stepperKeyToNum } from '../../../lms/util'
+import { IModule } from '../../../lms/types'
+import {
+    compressStepper,
+    getNextStepperKey,
+    stepperKeyToNum,
+} from '../../../lms/util'
 import { AuthUser } from '../../auth'
-import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
-import { CommentManager } from './comments'
-import { FilemetaManager } from './filemeta'
 import { TaskManager } from './tasks'
-import { UserManager } from './users'
-
-class Waive extends DataManager<IWaiveData> {
-    constructor() {
-        super('Waive', {
-            comment: {
-                type: 'string',
-                optional: true,
-                acceptNewDoc: true,
-            },
-            file: {
-                type: 'fkey',
-                foreignApi: FilemetaManager,
-                optional: true,
-                acceptNewDoc: true,
-                // distortOnGet: (doc: any) => ({
-                //     src: `api/v1/files/${doc.id}`,
-                //     title: doc.latest.title,
-                // }),
-            },
-            // author: {
-            //     type: 'fkey',
-            //     foreignApi: UserManager,
-            // },
-        })
-    }
-
-    protected override modifyDoc = async (
-        user: AuthUser,
-        files: any,
-        doc: any
-    ): Promise<IWaiveData> => {
-        // if (!doc.author) {
-        //     doc.author = user.id
-        // }
-        return doc
-    }
-}
-
-const WaiveManager = new Waive()
 
 class Module extends DBManager<IModule> {
     constructor() {
@@ -90,23 +51,15 @@ class Module extends DBManager<IModule> {
                     optional: true,
                     acceptNewDoc: true,
                 },
-                // files: {
-                //     type: 'array',
-                //     instance: 'fkey',
-                //     managerName: 'filemeta',
-                //     optional: true,
-                //     default: [],
-                //     acceptNewDoc: true,
-                // },
-                waive: {
-                    type: 'data',
-                    foreignData: WaiveManager,
-                    optional: true,
-                },
                 waive_module: {
                     type: 'boolean',
                     optional: true,
                     default: false,
+                },
+                waive_comment: {
+                    type: 'string',
+                    optional: true,
+                    acceptNewDoc: true,
                 },
                 ttc: {
                     type: 'number',
@@ -129,21 +82,54 @@ class Module extends DBManager<IModule> {
         doc: any
     ): Promise<IModule> => {
         // Set doc.waive_module flag if necessary
-        if (doc.waive) {
+        if (doc.waive_comment) {
             doc.waive_module = true
         }
 
-        // Convert a single file into a file array
-        if (doc.file) {
-            if (doc.files) {
-                doc.files.concat(doc.file)
-            } else {
-                doc.files = [doc.file]
-            }
-            delete doc.file
+        return doc
+    }
+
+    // Checks for automatic step/module advancing
+    public async automaticAdvance(user: AuthUser, id: string) {
+        return this.postAutomaticAdvance(user, await this.db.get(id))
+    }
+
+    private async postAutomaticAdvance(user: AuthUser, mod: IModule) {
+        if (mod.status !== 'IN_PROGRESS') {
+            return
         }
 
-        return doc
+        let currentStep = mod.tasks[mod.currentStep] as string[]
+
+        if (!currentStep) {
+            throw this.internal(
+                'advance',
+                `${JSON.stringify(
+                    mod
+                )} has invalid currentStep field ${currentStep}`
+            )
+        }
+
+        // Verify task statuses
+        let invalids = await TaskManager.db.assertEqualsFaster(
+            currentStep,
+            'd.status',
+            'COMPLETED'
+        )
+
+        // If there are tasks remaining
+        if (invalids.hasNext) {
+            return
+        }
+
+        mod.currentStep = getNextStepperKey(mod.tasks, mod.currentStep)
+
+        if (mod.currentStep === -1) {
+            // advance project
+        }
+
+        mod.id = mod._id
+        await this.db.update(mod, { mergeObjects: false })
     }
 
     // Marks a module as 'COMPLETED'

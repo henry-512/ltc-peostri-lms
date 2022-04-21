@@ -9,8 +9,8 @@ export type Status =
 export type TaskTypes =
     | 'DOCUMENT_UPLOAD'
     | 'DOCUMENT_REVIEW'
-    | 'MODULE_WAIVER'
-    | 'MODULE_WAIVER_APPROVAL'
+    | 'DOCUMENT_APPROVE'
+    | 'WAIVER_APPROVE'
 export type UserStatus = 'ACTIVE' | 'LOCKED' | 'INACTIVE' | 'SUSPENDED'
 
 // All are optional

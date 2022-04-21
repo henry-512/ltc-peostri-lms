@@ -17,7 +17,7 @@ import { ModuleTempManager } from './data/template/moduleTemplates'
 import { ProjectTempManager } from './data/template/projectTemplates'
 import { UserManager } from './data/users'
 import { Managers } from './DBManager'
-import { AdminRouter, getOne, sendRange, UserRouter } from './Router'
+import { AdminRouter, getOne, parseBody, sendRange, UserRouter } from './Router'
 
 export function routerBuilder(version: string) {
     // Resolve dependency issue
@@ -245,6 +245,25 @@ export function routerBuilder(version: string) {
                             id,
                             true
                         )
+                        ctx.status = HTTPStatus.OK
+                    })
+                    .routes()
+            )
+            .use(
+                new Router({ prefix: 'proceeding/tasks/' })
+                    .put('upload/:id', async (ctx) => {
+                        let id = await TaskManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
+
+                        let body = await parseBody(ctx.request)
+                        await TaskManager.upload(
+                            ctx.state.user,
+                            id,
+                            ctx.request.files,
+                            body.file
+                        )
+
                         ctx.status = HTTPStatus.OK
                     })
                     .routes()
