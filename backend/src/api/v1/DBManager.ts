@@ -301,6 +301,15 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             // data
             // Warp return values and convert foreign keys
             async (v, data) => {
+                if (!noDeref) {
+                    await data.foreignData.mapForeignKeys(
+                        v,
+                        (v, d) => {
+                            return d.foreignApi.getFromDB(user, v)
+                        },
+                        (d) => d.type === 'parent'
+                    )
+                }
                 await data.foreignData.convertIDtoKEY(v)
                 return data.distortOnGet ? data.distortOnGet(v) : v
             },

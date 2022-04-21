@@ -30,10 +30,10 @@ class Waive extends DataManager<IWaiveData> {
                 //     title: doc.latest.title,
                 // }),
             },
-            author: {
-                type: 'fkey',
-                foreignApi: UserManager,
-            },
+            // author: {
+            //     type: 'fkey',
+            //     foreignApi: UserManager,
+            // },
         })
     }
 
@@ -42,9 +42,9 @@ class Waive extends DataManager<IWaiveData> {
         files: any,
         doc: any
     ): Promise<IWaiveData> => {
-        if (!doc.author) {
-            doc.author = user.id
-        }
+        // if (!doc.author) {
+        //     doc.author = user.id
+        // }
         return doc
     }
 }
