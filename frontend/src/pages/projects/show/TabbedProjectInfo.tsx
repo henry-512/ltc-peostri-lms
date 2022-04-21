@@ -2,6 +2,7 @@ import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Box, Tab } from "@mui/material";
 import { useState } from "react";
 import ModulesTabbedList from "./ModulesTabbedList";
+import DocumentList from "./DocumentList";
 
 type ProjectTabs = "DOCS" | "MODULES" | "LOGS";
 
@@ -33,7 +34,7 @@ const TabbedProjectInfo = (props: TabbedProjectInfoProps) => {
                 <TabPanel value="DOCS" sx={{
                     padding: '0'
                 }}>
-
+                    <DocumentList />
                 </TabPanel>
                 <TabPanel value="LOGS" sx={{
                     padding: '0'

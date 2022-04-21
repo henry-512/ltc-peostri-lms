@@ -234,6 +234,7 @@ const dataProvider = (
             
         switch (resource) {
             case "tasks":
+            case "modules":
                 url = `${apiUrl}/${resource}/all/list?${stringify(query)}`;
 
                 return httpClient(url, options).then(({ headers, json }: HTTPClientPromiseReturn) => {
