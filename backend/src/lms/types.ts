@@ -73,6 +73,7 @@ export interface IModule extends IArangoIndexes {
 
     file?: IFilemeta
     waive?: IWaiveData
+    waive_module?: boolean
 }
 
 export interface IProjectTemplate extends IArangoIndexes, ICreateUpdate {

@@ -18,17 +18,17 @@ class Waive extends DataManager<IWaiveData> {
                 optional: true,
                 freeable: true,
                 acceptNewDoc: true,
-                distortOnGet: (doc: any) => doc.content,
+                // distortOnGet: (doc: any) => doc.content,
             },
             file: {
                 type: 'fkey',
                 foreignApi: FilemetaManager,
                 optional: true,
                 acceptNewDoc: true,
-                distortOnGet: (doc: any) => ({
-                    src: `api/v1/files/${doc.id}`,
-                    title: doc.latest.title,
-                }),
+                // distortOnGet: (doc: any) => ({
+                //     src: `api/v1/files/${doc.id}`,
+                //     title: doc.latest.title,
+                // }),
             },
             author: {
                 type: 'fkey',
@@ -106,6 +106,11 @@ class Module extends DBManager<IModule> {
                     foreignData: WaiveManager,
                     optional: true,
                 },
+                waive_module: {
+                    type: 'boolean',
+                    optional: true,
+                    default: false,
+                },
                 ttc: {
                     type: 'number',
                     optional: true,
@@ -126,8 +131,10 @@ class Module extends DBManager<IModule> {
         files: any,
         doc: any
     ): Promise<IModule> => {
-        // Remove front-end waive_module
-        delete doc.waive_module
+        // Set doc.waive_module flag if necessary
+        if (doc.waive) {
+            doc.waive_module = true
+        }
 
         // Convert a single file into a file array
         if (doc.file) {
