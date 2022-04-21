@@ -58,7 +58,6 @@ const ModuleCard = ({ info, index, stepKey, changeStep, changeIndex, fields, upd
 
     const handleClickOpen = () => {
         setOpen(true);
-        console.log(info);
     }
 
     const cancelCreator = () => {

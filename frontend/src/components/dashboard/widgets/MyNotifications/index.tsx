@@ -36,8 +36,6 @@ const MyNotifications = (props: MyNotificationsProps) => {
         })
     }
 
-    console.log(total);
-
     if (isError) return null;
     
     return (

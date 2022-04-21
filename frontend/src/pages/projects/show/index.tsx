@@ -1,6 +1,6 @@
 import { Box, Typography, Tab, IconButton, Breadcrumbs, Divider, List, ListItem, ListItemText } from "@mui/material";
 import { useState } from "react";
-import { FunctionField, Link, Show, ShowContextProvider, ShowController, SimpleShowLayout, useCreatePath } from "react-admin";
+import { FunctionField, Link, ReferenceArrayField, Show, ShowContextProvider, ShowController, SimpleShowLayout, useCreatePath } from "react-admin";
 import Aside from "./Aside";
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
@@ -8,6 +8,7 @@ import TabPanel from '@mui/lab/TabPanel';
 import { useNavigate } from "react-router";
 import EditIcon from '@mui/icons-material/Edit';
 import TabbedProjectInfo from "./TabbedProjectInfo";
+import AssignedTasksField from "src/packages/AssignedTasksField";
 
 type ProjectShowProps = {
 
@@ -44,17 +45,13 @@ const ProjectShow = (props: ProjectShowProps) => {
                         </Box>
                     </Box>
                     <Divider sx={{ margin: "0 -15px" }} />
-                    {/*<Box>
-                        <Typography variant="h6">
-                            Tasks Needing Your Attention:
-                        </Typography>
-                        {/* Fetch and Display MyTasks 
-                        <List>
-                            <ListItem>
-                                <ListItemText primary="Some Task" />
-                            </ListItem>
-                        </List>
-                    </Box>*/}
+                    <ShowController>
+                        {({record}) => (
+                            <ReferenceArrayField reference="tasks" source="" filter={{ project: record.id, status: "IN_PROGRESS" }} >
+                                <AssignedTasksField />
+                            </ReferenceArrayField>
+                        )}
+                    </ShowController>
                     <TabbedProjectInfo />
                 </Box>
             </SimpleShowLayout>

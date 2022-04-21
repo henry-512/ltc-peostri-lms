@@ -25,8 +25,6 @@ const ModulesTabbedList = () => {
         return steps;
     })()
 
-    console.log(currentModules, upcomingModules, completedModules);
-
     const [tab, setTab] = useState<number>(0);
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
