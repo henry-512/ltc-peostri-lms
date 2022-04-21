@@ -122,9 +122,18 @@ class Project extends DBManager<IProject> {
                             return m
                         }
                     }
-                    let mod = await ModuleManager.db.get(id)
-                    mappedMods.push(mod)
-                    return mod
+                    if (await ModuleManager.db.exists(id)) {
+                        let mod = await ModuleManager.db.get(id)
+                        mappedMods.push(mod)
+                        return mod
+                    } else {
+                        console.warn(
+                            `Module id ${id} does not exist in ${JSON.stringify(
+                                mappedMods
+                            )} or in the database`
+                        )
+                        return undefined as any
+                    }
                 })
             )
 
@@ -132,6 +141,8 @@ class Project extends DBManager<IProject> {
 
             // Iterate over all modules
             for (const mod of modules) {
+                if (!mod) continue
+
                 let totalModuleTTC = 0
                 await stepperForEachInOrder(mod.tasks, async (taskStepNum) => {
                     let k = buildStepperKey(taskStepNum)
@@ -146,9 +157,18 @@ class Project extends DBManager<IProject> {
                                     return t
                                 }
                             }
-                            let task = await TaskManager.db.get(id)
-                            mappedTasks.push(task)
-                            return task
+                            if (await TaskManager.db.exists(id)) {
+                                let task = await TaskManager.db.get(id)
+                                mappedTasks.push(task)
+                                return task
+                            } else {
+                                console.warn(
+                                    `Task id ${id} does not exist in ${JSON.stringify(
+                                        mappedTasks
+                                    )} or in the database`
+                                )
+                                return undefined as any
+                            }
                         })
                     )
 
@@ -156,6 +176,8 @@ class Project extends DBManager<IProject> {
 
                     // For each task array
                     for (const task of tasks) {
+                        if (!task) continue
+
                         let ttc = task.ttc ?? 0
                         task.suspense = addDays(
                             startDate,
