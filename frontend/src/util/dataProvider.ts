@@ -291,11 +291,18 @@ const dataProvider = (
                     data: { ...params.data, id: json.id },
                 }))
             case 'proceeding/tasks/upload':
+            case 'proceeding/tasks/review':
                 formData = convertFileUpload(params.data as fileBody);
 
                 return httpClient(`${apiUrl}/${resource}/${params.id}`, {
                     method: 'PUT',
                     body: formData,
+                }).then(({ json }) => Promise.resolve({ data: { id: "" } }))
+            case 'proceeding/tasks/complete':
+            case 'proceeding/tasks/approve':
+                return httpClient(`${apiUrl}/${resource}/${params.id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(params.data),
                 }).then(({ json }) => Promise.resolve({ data: { id: "" } }))
             default: 
                 return httpClient(`${apiUrl}/${resource}/list/${params.id}`, {

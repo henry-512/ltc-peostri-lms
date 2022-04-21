@@ -4,6 +4,7 @@ import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "
 import { useFormContext, useFormState } from "react-hook-form";
 import TaskActionDialog from "./TaskActionDialog";
 import { MouseEventHandler } from "react";
+import AddBoxIcon from '@mui/icons-material/AddBox';
 
 export type TaskActionWaiveApproveProps = {
     id: string
@@ -16,7 +17,7 @@ const TaskActionWaiveApprove = (props: TaskActionWaiveApproveProps) => {
     const [update, { isLoading, error }] = useUpdate();
 
     const handleSubmit = (data: any) => {
-        update(`proceeding/tasks/upload`, { id: props.id, data, previousData: {} }).finally(() => props.close())        
+        update(`proceeding/tasks/approve`, { id: props.id, data, previousData: {} }).finally(() => props.close())        
     }
 
     const handleClose = () => {
@@ -26,9 +27,9 @@ const TaskActionWaiveApprove = (props: TaskActionWaiveApproveProps) => {
     return (
         <>
             <Button variant="outlined" onClick={props.setOpen}>
-                Approve
+                Waive
             </Button>
-            <TaskActionDialog ariaLabel="document_upload_dialog" label="Upload a File to the Module" open={props.open} handleSubmit={handleSubmit} handleClose={handleClose} submitText={"Upload"}>
+            <TaskActionDialog ariaLabel="document_upload_dialog" label="Are you sure you want to waive this?" open={props.open} handleSubmit={handleSubmit} handleClose={handleClose} submitText={"Waive"} submitIcon={<AddBoxIcon />}>
                 <FileInput source="file" accept="application/pdf" fullWidth label="project.fields.waive_file_upload" labelSingle="project.fields.waiver_file" helperText=" ">
                     <FileField source="src" title="title" download={true} />
                 </FileInput>

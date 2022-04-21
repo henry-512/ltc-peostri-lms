@@ -35,6 +35,8 @@ export type TaskActionDialogProps = {
     handleSubmit: any
     handleClose: any
     submitText: string
+    submitIcon: JSX.Element
+    allowEmptySubmit?: boolean
 }
 
 const TaskActionDialog = (props: TaskActionDialogProps) => {
@@ -62,9 +64,7 @@ const TaskActionDialog = (props: TaskActionDialogProps) => {
                             {translate('project.layout.cancel')}
                         </Button>
                         <Box sx={{ flex: '1 1 auto' }} />
-                        <SaveButton>
-                            {props.submitText}
-                        </SaveButton>
+                        <SaveButton alwaysEnable={props.allowEmptySubmit} label={props.submitText} icon={props.submitIcon} />
                     </DialogActions>
                 </Form>
             </StyledDialog>

@@ -1,9 +1,10 @@
 import { ReferenceInput, required, AutocompleteInput, useDataProvider, useTranslate, useNotify, useUpdate, FileField, FileInput, useRecordContext } from "react-admin";
 import { styled } from '@mui/material/styles';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
 import { useFormContext, useFormState } from "react-hook-form";
 import TaskActionDialog from "./TaskActionDialog";
 import { MouseEventHandler } from "react";
+import AddBoxIcon from '@mui/icons-material/AddBox';
 
 export type TaskActionApproveProps = {
     id: string
@@ -16,7 +17,7 @@ const TaskActionApprove = (props: TaskActionApproveProps) => {
     const [update, { isLoading, error }] = useUpdate();
 
     const handleSubmit = (data: any) => {
-        update(`proceeding/tasks/upload`, { id: props.id, data, previousData: {} }).finally(() => props.close())        
+        update(`proceeding/tasks/approve`, { id: props.id, data, previousData: {} }).finally(() => props.close())        
     }
 
     const handleClose = () => {
@@ -28,10 +29,8 @@ const TaskActionApprove = (props: TaskActionApproveProps) => {
             <Button variant="outlined" onClick={props.setOpen}>
                 Approve
             </Button>
-            <TaskActionDialog ariaLabel="document_upload_dialog" label="Upload a File to the Module" open={props.open} handleSubmit={handleSubmit} handleClose={handleClose} submitText={"Upload"}>
-                <FileInput source="file" accept="application/pdf" fullWidth label="project.fields.waive_file_upload" labelSingle="project.fields.waiver_file" helperText=" ">
-                    <FileField source="src" title="title" download={true} />
-                </FileInput>
+            <TaskActionDialog ariaLabel="document_upload_dialog" label="Approve Document" open={props.open} handleSubmit={handleSubmit} handleClose={handleClose} submitText={"Approve"} submitIcon={<AddBoxIcon />} maxWidth="xs">
+                <Typography>Are you sure you want to approve this?</Typography>
             </TaskActionDialog>
         </>
     );
