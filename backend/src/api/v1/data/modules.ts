@@ -122,7 +122,7 @@ class Module extends DBManager<IModule> {
             return
         }
 
-        mod.currentStep = getNextStepperKey(mod.tasks, mod.currentStep)
+        mod.currentStep++
 
         if (mod.currentStep === -1) {
             // advance project
