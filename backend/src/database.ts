@@ -9,7 +9,7 @@ import { QueryOptions } from 'arangojs/database'
 import { config } from './config'
 import { HTTPStatus, IErrorable } from './lms/errors'
 import { IField } from './lms/FieldData'
-import { IArangoIndexes } from './lms/types'
+import { IArangoIndexes, IFilemeta } from './lms/types'
 import {
     appendReturnFields,
     generateDBID,
@@ -438,6 +438,14 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         }
         q = aql`${q} RETURN i`
         return ArangoWrapper.db.query(q)
+    }
+
+    public static async getFilemetaFromTask(
+        id: string
+    ): Promise<ArrayCursor<IFilemeta>> {
+        return ArangoWrapper.db.query(
+            aql`RETURN DOCUMENT(DOCUMENT(DOCUMENT(${id}).module).file)`
+        )
     }
 }
 

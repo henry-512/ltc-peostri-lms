@@ -178,34 +178,51 @@ export async function stepperForEachInOrder(
     stepper: IStepper<any>,
     cb: (i: number) => Promise<void | false>
 ) {
-        // All step keys
-        let stepKeys = Object.keys(stepper)
-        // Start with -1
-        let currentStep = -1
-        while(true) {
-            // The next step to process
-            // Defaults to 9999 to signify the next step being unfound
-            let nextStep = 9999
+    // All step keys
+    let stepKeys = Object.keys(stepper)
+    // Start with -1
+    let currentStep = -1
+    while (true) {
+        // The next step to process
+        let nextStep = getNextStepperKey(stepper, currentStep, stepKeys)
 
-            for (let k of stepKeys) {
-                let kNum = stepperKeyToNum(k)
-                // kNum > currentStep <- this step is after the current
-                // If kNum < nextStep <- this step is before the last
-                //                        recorded nextStep
-                if (kNum < nextStep && kNum > currentStep) {
-                    nextStep = kNum
-                }
-            }
-
-            // Next key not found, therefore this module is complete
-            if (nextStep === 9999) {
-                return
-            }
-            // Callback returns false, quit
-            if (await cb(nextStep) === false) {
-                return
-            }
-            // Increment counter
-            currentStep = nextStep
+        if (nextStep === -1) {
+            return
         }
+
+        // Callback returns false, quit
+        if ((await cb(nextStep)) === false) {
+            return
+        }
+        // Increment counter
+        currentStep = nextStep
+    }
+}
+
+// Returns -1 if the next step does not exist
+export function getNextStepperKey(
+    stepper: IStepper<any>,
+    currentStep: number,
+    stepKeys?: string[]
+) {
+    stepKeys = stepKeys ?? Object.keys(stepper)
+
+    // Defaults to 9999 to signify the next step being unfound
+    let nextStep = 9999
+
+    for (let k of stepKeys) {
+        let kNum = stepperKeyToNum(k)
+        // kNum > currentStep <- this step is after the current
+        // If kNum < nextStep <- this step is before the last
+        //                        recorded nextStep
+        if (kNum < nextStep && kNum > currentStep) {
+            nextStep = kNum
+        }
+    }
+
+    // Next key not found, therefore this module is complete
+    if (nextStep === 9999) {
+        return -1
+    }
+    return nextStep
 }

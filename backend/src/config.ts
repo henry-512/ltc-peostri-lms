@@ -5,6 +5,8 @@ dotenv.config()
 
 export interface Config {
     apiPort: string
+    hostname: string
+
     dbUrl: string
     dbName: string
     dbUser: string
@@ -20,6 +22,8 @@ export interface Config {
 
 const config: Config = {
     apiPort: process.env.API_PORT || '4000',
+    hostname: process.env.API_POST || '4000',
+
     dbUrl: process.env.DB_URL || 'localhost',
     dbName: process.env.DB_NAME || 'db',
     dbUser: process.env.DB_USER || 'user',
