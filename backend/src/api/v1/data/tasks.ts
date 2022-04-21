@@ -88,7 +88,7 @@ class Task extends DBManager<ITask> {
         } else {
             // Build a new filemeta object
             filemeta = {
-                id: FiledataManager.db.generateDBID(),
+                id: FilemetaManager.db.generateDBID(),
                 latest,
                 reviews: [],
                 old: [],
