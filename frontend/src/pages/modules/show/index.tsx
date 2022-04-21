@@ -3,7 +3,7 @@ import { FunctionField, Link, ReferenceField, Show, ShowController, SimpleShowLa
 import Aside from "./Aside";
 import EditIcon from '@mui/icons-material/Edit';
 import TabbedProjectInfo from "./TabbedModuleInfo";
-import AssignedTasksField from "./AssignedTasksField";
+import AssignedTasksField from "src/packages/AssignedTasksField";
 
 type ModuleShowProps = {
 

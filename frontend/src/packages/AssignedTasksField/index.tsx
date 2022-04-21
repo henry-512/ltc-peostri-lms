@@ -1,5 +1,5 @@
 import { Box, Typography, List, ListItem, ListItemText } from "@mui/material";
-import { useCreatePath, useListContext, useShowContext } from "react-admin";
+import { useCreatePath, useListContext } from "react-admin";
 import { ITask } from "src/util/types";
 import AssignedTaskItem from "./AssignedTaskItem";
 
@@ -11,8 +11,6 @@ const AssignedTasksField = (props: AssignedTasksFieldProps) => {
     const {
         data
     } = useListContext();
-
-    const createPath = useCreatePath();
 
     if (!data) return null;
 
