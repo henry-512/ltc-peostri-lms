@@ -3,7 +3,13 @@ import bcrypt from 'bcrypt'
 import jsonwebtoken, { JwtPayload } from 'jsonwebtoken'
 import { config } from '../config'
 import { APIError, HTTPStatus } from '../lms/errors'
-import { ApiPerm, defaultPermissions, IPermission, IRank, IUser } from '../lms/types'
+import {
+    ApiPerm,
+    defaultPermissions,
+    IPermission,
+    IRank,
+    IUser,
+} from '../lms/types'
 import { isDBKey } from '../lms/util'
 import { RankManager } from './v1/data/ranks'
 import { UserManager } from './v1/data/users'
@@ -181,7 +187,12 @@ export class AuthUser {
 
                     let user = ctx.state.user
 
-                    ctx.body = await UserManager.getFromDB(user, user.id)
+                    ctx.body = await UserManager.getFromDB(
+                        user,
+                        user.id,
+                        false,
+                        false
+                    )
                     ctx.status = HTTPStatus.OK
                     // ctx.status = HTTPStatus.NO_CONTENT
                 })

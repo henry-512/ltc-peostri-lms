@@ -97,7 +97,9 @@ export function routerBuilder(version: string) {
                         )
                         let meta = await FilemetaManager.getFromDB(
                             ctx.state.user,
-                            id
+                            id,
+                            false,
+                            false
                         )
                         let pathTo = await FiledataManager.readLatest(
                             ctx.state.user,

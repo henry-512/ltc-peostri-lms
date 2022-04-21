@@ -94,7 +94,12 @@ export class AdminRouter<Type extends IArangoIndexes> extends Router {
                     ctx.header['user-agent'] !== 'backend-testing'
                 )
 
-                ctx.body = await this.manager.getFromDB(ctx.state.user, id)
+                ctx.body = await this.manager.getFromDB(
+                    ctx.state.user,
+                    id,
+                    false,
+                    false
+                )
                 ctx.status = HTTPStatus.OK
             })
         }
@@ -165,6 +170,7 @@ export class UserRouter<Type extends IArangoIndexes> extends Router {
                 ctx.body = await this.manager.getFromDB(
                     ctx.state.user,
                     id,
+                    true,
                     true
                 )
                 ctx.status = HTTPStatus.OK
@@ -210,10 +216,7 @@ export class UserRouter<Type extends IArangoIndexes> extends Router {
         return super.routes()
     }
 
-    private async getCount(
-        ctx: ParameterizedContext,
-        fetchType?: FetchType
-    ) {
+    private async getCount(ctx: ParameterizedContext, fetchType?: FetchType) {
         let f =
             fetchType ??
             (await permission<FetchType>(ctx, this.fetchPermission))
@@ -230,17 +233,14 @@ export class UserRouter<Type extends IArangoIndexes> extends Router {
                 return await queryFilterCount(ctx, this.manager, {
                     key: 'undefined', // This is unused
                     custom: this.filterTeam,
-                    intersect: await user.getTeams()
+                    intersect: await user.getTeams(),
                 })
             default:
                 return await queryFilterCount(ctx, this.manager)
         }
     }
 
-    private async getList(
-        ctx: ParameterizedContext,
-        fetch?: FetchType
-    ) {
+    private async getList(ctx: ParameterizedContext, fetch?: FetchType) {
         if (fetch === undefined) {
             fetch = await permission<FetchType>(ctx, 'taskFetching')
         }
@@ -257,7 +257,7 @@ export class UserRouter<Type extends IArangoIndexes> extends Router {
                 return await queryFilter(ctx, this.manager, {
                     key: 'undefined',
                     custom: this.filterTeam,
-                    in: await user.getTeams()
+                    in: await user.getTeams(),
                 })
             default:
                 return await parseRunSendQuery(this.manager, ctx)
@@ -271,7 +271,7 @@ export async function getOne(
     key: string
 ) {
     let id = await manager.db.assertKeyExists(key)
-    ctx.body = await manager.getFromDB(ctx.state.user, id)
+    ctx.body = await manager.getFromDB(ctx.state.user, id, false, false)
     ctx.status = HTTPStatus.OK
 }
 

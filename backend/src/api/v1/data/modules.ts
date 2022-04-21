@@ -1,6 +1,6 @@
 import { HTTPStatus } from '../../../lms/errors'
 import { compressStepper, getStep, stepperKeyToNum } from '../../../lms/Stepper'
-import { IModule } from '../../../lms/types'
+import { IFilemeta, IModule } from '../../../lms/types'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { ProjectManager } from './projects'
@@ -47,6 +47,12 @@ class Module extends DBManager<IModule> {
                     managerName: 'filemeta',
                     optional: true,
                     acceptNewDoc: true,
+                    userDefault: {
+                        latest: '',
+                        old: [],
+                        reviews: [],
+                        oldReviews: []
+                    }
                 },
                 waive_module: {
                     type: 'boolean',

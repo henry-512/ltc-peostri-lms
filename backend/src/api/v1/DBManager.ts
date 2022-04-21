@@ -250,7 +250,8 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
     public async getFromDB(
         user: AuthUser,
         id: string,
-        noDeref?: boolean
+        noDeref: boolean,
+        userRoute: boolean
     ): Promise<Type> {
         let doc = await this.db.get(id)
 
@@ -266,7 +267,13 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                     p.obj[p.key] === undefined ||
                     p.obj[p.key] === null
                 ) {
-                    if (data.default !== undefined) {
+                    if (data.userDefault && userRoute) {
+                        console.warn(
+                            `Using default ${data.default} for ${String(p.key)}`
+                        )
+                        p.obj[p.key] = data.userDefault
+                        return true
+                    } else if (data.default !== undefined) {
                         // Put default value in
                         p.obj[p.key] = data.default
                     } else {
@@ -283,7 +290,12 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                         return convertToKey(v)
                     } else if (data.foreignApi.db.isDBId(v)) {
                         // Dereference the id into an object
-                        let subdoc = await data.foreignApi.getFromDB(user, v)
+                        let subdoc = await data.foreignApi.getFromDB(
+                            user,
+                            v,
+                            noDeref,
+                            userRoute
+                        )
                         // Warps return values
                         if (data.distortOnGet) {
                             subdoc = data.distortOnGet(subdoc)
@@ -303,7 +315,12 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                     await data.foreignData.mapForeignKeys(
                         v,
                         (v, d) => {
-                            return d.foreignApi.getFromDB(user, v)
+                            return d.foreignApi.getFromDB(
+                                user,
+                                v,
+                                noDeref,
+                                userRoute
+                            )
                         },
                         (d) => d.type === 'parent'
                     )
@@ -393,13 +410,8 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         doc: Type,
         real: boolean
     ) {
-        // console.log(JSON.stringify(doc, null, 2))
-
         // doc.id is a KEY here and needs to be converted
         doc.id = id
-
-        // We dont need to update all elements, .update does that
-        // automatically for us :)
 
         // TODO: update parent
         // if (this.parentKey) {

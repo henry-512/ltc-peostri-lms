@@ -56,7 +56,7 @@ class Filedata extends DBManager<IFile> {
     }
 
     public async read(user: AuthUser, id: string) {
-        let file = await this.getFromDB(user, id)
+        let file = await this.db.get(id)
         return this.readSource(user, file.src)
     }
 

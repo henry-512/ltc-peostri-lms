@@ -49,6 +49,8 @@ export interface IField {
     freeable?: boolean
     // If set, distort this field's value on GET
     distortOnGet?: (doc: any) => any
+    // If field is missing on user routes, send this instead
+    userDefault?: any
 }
 
 export interface IForeignFieldData extends IField {
