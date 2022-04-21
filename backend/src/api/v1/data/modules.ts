@@ -41,7 +41,7 @@ class Module extends DBManager<IModule> {
                     type: 'string',
                     optional: true,
                 },
-                file: {
+                files: {
                     type: 'fkey',
                     managerName: 'filemeta',
                     optional: true,
@@ -123,7 +123,7 @@ class Module extends DBManager<IModule> {
 
         // If we can't find the next step, the module is complete
         if (!getStep<string>(mod.tasks, mod.currentStep)) {
-            mod.status = mod.waive ? 'WAIVED' : 'COMPLETED'
+            mod.status = mod.waive_module ? 'WAIVED' : 'COMPLETED'
             // Set current step to -1
             mod.currentStep = -1
             // advance project
@@ -141,15 +141,13 @@ class Module extends DBManager<IModule> {
 
     private async postComplete(user: AuthUser, mod: IModule, force: boolean) {
         // Files with waives are marked 'WAIVED' instead of completed
-        mod.status = mod.waive ? 'WAIVED' : 'COMPLETED'
+        mod.status = mod.waive_module ? 'WAIVED' : 'COMPLETED'
 
         // Build an array of all tasks
         let allTasks = compressStepper<string>(mod.tasks)
 
         if (!force) {
             // Verify all tasks are completed in all steps
-
-            // Verify task statuses
             let invalids = await TaskManager.db.assertEqualsFaster(
                 allTasks,
                 'd.status',
@@ -175,6 +173,7 @@ class Module extends DBManager<IModule> {
         }
         // Update module
         await this.db.update(mod, { mergeObjects: false })
+        // Advance project
         return mod
     }
 
@@ -190,7 +189,7 @@ class Module extends DBManager<IModule> {
                 `${mod} is not AWAITING`
             )
         }
-        return this.postStartStep(user, mod)
+        return this.postStartNextStep(user, mod)
     }
 
     // Restart a module. Clean it's file, mark all tasks as 'AWAITING',
@@ -199,14 +198,14 @@ class Module extends DBManager<IModule> {
         let mod = await this.db.get(id)
         mod.status = 'AWAITING'
         // Reset files
-        mod.file = undefined
+        delete mod.files
 
         // Set tasks to AWAITING
         let allTasks = compressStepper<string>(mod.tasks)
         await TaskManager.db.updateFaster(allTasks, 'status', 'AWAITING')
 
         // Start module
-        return this.postStartStep(user, mod)
+        return this.postStartNextStep(user, mod)
     }
 
     // Advances a module to the next step, or marks it as complete if
@@ -261,10 +260,10 @@ class Module extends DBManager<IModule> {
                 )
             }
         }
-        return this.postStartStep(user, mod)
+        return this.postStartNextStep(user, mod)
     }
 
-    private async postStartStep(user: AuthUser, mod: IModule) {
+    private async postStartNextStep(user: AuthUser, mod: IModule) {
         // Pull current step
         let currentStep = mod.currentStep ?? 0
 
@@ -275,34 +274,17 @@ class Module extends DBManager<IModule> {
             currentStep = -1
         }
 
-        // The next step to process
-        // Defaults to 9999 to signify the next step being unfound
-        let nextStep = 9999
+        let nextStep = currentStep++
 
-        // All step keys
-        let stepKeys = Object.keys(mod.tasks)
-
-        for (let k of stepKeys) {
-            let kNum = stepperKeyToNum(k)
-            // kNum > currentStep <- this step is after the current
-            // If kNum < nextStep <- this step is before the last
-            //                        recorded nextStep
-            if (kNum < nextStep && kNum > currentStep) {
-                nextStep = kNum
-            }
-        }
+        let nextStepAr = getStep<string>(mod.tasks, nextStep)
 
         // Next key not found, therefore this module is complete
-        if (nextStep === 9999) {
+        if (!nextStepAr) {
             return this.postComplete(user, mod, false)
         }
 
         // Change tasks in next step to in-progress
-        await TaskManager.db.updateFaster(
-            mod.tasks[nextStep] as string[],
-            'status',
-            'IN_PROGRESS'
-        )
+        await TaskManager.db.updateFaster(nextStepAr, 'status', 'IN_PROGRESS')
 
         // Update step
         mod.currentStep = nextStep

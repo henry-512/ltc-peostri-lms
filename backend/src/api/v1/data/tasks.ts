@@ -80,8 +80,8 @@ class Task extends DBManager<ITask> {
 
         let filemeta: IFilemeta = {} as any
 
-        if (mod.file) {
-            let filemeta = await FilemetaManager.db.get(mod.file as string)
+        if (mod.files) {
+            let filemeta = await FilemetaManager.db.get(mod.files as string)
 
             filemeta.old = (<string[]>filemeta.old).concat(
                 <string>filemeta.latest
@@ -103,7 +103,7 @@ class Task extends DBManager<ITask> {
 
             // Update filemeta
             await FilemetaManager.db.save(filemeta)
-            mod.file = filemeta.id
+            mod.files = filemeta.id
             await ModuleManager.db.update(mod, { mergeObjects: false })
         }
 

@@ -55,12 +55,6 @@ export interface IModuleTemplate extends IArangoIndexes {
     status: Status | 'WAIVED'
 }
 
-export interface IWaiveData {
-    comment: string | IComment
-    file: string | IFilemeta
-    author: string | IUser
-}
-
 export interface IModule extends IArangoIndexes {
     ttc?: number
     suspense?: string | Date
@@ -71,8 +65,7 @@ export interface IModule extends IArangoIndexes {
     project?: string
     currentStep: number
 
-    file?: string | IFilemeta
-    waive?: IWaiveData
+    files?: string | IFilemeta
     waive_module?: boolean
 }
 

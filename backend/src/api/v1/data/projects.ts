@@ -260,6 +260,13 @@ class Project extends DBManager<IProject> {
     // PROCEEDING
     //
 
+    public async postAutomaticAdvance(user: AuthUser, pro: IProject) {
+        // Only in-progress modules can be automatically advanced
+        if (pro.status !== 'IN_PROGRESS') {
+            return
+        }
+    }
+
     public async complete(user: AuthUser, id: string, force: boolean) {
         let pro = await this.db.get(id)
         return this.postComplete(user, pro, force)
