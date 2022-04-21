@@ -25,6 +25,8 @@ const ModulesTabbedList = () => {
         return steps;
     })()
 
+    console.log(currentModules, upcomingModules, completedModules);
+
     const [tab, setTab] = useState<number>(0);
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -38,7 +40,7 @@ const ModulesTabbedList = () => {
 
     return (
         <>
-            <StepTabber tab={tab} tabOptions={tabOptions} handleChange={handleChange}>
+            <StepTabber tab={tab} tabOptions={tabOptions} handleChange={handleChange} reference="modules" >
                 <Datagrid
                     bulkActionButtons={false}
                     rowClick="show"

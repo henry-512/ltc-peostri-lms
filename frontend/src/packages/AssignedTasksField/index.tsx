@@ -1,5 +1,5 @@
 import { Box, Typography, List, ListItem, ListItemText } from "@mui/material";
-import { useCreatePath, useListContext } from "react-admin";
+import { useListContext } from "react-admin";
 import { ITask } from "src/util/types";
 import AssignedTaskItem from "./AssignedTaskItem";
 

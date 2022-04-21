@@ -9,6 +9,7 @@ export type StepContainerProps = {
     id: string
     startOpen: boolean
     children: JSX.Element
+    reference: 'tasks' | 'modules'
 }
 
 const StepContainer = (props: StepContainerProps) => (
@@ -40,7 +41,7 @@ const StepContainer = (props: StepContainerProps) => (
         <AccordionDetails sx={{
             padding: '0'
         }}>
-            <ReferenceArrayField record={{id: props.step}} label=" " reference="tasks" source="id">
+            <ReferenceArrayField record={{id: props.step}} label=" " reference={props.reference} source="id">
                 {props.children}
             </ReferenceArrayField>
         </AccordionDetails>

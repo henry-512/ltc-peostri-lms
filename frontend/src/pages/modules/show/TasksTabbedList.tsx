@@ -39,7 +39,7 @@ const TasksTabbedList = () => {
 
     return (
         <>
-            <StepTabber tab={tab} tabOptions={tabOptions} handleChange={handleChange}>
+            <StepTabber tab={tab} tabOptions={tabOptions} handleChange={handleChange} reference="tasks" >
                 <Datagrid
                     bulkActionButtons={false}
                     rowStyle={statusRowStyle}
