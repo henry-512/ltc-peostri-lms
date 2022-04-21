@@ -336,11 +336,14 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         if (doc.id) {
             doc._key = this.asKey(doc.id)
             delete doc.id
-
+        }
+        if (doc._key) {
             return this.updateUnsafe(doc, opt)
         }
-
-        throw this.internal('save', `${JSON.stringify(doc)} lacks id key`)
+        throw this.internal(
+            'save',
+            `${JSON.stringify(doc)} lacks id or _key key`
+        )
     }
 
     public async remove(id: string) {
@@ -444,7 +447,10 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         id: string
     ): Promise<ArrayCursor<IFilemeta>> {
         return ArangoWrapper.db.query(
-            aql`RETURN DOCUMENT(DOCUMENT(DOCUMENT(${id}).module).file)`
+            aql`RETURN DOCUMENT(DOCUMENT(DOCUMENT(${id}).module).file)`,
+            {
+                failOnWarning: false,
+            }
         )
     }
 }

@@ -91,6 +91,7 @@ class Module extends DBManager<IModule> {
     }
 
     private async postAutomaticAdvance(user: AuthUser, mod: IModule) {
+        // Only in-progress modules can be automatically advanced
         if (mod.status !== 'IN_PROGRESS') {
             return
         }
@@ -120,7 +121,8 @@ class Module extends DBManager<IModule> {
 
         mod.currentStep++
 
-        if (mod.currentStep === -1) {
+        if (!getStep<string>(mod.tasks, mod.currentStep)) {
+            mod.status = mod.waive ? 'WAIVED' : 'COMPLETED'
             // advance project
         }
 
