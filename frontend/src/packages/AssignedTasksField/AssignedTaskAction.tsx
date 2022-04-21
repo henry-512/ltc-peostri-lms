@@ -1,5 +1,8 @@
 import { useState } from "react";
 import TaskActionUpload from "./TaskActionUpload";
+import TaskActionReview from "./TaskActionReview";
+import TaskActionWaiveApprove from "./TaskActionWaiveApprove";
+import TaskActionApprove from "./TaskActionApprove";
 
 export type AssignedTaskActionProps = {
     id: string
@@ -16,19 +19,19 @@ const AssignedTaskAction = ({ id, type }: AssignedTaskActionProps) => {
             )
         case 'DOCUMENT_REVIEW':
             return (
-                <TaskActionUpload id={id} open={(open == "DOCUMENT_UPLOAD")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_UPLOAD")} />
+                <TaskActionReview id={id} open={(open == "DOCUMENT_REVIEW")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_REVIEW")} />
             )
         case 'DOCUMENT_REVISE':
             return (
-                <TaskActionUpload id={id} open={(open == "DOCUMENT_UPLOAD")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_UPLOAD")} />
+                <TaskActionUpload id={id} open={(open == "DOCUMENT_REVISE")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_REVISE")} />
             )
         case 'WAIVER_APPROVE':
             return (
-                <TaskActionUpload id={id} open={(open == "DOCUMENT_UPLOAD")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_UPLOAD")} />
+                <TaskActionWaiveApprove id={id} open={(open == "WAIVER_APPROVE")} close={() => setOpen("")} setOpen={() => setOpen("WAIVER_APPROVE")} />
             )
         case 'DOCUMENT_APPROVE':
             return (
-                <TaskActionUpload id={id} open={(open == "DOCUMENT_UPLOAD")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_UPLOAD")} />
+                <TaskActionApprove id={id} open={(open == "DOCUMENT_APPROVE")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_APPROVE")} />
             )
         default:
             return null
