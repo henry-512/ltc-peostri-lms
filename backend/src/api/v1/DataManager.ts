@@ -1,16 +1,9 @@
 import { config } from '../../config'
 import { HTTPStatus, IErrorable } from '../../lms/errors'
 import { IDataFieldData, IField, IForeignFieldData } from '../../lms/FieldData'
+import { fixStepper } from '../../lms/Stepper'
 import { ICreateUpdate } from '../../lms/types'
-import {
-    convertToKey,
-    fixStepper,
-    isDBId,
-    isDBKey,
-    PTR,
-    splitId,
-    str,
-} from '../../lms/util'
+import { convertToKey, isDBKey, PTR, splitId, str } from '../../lms/util'
 import { AuthUser } from '../auth'
 
 export class DataManager<Type> extends IErrorable {

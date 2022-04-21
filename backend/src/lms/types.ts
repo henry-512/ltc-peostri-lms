@@ -1,4 +1,4 @@
-import { IStepper } from './util'
+import { IStepper } from './Stepper'
 
 export type Status =
     | 'IN_PROGRESS'

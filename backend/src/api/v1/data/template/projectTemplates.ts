@@ -1,5 +1,6 @@
+import { IStepper } from '../../../../lms/Stepper'
 import { IModule, IProject, IProjectTemplate } from '../../../../lms/types'
-import { generateBase64UUID, isDBId, IStepper } from '../../../../lms/util'
+import { generateBase64UUID, isDBId } from '../../../../lms/util'
 import { DBManager } from '../../DBManager'
 import { ModuleTempManager } from './moduleTemplates'
 

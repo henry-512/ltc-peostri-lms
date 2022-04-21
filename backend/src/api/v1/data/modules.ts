@@ -1,6 +1,6 @@
 import { HTTPStatus } from '../../../lms/errors'
 import { IModule } from '../../../lms/types'
-import { compressStepper, getStep, stepperKeyToNum } from '../../../lms/util'
+import { compressStepper, getStep, stepperKeyToNum } from '../../../lms/Stepper'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { TaskManager } from './tasks'

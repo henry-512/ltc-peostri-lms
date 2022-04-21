@@ -5,7 +5,7 @@ import {
     compressStepper,
     IStepper,
     stepperForEachInOrder,
-} from '../../../lms/util'
+} from '../../../lms/Stepper'
 import { AuthUser } from '../../auth'
 import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'

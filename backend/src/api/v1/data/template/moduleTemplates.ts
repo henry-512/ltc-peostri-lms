@@ -1,10 +1,11 @@
+import { IStepper } from '../../../../lms/Stepper'
 import {
     IModule,
     IModuleTemplate,
     ITask,
     ITaskTemplate,
 } from '../../../../lms/types'
-import { convertToKey, generateBase64UUID, IStepper } from '../../../../lms/util'
+import { convertToKey, generateBase64UUID } from '../../../../lms/util'
 import { AuthUser } from '../../../auth'
 import { DataManager } from '../../DataManager'
 import { DBManager } from '../../DBManager'
