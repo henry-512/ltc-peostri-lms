@@ -131,6 +131,7 @@ export interface ITask extends IArangoIndexes {
     users: Array<string> | Array<IUser>
     rank?: string
     module?: string | IModule
+    project?: string | IProject
     type: TaskTypes
 }
 

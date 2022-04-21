@@ -183,6 +183,8 @@ class Project extends DBManager<IProject> {
                             startDate,
                             incrementedTTC + ttc
                         ).toJSON()
+                        task.project = this.db.asId(doc.id ?? '')
+
                         if (ttc > maxTaskTime) {
                             maxTaskTime = ttc
                         }
