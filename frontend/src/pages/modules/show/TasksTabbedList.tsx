@@ -5,7 +5,7 @@ import StepTabber from "src/packages/StepTabber";
 import statusRowStyle from "src/util/statusRowStyle";
 import AvatarGroupField from "src/components/users/AvatarGroupField";
 
-const ModulesTabbedList = () => {
+const TasksTabbedList = () => {
     const {
         record
     } = useShowContext();
@@ -60,4 +60,4 @@ const ModulesTabbedList = () => {
     )
 }
 
-export default ModulesTabbedList;
+export default TasksTabbedList;

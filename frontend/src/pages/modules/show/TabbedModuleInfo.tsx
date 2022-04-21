@@ -1,7 +1,7 @@
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Box, Tab } from "@mui/material";
 import { useState } from "react";
-import ModulesTabbedList from "./TasksTabbedList";
+import TasksTabbedList from "./TasksTabbedList";
 
 type ModuleTabs = "DOCS" | "TASKS" | "LOGS";
 
@@ -28,7 +28,7 @@ const TabbedModuleInfo = (props: TabbedModuleInfoProps) => {
                 <TabPanel value="TASKS" sx={{
                     padding: '0'
                 }}>
-                    <ModulesTabbedList />
+                    <TasksTabbedList />
                 </TabPanel>
                 <TabPanel value="DOCS" sx={{
                     padding: '0'
