@@ -1,5 +1,5 @@
 import { IModule, IProject, IProjectTemplate } from '../../../../lms/types'
-import { isDBId, IStepper } from '../../../../lms/util'
+import { generateBase64UUID, isDBId, IStepper } from '../../../../lms/util'
 import { DBManager } from '../../DBManager'
 import { ModuleTempManager } from './moduleTemplates'
 
@@ -61,7 +61,7 @@ class ProjectTemplate extends DBManager<IProjectTemplate> {
         }
 
         return {
-            id: 'PraygeDeleteThis',
+            id: generateBase64UUID(),
             title: temp.title,
             start: new Date().toJSON(),
             suspense: new Date().toJSON(),

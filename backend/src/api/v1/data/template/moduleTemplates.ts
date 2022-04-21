@@ -4,7 +4,7 @@ import {
     ITask,
     ITaskTemplate,
 } from '../../../../lms/types'
-import { convertToKey, IStepper } from '../../../../lms/util'
+import { convertToKey, generateBase64UUID, IStepper } from '../../../../lms/util'
 import { AuthUser } from '../../../auth'
 import { DataManager } from '../../DataManager'
 import { DBManager } from '../../DBManager'
@@ -99,7 +99,7 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
         }
 
         return {
-            id: 'PraygeDeleteThis',
+            id: generateBase64UUID(),
             title: temp.title,
             tasks: tasks,
             comments: [],

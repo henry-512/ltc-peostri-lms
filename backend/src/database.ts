@@ -392,6 +392,20 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         )
     }
 
+    public async getWithIdFaster<T>(
+        ids: string[],
+        ret: string
+    ): Promise<
+        ArrayCursor<{
+            id: string
+            v: T
+        }>
+    > {
+        return ArangoWrapper.db.query(
+            aql`FOR i in ${ids} let d=DOCUMENT(i)RETURN {id:d._id,v:${ret}}`
+        )
+    }
+
     /**
      * @param key looks like `d.status`
      * @param equals looks like 'COMPLETED'

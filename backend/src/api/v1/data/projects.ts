@@ -11,7 +11,9 @@ import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
 import { ModuleManager } from './modules'
 import { NotificationManager } from './notifications'
+import { RankManager } from './ranks'
 import { TaskManager } from './tasks'
+import { UserManager } from './users'
 
 function addDays(date: Date, days: number) {
     let d = new Date(date)
@@ -85,6 +87,17 @@ class Project extends DBManager<IProject> {
             map,
             lastDBId
         )
+
+        // Master list of all users for the project
+        // let allUsers = p.users as string[]
+        // let rankCursor = await UserManager.db.getWithIdFaster<string>(
+        //     allUsers,
+        //     'rank'
+        // )
+        // let userRankMap = new Map<string, string>()
+        // rankCursor.forEach((val) => {
+        //     // userRankMap.set()
+        // })
 
         // Start date of the project
         let startDate = new Date(p.start)
