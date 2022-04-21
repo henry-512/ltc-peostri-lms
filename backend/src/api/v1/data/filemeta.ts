@@ -1,5 +1,6 @@
 import { HTTPStatus } from '../../../lms/errors'
 import { IFilemeta } from '../../../lms/types'
+import { getFile } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { FiledataManager } from './files'
@@ -60,7 +61,7 @@ class Filemeta extends DBManager<IFilemeta> {
         }
 
         // Strip the useful information out of the file
-        let fileData: IFileData = files[str] as IFileData
+        let fileData = getFile(files, str)
         let latest = await FiledataManager.writeFile(user, fileData)
 
         return {

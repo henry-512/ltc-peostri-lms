@@ -64,7 +64,7 @@ class Filedata extends DBManager<IFile> {
         let pathTo = path.join(FILE_PATH, src ?? '')
         if ((await fs.promises.stat(pathTo)).isFile()) {
             return pathTo
-        } else if(!config.releaseFileSystem) {
+        } else if (!config.releaseFileSystem) {
             console.log(`File ${pathTo} dne, using 404.pdf instead`)
             return path.join(FILE_PATH, '404.pdf')
         } else {

@@ -1,5 +1,6 @@
 import { ArangoWrapper } from '../../../database'
 import { IFilemeta, ITask } from '../../../lms/types'
+import { getFile } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { FilemetaManager, IFileData } from './filemeta'
@@ -72,7 +73,7 @@ class Task extends DBManager<ITask> {
         files: any,
         fileKey: string
     ) {
-        let fileData: IFileData = files[fileKey] as IFileData
+        let fileData = getFile(files, fileKey)
         let latest = await FiledataManager.writeFile(user, fileData)
 
         // Redundant, taskId is assumed to be valid
@@ -131,9 +132,7 @@ class Task extends DBManager<ITask> {
         taskId: string,
         files: any,
         fileKey: string
-    ) {
-        
-    }
+    ) {}
 }
 
 export const TaskManager = new Task()

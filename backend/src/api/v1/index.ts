@@ -253,6 +253,15 @@ export function routerBuilder(version: string) {
             )
             .use(
                 new Router({ prefix: 'proceeding/tasks/' })
+                    .put('complete/:id', async (ctx) => {
+                        let id = await TaskManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
+
+                        await TaskManager.complete(ctx.state.user, id)
+
+                        ctx.staus = HTTPStatus.OK
+                    })
                     .put('upload/:id', async (ctx) => {
                         let id = await TaskManager.db.assertKeyExists(
                             ctx.params.id
