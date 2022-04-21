@@ -1,10 +1,6 @@
 import { HTTPStatus } from '../../../lms/errors'
 import { IModule } from '../../../lms/types'
-import {
-    compressStepper,
-    getNextStepperKey,
-    stepperKeyToNum,
-} from '../../../lms/util'
+import { compressStepper, getStep, stepperKeyToNum } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { TaskManager } from './tasks'
@@ -99,7 +95,7 @@ class Module extends DBManager<IModule> {
             return
         }
 
-        let currentStep = mod.tasks[mod.currentStep] as string[]
+        let currentStep = getStep<string>(mod.tasks, mod.currentStep)
 
         if (!currentStep) {
             throw this.internal(
@@ -218,7 +214,7 @@ class Module extends DBManager<IModule> {
             if (!force) {
                 // Verifiy all tasks are completed in the current step
                 // Pull current step array
-                let currentStep = mod.tasks[mod.currentStep] as string[]
+                let currentStep = getStep<string>(mod.tasks, mod.currentStep)
 
                 // Verify step is valid
                 if (!currentStep) {

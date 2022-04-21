@@ -238,6 +238,8 @@ export async function stepperForEachInOrder<T>(
     }
 }
 
-export function getNextStepperKey(currentStep: number) {
-    return buildStepperKey(currentStep + 1)
+export function getStep<T>(stepper: IStepper<any>, step: number): T[] {
+    let key = buildStepperKey(step)
+    let s = stepper[key]
+    return s as T[]
 }
