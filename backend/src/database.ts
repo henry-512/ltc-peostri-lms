@@ -410,7 +410,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 
     /**
-     * @param key looks like `d.status`
+     * @param key looks like `status`
      * @param equals looks like 'COMPLETED'
      * @return An array of IDs that are invalid
      */

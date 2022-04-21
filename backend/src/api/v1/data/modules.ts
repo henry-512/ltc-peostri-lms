@@ -3,6 +3,7 @@ import { compressStepper, getStep, stepperKeyToNum } from '../../../lms/Stepper'
 import { IModule } from '../../../lms/types'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
+import { ProjectManager } from './projects'
 import { TaskManager } from './tasks'
 
 class Module extends DBManager<IModule> {
@@ -100,7 +101,7 @@ class Module extends DBManager<IModule> {
 
         if (!currentStep) {
             throw this.internal(
-                'advance',
+                'postAutomaticAdvance',
                 `${JSON.stringify(
                     mod
                 )} has invalid currentStep field ${currentStep}`
@@ -110,7 +111,7 @@ class Module extends DBManager<IModule> {
         // Verify task statuses
         let invalids = await TaskManager.db.assertEqualsFaster(
             currentStep,
-            'd.status',
+            'status',
             'COMPLETED'
         )
 
@@ -127,9 +128,16 @@ class Module extends DBManager<IModule> {
             // Set current step to -1
             mod.currentStep = -1
             // advance project
+            if (!mod.project) {
+                throw this.internal(
+                    'postAutomaticAdvance',
+                    `Module ${mod} has invalid .project field`
+                )
+            }
+            await ProjectManager.db.assertIdExists(mod.project)
+            await ProjectManager.automaticAdvance(user, mod.project)
         }
 
-        mod.id = mod._id
         await this.db.update(mod, { mergeObjects: false })
     }
 
@@ -150,7 +158,7 @@ class Module extends DBManager<IModule> {
             // Verify all tasks are completed in all steps
             let invalids = await TaskManager.db.assertEqualsFaster(
                 allTasks,
-                'd.status',
+                'status',
                 'COMPLETED'
             )
             // If invalids has entries, one of the comparisons failed
@@ -233,7 +241,7 @@ class Module extends DBManager<IModule> {
                 // Verify task statuses
                 let invalids = await TaskManager.db.assertEqualsFaster(
                     currentStep,
-                    'd.status',
+                    'status',
                     'COMPLETED'
                 )
                 // If invalids has entries, one of the comparisons failed

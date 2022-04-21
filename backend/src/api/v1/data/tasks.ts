@@ -56,6 +56,16 @@ class Task extends DBManager<ITask> {
         )
     }
 
+    /**
+     * COMPLETE
+     */
+    public async complete(user: AuthUser, taskId: string) {
+        await this.db.updateFaster([taskId], 'status', 'COMPLETE')
+    }
+
+    /**
+     * UPLOAD
+     */
     public async upload(
         user: AuthUser,
         taskId: string,
@@ -65,7 +75,8 @@ class Task extends DBManager<ITask> {
         let fileData: IFileData = files[fileKey] as IFileData
         let latest = await FiledataManager.writeFile(user, fileData)
 
-        await this.db.assertIdExists(taskId)
+        // Redundant, taskId is assumed to be valid
+        // await this.db.assertIdExists(taskId)
 
         let task = await this.db.get(taskId)
         if (!task.module) {
@@ -110,6 +121,18 @@ class Task extends DBManager<ITask> {
         // Update task
         await this.db.updateFaster([taskId], 'status', 'COMPLETED')
         await ModuleManager.postAutomaticAdvance(user, mod)
+    }
+
+    /**
+     * Review
+     */
+    public async review(
+        user: AuthUser,
+        taskId: string,
+        files: any,
+        fileKey: string
+    ) {
+        
     }
 }
 

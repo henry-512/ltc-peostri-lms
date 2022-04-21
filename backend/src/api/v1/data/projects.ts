@@ -1,6 +1,7 @@
 import { HTTPStatus } from '../../../lms/errors'
 import {
     compressStepper,
+    getStep,
     IStepper,
     stepperForEachInOrder,
 } from '../../../lms/Stepper'
@@ -260,11 +261,49 @@ class Project extends DBManager<IProject> {
     // PROCEEDING
     //
 
+    public async automaticAdvance(user: AuthUser, pro: string) {
+        return this.postAutomaticAdvance(user, await this.db.get(pro))
+    }
+
     public async postAutomaticAdvance(user: AuthUser, pro: IProject) {
         // Only in-progress modules can be automatically advanced
         if (pro.status !== 'IN_PROGRESS') {
             return
         }
+
+        let currentStep = getStep<string>(pro.modules, pro.currentStep)
+
+        if (!currentStep) {
+            throw this.internal(
+                'postAutomaticAdvance',
+                `${JSON.stringify(
+                    pro
+                )} has invalid currentStep field ${currentStep}`
+            )
+        }
+
+        // Verify module statuses
+        let invalids = await TaskManager.db.assertEqualsFaster(
+            currentStep,
+            'status',
+            'COMPLETED'
+        )
+
+        // If there are moudles remaining
+        if (invalids.hasNext) {
+            return
+        }
+
+        pro.currentStep++
+
+        // If we can't find the next step, the module is complete
+        if (!getStep<string>(pro.modules, pro.currentStep)) {
+            pro.status = 'COMPLETED'
+            // Set current step to -1
+            pro.currentStep = -1
+        }
+
+        await this.db.update(pro, { mergeObjects: false })
     }
 
     public async complete(user: AuthUser, id: string, force: boolean) {
