@@ -1,7 +1,7 @@
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Box, Tab } from "@mui/material";
 import { useState } from "react";
-import ModulesTabbedList from "./ModulesTabbedList";
+import ModulesTabbedList from "./TasksTabbedList";
 
 type ModuleTabs = "DOCS" | "TASKS" | "LOGS";
 

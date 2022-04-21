@@ -20,6 +20,22 @@ const AssignedTaskAction = ({ id, type }: AssignedTaskActionProps) => {
             return (
                 <TaskActionUpload id={id} open={(open == "DOCUMENT_UPLOAD")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_UPLOAD")} />
             )
+        case 'DOCUMENT_REVIEW':
+            return (
+                <TaskActionUpload id={id} open={(open == "DOCUMENT_UPLOAD")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_UPLOAD")} />
+            )
+        case 'DOCUMENT_REVISE':
+            return (
+                <TaskActionUpload id={id} open={(open == "DOCUMENT_UPLOAD")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_UPLOAD")} />
+            )
+        case 'WAIVER_APPROVE':
+            return (
+                <TaskActionUpload id={id} open={(open == "DOCUMENT_UPLOAD")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_UPLOAD")} />
+            )
+        case 'DOCUMENT_APPROVE':
+            return (
+                <TaskActionUpload id={id} open={(open == "DOCUMENT_UPLOAD")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_UPLOAD")} />
+            )
         default:
             return null
     }

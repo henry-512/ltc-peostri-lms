@@ -3,12 +3,13 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useGetList, useShowContext, Datagrid, TextField, ReferenceArrayField, FunctionField } from "react-admin";
 import { useEffect, useState } from "react";
 import { IModuleStep, IModule, IProject } from "src/util/types";
-import TaskGrid from './TaskGrid'
+import TaskGrid from '../../pages/modules/show/TaskGrid'
 
 export type StepContainerProps = {
     step: IModule[]
     id: string
     startOpen: boolean
+    children: JSX.Element
 }
 
 const StepContainer = (props: StepContainerProps) => (
@@ -41,7 +42,7 @@ const StepContainer = (props: StepContainerProps) => (
             padding: '0'
         }}>
             <ReferenceArrayField record={{id: props.step}} label=" " reference="tasks" source="id">
-                <TaskGrid />
+                {props.children}
             </ReferenceArrayField>
         </AccordionDetails>
     </Accordion>
