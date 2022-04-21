@@ -100,7 +100,7 @@ export async function stepperForEachInOrder<T>(
         let stepAr = stepper[stepKey]
 
         if (stepAr && (await cb(i, stepper[stepKey])) !== false) {
-            continue
+            break
         }
     }
 }

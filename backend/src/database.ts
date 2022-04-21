@@ -338,6 +338,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
             delete doc.id
         }
         if (doc._key) {
+            console.log(`UPDATED ${this.className}`)
             return this.updateUnsafe(doc, opt)
         }
         throw this.internal(

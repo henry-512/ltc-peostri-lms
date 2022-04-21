@@ -130,10 +130,12 @@ export class DataManager<Type> extends IErrorable {
             let value = doc[key]
 
             switch (data.type) {
+                case 'number':
+                    if (typeof doc[key] === 'string')
+                        doc[key] = parseInt(doc[key])
                 case 'string':
                 case 'boolean':
-                case 'number':
-                    if (otherFn) doc[key] = await otherFn(value, data)
+                    if (otherFn) doc[key] = await otherFn(doc[key], data)
                     break
                 case 'parent':
                     if (parentFn) doc[key] = await parentFn(value, data)
@@ -505,7 +507,7 @@ export class DataManager<Type> extends IErrorable {
                     'verifyAddedDocument.mapEachField',
                     HTTPStatus.BAD_REQUEST,
                     'Invalid document field type',
-                    `${this.className}.${data.name} ${value} expected to be ${data.type}`
+                    `${this.className}.${data.name} ${value} expected to be ${data.type} (got ${typeof value}) for ${str(data)}`
                 )
             },
             // parent
