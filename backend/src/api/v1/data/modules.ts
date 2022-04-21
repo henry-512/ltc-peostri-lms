@@ -13,12 +13,9 @@ class Waive extends DataManager<IWaiveData> {
     constructor() {
         super('Waive', {
             comment: {
-                type: 'fkey',
-                foreignApi: CommentManager,
+                type: 'string',
                 optional: true,
-                freeable: true,
                 acceptNewDoc: true,
-                // distortOnGet: (doc: any) => doc.content,
             },
             file: {
                 type: 'fkey',
