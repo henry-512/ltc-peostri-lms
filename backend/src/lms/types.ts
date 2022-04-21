@@ -71,7 +71,7 @@ export interface IModule extends IArangoIndexes {
     project?: string
     currentStep: number
 
-    file?: IFilemeta
+    file?: string | IFilemeta
     waive?: IWaiveData
     waive_module?: boolean
 }
@@ -131,8 +131,8 @@ export interface ITask extends IArangoIndexes {
     status: Status
     users: Array<string> | Array<IUser>
     rank?: string
-    module?: string | IModule
-    project?: string | IProject
+    module?: string
+    project?: string
     type: TaskTypes
 }
 

@@ -391,7 +391,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         ret: string
     ): Promise<ArrayCursor<T>> {
         return ArangoWrapper.db.query(
-            aql`FOR i in ${ids} let d=DOCUMENT(i)RETURN ${ret}`
+            aql`FOR i in ${ids} let d=DOCUMENT(i)RETURN d.${ret}`
         )
     }
 
@@ -405,7 +405,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         }>
     > {
         return ArangoWrapper.db.query(
-            aql`FOR i in ${ids} let d=DOCUMENT(i)RETURN {id:d._id,v:${ret}}`
+            aql`FOR i in ${ids} let d=DOCUMENT(i)RETURN {id:d._id,v:d.${ret}}`
         )
     }
 
@@ -441,17 +441,6 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         }
         q = aql`${q} RETURN i`
         return ArangoWrapper.db.query(q)
-    }
-
-    public static async getFilemetaFromTask(
-        id: string
-    ): Promise<ArrayCursor<IFilemeta>> {
-        return ArangoWrapper.db.query(
-            aql`RETURN DOCUMENT(DOCUMENT(DOCUMENT(${id}).module).file)`,
-            {
-                failOnWarning: false,
-            }
-        )
     }
 }
 

@@ -1,5 +1,5 @@
 import { ArangoWrapper } from '../../../database'
-import { ITask } from '../../../lms/types'
+import { IFilemeta, ITask } from '../../../lms/types'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { FilemetaManager, IFileData } from './filemeta'
@@ -58,33 +58,38 @@ class Task extends DBManager<ITask> {
 
     public async upload(
         user: AuthUser,
-        task: string,
+        taskId: string,
         files: any,
         fileKey: string
     ) {
-        let filemeta = await (
-            await ArangoWrapper.getFilemetaFromTask(task)
-        ).next()
-
         let fileData: IFileData = files[fileKey] as IFileData
         let latest = await FiledataManager.writeFile(user, fileData)
-        let modId = await (
-            await this.db.getFaster<string>([task], 'd.module')
-        ).next()
 
-        if (!modId) {
+        await this.db.assertIdExists(taskId)
+
+        let task = await this.db.get(taskId)
+        if (!task.module) {
             throw this.internal(
                 'upload',
-                `Task ${task} could not find its parent`
+                `Task ${taskId} could not find its parent`
             )
         }
 
-        if (filemeta) {
+        await ModuleManager.db.assertIdExists(task.module)
+        let mod = await ModuleManager.db.get(task.module)
+
+        let filemeta: IFilemeta = {} as any
+
+        if (mod.file) {
+            let filemeta = await FilemetaManager.db.get(mod.file as string)
+
             filemeta.old = (<string[]>filemeta.old).concat(
                 <string>filemeta.latest
             )
             filemeta.latest = latest
-            filemeta.id = filemeta._id
+
+            // Update filemeta
+            await FilemetaManager.db.update(filemeta, { mergeObjects: false })
         } else {
             // Build a new filemeta object
             filemeta = {
@@ -93,15 +98,18 @@ class Task extends DBManager<ITask> {
                 reviews: [],
                 old: [],
                 oldReviews: [],
-                module: modId,
+                module: task.module,
             }
+
+            // Update filemeta
+            await FilemetaManager.db.save(filemeta)
+            mod.file = filemeta.id
+            await ModuleManager.db.update(mod, { mergeObjects: false })
         }
 
-        // Update filemeta
-        await FilemetaManager.db.update(filemeta, { mergeObjects: false })
         // Update task
-        await this.db.updateFaster([task], 'status', 'COMPLETED')
-        await ModuleManager.automaticAdvance(user, modId)
+        await this.db.updateFaster([taskId], 'status', 'COMPLETED')
+        await ModuleManager.postAutomaticAdvance(user, mod)
     }
 }
 
