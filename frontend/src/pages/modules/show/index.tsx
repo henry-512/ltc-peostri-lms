@@ -46,7 +46,7 @@ const ModuleShow = (props: ModuleShowProps) => {
                     {/* TODO: Change this to tasks/assigned */}
                     <ShowController>
                         {({record}) => (
-                            <ReferenceArrayField record={{ id: record.tasks[`key-${record.currentStep}`] }} reference="tasks" source="id" >
+                            <ReferenceArrayField record={{ id: record.tasks[`key-${record.currentStep}`] }} reference="tasks" source="id" sort={{ field: 'suspense', order: 'ASC' }} >
                                 <AssignedTasksField />
                             </ReferenceArrayField>
                         )}

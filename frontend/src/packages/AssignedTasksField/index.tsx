@@ -14,6 +14,8 @@ const AssignedTasksField = (props: AssignedTasksFieldProps) => {
 
     if (!data) return null;
 
+    if (data && data.length < 1) return null
+
     return (
         <>
             <Box>

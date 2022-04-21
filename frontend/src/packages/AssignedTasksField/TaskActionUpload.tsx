@@ -1,4 +1,4 @@
-import { ReferenceInput, required, AutocompleteInput, useDataProvider, useTranslate, useRedirect, useUpdate, FileField, FileInput, useRecordContext } from "react-admin";
+import { ReferenceInput, required, AutocompleteInput, useDataProvider, useTranslate, useNotify, useUpdate, FileField, FileInput, useRecordContext } from "react-admin";
 import { styled } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { useFormContext, useFormState } from "react-hook-form";
@@ -13,12 +13,10 @@ export type TaskActionUploadProps = {
 }
 
 const TaskActionUpload = (props: TaskActionUploadProps) => {
-    const record = useRecordContext();
-
     const [update, { isLoading, error }] = useUpdate();
 
     const handleSubmit = (data: any) => {
-        update(`proceeding/tasks/upload`, { id: record.id, data, previousData: {} })          
+        update(`proceeding/tasks/upload`, { id: props.id, data, previousData: {} }).finally(() => props.close())        
     }
 
     const handleClose = () => {

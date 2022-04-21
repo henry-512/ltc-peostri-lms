@@ -23,11 +23,11 @@ const AssignedTaskItem = ({ record }: AssignedTaskItemProps) => (
                     <Typography variant="caption">Suspense: {dateFormatToString(record.suspense)}</Typography>
                     <Typography variant="caption"> - {record.status}</Typography>
                 </Box>
-                <ReferenceArrayField record={record} reference="admin/users" source="users">
-                    <AvatarGroupField height={24} width={24} fontSize="14px" max={6} color='blue' />
-                </ReferenceArrayField>
             </Box>
         </Box>
+        <ReferenceArrayField record={record} reference="admin/users" source="users">
+            <AvatarGroupField height={24} width={24} fontSize="14px" max={6} color='blue' />
+        </ReferenceArrayField>
         <AssignedTaskAction id={`${record.id}`} type={record.type} />
     </Box>
 )
