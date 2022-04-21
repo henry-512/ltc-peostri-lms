@@ -174,6 +174,18 @@ export function stepperKeyToNum(stepKey: string) {
     return parseInt(stepKey.slice(4))
 }
 
+export async function fixStepper(stepper: IStepper<any>) {
+    let newStepper: IStepper<any> = {}
+
+    let ni = 0
+    await stepperForEachInOrder(stepper, async (i) => {
+        newStepper[buildStepperKey(ni)] = stepper[buildStepperKey(i)]
+        ni++
+    })
+
+    return newStepper
+}
+
 export async function stepperForEachInOrder(
     stepper: IStepper<any>,
     cb: (i: number) => Promise<void | false>

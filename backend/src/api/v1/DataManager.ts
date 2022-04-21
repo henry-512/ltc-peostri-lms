@@ -4,6 +4,7 @@ import { IDataFieldData, IField, IForeignFieldData } from '../../lms/FieldData'
 import { ICreateUpdate } from '../../lms/types'
 import {
     convertToKey,
+    fixStepper,
     isDBId,
     isDBKey,
     PTR,
@@ -447,6 +448,9 @@ export class DataManager<Type> extends IErrorable {
                     ) {
                         delete o[k]
                     } else {
+                        if (data.type === 'step') {
+                            o[k] = await fixStepper(o[k])
+                        }
                         return false
                     }
                 }
