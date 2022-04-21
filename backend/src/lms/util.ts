@@ -1,5 +1,6 @@
 import { aql, GeneratedAqlQuery } from 'arangojs/aql'
 import { parse, v4 } from 'uuid'
+import { IFileData } from '../api/v1/data/filemeta'
 import { APIError, HTTPStatus } from './errors'
 
 // RFC4648 Chapter 5 standard: URL/file-safe base64 encoding lookup string
@@ -132,3 +133,17 @@ export const str = (obj: any) =>
     JSON.stringify(obj, function (k, v) {
         return k && v && typeof v !== 'number' ? '' + v : v
     })
+
+export function getFile(files: any, fileKey: string) {
+    let file: IFileData = files[fileKey]
+    if (file) {
+        return file
+    }
+    throw new APIError(
+        'util',
+        'getFile',
+        HTTPStatus.BAD_REQUEST,
+        'File missing.',
+        `File with id ${fileKey} is missing in files.`
+    )
+}

@@ -194,7 +194,6 @@ export class AuthUser {
                         false
                     )
                     ctx.status = HTTPStatus.OK
-                    // ctx.status = HTTPStatus.NO_CONTENT
                 })
                 // Removes login cookie
                 .post('/logout', async (ctx) => {
