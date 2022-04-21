@@ -1,19 +1,16 @@
 import { HTTPStatus } from '../../../lms/errors'
-import { IModule, IProject, ITask } from '../../../lms/types'
 import {
-    buildStepperKey,
     compressStepper,
     IStepper,
     stepperForEachInOrder,
 } from '../../../lms/Stepper'
+import { IModule, IProject, ITask } from '../../../lms/types'
 import { AuthUser } from '../../auth'
 import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
 import { ModuleManager } from './modules'
 import { NotificationManager } from './notifications'
-import { RankManager } from './ranks'
 import { TaskManager } from './tasks'
-import { UserManager } from './users'
 
 function addDays(date: Date, days: number) {
     let d = new Date(date)
@@ -275,7 +272,7 @@ class Project extends DBManager<IProject> {
         // Retrieve all tasks
         let cursor = await this.db.getFaster<IStepper<string>>(
             allModules,
-            'd.tasks'
+            'tasks'
         )
         let allTasks: string[] = []
         while (cursor.hasNext) {

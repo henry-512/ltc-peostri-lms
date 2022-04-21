@@ -1,6 +1,6 @@
 import { HTTPStatus } from '../../../lms/errors'
-import { IModule } from '../../../lms/types'
 import { compressStepper, getStep, stepperKeyToNum } from '../../../lms/Stepper'
+import { IModule } from '../../../lms/types'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { TaskManager } from './tasks'
@@ -90,7 +90,7 @@ class Module extends DBManager<IModule> {
         return this.postAutomaticAdvance(user, await this.db.get(id))
     }
 
-    private async postAutomaticAdvance(user: AuthUser, mod: IModule) {
+    public async postAutomaticAdvance(user: AuthUser, mod: IModule) {
         // Only in-progress modules can be automatically advanced
         if (mod.status !== 'IN_PROGRESS') {
             return
@@ -121,8 +121,11 @@ class Module extends DBManager<IModule> {
 
         mod.currentStep++
 
+        // If we can't find the next step, the module is complete
         if (!getStep<string>(mod.tasks, mod.currentStep)) {
             mod.status = mod.waive ? 'WAIVED' : 'COMPLETED'
+            // Set current step to -1
+            mod.currentStep = -1
             // advance project
         }
 

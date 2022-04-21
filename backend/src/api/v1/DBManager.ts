@@ -215,8 +215,6 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         let query = await this.db.queryGet(opts)
         let all = await query.cursor.all()
 
-        console.log(query)
-
         // Convert all document foreign ids to keys
         await Promise.all(all.map(async (doc) => this.convertIDtoKEY(doc)))
 
