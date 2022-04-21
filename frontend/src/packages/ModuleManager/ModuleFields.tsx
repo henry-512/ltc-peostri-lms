@@ -149,7 +149,7 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                     </Typography>
                 </Grid>
                 <Grid item xs={6} style={{ marginTop: '-32px' }}>
-                    <TextInput source={getSource?.('waive.comment') || ""} label="project.fields.waive_comment" multiline fullWidth helperText=" " sx={{
+                    <TextInput source={getSource?.('waive_comment') || ""} label="project.fields.waive_comment" multiline fullWidth helperText=" " sx={{
                         
                             height: 'calc(100% - 1rem)',
                     
@@ -159,7 +159,7 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                     }} />
                 </Grid>
                 <Grid item xs={6} style={{ marginTop: '-32px' }}>
-                    <FileInput source={getSource?.('waive.file') || ""} accept="application/pdf" fullWidth label="project.fields.waive_file_upload" labelSingle="project.fields.waiver_file" helperText=" ">
+                    <FileInput source={getSource?.('file') || ""} accept="application/pdf" fullWidth label="project.fields.waive_file_upload" labelSingle="project.fields.waiver_file" helperText=" ">
                         <FileField source="src" title="title" download={true} />
                     </FileInput>
                 </Grid>

@@ -12,7 +12,7 @@ export interface ITeam extends RaRecord {
 
 export type NotificationTypes = "PROJECT" | "MODULE" | "TASK" | "USER";
 export type Status = "IN_PROGRESS" | "COMPLETED" | "ARCHIVED" | "AWAITING" | "WAIVED";
-export type TaskTypes = "DOCUMENT_UPLOAD" | "DOCUMENT_REVIEW" | "MODULE_WAIVER" | "MODULE_WAIVER_APPROVAL" | "DOCUMENT_APPROVE";
+export type TaskTypes = "DOCUMENT_UPLOAD" | "DOCUMENT_REVIEW" | "WAIVER_APPROVE" | "DOCUMENT_APPROVE";
 export type UserStatus = 'ACTIVE' | 'LOCKED' | 'INACTIVE' | 'SUSPENDED';
 
 export interface INotification extends RaRecord {
@@ -90,7 +90,7 @@ export interface ITaskApproval extends ITask {
 }
 
 export interface ITaskWaiverReview extends ITask {
-    type: "MODULE_WAIVER_APPROVAL";
+    type: "WAIVER_APPROVE";
 }
 
 export interface IFile {
@@ -113,6 +113,7 @@ export interface IModule extends RaRecord {
     };
     file?: any;
     ttc?: number | string
+    waive_comment?: string
 }
 
 export interface IProject extends RaRecord, ICreateUpdate {

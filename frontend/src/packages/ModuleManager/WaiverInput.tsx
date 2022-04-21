@@ -17,7 +17,7 @@ const WaiverInput = (props: WaiverInputProps): JSX.Element => {
             id: "",
             title: "Module Waiver Approval",
             status: "AWAITING",
-            type: "MODULE_WAIVER_APPROVAL"
+            type: "WAIVER_APPROVE"
         }
 
         return {

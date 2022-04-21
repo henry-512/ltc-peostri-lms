@@ -38,11 +38,10 @@ const AssignedTasksField = (props: any) => {
                     {data.map((task: ITask, index: number) => (
                         <ListItem
                             key={task.id}
-                            button
-                            component={Link}
-                            to={createPath({ resource: `tasks`, id: task.id, type: 'show' })}
-                            replace={true}
                             alignItems="flex-start"
+                            sx={{
+                                padding: '0'
+                            }}
                         >
                             <ListItemText
                                 primary={<AssignedTaskItem record={task} />}
@@ -52,7 +51,9 @@ const AssignedTasksField = (props: any) => {
                                     display: '-webkit-box',
                                     WebkitLineClamp: 2,
                                     WebkitBoxOrient: 'vertical',
-                                    paddingRight: 0,
+                                    padding: (theme) => theme.spacing(1),
+                                    border: (theme) => `1px solid ${theme.palette.borderColor?.main}`,
+                                    borderRadius: '10px'
                                 }}
                             />
                         </ListItem>

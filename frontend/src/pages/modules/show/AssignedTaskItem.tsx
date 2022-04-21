@@ -1,21 +1,23 @@
 import { Button, Box, Typography } from "@mui/material";
+import { useState } from "react";
 import { ReferenceArrayField } from "react-admin";
 import AvatarGroupField from "src/components/users/AvatarGroupField";
 import { dateFormatToString } from "src/util/dateFormatter";
 import { getProgressStatusColor } from "src/util/getProgressStatus";
 import { ITask } from "src/util/types";
+import TaskActionUpload from "./TaskActionUpload";
 
 export type AssignedTaskActionButtonProps = {
     type?: string
 }
 
-const AssignedTaskActionButton = ({ type }: AssignedTaskActionButtonProps) => {
+const AssignedTaskAction = ({ type }: AssignedTaskActionButtonProps) => {
+    const [open, setOpen] = useState<string>("");
+
     switch (type) {
         case 'DOCUMENT_UPLOAD':
             return (
-                <Button variant="outlined">
-                    UPLOAD
-                </Button>
+                <TaskActionUpload open={(open == "DOCUMENT_UPLOAD")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_UPLOAD")} />
             )
         default:
             return null
@@ -28,7 +30,7 @@ export type AssignedTaskItemProps = {
 
 const AssignedTaskItem = ({ record }: AssignedTaskItemProps) => (
     <Box display="flex" justifyContent="space-between" gap="10px" alignItems="center">
-        <Box display="flex" alignItems="center" gap="10px">
+        <Box display="flex" alignItems="center" gap="20px">
             <Box borderRadius="50%" width="12px" height="12px" sx={{
                 backgroundColor: (getProgressStatusColor(record.suspense))
             }}></Box>
@@ -43,7 +45,7 @@ const AssignedTaskItem = ({ record }: AssignedTaskItemProps) => (
                 </ReferenceArrayField>
             </Box>
         </Box>
-        <AssignedTaskActionButton type={record.type} />
+        <AssignedTaskAction type={record.type} />
     </Box>
 )
 
