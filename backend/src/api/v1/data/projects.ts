@@ -109,107 +109,107 @@ class Project extends DBManager<IProject> {
         let mappedTasks: ITask[] = map.get(TaskManager) ?? []
 
         // Step over the modules
-        await stepperForEachInOrder(moduleIdStepper, async (modStepNum) => {
-            let k = buildStepperKey(modStepNum)
-            let arrayOfModuleIds = moduleIdStepper[k]
-
-            // Build modules
-            let modules: IModule[] = await Promise.all(
-                arrayOfModuleIds.map(async (id) => {
-                    let modKey = ModuleManager.db.asKey(id)
-                    for (const m of mappedMods) {
-                        if (m.id === modKey) {
-                            return m
+        await stepperForEachInOrder<string>(
+            moduleIdStepper,
+            async (modStepNum, arrayOfModuleIds) => {
+                // Build modules
+                let modules: IModule[] = await Promise.all(
+                    arrayOfModuleIds.map(async (id) => {
+                        let modKey = ModuleManager.db.asKey(id)
+                        for (const m of mappedMods) {
+                            if (m.id === modKey) {
+                                return m
+                            }
                         }
-                    }
-                    if (await ModuleManager.db.exists(id)) {
-                        let mod = await ModuleManager.db.get(id)
-                        mappedMods.push(mod)
-                        return mod
-                    } else {
-                        console.warn(
-                            `Module id ${id} does not exist in ${JSON.stringify(
-                                mappedMods
-                            )} or in the database`
-                        )
-                        return undefined as any
-                    }
-                })
-            )
+                        if (await ModuleManager.db.exists(id)) {
+                            let mod = await ModuleManager.db.get(id)
+                            mappedMods.push(mod)
+                            return mod
+                        } else {
+                            console.warn(
+                                `Module id ${id} does not exist in ${JSON.stringify(
+                                    mappedMods
+                                )} or in the database`
+                            )
+                            return undefined as any
+                        }
+                    })
+                )
 
-            let maxModTTC = 0
+                let maxModTTC = 0
 
-            // Iterate over all modules
-            for (const mod of modules) {
-                if (!mod) continue
+                // Iterate over all modules
+                for (const mod of modules) {
+                    if (!mod) continue
 
-                let totalModuleTTC = 0
-                await stepperForEachInOrder(mod.tasks, async (taskStepNum) => {
-                    let k = buildStepperKey(taskStepNum)
-                    let arrayOfTaskIds = mod.tasks[k] as string[]
+                    let totalModuleTTC = 0
+                    await stepperForEachInOrder<string>(
+                        mod.tasks as IStepper<string>,
+                        async (taskStepNum, arrayOfTaskIds) => {
+                            // Build tasks
+                            let tasks: ITask[] = await Promise.all(
+                                arrayOfTaskIds.map(async (id) => {
+                                    let taskKey = TaskManager.db.asKey(id)
+                                    for (const t of mappedTasks) {
+                                        if (t.id === taskKey) {
+                                            return t
+                                        }
+                                    }
+                                    if (await TaskManager.db.exists(id)) {
+                                        let task = await TaskManager.db.get(id)
+                                        mappedTasks.push(task)
+                                        return task
+                                    } else {
+                                        console.warn(
+                                            `Task id ${id} does not exist in ${JSON.stringify(
+                                                mappedTasks
+                                            )} or in the database`
+                                        )
+                                        return undefined as any
+                                    }
+                                })
+                            )
 
-                    // Build tasks
-                    let tasks: ITask[] = await Promise.all(
-                        arrayOfTaskIds.map(async (id) => {
-                            let taskKey = TaskManager.db.asKey(id)
-                            for (const t of mappedTasks) {
-                                if (t.id === taskKey) {
-                                    return t
+                            let maxTaskTime = 0
+
+                            // For each task array
+                            for (const task of tasks) {
+                                if (!task) continue
+
+                                let ttc = task.ttc ?? 0
+                                task.suspense = addDays(
+                                    startDate,
+                                    incrementedTTC + ttc
+                                ).toJSON()
+                                task.project = this.db.asId(doc.id ?? '')
+
+                                if (ttc > maxTaskTime) {
+                                    maxTaskTime = ttc
                                 }
                             }
-                            if (await TaskManager.db.exists(id)) {
-                                let task = await TaskManager.db.get(id)
-                                mappedTasks.push(task)
-                                return task
-                            } else {
-                                console.warn(
-                                    `Task id ${id} does not exist in ${JSON.stringify(
-                                        mappedTasks
-                                    )} or in the database`
-                                )
-                                return undefined as any
-                            }
-                        })
-                    )
 
-                    let maxTaskTime = 0
-
-                    // For each task array
-                    for (const task of tasks) {
-                        if (!task) continue
-
-                        let ttc = task.ttc ?? 0
-                        task.suspense = addDays(
-                            startDate,
-                            incrementedTTC + ttc
-                        ).toJSON()
-                        task.project = this.db.asId(doc.id ?? '')
-
-                        if (ttc > maxTaskTime) {
-                            maxTaskTime = ttc
+                            totalModuleTTC += maxTaskTime
+                            incrementedTTC += maxTaskTime
                         }
+                    )
+                    // Set module suspense and ttc
+                    mod.ttc = totalModuleTTC
+                    mod.suspense = addDays(
+                        startDate,
+                        incrementedTTC + totalModuleTTC
+                    ).toJSON()
+
+                    // Update longest moudle
+                    if (totalModuleTTC > maxModTTC) {
+                        maxModTTC = totalModuleTTC
                     }
-
-                    totalModuleTTC += maxTaskTime
-                    incrementedTTC += maxTaskTime
-                })
-                // Set module suspense and ttc
-                mod.ttc = totalModuleTTC
-                mod.suspense = addDays(
-                    startDate,
-                    incrementedTTC + totalModuleTTC
-                ).toJSON()
-
-                // Update longest moudle
-                if (totalModuleTTC > maxModTTC) {
-                    maxModTTC = totalModuleTTC
                 }
-            }
 
-            // Increment project ttc
-            // totalProjectTTC += maxModTTC
-            incrementedTTC += maxModTTC
-        })
+                // Increment project ttc
+                // totalProjectTTC += maxModTTC
+                incrementedTTC += maxModTTC
+            }
+        )
 
         // Set project ttc and suspense
         p.ttc = incrementedTTC

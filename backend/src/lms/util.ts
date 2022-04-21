@@ -178,7 +178,7 @@ export async function fixStepper(stepper: IStepper<any>) {
     let newStepper: IStepper<any> = {}
 
     let ni = 0
-    await stepperForEachInOrder(stepper, async (i) => {
+    await stepperForEachInOrderSafe(stepper, async (i) => {
         newStepper[buildStepperKey(ni)] = stepper[buildStepperKey(i)]
         ni++
     })
@@ -186,7 +186,7 @@ export async function fixStepper(stepper: IStepper<any>) {
     return newStepper
 }
 
-export async function stepperForEachInOrder(
+export async function stepperForEachInOrderSafe(
     stepper: IStepper<any>,
     cb: (i: number) => Promise<void | false>
 ) {
@@ -195,10 +195,23 @@ export async function stepperForEachInOrder(
     // Start with -1
     let currentStep = -1
     while (true) {
-        // The next step to process
-        let nextStep = getNextStepperKey(stepper, currentStep, stepKeys)
+        stepKeys = stepKeys ?? Object.keys(stepper)
 
-        if (nextStep === -1) {
+        // Defaults to 9999 to signify the next step being unfound
+        let nextStep = 9999
+
+        for (let k of stepKeys) {
+            let kNum = stepperKeyToNum(k)
+            // kNum > currentStep <- this step is after the current
+            // If kNum < nextStep <- this step is before the last
+            //                        recorded nextStep
+            if (kNum < nextStep && kNum > currentStep) {
+                nextStep = kNum
+            }
+        }
+
+        // Next key not found, therefore this module is complete
+        if (nextStep === 9999) {
             return
         }
 
@@ -211,30 +224,20 @@ export async function stepperForEachInOrder(
     }
 }
 
-// Returns -1 if the next step does not exist
-export function getNextStepperKey(
-    stepper: IStepper<any>,
-    currentStep: number,
-    stepKeys?: string[]
+export async function stepperForEachInOrder<T>(
+    stepper: IStepper<T>,
+    cb: (i: number, ar: T[]) => Promise<void | false>
 ) {
-    stepKeys = stepKeys ?? Object.keys(stepper)
+    for (let i = 0; true; i++) {
+        let stepKey = buildStepperKey(i)
+        let stepAr = stepper[stepKey]
 
-    // Defaults to 9999 to signify the next step being unfound
-    let nextStep = 9999
-
-    for (let k of stepKeys) {
-        let kNum = stepperKeyToNum(k)
-        // kNum > currentStep <- this step is after the current
-        // If kNum < nextStep <- this step is before the last
-        //                        recorded nextStep
-        if (kNum < nextStep && kNum > currentStep) {
-            nextStep = kNum
+        if (stepAr && (await cb(i, stepper[stepKey])) !== false) {
+            continue
         }
     }
+}
 
-    // Next key not found, therefore this module is complete
-    if (nextStep === 9999) {
-        return -1
-    }
-    return nextStep
+export function getNextStepperKey(currentStep: number) {
+    return buildStepperKey(currentStep + 1)
 }
