@@ -75,6 +75,11 @@ class Task extends DBManager<ITask> {
     ) {
         let fileData = getFile(files, fileKey)
         let latest = await FiledataManager.writeFile(user, fileData)
+        if (!latest.id) {
+            throw this.internal('upload', `file ${latest} lacks .id field`)
+        }
+        let fileId = latest.id
+        await FiledataManager.db.save(latest)
 
         // Redundant, taskId is assumed to be valid
         // await this.db.assertIdExists(taskId)
@@ -98,7 +103,7 @@ class Task extends DBManager<ITask> {
             filemeta.old = (<string[]>filemeta.old).concat(
                 <string>filemeta.latest
             )
-            filemeta.latest = latest
+            filemeta.latest = fileId
 
             // Update filemeta
             await FilemetaManager.db.update(filemeta, { mergeObjects: false })
@@ -106,16 +111,16 @@ class Task extends DBManager<ITask> {
             // Build a new filemeta object
             filemeta = {
                 id: FilemetaManager.db.generateDBID(),
-                latest,
+                latest: fileId,
                 reviews: [],
                 old: [],
                 oldReviews: [],
                 module: task.module,
             }
 
+            mod.files = filemeta.id
             // Update filemeta
             await FilemetaManager.db.save(filemeta)
-            mod.files = filemeta.id
             await ModuleManager.db.update(mod, { mergeObjects: false })
         }
 
