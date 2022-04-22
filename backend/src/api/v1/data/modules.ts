@@ -1,6 +1,7 @@
 import { HTTPStatus } from '../../../lms/errors'
 import { compressStepper, getStep, stepperKeyToNum } from '../../../lms/Stepper'
-import { IFilemeta, IModule } from '../../../lms/types'
+import { IFile, IFilemeta, IModule } from '../../../lms/types'
+import { getUrl } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { ProjectManager } from './projects'
@@ -79,6 +80,31 @@ class Module extends DBManager<IModule> {
         )
     }
 
+    public override async getFromDB(
+        user: AuthUser,
+        id: string,
+        noDeref: boolean,
+        userRoute: boolean
+    ): Promise<IModule> {
+        let mod = await super.getFromDB(user, id, noDeref, userRoute)
+
+        if (!userRoute) {
+            if (mod.waive_module) {
+                // Warp waive files on admin GET
+                mod.files = {
+                    title: (<IFile>(<IFilemeta>mod?.files).latest).title,
+                    src: getUrl(`files/static/${(<IFilemeta>mod.files).id}`),
+                    old: true
+                } as any
+            } else {
+                // Delete files on admin GET
+                delete mod.files
+            }
+        }
+
+        return mod
+    }
+
     protected override modifyDoc = (
         user: AuthUser,
         files: any,
@@ -96,6 +122,10 @@ class Module extends DBManager<IModule> {
 
         return doc
     }
+
+    //
+    // PROCEEDING
+    //
 
     // Checks for automatic step/module advancing
     public async automaticAdvance(user: AuthUser, id: string) {

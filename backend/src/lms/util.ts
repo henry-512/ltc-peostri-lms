@@ -1,4 +1,5 @@
 import { aql, GeneratedAqlQuery } from 'arangojs/aql'
+import { config } from '../config'
 import { parse, v4 } from 'uuid'
 import { IFileData } from '../api/v1/data/filemeta'
 import { APIError, HTTPStatus } from './errors'
@@ -146,4 +147,8 @@ export function getFile(files: any, fileKey: string) {
         'File missing.',
         `File with id ${fileKey} is missing in files.`
     )
+}
+
+export function getUrl(path: string) {
+    return `http://${config.hostname}:${config.apiPort}/api/v1/${path}`
 }
