@@ -15,24 +15,28 @@ class Filemeta extends DBManager<IFilemeta> {
                     type: 'fkey',
                     managerName: 'files',
                     acceptNewDoc: true,
+                    overrideUserDeref: true,
                 },
                 old: {
                     type: 'array',
                     instance: 'fkey',
                     managerName: 'files',
                     acceptNewDoc: true,
+                    overrideUserDeref: true,
                 },
                 reviews: {
                     type: 'array',
                     instance: 'fkey',
                     managerName: 'files',
                     acceptNewDoc: true,
+                    overrideUserDeref: true,
                 },
                 oldReviews: {
                     type: 'array',
                     instance: 'fkey',
                     managerName: 'files',
                     acceptNewDoc: true,
+                    overrideUserDeref: true,
                 },
                 module: {
                     type: 'parent',
@@ -75,9 +79,7 @@ class Filemeta extends DBManager<IFilemeta> {
     }
 
     public pushLatest(filemeta: IFilemeta, fileId: string) {
-        filemeta.old = (<string[]>filemeta.old).concat(
-            <string>filemeta.latest
-        )
+        filemeta.old = (<string[]>filemeta.old).concat(<string>filemeta.latest)
         filemeta.latest = fileId
     }
 }

@@ -161,7 +161,10 @@ export class AuthUser {
                             user: dbUserWOPass.id,
                             // 3600: 1hour
                             // 86 400: 1day
-                            exp: Math.floor(Date.now() / 1000) + 86400,
+                            // Date.now() is in mili, exp requires seconds
+                            exp:
+                                Math.floor(Date.now() / 1000) +
+                                config.authDuration,
                         },
                         config.secret
                     )
@@ -172,7 +175,7 @@ export class AuthUser {
                     // Set cookies and status
                     ctx.cookies.set('token', token, {
                         httpOnly: true,
-                        maxAge: 3600 * 1000,
+                        maxAge: config.authDuration * 1000,
                     })
                     // This contains different values from get/:id
                     ctx.response.body = {

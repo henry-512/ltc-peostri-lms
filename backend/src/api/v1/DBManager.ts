@@ -286,7 +286,10 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             // foreign
             async (v, data) => {
                 if (typeof v === 'string') {
-                    if (data.getIdKeepAsRef || noDeref) {
+                    console.log(str(data))
+                    console.log(v)
+                    let overrideDeref = userRoute && data.overrideUserDeref
+                    if (!overrideDeref && (data.getIdKeepAsRef || noDeref)) {
                         return convertToKey(v)
                     } else if (data.foreignApi.db.isDBId(v)) {
                         // Dereference the id into an object
@@ -311,7 +314,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             // data
             // Warp return values and convert foreign keys
             async (v, data) => {
-                if (!noDeref) {
+                if (!noDeref || (data.overrideUserDeref && userRoute)) {
                     await data.foreignData.mapForeignKeys(
                         v,
                         (v, d) => {

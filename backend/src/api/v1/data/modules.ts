@@ -54,6 +54,7 @@ class Module extends DBManager<IModule> {
                         reviews: [],
                         oldReviews: [],
                     },
+                    overrideUserDeref: true,
                 },
                 waive_module: {
                     type: 'boolean',
@@ -94,7 +95,7 @@ class Module extends DBManager<IModule> {
                 mod.files = {
                     title: (<IFile>(<IFilemeta>mod?.files).latest).title,
                     src: getUrl(`files/static/${(<IFilemeta>mod.files).id}`),
-                    old: true
+                    old: true,
                 } as any
             } else {
                 // Delete files on admin GET

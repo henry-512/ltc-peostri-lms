@@ -51,6 +51,10 @@ export interface IField {
     distortOnGet?: (doc: any) => any
     // If field is missing on user routes, send this instead
     userDefault?: any
+
+    // If true, dereference this field if the GET is a userroute and
+    // deref is disabled
+    overrideUserDeref?: boolean
 }
 
 export interface IForeignFieldData extends IField {
