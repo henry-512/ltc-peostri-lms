@@ -17,7 +17,8 @@ const WaiverInput = (props: WaiverInputProps): JSX.Element => {
             id: "",
             title: "Module Waiver Approval",
             status: "AWAITING",
-            type: "WAIVER_APPROVE"
+            type: "WAIVER_APPROVE",
+            ttc: 10
         }
 
         return {
@@ -48,7 +49,7 @@ const WaiverInput = (props: WaiverInputProps): JSX.Element => {
             setValue(props.source + ".tasks", cacheTasks);
         } else {
             setValue(props.source + ".tasks", {
-                ["0"]: [{}]
+                ["0"]: []
             })
         }
 

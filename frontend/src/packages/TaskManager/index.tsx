@@ -3,11 +3,11 @@ import { ITask, ITaskStep } from 'src/util/types';
 import Steps from '../StepBuilder';
 import TaskFields from './TaskFields';
 import { Creator } from 'src/components/misc';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import get from 'lodash.get';
 import TaskCard from './TaskCard';
 import React from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 
 export type TaskManagerProps = {
     source: string,
@@ -50,6 +50,11 @@ const TaskManager = (props: TaskManagerProps) => {
         let ftasks = getValues(props.source);
         setTasks(ftasks);
     }
+
+    const waive = useWatch({ name: `${props.source.replace('.tasks', '')}.waive_module`, defaultValue: false, exact: true });
+    useEffect(() => {
+        updateComponent()
+    }, [waive]);
 
     //Current Step Key
     const [step, setStep] = useState(() => calculateStep());
