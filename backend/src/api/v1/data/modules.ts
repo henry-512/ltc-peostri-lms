@@ -88,6 +88,11 @@ class Module extends DBManager<IModule> {
         if (doc.waive_comment) {
             doc.waive_module = true
         }
+        if (doc.file) {
+            console.log('--- .file detected, replacing with .files')
+            doc.files = doc.file
+            delete doc.file
+        }
 
         return doc
     }
