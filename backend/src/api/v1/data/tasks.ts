@@ -1,4 +1,5 @@
 import { ArangoWrapper } from '../../../database'
+import { HTTPStatus } from '../../../lms/errors'
 import { IFilemeta, ITask } from '../../../lms/types'
 import { getFile } from '../../../lms/util'
 import { AuthUser } from '../../auth'
@@ -57,6 +58,43 @@ class Task extends DBManager<ITask> {
         )
     }
 
+    private async preProcessingChecks(
+        taskId: string,
+        files: any,
+        fileKey: string
+    ) {
+        // Verify file exists
+        let fileData = getFile(files, fileKey)
+
+        // Retrieve task
+        let task = await this.db.get(taskId)
+        if (!task.module) {
+            throw this.internal(
+                'upload',
+                `Task ${taskId} could not find its parent`
+            )
+        }
+
+        // Retrieve module
+        await ModuleManager.db.assertIdExists(task.module)
+        let mod = await ModuleManager.db.get(task.module)
+
+        return { fileData, modId: task.module, mod }
+    }
+
+    private async saveFile(user: AuthUser, fileData: IFileData) {
+        // Save file
+        let review = await FiledataManager.writeFile(user, fileData)
+        if (!review.id) {
+            throw this.internal('upload', `file ${review} lacks .id field`)
+        }
+        // Necessary to cache this value here, db.save clears it
+        let fileId = review.id
+        await FiledataManager.db.save(review)
+
+        return fileId
+    }
+
     /**
      * COMPLETE
      */
@@ -73,37 +111,22 @@ class Task extends DBManager<ITask> {
         files: any,
         fileKey: string
     ) {
-        let fileData = getFile(files, fileKey)
-        let latest = await FiledataManager.writeFile(user, fileData)
-        if (!latest.id) {
-            throw this.internal('upload', `file ${latest} lacks .id field`)
-        }
-        let fileId = latest.id
-        await FiledataManager.db.save(latest)
+        // Check/retrieve data
+        let { mod, modId, fileData } = await this.preProcessingChecks(
+            taskId,
+            files,
+            fileKey
+        )
 
-        // Redundant, taskId is assumed to be valid
-        // await this.db.assertIdExists(taskId)
+        // Save file
+        let fileId = await this.saveFile(user, fileData)
 
-        let task = await this.db.get(taskId)
-        if (!task.module) {
-            throw this.internal(
-                'upload',
-                `Task ${taskId} could not find its parent`
-            )
-        }
-
-        await ModuleManager.db.assertIdExists(task.module)
-        let mod = await ModuleManager.db.get(task.module)
-
+        // Build/modify filemeta
         let filemeta: IFilemeta = {} as any
-
         if (mod.files) {
             let filemeta = await FilemetaManager.db.get(mod.files as string)
 
-            filemeta.old = (<string[]>filemeta.old).concat(
-                <string>filemeta.latest
-            )
-            filemeta.latest = fileId
+            FilemetaManager.pushLatest(filemeta, fileId)
 
             // Update filemeta
             await FilemetaManager.db.update(filemeta, { mergeObjects: false })
@@ -115,7 +138,7 @@ class Task extends DBManager<ITask> {
                 reviews: [],
                 old: [],
                 oldReviews: [],
-                module: task.module,
+                module: modId,
             }
 
             mod.files = filemeta.id
@@ -124,20 +147,129 @@ class Task extends DBManager<ITask> {
             await ModuleManager.db.update(mod, { mergeObjects: false })
         }
 
-        // Update task
+        // Update task and ADVANCE
         await this.db.updateFaster([taskId], 'status', 'COMPLETED')
         await ModuleManager.postAutomaticAdvance(user, mod)
     }
 
     /**
-     * Review
+     * REVIEW
      */
     public async review(
         user: AuthUser,
         taskId: string,
         files: any,
         fileKey: string
-    ) {}
+    ) {
+        let { mod, modId, fileData } = await this.preProcessingChecks(
+            taskId,
+            files,
+            fileKey
+        )
+
+        // If files dont exist, we can't proceed
+        if (!mod.files) {
+            // Throw an error, we need to upload a file first
+            throw this.error(
+                'review',
+                HTTPStatus.BAD_REQUEST,
+                'Invalid module state.',
+                `${JSON.stringify(mod)} lacks filemeta object`
+            )
+        }
+
+        // Save file
+        let fileId = await this.saveFile(user, fileData)
+
+        // Get filemeta
+        let filemeta = await FilemetaManager.db.get(mod.files as string)
+        // Modify filemeta
+        filemeta.reviews = (<string[]>filemeta.reviews).concat(fileId)
+        // Update filemeta
+        await FilemetaManager.db.update(filemeta, { mergeObjects: false })
+
+        // Update task and ADVANCE
+        await this.db.updateFaster([taskId], 'status', 'COMPLETED')
+        await ModuleManager.postAutomaticAdvance(user, mod)
+    }
+
+    /**
+     * REVISE
+     */
+    public async revise(
+        user: AuthUser,
+        taskId: string,
+        files: any,
+        fileKey: string,
+        reviseFileKey: string
+    ) {
+        let { mod, modId, fileData } = await this.preProcessingChecks(
+            taskId,
+            files,
+            fileKey
+        )
+
+        // If files dont exist, we can't proceed
+        if (!mod.files) {
+            // Throw an error, we need to upload a file first
+            throw this.error(
+                'review',
+                HTTPStatus.BAD_REQUEST,
+                'Invalid module state.',
+                `${JSON.stringify(mod)} lacks filemeta object`
+            )
+        }
+
+        // Get filemeta
+        let filemeta = await FilemetaManager.db.get(mod.files as string)
+
+        // Cache revise file
+        let reviseFileId = FiledataManager.db.asId(reviseFileKey)
+
+        // Locate revised file
+        let found = false
+        for (let i = 0; i < filemeta.reviews.length; i++) {
+            let r = filemeta.reviews[i]
+            if (filemeta.reviews[i] === reviseFileId) {
+                // Remove from reviews
+                filemeta.reviews.splice(i, 1)
+                // Push into oldReviews
+                filemeta.oldReviews = (<string[]>filemeta.oldReviews).concat(
+                    <string>r
+                )
+                found = true
+                break
+            }
+        }
+        if (!found) {
+            throw this.error(
+                'revise',
+                HTTPStatus.BAD_REQUEST,
+                'Invalid revise key',
+                `${reviseFileKey} -> ${reviseFileId} not a valid fieldata key`
+            )
+        }
+
+        // Save file
+        let fileId = await this.saveFile(user, fileData)
+
+        // Push latest
+        FilemetaManager.pushLatest(filemeta, fileId)
+
+        // Update filemeta
+        await FilemetaManager.db.update(filemeta, { mergeObjects: false })
+
+        // Update task and ADVANCE
+        await this.db.updateFaster([taskId], 'status', 'COMPLETED')
+        await ModuleManager.postAutomaticAdvance(user, mod)
+    }
+
+    /**
+     * APPROVE
+     */
+    public async approve(user: AuthUser, taskId: string) {
+        await this.db.updateFaster([taskId], 'status', 'COMPLETE')
+    }
 }
 
 export const TaskManager = new Task()

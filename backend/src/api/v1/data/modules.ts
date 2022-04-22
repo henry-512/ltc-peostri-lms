@@ -51,8 +51,8 @@ class Module extends DBManager<IModule> {
                         latest: '',
                         old: [],
                         reviews: [],
-                        oldReviews: []
-                    }
+                        oldReviews: [],
+                    },
                 },
                 waive_module: {
                     type: 'boolean',

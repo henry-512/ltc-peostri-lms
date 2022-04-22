@@ -73,6 +73,13 @@ class Filemeta extends DBManager<IFilemeta> {
             module: par,
         }
     }
+
+    public pushLatest(filemeta: IFilemeta, fileId: string) {
+        filemeta.old = (<string[]>filemeta.old).concat(
+            <string>filemeta.latest
+        )
+        filemeta.latest = fileId
+    }
 }
 
 export interface IFileData {

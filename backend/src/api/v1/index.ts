@@ -277,6 +277,46 @@ export function routerBuilder(version: string) {
 
                         ctx.status = HTTPStatus.OK
                     })
+                    .put('reivew/:id', async (ctx) => {
+                        let id = await TaskManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
+                        let body = await parseBody(ctx.request)
+
+                        await TaskManager.review(
+                            ctx.state.user,
+                            id,
+                            ctx.request.files,
+                            body.file
+                        )
+
+                        ctx.status = HTTPStatus.OK
+                    })
+                    .put('revise/:id', async (ctx) => {
+                        let id = await TaskManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
+                        let body = await parseBody(ctx.request)
+
+                        await TaskManager.revise(
+                            ctx.state.user,
+                            id,
+                            ctx.request.files,
+                            body.file,
+                            body.review
+                        )
+
+                        ctx.status = HTTPStatus.OK
+                    })
+                    .put('approve/:id', async (ctx) => {
+                        let id = await TaskManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
+
+                        await TaskManager.approve(ctx.state.user, id)
+
+                        ctx.status = HTTPStatus.OK
+                    })
                     .routes()
             )
     )
