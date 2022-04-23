@@ -19,7 +19,7 @@ export type AvatarGroupFieldProps = {
 
 /**
  * Component used to render the avatar group images. This comonent utilizes the ListContext to get the data.
- * @param {AvatarGroupFieldProps} props
+ * @param {AvatarGroupFieldProps} props - AvatarGroupFieldProps
  */
 const AvatarGroupField = (props: AvatarGroupFieldProps) => {
     const {

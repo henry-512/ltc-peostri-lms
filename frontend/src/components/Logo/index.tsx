@@ -13,7 +13,7 @@ export type LogoProps = {
  * "Logo is a function that takes a LogoProps object and returns an image element with a source, alt
  * text, height, and style."
  * 
- * @param {LogoProps} props
+ * @param {LogoProps} props - LogoProps
  * @returns An image with the source of /logo.png, the alt text of PEO STRI LOGO, a height of 32px, and
  * the style of props.sx.
  */

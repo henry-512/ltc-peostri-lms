@@ -17,7 +17,7 @@ export interface PanelProps {
 /**
  * The Panel component is a child of the Tabs component and is responsible for rendering the content of
  * each tab.
- * @param {PanelProps} props
+ * @param {PanelProps} props - PanelProps
  * @returns A div with a role of tabpanel, hidden if the value is not equal to the index, with an id of
  * vertical-tabpanel-index, aria-labelledby of vertical-tab-index, flexShrink of 3, width of 100%, and
  * children.

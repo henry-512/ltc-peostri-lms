@@ -17,7 +17,7 @@ export type AddTemplateModuleButtonProps = {
 /**
  * This function takes in a label and an onClick function and returns a button with the label and
  * onClick function passed in.
- * @param {AddTemplateModuleButtonProps} props
+ * @param {AddTemplateModuleButtonProps} props - AddTemplateModuleButtonProps
  */
 const AddTemplateModuleButton = ({ label, onClick }: AddTemplateModuleButtonProps) => (
     <Button label={label} onClick={onClick} color="primary" variant="contained">

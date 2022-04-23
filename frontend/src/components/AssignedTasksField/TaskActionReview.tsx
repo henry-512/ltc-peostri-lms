@@ -20,7 +20,7 @@ export type TaskActionReviewProps = {
 
 /**
  * Review task action renders the button and dialogs for an review task.
- * @param {TaskActionReviewProps} props
+ * @param {TaskActionReviewProps} props - TaskActionReviewProps
  */
 const TaskActionReview = (props: TaskActionReviewProps) => {
     const [update, { isLoading, error }] = useUpdate();

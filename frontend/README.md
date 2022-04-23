@@ -5,7 +5,8 @@ In the `frontend` directory:
 - Create `.env` file with the following contents:
 
 ```
-REACT_APP_API_URL="http://url.com/api"  # API URL or IP of backend server. Note that this should point to the backends api path
+REACT_APP_API_URL="http://url.com/api"  # API URL or IP of backend server. Note that 
+                                        # this should point to the backends api path
 REACT_APP_API_VERSION="v1"              # API Version Number (Current: v1)
 APP_PORT= "1234"                        # Port number to run the frontend server.
 ```

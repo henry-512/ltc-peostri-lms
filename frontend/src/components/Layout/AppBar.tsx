@@ -1,10 +1,21 @@
-import { AppBar, UserMenu } from 'react-admin';
+/**
+* @file Customized header bar.
+* @module CustomAppBar
+* @category Layout
+* @author Braden Cariaga
+*/
+
+import { AppBar, AppBarProps, UserMenu } from 'react-admin';
 import { Typography } from '@mui/material';
 
 import NotificationsWidget from '../NotificationsWidget';
 import Logo from 'src/components/Logo';
 
-const CustomAppBar = (props: any) => {
+/**
+ * Customized header bar.
+ * @param {AppBarProps} props - AppBarProps
+ */
+const CustomAppBar = (props: AppBarProps) => {
     
     return (
         <AppBar {...props} elevation={1} userMenu={<UserMenu />}>

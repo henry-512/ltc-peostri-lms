@@ -28,7 +28,7 @@ export type AutoFillUserNameProps = {
  * I'm using the useEffect hook to set the username field to the email field if the useEmail field is
  * true. If the useEmail field is false, then the username field is set to the username field.
  * 
- * @param {AutoFillUserNameProps} props
+ * @param {AutoFillUserNameProps} props - AutoFillUserNameProps
  */
 const AutoFillUserName = (props: AutoFillUserNameProps) => {
     const { setValue } = useFormContext();

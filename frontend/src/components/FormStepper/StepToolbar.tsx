@@ -1,7 +1,13 @@
+/**
+* @file FormStepper toolbar (ex. save, delete, create buttons)
+* @module StepToolbar
+* @category FormStepper
+* @author Braden Cariaga
+*/
+
 import { Box, Typography } from "@mui/material"
 import { MouseEventHandler } from "react";
 import { Button, DeleteWithConfirmButton, SaveButton, Toolbar, ToolbarProps, useFormGroup, useRecordContext, useTranslate } from "react-admin"
-import { useFormState } from "react-hook-form";
 
 export interface StepToolbarProps extends ToolbarProps {
     active: number;
@@ -15,6 +21,10 @@ export interface StepToolbarProps extends ToolbarProps {
     create: boolean;
 }
 
+/**
+ * FormStepper toolbar (ex. save, delete, create buttons)
+ * @param {StepToolbarProps} props - StepToolbarProps
+ */
 export default function StepToolbar(props: StepToolbarProps) {
     const { isValid, isDirty, errors } = useFormGroup(props.validator);
 

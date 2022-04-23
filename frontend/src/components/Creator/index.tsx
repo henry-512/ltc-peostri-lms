@@ -45,7 +45,7 @@ export type CreatorProps = {
 
 /**
  * Base creator window used on the TaskManager and ModuleManager
- * @param {CreatorProps} props
+ * @param {CreatorProps} props - CreatorProps
  */
 const Creator = (props: CreatorProps) => {
     const translate = useTranslate();

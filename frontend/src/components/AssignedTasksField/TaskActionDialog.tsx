@@ -48,7 +48,7 @@ export type TaskActionDialogProps = {
 
 /**
  * Generic task action dialog box
- * @param {TaskActionDialogProps} props
+ * @param {TaskActionDialogProps} props - TaskActionDialogProps
  */
 const TaskActionDialog = (props: TaskActionDialogProps) => {
     const translate = useTranslate();

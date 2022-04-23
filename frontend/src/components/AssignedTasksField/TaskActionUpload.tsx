@@ -23,7 +23,7 @@ export type TaskActionUploadProps = {
 
 /**
  * Upload task action renders the button and dialogs for an upload task.
- * @param {TaskActionUploadProps} props
+ * @param {TaskActionUploadProps} props - TaskActionUploadProps
  */
 const TaskActionUpload = (props: TaskActionUploadProps) => {
     const [update, { isLoading, error }] = useUpdate();

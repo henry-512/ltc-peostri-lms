@@ -30,7 +30,7 @@ export type DocumentTabberProps = {
 
 /**
  * Main document tabber component which enables the use of a vertial tabber to separate documents.
- * @param {DocumentTabberProps} props
+ * @param {DocumentTabberProps} props - DocumentTabberProps
  */
 const DocumentTabber = (props: DocumentTabberProps) => (
     <Box sx={{ flexGrow: 0, bgcolor: 'background.paper', display: 'flex', height: 'auto' }}>

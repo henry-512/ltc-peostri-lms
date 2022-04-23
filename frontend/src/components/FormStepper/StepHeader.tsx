@@ -1,3 +1,10 @@
+/**
+* @file FormStepper header (ex. save, delete, create buttons)
+* @module StepHeader
+* @category FormStepper
+* @author Braden Cariaga
+*/
+
 import { Paper, Step, StepLabel, Stepper, Typography } from "@mui/material";
 import React from "react";
 import { StepSettings } from "./Step";
@@ -17,6 +24,11 @@ export type StepProps = {
     completed: boolean
 }
 
+/**
+ * It takes a list of children, and returns a list of children with some props added to them
+ * @param {StepHeaderProps} props - StepHeaderProps
+ * @returns A React component that renders a Stepper component.
+ */
 export default function StepHeader(props: StepHeaderProps) {
 
     return (

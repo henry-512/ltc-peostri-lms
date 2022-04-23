@@ -16,7 +16,7 @@ export interface AvatarFieldProps extends FieldProps<IUser> {
 
 /**
  * Component used to render the avatar image provided a record.
- * @param {AvatarFieldProps} props 
+ * @param {AvatarFieldProps} props - AvatarFieldProps
  */
 const AvatarField = ({ record, size = '25', className }: AvatarFieldProps) =>
 record ? (

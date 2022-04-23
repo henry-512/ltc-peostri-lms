@@ -51,7 +51,7 @@ const omitID = (data: any) => {
 
 /**
  * Creates a modal window that allows the user to select a template. When the user clicks the create button, the code is getting the value of the field, then using that value to make a request to an API, then redirecting to a new page with the response data.
- * @param {CreateProjectFromTemplateDialogProps} props
+ * @param {CreateProjectFromTemplateDialogProps} props - CreateProjectFromTemplateDialogProps
  */
 const CreateProjectFromTemplateDialog = (props: CreateProjectFromTemplateDialogProps) => {
     const translate = useTranslate();

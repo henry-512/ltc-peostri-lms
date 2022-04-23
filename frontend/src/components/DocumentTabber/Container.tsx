@@ -17,7 +17,7 @@ export type ContainerProps = {
 
 /**
  * Accordion container used on the document tabber on the module view page.
- * @param {ContainerProps} props 
+ * @param {ContainerProps} props - ContainerProps
  * @returns 
  */
 const Container = ({ title = "Old Files", ...props }: ContainerProps) => (
