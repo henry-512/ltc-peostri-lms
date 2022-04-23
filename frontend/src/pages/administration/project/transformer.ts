@@ -6,7 +6,6 @@ const transformer = (projectData: IProject) => {
 
     //Remove form values used for client processing.
     delete data.module_template_id;
-    delete data.auto_assign;
 
     //Fix Empty Team Issue causing bad request.
     if (data.team && data.team.length <= 0) {
