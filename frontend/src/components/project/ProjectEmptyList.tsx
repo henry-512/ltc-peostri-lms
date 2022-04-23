@@ -20,6 +20,7 @@ const classes = {
 };
 
 const Root = styled('div')(({ theme }) => ({
+    margin: 'auto',
     [`& .${classes.message}`]: {
         textAlign: 'center',
         opacity: theme.palette.mode === 'light' ? 0.5 : 0.8,
