@@ -1,10 +1,9 @@
 import CardWithIcon from "../base/CardWithIcon"
 import { INotification } from "src/util/types";
-import { Box, Button, Divider, List, ListItem, ListItemText, CircularProgress } from "@mui/material";
-import { Identifier, LinearProgress, useCreatePath, useGetList, useIsDataLoaded, useTranslate, useUpdate } from "react-admin";
+import { Box, Button, Divider, List, ListItem, ListItemText } from "@mui/material";
+import { Identifier, LinearProgress, useCreatePath, useGetList, useTranslate, useUpdate } from "react-admin";
 import { Link } from "react-router-dom";
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
-import NotificationEmpty from "./NotificationEmpty";
 import NotificationListItem from "./NotificationListItem";
 
 export type MyNotificationsProps = {

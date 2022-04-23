@@ -1,5 +1,6 @@
 import { Create, SimpleForm, useTranslate } from "react-admin";
-import { UserFields, UserToolbar } from "src/components/users";
+import UserFields from "src/components/UserFields";
+import UserToolbar from "src/components/UserToolbar";
 import transformer from "../transformer";
 import validateUser from "../validation";
 

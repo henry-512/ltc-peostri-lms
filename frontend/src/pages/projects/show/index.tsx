@@ -1,14 +1,9 @@
-import { Box, Typography, Tab, IconButton, Breadcrumbs, Divider, List, ListItem, ListItemText } from "@mui/material";
-import { useState } from "react";
-import { FunctionField, Link, ReferenceArrayField, Show, ReferenceManyField, ShowController, SimpleShowLayout, useCreatePath } from "react-admin";
+import { Box, IconButton, Breadcrumbs, Divider } from "@mui/material";
+import { FunctionField, Link, Show, ReferenceManyField, ShowController, SimpleShowLayout, useCreatePath } from "react-admin";
 import Aside from "./Aside";
-import TabContext from '@mui/lab/TabContext';
-import TabList from '@mui/lab/TabList';
-import TabPanel from '@mui/lab/TabPanel';
-import { useNavigate } from "react-router";
 import EditIcon from '@mui/icons-material/Edit';
 import TabbedProjectInfo from "./TabbedProjectInfo";
-import AssignedTasksField from "src/packages/AssignedTasksField";
+import AssignedTasksField from "src/components/AssignedTasksField";
 
 type ProjectShowProps = {
 

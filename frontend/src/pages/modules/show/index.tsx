@@ -1,9 +1,9 @@
-import { Box, Typography, IconButton, Breadcrumbs, Divider } from "@mui/material";
+import { Box, IconButton, Breadcrumbs, Divider } from "@mui/material";
 import { FunctionField, Link, ReferenceField, Show, ShowController, SimpleShowLayout, useCreatePath, TextField, ReferenceArrayField } from "react-admin";
 import Aside from "./Aside";
 import EditIcon from '@mui/icons-material/Edit';
 import TabbedProjectInfo from "./TabbedModuleInfo";
-import AssignedTasksField from "src/packages/AssignedTasksField";
+import AssignedTasksField from "src/components/AssignedTasksField";
 
 type ModuleShowProps = {
 

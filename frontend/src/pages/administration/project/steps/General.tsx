@@ -1,8 +1,8 @@
 import { Grid } from "@mui/material"
-import { BooleanInput, DateInput, FormGroupContextProvider, NumberInput, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin"
-import { SectionTitle } from "src/components/misc";
-import UserInput from "src/components/project/UserInput";
-import { Step } from "src/packages/FormStepper/Step"
+import { BooleanInput, DateInput, FormGroupContextProvider, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin"
+import { Step } from "src/components/FormStepper/Step";
+import SectionTitle from "src/components/SectionTitle";
+import UserInput from "src/components/UserInput";
 import { dateFormatter, dateParser } from "src/util/dateFormatter";
 
 const General = (props: any) => {

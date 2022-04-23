@@ -1,8 +1,8 @@
-import { Step } from "src/packages/FormStepper/Step";
 import { FormGroupContextProvider } from "react-admin";
-import ModuleManager from "src/packages/ModuleManager";
+import ModuleManager from "src/components/ModuleManager";
 import { useFormContext } from "react-hook-form";
 import { IModule } from "src/util/types";
+import { Step } from "src/components/FormStepper/Step";
 
 
 const Modules = (props: any) => {

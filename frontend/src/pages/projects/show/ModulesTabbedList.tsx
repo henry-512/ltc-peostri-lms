@@ -1,7 +1,7 @@
 import { Datagrid, DateField, TextField, useShowContext } from "react-admin";
 import { useState } from "react";
 import { IModuleStep } from "src/util/types";
-import StepTabber from "src/packages/StepTabber";
+import StepTabber from "src/components/StepTabber";
 import statusRowStyle from "src/util/statusRowStyle";
 
 const ModulesTabbedList = () => {

@@ -1,5 +1,5 @@
 import { Datagrid, DateField, List, ListProps, TextField } from 'react-admin';
-import { ProjectEmptyList } from 'src/components/project';
+import ProjectEmptyList from 'src/components/ProjectEmptyList';
 import statusRowStyle from 'src/util/statusRowStyle';
 import { dateOptions } from 'src/util/dateFormatter';
 

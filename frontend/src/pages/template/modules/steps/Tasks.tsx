@@ -1,7 +1,7 @@
 import { FormGroupContextProvider } from "react-admin";
-import { Step } from "src/packages/FormStepper/Step";
-import { ModuleTemplateTaskFields } from "src/components/templates";
-import TaskManager from "src/packages/TaskManager";
+import { Step } from "src/components/FormStepper/Step";
+import ModuleTemplateTaskFields from "src/components/ModuleTemplateTaskFields";
+import TaskManager from "src/components/TaskManager";
 import { useFormContext } from "react-hook-form";
 import { ITaskTemplate } from "src/util/types";
 

@@ -1,4 +1,4 @@
-import { IModule, IProject, ITask } from "src/util/types";
+import { IProject } from "src/util/types";
 import cloneDeep from 'lodash.clonedeep';
 
 const transformer = (projectData: IProject) => {

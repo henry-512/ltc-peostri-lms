@@ -1,6 +1,6 @@
 import { Edit, useTranslate } from "react-admin";
-import { TemplateEditToolbar } from "src/components/templates";
-import FormStepper from "src/packages/FormStepper";
+import TemplateEditToolbar from "src/components/TemplateEditToolbar";
+import FormStepper from "src/components/FormStepper";
 import General from "../steps/General";
 import Modules from "../steps/Modules";
 import transformer from "../transformer";

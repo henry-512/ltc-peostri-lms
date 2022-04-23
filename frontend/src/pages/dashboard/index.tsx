@@ -1,4 +1,4 @@
-import Dashboard from "src/components/dashboard/Dashboard";
+import Dashboard from "src/components/Dashboard";
 
 const DashboardPage = () => {
     let permission = "";

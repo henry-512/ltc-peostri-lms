@@ -1,8 +1,8 @@
 import { Box, Typography } from "@mui/material";
 import { display } from "@mui/system";
 import { ReferenceArrayField, ReferenceField, TextField } from "react-admin";
-import { ProgressField } from "src/components/misc";
-import AvatarGroupField from "src/components/users/AvatarGroupField";
+import ProgressField from "src/components/ProgressField";
+import AvatarGroupField from "src/components/AvatarGroupField";
 import { dateFormatToString } from "src/util/dateFormatter";
 import { getProgressStatusColor } from "src/util/getProgressStatus";
 import { IProject } from "src/util/types";

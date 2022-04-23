@@ -1,7 +1,8 @@
 import { Datagrid, DateField, List, ListProps, TextField } from 'react-admin';
-import { ProjectEmptyList, ProjectListActions } from 'src/components/project';
 import statusRowStyle from 'src/util/statusRowStyle';
 import { dateOptions } from 'src/util/dateFormatter';
+import ProjectEmptyList from 'src/components/ProjectEmptyList';
+import ProjectListActions from 'src/components/ProjectListActions';
 
 const AdminProjectList = (props: ListProps) => {
 

@@ -1,7 +1,7 @@
 import { styled } from '@mui/material/styles';
 import React from 'react';
 import { BulkDeleteButton, ChipField, Datagrid, DateField, FieldProps, List, ListProps, ReferenceArrayField, ReferenceField, ReferenceInput, SearchInput, SelectInput, SingleFieldList, TextField, TextInput } from 'react-admin';
-import { AvatarField } from 'src/components/users';
+import AvatarField from 'src/components/AvatarField';
 import { dateOptions } from 'src/util/dateFormatter';
 import { IUser } from 'src/util/types';
 

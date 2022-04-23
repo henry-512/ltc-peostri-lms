@@ -1,7 +1,7 @@
 import { FormGroupContextProvider } from "react-admin";
-import ModuleManager from "src/packages/ModuleManager";
-import { Step } from "src/packages/FormStepper/Step";
-import { ModuleTemplateFields } from "src/components/templates";
+import ModuleManager from "src/components/ModuleManager";
+import { Step } from "src/components/FormStepper/Step";
+import ModuleTemplateFields from "src/components/ModuleTemplateFields";
 import { useFormContext } from "react-hook-form";
 import { IModuleTemplate } from "src/util/types";
 

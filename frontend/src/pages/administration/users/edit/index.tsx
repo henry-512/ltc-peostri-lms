@@ -1,5 +1,8 @@
 import { Edit, SimpleForm } from "react-admin";
-import { UserEditTitle, UserEditToolbar, UserFields, UserToolbar } from "src/components/users";
+import UserEditTitle from "src/components/UserEditTitle";
+import UserEditToolbar from "src/components/UserEditToolbar";
+import UserFields from "src/components/UserFields";
+import UserToolbar from "src/components/UserToolbar";
 import transformer from "../transformer";
 import validateUser from "../validation";
 

@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import { AutocompleteArrayInput, Create, ReferenceArrayInput, SimpleForm, TextInput, useTranslate } from "react-admin";
-import { SectionTitle } from "src/components/misc";
-import TeamToolbar from "src/components/teams/TeamToolbar";
+import SectionTitle from "src/components/SectionTitle";
+import TeamToolbar from "src/components/TeamToolbar";
 import transformer from "../transformer";
 import validateTeam from "../validation";
 

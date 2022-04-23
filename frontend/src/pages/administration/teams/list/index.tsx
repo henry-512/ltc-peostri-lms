@@ -1,6 +1,5 @@
-import { styled } from '@mui/material/styles';
 import { Datagrid, FieldProps, List, ListProps, ReferenceArrayField, SingleFieldList, TextField } from 'react-admin';
-import { UserChip } from 'src/components/misc';
+import UserChip from 'src/components/UserChip';
 import { ITeam } from 'src/util/types';
 
 export interface TeamListProps extends FieldProps<ITeam>, ListProps {

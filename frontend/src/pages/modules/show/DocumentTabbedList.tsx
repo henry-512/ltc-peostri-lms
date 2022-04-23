@@ -1,8 +1,8 @@
 import { Datagrid, TextField, RaRecord, useShowContext } from "react-admin";
 import { useState } from "react";
-import DocumentTabber from "src/packages/DocumentTabber";
+import DocumentTabber from "src/components/DocumentTabber";
 import { Typography, Box } from "@mui/material";
-import Container from "src/packages/DocumentTabber/Container";
+import Container from "src/components/DocumentTabber/Container";
 
 const MainDocuments = ({ record }: { record: RaRecord }) => {
 

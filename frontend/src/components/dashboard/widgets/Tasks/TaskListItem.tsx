@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import { ReferenceArrayField } from "react-admin";
-import AvatarGroupField from "src/components/users/AvatarGroupField";
+import AvatarGroupField from "src/components/AvatarGroupField";
 import { dateFormatToString } from "src/util/dateFormatter";
 import { getProgressStatusColor } from "src/util/getProgressStatus";
 import { ITask } from "src/util/types";

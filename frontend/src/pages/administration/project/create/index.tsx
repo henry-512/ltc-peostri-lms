@@ -1,6 +1,6 @@
 import { styled } from '@mui/material/styles';
 import { Create, useTranslate } from "react-admin";
-import FormStepper from "src/packages/FormStepper";
+import FormStepper from "src/components/FormStepper";
 import General from "../steps/General";
 import Modules from "../steps/Modules";
 import transformer from "../transformer";

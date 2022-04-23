@@ -11,7 +11,7 @@ import { UserCreate, UserEdit, UserList } from './pages/administration/users';
 import { TeamCreate, TeamEdit, TeamList } from './pages/administration/teams';
 import { ProjectTemplateCreate, ProjectTemplateEdit, ProjectTemplateList } from './pages/template/projects';
 import { ModuleTemplateCreate, ModuleTemplateEdit, ModuleTemplateList } from './pages/template/modules';
-import Layout from 'src/packages/Layout';
+import Layout from 'src/components/Layout';
 import { ProjectShow, ProjectList } from './pages/projects';
 import { ModuleShow } from './pages/modules';
 import { lightTheme } from 'src/config/themes';

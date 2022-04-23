@@ -1,6 +1,6 @@
 import { Box, styled, Typography } from "@mui/material";
 import classnames from "classnames";
-import NotificationIcon from "src/components/notifications/NotificationIcon";
+import NotificationIcon from "src/components/NotificationIcon";
 import { dateFormatToString } from "src/util/dateFormatter";
 import { INotification } from "src/util/types";
 
