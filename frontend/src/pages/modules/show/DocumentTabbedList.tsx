@@ -1,17 +1,27 @@
-import { Datagrid, TextField, FileField, ReferenceField, RaRecord, useShowContext } from "react-admin";
+import { Datagrid, TextField, RaRecord, useShowContext } from "react-admin";
 import { useState } from "react";
-import statusRowStyle from "src/util/statusRowStyle";
-import AvatarGroupField from "src/components/users/AvatarGroupField";
 import DocumentTabber from "src/packages/DocumentTabber";
-import { Typography } from "@mui/material";
+import { Typography, Box } from "@mui/material";
 import Container from "src/packages/DocumentTabber/Container";
-import { IModule } from "src/util/types";
 
 const MainDocuments = ({ record }: { record: RaRecord }) => {
 
     return (
         <>
-            <Typography>{record?.files?.latest?.title}</Typography>
+            <Box display="flex" width="100%" sx={{
+                border: (theme) => `1px solid ${theme.palette.borderColor?.main}`,
+                borderRadius: '10px',
+                padding: (theme) => theme.spacing(1),
+                boxSizing: 'border-box',
+                transition: 'all .2s',
+                '&:hover': {
+                    backgroundColor: (theme) => theme.palette?.borderColor?.main,
+                    transition: 'all .2s',
+                    cursor: 'pointer'
+                }
+            }}>
+                <Typography>{record?.files?.latest?.title}</Typography>
+            </Box>
             {(record?.files?.old && record?.files?.old?.length > 0) ?
                 <Container
                     title="Old Filesss"
