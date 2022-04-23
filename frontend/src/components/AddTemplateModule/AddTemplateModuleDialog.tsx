@@ -45,9 +45,9 @@ export type AddTemplateModuleDialogProps = {
     updateComponent: Function;
 }
 
-/* 
- * A function that takes in a parameter called props.
- * @param {AddTemplateModuleProps} props - AddTemplateModuleProps
+/**
+ * Dialog component for adding a module to the module manager from a template.
+ * @param {AddTemplateModuleDialogProps} props - AddTemplateModuleDialogProps
  */
 const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
     const translate = useTranslate();

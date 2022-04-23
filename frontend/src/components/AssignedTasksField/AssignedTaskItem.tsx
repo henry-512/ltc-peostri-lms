@@ -17,7 +17,10 @@ export type AssignedTaskItemProps = {
     record: ITask
 }
 
-/* The task list item showing assigned task */
+/**
+ * Task item component
+ * @param {AssignedTaskItemProps} props - AssignedTaskItemProps
+ */
 const AssignedTaskItem = ({ record }: AssignedTaskItemProps) => (
     <Box display="flex" justifyContent="space-between" gap="10px" alignItems="center">
         <Box display="flex" alignItems="center" gap="20px">

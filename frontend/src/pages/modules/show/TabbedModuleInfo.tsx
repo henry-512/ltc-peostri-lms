@@ -12,7 +12,7 @@ const hasFiles = (record: IModule) => {
 
 type ModuleTabs = "DOCS" | "TASKS" | "LOGS";
 
-type TabbedModuleInfoProps = {
+export type TabbedModuleInfoProps = {
 
 }
 

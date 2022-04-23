@@ -5,7 +5,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import TabbedProjectInfo from "./TabbedProjectInfo";
 import AssignedTasksField from "src/components/AssignedTasksField";
 
-type ProjectShowProps = {
+export type ProjectShowProps = {
 
 }
 

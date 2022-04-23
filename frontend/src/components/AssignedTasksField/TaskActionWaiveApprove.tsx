@@ -1,7 +1,12 @@
-import { ReferenceInput, required, AutocompleteInput, useDataProvider, useRefresh, useNotify, useUpdate, FileField, FileInput, useRecordContext } from "react-admin";
-import { styled } from '@mui/material/styles';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
-import { useFormContext, useFormState } from "react-hook-form";
+/**
+* @file Waive approve task action renders the button and dialogs for a waiver approval task.
+* @module TaskActionWaiveApprove
+* @category AssignedTasksField
+* @author Braden Cariaga
+*/
+
+import { useRefresh, useUpdate, FileField, FileInput } from "react-admin";
+import { Button } from "@mui/material";
 import TaskActionDialog from "./TaskActionDialog";
 import { MouseEventHandler } from "react";
 import AddBoxIcon from '@mui/icons-material/AddBox';
@@ -13,14 +18,28 @@ export type TaskActionWaiveApproveProps = {
     setOpen: MouseEventHandler<HTMLButtonElement>
 }
 
+/**
+ * Waive approve task action renders the button and dialogs for a waiver approval task.
+ * @param {TaskActionWaiveApproveProps} props - TaskActionWaiveApproveProps
+ */
 const TaskActionWaiveApprove = (props: TaskActionWaiveApproveProps) => {
     const [update, { isLoading, error }] = useUpdate();
     const refresh = useRefresh();
 
+    /**
+     * HandleSubmit is a function that takes a parameter of type any and returns nothing. It calls the
+     * update function, which returns a promise, and then calls the refresh function, which returns
+     * nothing, and then calls the close function, which returns nothing.
+     * @param {any} data - the data that is being submitted
+     */
     const handleSubmit = (data: any) => {
         update(`proceeding/tasks/approve`, { id: props.id, data, previousData: {} }).then(() => refresh()).finally(() => props.close())        
     }
 
+    /**
+     * The handleClose function is a function that takes no arguments and returns nothing. It calls the
+     * close function that is passed in as a prop.
+     */
     const handleClose = () => {
         props.close()
     }

@@ -2,7 +2,7 @@ import { AvatarGroup, Tooltip, Avatar } from "@mui/material";
 import { LinearProgress, useListContext } from "react-admin";
 import { IUser } from "src/util/types";
 
-type AvatarGroupFieldProps = {
+export type AvatarGroupFieldProps = {
     width?: number
     height?: number
     fontSize?: string

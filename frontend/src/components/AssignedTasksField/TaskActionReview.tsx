@@ -1,7 +1,12 @@
-import { ReferenceInput, required, AutocompleteInput, useDataProvider, useTranslate, useRefresh, useUpdate, FileField, FileInput, useRecordContext } from "react-admin";
-import { styled } from '@mui/material/styles';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
-import { useFormContext, useFormState } from "react-hook-form";
+/**
+* @file Review task action renders the button and dialogs for an review task.
+* @module TaskActionReview
+* @category AssignedTasksField
+* @author Braden Cariaga
+*/
+
+import { useRefresh, useUpdate, FileField, FileInput } from "react-admin";
+import { Button, Typography } from "@mui/material";
 import TaskActionDialog from "./TaskActionDialog";
 import { MouseEventHandler } from "react";
 import AddBoxIcon from '@mui/icons-material/AddBox';
@@ -13,10 +18,19 @@ export type TaskActionReviewProps = {
     setOpen: MouseEventHandler<HTMLButtonElement>
 }
 
+/**
+ * Review task action renders the button and dialogs for an review task.
+ * @param {TaskActionReviewProps} props - TaskActionReviewProps
+ */
 const TaskActionReview = (props: TaskActionReviewProps) => {
     const [update, { isLoading, error }] = useUpdate();
     const refresh = useRefresh();
 
+    /**
+     * If the data object is empty, then call the update function with the first argument, and if the
+     * data object is not empty, then call the update function with the second argument.
+     * @param {any} data - {
+     */
     const handleSubmit = (data: any) => {
         if (!data || (data && !data.file)) {
             update(`proceeding/tasks/complete`, { id: props.id, data, previousData: {} }).then(() => refresh()).finally(() => props.close())
@@ -25,6 +39,10 @@ const TaskActionReview = (props: TaskActionReviewProps) => {
         }
     }
 
+    /**
+     * The handleClose function is a function that is called when the user clicks the close button. It
+     * calls the close function that was passed in as a prop.
+     */
     const handleClose = () => {
         props.close()
     }

@@ -6,7 +6,7 @@ import DocumentList from "./DocumentList";
 
 type ProjectTabs = "DOCS" | "MODULES" | "LOGS";
 
-type TabbedProjectInfoProps = {
+export type TabbedProjectInfoProps = {
 
 }
 

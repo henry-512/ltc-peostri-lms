@@ -16,7 +16,10 @@ export type AssignedTaskActionProps = {
     type?: string
 }
 
-/* A React component that is using a switch statement to determine which component to render. */
+/**
+ * A Task action button which resolves the correct buttons based on the task type provided.
+ * @param {AssignedTaskActionProps} props - AssignedTaskActionProps
+ */
 const AssignedTaskAction = ({ id, type }: AssignedTaskActionProps) => {
     const [open, setOpen] = useState<string>("");
 

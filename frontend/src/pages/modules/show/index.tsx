@@ -5,7 +5,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import TabbedProjectInfo from "./TabbedModuleInfo";
 import AssignedTasksField from "src/components/AssignedTasksField";
 
-type ModuleShowProps = {
+export type ModuleShowProps = {
 
 }
 

@@ -1,3 +1,10 @@
+/**
+* @file Upload task action renders the button and dialogs for an upload task.
+* @module TaskActionUpload
+* @category AssignedTasksField
+* @author Braden Cariaga
+*/
+
 import { ReferenceInput, required, AutocompleteInput, useDataProvider, useTranslate, useNotify, useUpdate, FileField, FileInput, useRecordContext } from "react-admin";
 import { styled } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
@@ -14,6 +21,10 @@ export type TaskActionUploadProps = {
     setOpen: MouseEventHandler<HTMLButtonElement>
 }
 
+/**
+ * Upload task action renders the button and dialogs for an upload task.
+ * @param {TaskActionUploadProps} props - TaskActionUploadProps
+ */
 const TaskActionUpload = (props: TaskActionUploadProps) => {
     const [update, { isLoading, error }] = useUpdate();
     const refresh = useRefresh();

@@ -10,7 +10,9 @@ import { useListContext } from "react-admin";
 import { ITask } from "src/util/types";
 import AssignedTaskItem from "./AssignedTaskItem";
 
-/* Main assigned task field component */
+/**
+ * Main assigned task field component
+ */
 const AssignedTasksField = () => {
     const {
         data

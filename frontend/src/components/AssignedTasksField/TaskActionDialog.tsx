@@ -1,10 +1,17 @@
-import { ReferenceInput, required, AutocompleteInput, useDataProvider, useTranslate, useRedirect, Form, SimpleForm, SaveButton } from "react-admin";
+/**
+* @file Generic task action dialog box
+* @module TaskActionDialog
+* @category AssignedTasksField
+* @author Braden Cariaga
+*/
+
+import { useTranslate, Form, SaveButton } from "react-admin";
 import { styled } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
-import { useFormContext, useFormState } from "react-hook-form";
-import { cloneElement, ReactNode } from "react";
+import { cloneElement } from "react";
 import React from "react";
 
+/* A styled component. */
 const StyledDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogTitle-root': {
         margin: 0,
@@ -39,6 +46,10 @@ export type TaskActionDialogProps = {
     allowEmptySubmit?: boolean
 }
 
+/**
+ * Generic task action dialog box
+ * @param {TaskActionDialogProps} props - TaskActionDialogProps
+ */
 const TaskActionDialog = (props: TaskActionDialogProps) => {
     const translate = useTranslate();
 

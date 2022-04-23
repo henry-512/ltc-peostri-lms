@@ -41,7 +41,7 @@ const Root = styled('div')(({ theme }) => ({
 }));
 
 
-type NotificationListItemProps = {
+export type NotificationListItemProps = {
     record: INotification
 }
 
