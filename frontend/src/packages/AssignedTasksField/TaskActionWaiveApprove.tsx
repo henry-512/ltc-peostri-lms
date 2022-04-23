@@ -1,4 +1,4 @@
-import { ReferenceInput, required, AutocompleteInput, useDataProvider, useTranslate, useNotify, useUpdate, FileField, FileInput, useRecordContext } from "react-admin";
+import { ReferenceInput, required, AutocompleteInput, useDataProvider, useRefresh, useNotify, useUpdate, FileField, FileInput, useRecordContext } from "react-admin";
 import { styled } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { useFormContext, useFormState } from "react-hook-form";
@@ -15,9 +15,10 @@ export type TaskActionWaiveApproveProps = {
 
 const TaskActionWaiveApprove = (props: TaskActionWaiveApproveProps) => {
     const [update, { isLoading, error }] = useUpdate();
+    const refresh = useRefresh();
 
     const handleSubmit = (data: any) => {
-        update(`proceeding/tasks/approve`, { id: props.id, data, previousData: {} }).finally(() => props.close())        
+        update(`proceeding/tasks/approve`, { id: props.id, data, previousData: {} }).then(() => refresh()).finally(() => props.close())        
     }
 
     const handleClose = () => {

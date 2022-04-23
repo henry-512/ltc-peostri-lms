@@ -13,6 +13,7 @@ const DocumentList = () => {
                 >
                     <TextField source="title" />
                     <FileField source="files.latest.src" title="files.latest.title" label="Document" />
+                    <TextField source="files.latest.createdAt" label="Created" />
                     <TextField source="files.latest.author" label="Author" />
                 </Datagrid>
             </ReferenceManyField>

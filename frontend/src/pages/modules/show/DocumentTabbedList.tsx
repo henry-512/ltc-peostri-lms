@@ -1,4 +1,4 @@
-import { Datagrid, DateField, ReferenceArrayField, ReferenceField, TextField, useShowContext } from "react-admin";
+import { Datagrid, TextField, FileField, ReferenceField, RaRecord, useShowContext } from "react-admin";
 import { useState } from "react";
 import statusRowStyle from "src/util/statusRowStyle";
 import AvatarGroupField from "src/components/users/AvatarGroupField";
@@ -7,22 +7,27 @@ import { Typography } from "@mui/material";
 import Container from "src/packages/DocumentTabber/Container";
 import { IModule } from "src/util/types";
 
-const MainDocuments = (record: any) => {
+const MainDocuments = ({ record }: { record: RaRecord }) => {
 
     return (
         <>
-            <Typography>{record.files?.latest?.title}</Typography>
+            <Typography>{record?.files?.latest?.title}</Typography>
             {(record?.files?.old && record?.files?.old?.length > 0) ?
                 <Container
                     title="Old Filesss"
                     startOpen={false}
                     id="old-files"
                 >
-                    {record?.files?.old.map((file: any, index: number) => {
-                        return (
-                            <Typography>{file}</Typography>
-                        )
-                    })}
+                    <Datagrid
+                        data={record?.files?.old}
+                        total={record?.files?.old.length}
+                        isLoading={false}
+                        bulkActionButtons={false}
+                    >
+                        <TextField source="title" />
+                        {/*<FileField source="src" title="title" label="Document" />*/}
+                        <TextField source="author" label="Author" />
+                    </Datagrid>
                 </Container>
             : null }
         </>

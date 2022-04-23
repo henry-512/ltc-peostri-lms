@@ -97,6 +97,7 @@ export interface IFile {
     rawFile: any;
     title: string;
     src: string;
+    uploadedAt: string | Date
 }
 
 export interface IModule extends RaRecord {

@@ -1,4 +1,4 @@
-import { ReferenceInput, required, AutocompleteInput, useDataProvider, useTranslate, useNotify, useUpdate, FileField, FileInput, useRecordContext } from "react-admin";
+import { ReferenceInput, required, AutocompleteInput, useDataProvider, useTranslate, useRefresh, useUpdate, FileField, FileInput, useRecordContext } from "react-admin";
 import { styled } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
 import { useFormContext, useFormState } from "react-hook-form";
@@ -15,10 +15,11 @@ export type TaskActionReviewProps = {
 
 const TaskActionReview = (props: TaskActionReviewProps) => {
     const [update, { isLoading, error }] = useUpdate();
+    const refresh = useRefresh();
 
     const handleSubmit = (data: any) => {
         if (!data || (data && !data.file)) {
-            update(`proceeding/tasks/complete`, { id: props.id, data, previousData: {} }).finally(() => props.close())
+            update(`proceeding/tasks/complete`, { id: props.id, data, previousData: {} }).then(() => refresh()).finally(() => props.close())
         } else {
             //update(`proceeding/tasks/upload`, { id: props.id, data, previousData: {} }).finally(() => props.close())       
         }
