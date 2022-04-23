@@ -124,10 +124,9 @@ const Login = () => {
             <Form onSubmit={handleSubmit} validate={validate}>
                 <div className={classes.main}>
                     <Box display="flex" flexDirection="column" position="absolute" top="50%" style={{
-                        transform: "translateY(-50%)",
-                        gap: '1em'
+                        transform: "translateY(-50%)"
                     }} >
-                        <Card sx={{ minWidth: 300, marginTop: '6em' }}>
+                        <Card sx={{ minWidth: 300 }}>
                             <Box
                                 sx={{
                                     display: "flex",
