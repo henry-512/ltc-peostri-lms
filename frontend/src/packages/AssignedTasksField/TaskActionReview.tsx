@@ -37,7 +37,18 @@ const TaskActionReview = (props: TaskActionReviewProps) => {
             <TaskActionDialog ariaLabel="document_upload_dialog" label="Review Uploaded Documents" open={props.open} handleSubmit={handleSubmit} handleClose={handleClose} submitText={"Upload"} submitIcon={<AddBoxIcon />} allowEmptySubmit>
                 <Typography>Please review this document: <FileField source="file.latest" title="title" download={true} /></Typography>
                 <Typography>If you have any revision comments, please upload them here:</Typography>
-                <FileInput source="file" accept="application/pdf" fullWidth label=" " labelSingle="project.fields.waiver_file" helperText=" ">
+                <FileInput source="file" accept="application/pdf" fullWidth label=" " labelSingle="project.fields.waiver_file" helperText=" " sx={{
+                    '& .RaFileInput-dropZone': {
+                        backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                        border: '2px solid rgba(0, 0, 0, 0.04)',
+                        boxSizing: 'border-box',
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                            borderColor: '#4f3cc9',
+                            transition: 'all 0.2s ease',
+                        }
+                    }
+                }}>
                     <FileField source="src" title="title" download={true} />
                 </FileInput>
             </TaskActionDialog>

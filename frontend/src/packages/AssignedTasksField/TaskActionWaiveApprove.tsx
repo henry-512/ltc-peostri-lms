@@ -31,7 +31,18 @@ const TaskActionWaiveApprove = (props: TaskActionWaiveApproveProps) => {
                 Waive
             </Button>
             <TaskActionDialog ariaLabel="document_upload_dialog" label="Are you sure you want to waive this?" open={props.open} handleSubmit={handleSubmit} handleClose={handleClose} submitText={"Waive"} submitIcon={<AddBoxIcon />}>
-                <FileInput source="file" accept="application/pdf" fullWidth label="project.fields.waive_file_upload" labelSingle="project.fields.waiver_file" helperText=" ">
+                <FileInput source="file" accept="application/pdf" fullWidth label="project.fields.waive_file_upload" labelSingle="project.fields.waiver_file" helperText=" " sx={{
+                    '& .RaFileInput-dropZone': {
+                        backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                        border: '2px solid rgba(0, 0, 0, 0.04)',
+                        boxSizing: 'border-box',
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                            borderColor: '#4f3cc9',
+                            transition: 'all 0.2s ease',
+                        }
+                    }
+                }}>
                     <FileField source="src" title="title" download={true} />
                 </FileInput>
             </TaskActionDialog>

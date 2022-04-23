@@ -150,16 +150,26 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                 </Grid>
                 <Grid item xs={6} style={{ marginTop: '-32px' }}>
                     <TextInput source={getSource?.('waive_comment') || ""} label="project.fields.waive_comment" multiline fullWidth helperText=" " sx={{
-                        
-                            height: 'calc(100% - 1rem)',
-                    
+                        boxSizing: 'border-box',
+                        height: 'calc(100% - 1rem)',
                         '& .MuiFilledInput-root': {
                             height: '100%'
                         }
                     }} />
                 </Grid>
                 <Grid item xs={6} style={{ marginTop: '-32px' }}>
-                    <FileInput source={getSource?.('files') || ""} accept="application/pdf" fullWidth label="project.fields.waive_file_upload" labelSingle="project.fields.waiver_file" helperText=" ">
+                    <FileInput source={getSource?.('files') || ""} accept="application/pdf" fullWidth label="project.fields.waive_file_upload" labelSingle="project.fields.waiver_file" helperText=" " sx={{
+                    '& .RaFileInput-dropZone': {
+                        backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                        border: '2px solid rgba(0, 0, 0, 0.04)',
+                        boxSizing: 'border-box',
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                            borderColor: '#4f3cc9',
+                            transition: 'all 0.2s ease',
+                        }
+                    }
+                }}>
                         <FileField source="src" title="title" download={true} />
                     </FileInput>
                 </Grid>
