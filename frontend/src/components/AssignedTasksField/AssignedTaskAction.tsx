@@ -1,3 +1,10 @@
+/**
+* @file Task action button which resolves the correct buttons based on the task type provided.
+* @module AssignedTaskAction
+* @category AssignedTasksField
+* @author Braden Cariaga
+*/
+
 import { useState } from "react";
 import TaskActionUpload from "./TaskActionUpload";
 import TaskActionReview from "./TaskActionReview";
@@ -9,6 +16,7 @@ export type AssignedTaskActionProps = {
     type?: string
 }
 
+/* A React component that is using a switch statement to determine which component to render. */
 const AssignedTaskAction = ({ id, type }: AssignedTaskActionProps) => {
     const [open, setOpen] = useState<string>("");
 

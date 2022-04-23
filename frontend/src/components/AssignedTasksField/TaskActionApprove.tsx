@@ -1,6 +1,12 @@
-import { ReferenceInput, required, AutocompleteInput, useDataProvider, useTranslate, useNotify, useUpdate, FileField, FileInput, useRecordContext } from "react-admin";
-import { styled } from '@mui/material/styles';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
+/**
+* @file Approve task action renders the button and dialogs for an approval task.
+* @module TaskActionApprove
+* @category AssignedTasksField
+* @author Braden Cariaga
+*/
+
+import { useUpdate } from "react-admin";
+import { Dialog, DialogActions, DialogContent, DialogTitle, Typography, Button } from "@mui/material";
 import { useFormContext, useFormState } from "react-hook-form";
 import TaskActionDialog from "./TaskActionDialog";
 import { MouseEventHandler } from "react";
@@ -13,13 +19,26 @@ export type TaskActionApproveProps = {
     setOpen: MouseEventHandler<HTMLButtonElement>
 }
 
+/**
+ * Approve task action renders the button and dialogs for an approval task.
+ * @param {TaskActionApproveProps} props - TaskActionApproveProps
+ * @returns The return type is a React.FC&lt;TaskActionApproveProps&gt;
+ */
 const TaskActionApprove = (props: TaskActionApproveProps) => {
     const [update, { isLoading, error }] = useUpdate();
 
+    /**
+     * HandleSubmit is a function that takes a parameter of type any and returns nothing.
+     * @param {any} data - {
+     */
     const handleSubmit = (data: any) => {
         update(`proceeding/tasks/approve`, { id: props.id, data, previousData: {} }).finally(() => props.close())        
     }
 
+    /**
+     * The handleClose function is a function that is called when the user clicks the close button. It
+     * calls the close function that was passed in as a prop.
+     */
     const handleClose = () => {
         props.close()
     }

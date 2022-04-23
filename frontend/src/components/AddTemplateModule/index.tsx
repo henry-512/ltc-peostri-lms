@@ -1,9 +1,9 @@
 /**
- * This is the doc comment for file1.ts
- *
- * Specify this is a module comment and rename it to my-module:
- * @module AddTemplateModule
- */
+* @file Main component for adding a module to the module manager from a template.
+* @module AddTemplateModule
+* @category AddTemplateModule
+* @author Braden Cariaga
+*/
 
 import { MouseEventHandler } from "react";
 import { useTranslate } from "react-admin";
@@ -22,6 +22,10 @@ export type AddTemplateModuleProps = {
     updateComponent: Function
 }
 
+/**
+ * This function returns a button and a dialog box, and the button opens the dialog box.
+ * @param {AddTemplateModuleProps} props - AddTemplateModuleProps
+ */
 const AddTemplateModule = (props: AddTemplateModuleProps) => {
     const {
         openTemplate,

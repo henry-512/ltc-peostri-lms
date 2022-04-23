@@ -1,3 +1,10 @@
+/**
+* @file Task item component
+* @module AssignedTaskItem
+* @category AssignedTasksField
+* @author Braden Cariaga
+*/
+
 import { Box, Typography } from "@mui/material";
 import { ReferenceArrayField } from "react-admin";
 import { dateFormatToString } from "src/util/dateFormatter";
@@ -10,6 +17,7 @@ export type AssignedTaskItemProps = {
     record: ITask
 }
 
+/* The task list item showing assigned task */
 const AssignedTaskItem = ({ record }: AssignedTaskItemProps) => (
     <Box display="flex" justifyContent="space-between" gap="10px" alignItems="center">
         <Box display="flex" alignItems="center" gap="20px">

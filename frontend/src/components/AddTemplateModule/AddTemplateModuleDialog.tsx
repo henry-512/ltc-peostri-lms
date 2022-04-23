@@ -1,8 +1,16 @@
+/**
+* @file Dialog component for adding a module to the module manager from a template.
+* @module AddTemplateModuleDialog
+* @category AddTemplateModule
+* @author Braden Cariaga
+*/
+
 import { FormGroupContextProvider, ReferenceInput, required, AutocompleteInput, useDataProvider, useFormGroup, useTranslate } from "react-admin";
 import { styled } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { useFormContext } from "react-hook-form";
 
+/* A styled component. */
 const StyledDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogTitle-root': {
         margin: 0,
@@ -37,6 +45,10 @@ export type AddTemplateModuleDialogProps = {
     updateComponent: Function;
 }
 
+/* 
+ * A function that takes in a parameter called props.
+ * @param {AddTemplateModuleProps} props - AddTemplateModuleProps
+ */
 const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
     const translate = useTranslate();
     const { isValid } = useFormGroup(props.ariaLabel);
@@ -44,6 +56,13 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
 
     const { setValue, getValues } = useFormContext();
 
+    /**
+     * "If the form is not a template, delete the id, otherwise delete the createdAt and updatedAt,
+     * then set the value of the form to the data, calculate the TTC, submit the form, close the form,
+     * and set the value of the module_template_id to an empty string."
+     * </code>
+     * @param {any}  - props.getSource() =&gt; this is a function that returns the source of the form
+     */
     const updateForm = ({ data }: any) => {
         if (!props.isTemplate) {
             delete data.id;
@@ -61,6 +80,9 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
         setValue('module_template_id', '');
     }
     
+    /**
+     * If the user is on the template page, get the template data, otherwise get the instance data.
+     */
     const handleSubmit = async () => {
         const template_id = getValues('module_template_id');
 
@@ -75,6 +97,10 @@ const AddTemplateModuleDialog = (props: AddTemplateModuleDialogProps) => {
         }
     }
 
+    /**
+     * If the cancelAction prop is defined, call it, then set the open prop to false and set the value
+     * of the module_template_id state to an empty string.
+     */
     const handleClose = () => {
         if (props.cancelAction) {
             props.cancelAction();

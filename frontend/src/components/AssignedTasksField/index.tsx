@@ -1,19 +1,25 @@
+/**
+* @file Main assigned task field component
+* @module AssignedTasksField
+* @category AssignedTasksField
+* @author Braden Cariaga
+*/
+
 import { Box, Typography, List, ListItem, ListItemText } from "@mui/material";
 import { useListContext } from "react-admin";
 import { ITask } from "src/util/types";
 import AssignedTaskItem from "./AssignedTaskItem";
 
-type AssignedTasksFieldProps = {
-
-}
-
-const AssignedTasksField = (props: AssignedTasksFieldProps) => {
+/* Main assigned task field component */
+const AssignedTasksField = () => {
     const {
         data
     } = useListContext();
 
+    /* Checking if the data is empty or not. If it is empty, it will return null. */
     if (!data) return null;
 
+    /* Checking if the data is empty or not. If it is empty, it will return null. */
     if (data && data.length < 1) return null
 
     return (
