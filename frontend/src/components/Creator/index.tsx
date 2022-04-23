@@ -1,3 +1,10 @@
+/**
+* @file Base creator window used on the TaskManager and ModuleManager
+* @module Creator
+* @category Creator
+* @author Braden Cariaga
+*/
+
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import React from 'react';
@@ -36,9 +43,16 @@ export type CreatorProps = {
     maxWidth?: "lg" | "xs" | "md" | "xl" | "sm";
 }
 
+/**
+ * Base creator window used on the TaskManager and ModuleManager
+ * @param {CreatorProps} props
+ */
 const Creator = (props: CreatorProps) => {
     const translate = useTranslate();
 
+    /**
+     * If the props.cancelAction exists, then call it. Then, set the open state to false.
+     */
     const handleClose = () => {
         if (props.cancelAction) {
             props.cancelAction();
@@ -46,6 +60,9 @@ const Creator = (props: CreatorProps) => {
         props.setOpen(false);
     }
 
+    /**
+     * If the submitAction prop is defined, call it. Then, call the setOpen prop.
+     */
     const handleSubmit = () => {
         if (props.submitAction) {
             props.submitAction();
@@ -53,6 +70,9 @@ const Creator = (props: CreatorProps) => {
         props.setOpen(false);
     }
 
+    /**
+     * If the deleteAction prop is defined, call it. Then, call the setOpen prop.
+     */
     const handleDelete = () => {
         if (props.deleteAction) {
             props.deleteAction();
@@ -60,6 +80,7 @@ const Creator = (props: CreatorProps) => {
         props.setOpen(false);
     }
 
+    /* A hook that is used to check if the form is valid and if it is dirty. */
     const { isValid, isDirty } = useFormGroup(props.ariaLabel);
 
     return (

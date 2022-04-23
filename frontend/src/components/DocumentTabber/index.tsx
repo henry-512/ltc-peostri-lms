@@ -1,7 +1,20 @@
+/**
+* @file Main document tabber component which enables the use of a vertial tabber to separate documents.
+* @module DocumentTabber
+* @category DocumentTabber
+* @author Braden Cariaga
+*/
+
 import { Tabs, Box, Tab } from "@mui/material";
 import Container from './Container'
 import Panel from "./Panel";
 
+/**
+ * It returns an object with two properties, id and aria-controls, where the values of the properties
+ * are strings.
+ * @param {number} index
+ * @returns An object with two properties.
+ */
 function a11yProps(index: number) {
     return {
         id: `vertical-tab-${index}`,
@@ -15,6 +28,10 @@ export type DocumentTabberProps = {
     handleChange: any
 }
 
+/**
+ * Main document tabber component which enables the use of a vertial tabber to separate documents.
+ * @param {DocumentTabberProps} props
+ */
 const DocumentTabber = (props: DocumentTabberProps) => (
     <Box sx={{ flexGrow: 0, bgcolor: 'background.paper', display: 'flex', height: 'auto' }}>
         <Tabs

@@ -24,7 +24,7 @@ export type AddTemplateModuleProps = {
 
 /**
  * This function returns a button and a dialog box, and the button opens the dialog box.
- * @param {AddTemplateModuleProps} props - AddTemplateModuleProps
+ * @param {AddTemplateModuleProps} props
  */
 const AddTemplateModule = (props: AddTemplateModuleProps) => {
     const {

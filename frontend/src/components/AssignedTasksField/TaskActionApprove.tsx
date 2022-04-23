@@ -21,7 +21,7 @@ export type TaskActionApproveProps = {
 
 /**
  * Approve task action renders the button and dialogs for an approval task.
- * @param {TaskActionApproveProps} props - TaskActionApproveProps
+ * @param {TaskActionApproveProps} props
  */
 const TaskActionApprove = (props: TaskActionApproveProps) => {
     const [update, { isLoading, error }] = useUpdate();

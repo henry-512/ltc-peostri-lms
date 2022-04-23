@@ -19,7 +19,7 @@ export type AssignedTaskItemProps = {
 
 /**
  * Task item component
- * @param {AssignedTaskItemProps} props - AssignedTaskItemProps
+ * @param {AssignedTaskItemProps} props
  */
 const AssignedTaskItem = ({ record }: AssignedTaskItemProps) => (
     <Box display="flex" justifyContent="space-between" gap="10px" alignItems="center">

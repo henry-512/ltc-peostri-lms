@@ -19,7 +19,6 @@ export type ModuleManagerProps = {
  * @name ModuleManager
  * @description ModuleManager Component1
  * @param props 
- * @returns Module Manager Component
  */
 const ModuleManager = (props: ModuleManagerProps) => {
     const { getValues, setValue } = useFormContext();

@@ -1,3 +1,10 @@
+/**
+* @file Component used to render the avatar group images. This comonent utilizes the ListContext to get the data.
+* @module AvatarGroupField
+* @category AvatarGroupField
+* @author Braden Cariaga
+*/
+
 import { AvatarGroup, Tooltip, Avatar } from "@mui/material";
 import { LinearProgress, useListContext } from "react-admin";
 import { IUser } from "src/util/types";
@@ -10,6 +17,10 @@ export type AvatarGroupFieldProps = {
     color?: string
 }
 
+/**
+ * Component used to render the avatar group images. This comonent utilizes the ListContext to get the data.
+ * @param {AvatarGroupFieldProps} props
+ */
 const AvatarGroupField = (props: AvatarGroupFieldProps) => {
     const {
         data

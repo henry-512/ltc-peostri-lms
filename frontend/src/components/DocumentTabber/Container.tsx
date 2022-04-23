@@ -1,3 +1,10 @@
+/**
+* @file Accordion container used on the document tabber on the module view page.
+* @module Container
+* @category DocumentTabber
+* @author Braden Cariaga
+*/
+
 import { Accordion, AccordionSummary, Typography, AccordionDetails } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
@@ -8,6 +15,11 @@ export type ContainerProps = {
     children: JSX.Element
 }
 
+/**
+ * Accordion container used on the document tabber on the module view page.
+ * @param {ContainerProps} props 
+ * @returns 
+ */
 const Container = ({ title = "Old Files", ...props }: ContainerProps) => (
     <Accordion sx={{
         width: '100%'

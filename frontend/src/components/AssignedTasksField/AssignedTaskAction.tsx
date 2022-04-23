@@ -18,7 +18,7 @@ export type AssignedTaskActionProps = {
 
 /**
  * A Task action button which resolves the correct buttons based on the task type provided.
- * @param {AssignedTaskActionProps} props - AssignedTaskActionProps
+ * @param {AssignedTaskActionProps} props
  */
 const AssignedTaskAction = ({ id, type }: AssignedTaskActionProps) => {
     const [open, setOpen] = useState<string>("");

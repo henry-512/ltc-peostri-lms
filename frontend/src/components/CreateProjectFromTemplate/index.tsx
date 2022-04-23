@@ -1,3 +1,10 @@
+/**
+* @file Main component for creating a project from a template.
+* @module CreateProjectFromTemplate
+* @category CreateProjectFromTemplate
+* @author Braden Cariaga
+*/
+
 import { styled } from "@mui/material";
 import { useState } from "react";
 import { SimpleForm, useTranslate } from "react-admin";
@@ -15,6 +22,10 @@ const Root = styled('div')(({ theme }) => ({
     }
 }));
 
+/**
+ * CreateProjectFromTemplate is a function that returns a CreateProjectFromTemplateButton component and a SimpleForm component that contains a CreateProjectFromTemplateDialog component.
+ * @param {CreateProjectFromTemplateProps} props
+ */
 const CreateProjectFromTemplate = (props: CreateProjectFromTemplateProps) => {
     const translate = useTranslate();
     const [dialogOpen, setDialogOpen] = useState(false);

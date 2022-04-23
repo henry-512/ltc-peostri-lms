@@ -20,7 +20,7 @@ export type TaskActionWaiveApproveProps = {
 
 /**
  * Waive approve task action renders the button and dialogs for a waiver approval task.
- * @param {TaskActionWaiveApproveProps} props - TaskActionWaiveApproveProps
+ * @param {TaskActionWaiveApproveProps} props
  */
 const TaskActionWaiveApprove = (props: TaskActionWaiveApproveProps) => {
     const [update, { isLoading, error }] = useUpdate();
