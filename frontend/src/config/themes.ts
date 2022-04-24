@@ -1,3 +1,10 @@
+/**
+* @file Main theme file. Use this to alter the styling and colors of the frontend.
+* @module Theme
+* @category Config
+* @author Braden Cariaga
+*/
+
 export const lightTheme = {
     palette: {
         primary: {

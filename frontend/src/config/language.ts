@@ -1,3 +1,10 @@
+/**
+* @file Main language file. Use this to alter the language and wording on the frontend.
+* @module Language
+* @category Config
+* @author Braden Cariaga
+*/
+
 const domainMessages = {
     "en": {
         "dashboard": {
