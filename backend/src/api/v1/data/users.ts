@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt'
 import { IUser } from '../../../lms/types'
 import { AuthUser } from '../../auth'
+import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
 import { UserArangoWrapper } from './UserArangoWrapper'
 
@@ -77,11 +78,7 @@ class User extends DBManager<IUser> {
     ): Promise<IUser> => {
         // Hash password
         if (doc.password) {
-            if (doc.password === '') {
-                delete doc.password
-            } else {
-                doc.password = await bcrypt.hash(doc.password, 5)
-            }
+            doc.password = await bcrypt.hash(doc.password, 5)
         }
         return doc
     }
