@@ -52,7 +52,7 @@ const WelcomeMessage = () => {
                         </Button>
                         <Button
                             variant="contained"
-                            href="/docs"
+                            href="/docs/modules.html"
                             target="_blank"
                             startIcon={<CodeIcon />}
                         >
