@@ -27,7 +27,6 @@ class Filedata extends DBManager<IFile> {
             },
             {
                 hasCreate: true,
-                hasUpdate: true,
                 defaultFilter: 'title',
             }
         )
@@ -48,6 +47,7 @@ class Filedata extends DBManager<IFile> {
             src: pathTo,
             title: file.name,
             author: user.id,
+            createdAt: new Date().toJSON(),
         }
     }
 
