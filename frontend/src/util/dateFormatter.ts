@@ -1,3 +1,17 @@
+/**
+* @file Date formatting methods.
+* @module DateFormatter
+* @category Utilities
+* @author Braden Cariaga
+*/
+
+/**
+ * It takes a date string or date object and returns a formatted date string.
+ * @param {string | Date} dateString - string | Date - The date you want to format
+ * @param {boolean} [words] - boolean - If true, the date will be returned in words, e.g. "1st January
+ * 2020 at 12:00"
+ * @returns A string
+ */
 export const dateFormatToString = (dateString: string | Date, words?: boolean) => {
     const date = new Date(dateString);
 
@@ -8,6 +22,7 @@ export const dateFormatToString = (dateString: string | Date, words?: boolean) =
     return `${date.toLocaleDateString('en-GB', dateOptions)}`
 }
 
+/* A constant that is used to format the date. */
 export const dateOptions = { hour12: false, weekday: undefined, year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: undefined  }
 
 const dateFormatRegex = /^\d{4}-\d{2}-\d{2}$/;

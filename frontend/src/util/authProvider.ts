@@ -1,5 +1,14 @@
+/**
+* @file Authentication Provider for React-Admin
+* @module AuthProvider
+* @category Utilities
+* @author Braden Cariaga
+*/
+
 import { AuthProvider } from 'react-admin';
 
+/* This is the AuthProvider for React-Admin. It is used to authenticate the user and provide the user's
+information to the application. */
 const authProvider: AuthProvider = {
     login: ({ username, password }) => {
         const request = new Request(`${process.env.REACT_APP_API_URL}/auth`, {

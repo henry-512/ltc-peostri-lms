@@ -1,3 +1,10 @@
+/**
+* @file Data Provider for React-Admin
+* @module AuthProvider
+* @category Utilities
+* @author Braden Cariaga
+*/
+
 import { stringify } from 'query-string';
 import { fetchUtils, DataProvider } from 'ra-core';
 import { IModule, IProject } from './types';
@@ -42,11 +49,25 @@ type HTTPClientPromiseReturn = {
     json: any
 }
 
+/**
+ * The function takes a url and an options object as parameters, sets the credentials property of the
+ * options object to 'include', and then returns the result of calling the fetchJson function with the
+ * url and options object as parameters
+ * @param {any} url - The URL to fetch.
+ * @param options - {
+ * @returns A function that takes two parameters, url and options.
+ */
 const client = (url: any, options: fetchUtils.Options = {}) => {
     options.credentials = 'include'
     return fetchUtils.fetchJson(url, options);
 }
 
+/**
+ * It takes a project object, clones it, loops through the modules, and if the module has a file, it
+ * appends the file to the formData object
+ * @param {IProject} data - IProject = {
+ * @returns A FormData object.
+ */
 export const convertProjectToFormData = (data: IProject) => {
     let localData = cloneDeep(data);
 
@@ -76,6 +97,11 @@ export const convertProjectToFormData = (data: IProject) => {
 }
 
 export type fileBody = { file: any, [x: string]: any }
+/**
+ * Converts files to a Multipart Form
+ * @param {fileBody} data - fileBody = {
+ * @returns A FormData object.
+ */
 export const convertFileUpload = (data: fileBody) => {
     let localData = cloneDeep(data);
     
@@ -96,6 +122,7 @@ export const convertFileUpload = (data: fileBody) => {
     return formData;
 }
 
+/* This is the DataProvider for React-Admin. It is used to interact with the server. */
 const dataProvider = (
     apiUrl: string,
     httpClient = client,

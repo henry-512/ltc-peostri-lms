@@ -1,3 +1,10 @@
+/**
+* @file All Frontend Types
+* @module Types
+* @category Utilities
+* @author Braden Cariaga
+*/
+
 import { RaRecord } from "react-admin";
 
 export interface LoginInformation {

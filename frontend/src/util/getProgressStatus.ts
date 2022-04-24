@@ -1,3 +1,10 @@
+/**
+* @file Progress Status Methods
+* @module ProgressStatus
+* @category Utilities
+* @author Braden Cariaga
+*/
+
 import green from '@mui/material/colors/green';
 import amber from '@mui/material/colors/amber';
 import red from '@mui/material/colors/red';
