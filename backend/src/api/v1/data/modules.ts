@@ -162,6 +162,11 @@ class Module extends DBManager<IModule> {
 
         // If there are tasks remaining
         if (invalids.hasNext) {
+            console.log(
+                `module ${
+                    mod.id
+                } failed auto-advance; tasks ${await invalids.all()}`
+            )
             return
         }
 

@@ -75,7 +75,7 @@ class Project extends DBManager<IProject> {
         doc: IProject,
         exists: boolean,
         map: Map<DataManager<any>, any[]>,
-        lastDBId: string,
+        lastDBId: string
     ): Promise<IProject> {
         let p = await super.verifyAddedDocument(
             user,
@@ -83,7 +83,7 @@ class Project extends DBManager<IProject> {
             doc,
             exists,
             map,
-            lastDBId,
+            lastDBId
         )
 
         // Master list of all users for the project
@@ -286,10 +286,10 @@ class Project extends DBManager<IProject> {
         }
 
         // Verify module statuses
-        let invalids = await TaskManager.db.assertEqualsFaster(
+        let invalids = await ModuleManager.db.assertOrEqualsFaster(
             currentStep,
             'status',
-            'COMPLETED'
+            ['COMPLETED', 'WAIVED']
         )
 
         // If there are moudles remaining

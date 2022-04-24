@@ -100,6 +100,8 @@ class Task extends DBManager<ITask> {
      */
     public async complete(user: AuthUser, taskId: string) {
         await this.db.updateFaster([taskId], 'status', 'COMPLETE')
+        let modId = await this.db.getOneFaster<string>(taskId, 'module')
+        await ModuleManager.automaticAdvance(user, modId)
     }
 
     /**
@@ -230,13 +232,11 @@ class Task extends DBManager<ITask> {
         let found = false
         for (let i = 0; i < filemeta.reviews.length; i++) {
             let r = filemeta.reviews[i]
-            if (filemeta.reviews[i] === reviseFileId) {
+            if (r === reviseFileId) {
                 // Remove from reviews
                 filemeta.reviews.splice(i, 1)
                 // Push into oldReviews
-                filemeta.oldReviews = (<string[]>filemeta.oldReviews).concat(
-                    <string>r
-                )
+                filemeta.oldReviews = (<string[]>filemeta.oldReviews).concat(r)
                 found = true
                 break
             }
@@ -269,6 +269,8 @@ class Task extends DBManager<ITask> {
      */
     public async approve(user: AuthUser, taskId: string) {
         await this.db.updateFaster([taskId], 'status', 'COMPLETE')
+        let modId = await this.db.getOneFaster<string>(taskId, 'module')
+        await ModuleManager.automaticAdvance(user, modId)
     }
 }
 

@@ -384,7 +384,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 
     /**
-     * @param ret Looks like `d.status`
+     * @param ret Looks like `status`
      */
     public async getFaster<T>(
         ids: string[],
@@ -393,6 +393,18 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         return ArangoWrapper.db.query(
             aql`FOR i in ${ids} let d=DOCUMENT(i)RETURN d.${ret}`
         )
+    }
+
+    public async getOneFaster<T>(id: string, ret: string): Promise<T> {
+        let cursor = await ArangoWrapper.db.query(
+            aql`RETURN DOCUMENT(${id}).${ret}`
+        )
+
+        if (cursor.hasNext) {
+            return cursor.next()
+        } else {
+            throw this.internal(`getOneFaster`, `${id} lacks ${ret} field`)
+        }
     }
 
     public async getWithIdFaster<T>(
@@ -420,7 +432,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         equals: string
     ): Promise<ArrayCursor<string>> {
         return ArangoWrapper.db.query(
-            aql`FOR i in ${ids} let d=DOCUMENT(i)FILTER d.${key}==${equals} RETURN i`
+            aql`FOR i in ${ids} let d=DOCUMENT(i)FILTER d.${key}!=${equals} RETURN i`
         )
     }
 
@@ -433,10 +445,10 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         let notFirst = false
         for (const equal of equals) {
             if (notFirst) {
-                q = aql`${q} || d.${key}==${equal}`
+                q = aql`${q} || d.${key}!=${equal}`
             } else {
                 notFirst = true
-                q = aql`${q} d.${key}==${equal}`
+                q = aql`${q} d.${key}!=${equal}`
             }
         }
         q = aql`${q} RETURN i`
