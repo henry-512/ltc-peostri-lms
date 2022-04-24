@@ -1,3 +1,10 @@
+/**
+* @file Dashboard Tasks Widget List
+* @module TasksWidgetList
+* @category Dashboard
+* @author Braden Cariaga
+*/
+
 import CardWithIcon from "../base/CardWithIcon"
 import { ITask } from "src/util/types";
 import { Box, Button, Divider, List, ListItem, ListItemText } from "@mui/material";

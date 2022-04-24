@@ -1,3 +1,10 @@
+/**
+* @file Dashboard CardWithIcon Base Widget
+* @module CardWithIcon
+* @category Dashboard
+* @author Braden Cariaga
+*/
+
 import { FC, createElement } from 'react';
 import { Card, Box, Typography, Divider } from '@mui/material';
 import { Link } from 'react-router-dom';

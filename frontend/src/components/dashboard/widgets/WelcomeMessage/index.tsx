@@ -1,3 +1,10 @@
+/**
+* @file Dashboard Welcome Message
+* @module WelcomeMessage
+* @category Dashboard
+* @author Braden Cariaga
+*/
+
 import { Box, Card, CardActions, Button, Typography } from '@mui/material';
 import HelpIcon from '@mui/icons-material/Help';
 import CodeIcon from '@mui/icons-material/Code';

@@ -1,3 +1,10 @@
+/**
+* @file Dashboard Projects Widget List Item
+* @module ProjectsWidgetListItem
+* @category Dashboard
+* @author Braden Cariaga
+*/
+
 import { Box, Typography } from "@mui/material";
 import { display } from "@mui/system";
 import { ReferenceArrayField, ReferenceField, TextField } from "react-admin";

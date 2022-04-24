@@ -1,3 +1,10 @@
+/**
+* @file Dashboard Notifications Widget Empty
+* @module MyNotificationsEmpty
+* @category Dashboard
+* @author Braden Cariaga
+*/
+
 import { Box, styled, Typography } from "@mui/material";
 import { useTranslate } from "react-admin";
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';

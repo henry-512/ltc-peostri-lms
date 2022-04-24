@@ -1,3 +1,10 @@
+/**
+* @file Dashboard Notifications Widget List Item
+* @module MyNotificationsListItem
+* @category Dashboard
+* @author Braden Cariaga
+*/
+
 import { Box, styled, Typography } from "@mui/material";
 import classnames from "classnames";
 import NotificationIcon from "src/components/NotificationIcon";

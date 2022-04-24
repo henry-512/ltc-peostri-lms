@@ -1,20 +1,32 @@
+/**
+* @file Main Dashboard File
+* @module Dashboard
+* @category Dashboard
+* @author Braden Cariaga
+*/
+
 import { Box } from "@mui/material";
 import { Title } from "react-admin";
-import DashboardWrapper from "./DashboardWrapper";
 import { MyProjects, MyTasks, AllTasks, TeamTasks, MyNotifications, WelcomeMessage, AllProjects, TeamProjects } from "./widgets";
 
+/**
+ * Horizontal Spacer
+ */
 const Spacer = () => <span style={{ width: '1em' }} />;
+/**
+ * Vertical Spacer
+ */
 const VerticalSpacer = () => <span style={{ height: '1em' }} />;
 
-export type DashboardProps = {
-}
-
-const Dashboard = (props: DashboardProps) => {
+/**
+ * Main Dashboard View
+ */
+const Dashboard = () => {
     return (
         <>
             <Title>LMS Dashboard</Title>
             <WelcomeMessage />
-            <DashboardWrapper>
+            <Box display="flex" flexWrap="wrap" justifyContent="flex-start" alignItems="flex-start" >
                 <Box flex="1" display="flex" flexDirection="column">
                     <MyNotifications />
                 </Box>
@@ -34,7 +46,7 @@ const Dashboard = (props: DashboardProps) => {
                     <VerticalSpacer />
                     <AllProjects />
                 </Box>
-            </DashboardWrapper>
+            </Box>
         </>
     )
 }

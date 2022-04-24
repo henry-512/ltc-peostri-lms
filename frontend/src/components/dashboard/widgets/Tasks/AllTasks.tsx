@@ -1,10 +1,13 @@
+/**
+* @file Dashboard All Tasks Widgets
+* @module AllTasksWidget
+* @category Dashboard
+* @author Braden Cariaga
+*/
+
 import TaskList from "./TaskList";
 
-export type AllTasksProps = {
-    
-}
-
-const AllTasks = (props: AllTasksProps) => {
+const AllTasks = () => {
     return (
         <TaskList resource="tasks/all" title="dashboard.widget.tasks.all_title" />
     )

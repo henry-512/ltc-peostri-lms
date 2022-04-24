@@ -1,3 +1,10 @@
+/**
+* @file Dashboard Notifications Widget
+* @module MyNotifications
+* @category Dashboard
+* @author Braden Cariaga
+*/
+
 import CardWithIcon from "../base/CardWithIcon"
 import { INotification } from "src/util/types";
 import { Box, Button, Divider, List, ListItem, ListItemText } from "@mui/material";

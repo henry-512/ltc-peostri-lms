@@ -1,3 +1,10 @@
+/**
+* @file Dashboard Tasks Widget List Item
+* @module TasksWidgetListItem
+* @category Dashboard
+* @author Braden Cariaga
+*/
+
 import { Box, Typography } from "@mui/material";
 import { ReferenceArrayField } from "react-admin";
 import AvatarGroupField from "src/components/AvatarGroupField";

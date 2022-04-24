@@ -1,10 +1,13 @@
+/**
+* @file Dashboard Team Tasks Widgets
+* @module TeamTasksWidget
+* @category Dashboard
+* @author Braden Cariaga
+*/
+
 import TaskList from "./TaskList";
 
-export type TeamTasksProps = {
-    
-}
-
-const TeamTasks = (props: TeamTasksProps) => {
+const TeamTasks = () => {
     return (
         <TaskList resource="tasks/team" title="dashboard.widget.tasks.team_title" />
     )

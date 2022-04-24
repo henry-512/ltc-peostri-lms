@@ -1,3 +1,10 @@
+/**
+* @file Dashboard Projects Widget List
+* @module ProjectsWidgetList
+* @category Dashboard
+* @author Braden Cariaga
+*/
+
 import CardWithIcon from "../base/CardWithIcon"
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import { IProject } from "src/util/types";

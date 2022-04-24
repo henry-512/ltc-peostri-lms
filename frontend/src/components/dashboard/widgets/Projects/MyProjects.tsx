@@ -1,10 +1,13 @@
+/**
+* @file Dashboard My Projects Widgets
+* @module MyProjectsWidget
+* @category Dashboard
+* @author Braden Cariaga
+*/
+
 import ProjectList from "./ProjectList";
 
-export type MyProjectsProps = {
-    
-}
-
-const MyProjects = (props: MyProjectsProps) => {
+const MyProjects = () => {
     return (
         <ProjectList resource="projects/assigned" title="dashboard.widget.projects.my_title" />
     )
