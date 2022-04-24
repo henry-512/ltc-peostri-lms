@@ -1,11 +1,12 @@
 import Router from '@koa/router'
 import { aql } from 'arangojs/aql'
 import send from 'koa-send'
+import fs from 'fs'
 import { HTTPStatus } from '../../lms/errors'
 import { AuthUser } from '../auth'
 import { CommentManager } from './data/comments'
 import { FilemetaManager } from './data/filemeta'
-import { FiledataManager } from './data/files'
+import { FiledataManager, FULL_FILE_PATH } from './data/files'
 import { UserLogManager } from './data/log/userLog'
 import { ModuleManager } from './data/modules'
 import { NotificationManager } from './data/notifications'
@@ -106,7 +107,7 @@ export function routerBuilder(version: string) {
                             meta
                         )
                         // ctx.ok(buffer)
-                        await send(ctx, pathTo)
+                        await send(ctx, pathTo, { root: FULL_FILE_PATH })
                     })
                     .get('static/:id', async (ctx) => {
                         let id = await FiledataManager.db.assertKeyExists(
@@ -116,7 +117,7 @@ export function routerBuilder(version: string) {
                             ctx.state.user,
                             id
                         )
-                        await send(ctx, pathTo)
+                        await send(ctx, pathTo, { root: FULL_FILE_PATH })
                     })
                     .routes()
             )
@@ -251,6 +252,7 @@ export function routerBuilder(version: string) {
                     })
                     .routes()
             )
+            // Tasks
             .use(
                 new Router({ prefix: 'proceeding/tasks/' })
                     .put('complete/:id', async (ctx) => {

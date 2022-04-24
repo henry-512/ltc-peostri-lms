@@ -46,7 +46,13 @@ apiRouter().then(
                     e.body = await parseBody(ctx.request)
                     e.files = ctx.request.files
 
-                    let message = `ERROR: ${e.method}:${e.path} ${e.apiName}.${e.fn} ${e.status}:\n  Message: ${e.message}\n  Verbose: ${e.verbose}\n${e.stack}\n\nBODY:\t${JSON.stringify(e.body)}\n\nFILES:\t${JSON.stringify(e.files)}\n`
+                    let message = `ERROR: ${e.method}:${e.path} ${e.apiName}.${
+                        e.fn
+                    } ${e.status}:\n  Message: ${e.message}\n  Verbose: ${
+                        e.verbose
+                    }\n${e.stack}\n\nBODY:\t${JSON.stringify(
+                        e.body
+                    )}\n\nFILES:\t${JSON.stringify(e.files)}\n`
 
                     console.log(message)
 
@@ -81,8 +87,19 @@ apiRouter().then(
         // Authenticator
         app.use(async (ctx, next) => {
             // console.log('AUTH')
-            // Validates user login, given a valid jwt token
-            ctx.state.user = await AuthUser.validate(ctx.cookies.get('token'))
+
+            if (config.spoofUser) {
+                // Spoof user
+                ctx.state.user = {
+                    id: 'users/0123456789012345678900',
+                    key: '0123456789012345678900',
+                }
+            } else {
+                // Validates user login, given a valid jwt token
+                ctx.state.user = await AuthUser.validate(
+                    ctx.cookies.get('token')
+                )
+            }
 
             // Run next middleware
             await next()

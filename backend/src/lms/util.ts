@@ -135,7 +135,7 @@ export const str = (obj: any) =>
         return k && v && typeof v !== 'number' ? '' + v : v
     })
 
-export function getFile(files: any, fileKey: string) {
+export function getFile(files: any, fileKey: string): IFileData {
     let file: IFileData = files[fileKey]
     if (file) {
         return file

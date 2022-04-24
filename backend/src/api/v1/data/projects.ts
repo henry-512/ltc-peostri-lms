@@ -266,8 +266,11 @@ class Project extends DBManager<IProject> {
     }
 
     public async postAutomaticAdvance(user: AuthUser, pro: IProject) {
-        // Only in-progress modules can be automatically advanced
-        if (pro.status !== 'IN_PROGRESS') {
+        // Awaiting projects should be pushed to IN_PROGRESS
+        if (pro.status === 'AWAITING') {
+            pro.status = 'IN_PROGRESS'
+        } else if (pro.status !== 'IN_PROGRESS') {
+            // Only in-progress modules can be automatically advanced
             return
         }
 

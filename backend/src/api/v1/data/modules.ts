@@ -134,8 +134,11 @@ class Module extends DBManager<IModule> {
     }
 
     public async postAutomaticAdvance(user: AuthUser, mod: IModule) {
-        // Only in-progress modules can be automatically advanced
-        if (mod.status !== 'IN_PROGRESS') {
+        // Awaiting modules should be pushed to IN_PROGRESS
+        if (mod.status === 'AWAITING') {
+            mod.status = 'IN_PROGRESS'
+        } else if (mod.status !== 'IN_PROGRESS') {
+            // Only in-progress modules can be automatically advanced
             return
         }
 

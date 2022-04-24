@@ -3,6 +3,7 @@ import path from 'path'
 
 dotenv.config()
 
+// Parsed .env configs
 export interface Config {
     apiPort: string
     hostname: string
@@ -20,9 +21,14 @@ export interface Config {
     secret: string
     // Duration in seconds
     authDuration: number
+
+    // True if ctx.state.user should be manually set to debug
+    // data. Useful for `curl` requests.
+    spoofUser: boolean
 }
 
-const config: Config = {
+// export env settings
+export const config: Config = {
     apiPort: process.env.API_PORT || '4000',
     hostname: process.env.API_HOST || 'localhost',
 
@@ -37,8 +43,7 @@ const config: Config = {
     // 3600: 1 hour, 86,400: 24 hours
     authDuration: parseInt(process.env.AUTH_DURATION ?? '86400'),
 
+    spoofUser: process.env.SPOOF_USER === 'true',
+
     basePath: path.resolve(__dirname, '..'),
 }
-
-// export env settings
-export { config }

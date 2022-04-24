@@ -507,7 +507,9 @@ export class DataManager<Type> extends IErrorable {
                     'verifyAddedDocument.mapEachField',
                     HTTPStatus.BAD_REQUEST,
                     'Invalid document field type',
-                    `${this.className}.${data.name} ${value} expected to be ${data.type} (got ${typeof value}) for ${str(data)}`
+                    `${this.className}.${data.name} ${value} expected to be ${
+                        data.type
+                    } (got ${typeof value}) for ${str(data)}`
                 )
             },
             // parent
@@ -718,7 +720,7 @@ export class DataManager<Type> extends IErrorable {
                 }
                 throw this.internal(
                     'convertIds',
-                    `${this.className} [${v}] expected to be a DB id`
+                    `${this.className} [${v}] expected to be a DB id for ${d.foreignApi.db.className} (${d})`
                 )
             },
             // data

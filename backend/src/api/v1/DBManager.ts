@@ -115,7 +115,17 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
 
         // Filtering
         if (q.filter) {
-            let filter = JSON.parse(q.filter)
+            let filter: any = {}
+            try {
+                filter = JSON.parse(q.filter)
+            } catch (err) {
+                throw this.error(
+                    'parseQuery/JSON.parse',
+                    HTTPStatus.BAD_REQUEST,
+                    'Malformed filter query',
+                    `${filter} is not a valid JSON string object`
+                )
+            }
 
             for (let [key, value] of Object.entries(filter)) {
                 let f: IFilterOpts = { key }

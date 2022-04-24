@@ -2,12 +2,14 @@ import fs from 'fs'
 import path from 'path'
 import { config } from '../../../config'
 import { IFile, IFilemeta } from '../../../lms/types'
-import { generateBase64UUID } from '../../../lms/util'
+import { generateBase64UUID, getUrl } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { IFileData } from './filemeta'
 
-const FILE_PATH = path.resolve(config.basePath, 'fs')
+const FILE_PATH = path.join('fs')
+export const FULL_FILE_PATH = path.resolve(config.basePath, FILE_PATH)
+const FILE_404 = path.join('404.pdf')
 
 class Filedata extends DBManager<IFile> {
     constructor() {
@@ -20,7 +22,7 @@ class Filedata extends DBManager<IFile> {
                     type: 'fkey',
                     managerName: 'users',
                 },
-                src: {
+                pathTo: {
                     type: 'string',
                     hidden: true,
                 },
@@ -32,19 +34,40 @@ class Filedata extends DBManager<IFile> {
         )
     }
 
+    public override async getFromDB(
+        user: AuthUser,
+        id: string,
+        noDeref: boolean,
+        userRoute: boolean
+    ): Promise<IFile> {
+        let f = await super.getFromDB(user, id, noDeref, userRoute)
+
+        // Generate src path
+        f.src = getUrl(`files/static/${f.id}`)
+
+        return f
+    }
+
+    public override async convertIDtoKEY(doc: IFile): Promise<IFile> {
+        let f = await super.convertIDtoKEY(doc)
+
+        // Generate src path
+        f.src = getUrl(`files/static/${f.id}`)
+
+        return f
+    }
+
     // Write a new file from the file data
     public async writeFile(user: AuthUser, file: IFileData): Promise<IFile> {
-        let id = generateBase64UUID()
-        let pathTo: string = id + '-' + file.name
+        let key = generateBase64UUID()
+        let pathTo: string = key + '-' + file.name
 
-        // Spoof upload
-        if (config.releaseFileSystem) {
-            await fs.promises.rename(file.path, path.join(FILE_PATH, pathTo))
-        }
+        // Move file from 'tmp' to the 'fs' directory
+        await fs.promises.rename(file.path, path.join(FULL_FILE_PATH, pathTo))
 
         return {
-            id: this.db.keyToId(id),
-            src: pathTo,
+            id: this.db.keyToId(key),
+            pathTo,
             title: file.name,
             author: user.id,
             createdAt: new Date().toJSON(),
@@ -52,23 +75,31 @@ class Filedata extends DBManager<IFile> {
     }
 
     public async readLatest(user: AuthUser, doc: IFilemeta) {
-        return this.readSource(user, (<IFile>doc.latest).src)
+        return this.readSource(user, (<IFile>doc.latest).pathTo)
     }
 
     public async read(user: AuthUser, id: string) {
         let file = await this.db.get(id)
-        return this.readSource(user, file.src)
+        return this.readSource(user, file.pathTo)
     }
 
-    public async readSource(user: AuthUser, src: string) {
-        let pathTo = path.join(FILE_PATH, src ?? '')
-        if ((await fs.promises.stat(pathTo)).isFile()) {
-            return pathTo
-        } else if (!config.releaseFileSystem) {
-            console.log(`File ${pathTo} dne, using 404.pdf instead`)
-            return path.join(FILE_PATH, '404.pdf')
+    public async readSource(user: AuthUser, pathTo: string) {
+        let fullPath = path.join(FULL_FILE_PATH, pathTo ?? '')
+
+        // Check if path exists
+        if (fs.existsSync(fullPath)) {
+            // Check if path is a file
+            if ((await fs.promises.stat(fullPath)).isFile()) {
+                return pathTo
+            }
+        }
+
+        // If we're not on release filesystem, return 404.pdf
+        if (!config.releaseFileSystem) {
+            console.log(`File [${fullPath}] dne, using 404.pdf instead`)
+            return FILE_404
         } else {
-            throw this.internal('readLatest', `${pathTo} is not a file`)
+            throw this.internal('readLatest', `${fullPath} is not a file`)
         }
     }
 }
