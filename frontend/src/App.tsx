@@ -1,3 +1,10 @@
+/**
+* @file Main App File
+* @module App
+* @category Global
+* @author Braden Cariaga
+*/
+
 import { Admin, CustomRoutes, EditGuesser, ListGuesser, Resource, ShowGuesser } from 'react-admin';
 import dataProvider from './util/dataProvider';
 import { AdminProjectList, AdminProjectCreate, AdminProjectEdit } from './pages/administration/project';
