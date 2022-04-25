@@ -347,6 +347,20 @@ class Project extends DBManager<IProject> {
     // ROUTINES
     //
 
+    public async restart(user: AuthUser, id: string, full: boolean) {
+        let pro = await this.db.get(id)
+        pro.status = 'AWAITING'
+
+        let modules = compressStepper<string>(pro.modules)
+
+        for (const m of modules) {
+            await ModuleManager.restart(user, m, full)
+        }
+
+        // Start project
+        return this.postStartNextStep(user, pro)
+    }
+
     public async start(user: AuthUser, id: string) {
         let pro = await this.db.get(id)
         if (pro.status !== 'AWAITING') {

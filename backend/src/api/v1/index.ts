@@ -206,6 +206,14 @@ export function routerBuilder(version: string) {
                         await ProjectManager.start(ctx.state.user, id)
                         ctx.status = HTTPStatus.OK
                     })
+                    .put('restart/:id', async (ctx) => {
+                        let id = await ProjectManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
+
+                        await ProjectManager.restart(ctx.state.user, id, true)
+                        ctx.status = HTTPStatus.OK
+                    })
                     .routes()
             )
             // Modules
