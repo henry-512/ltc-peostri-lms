@@ -58,7 +58,7 @@ class Task extends DBManager<ITask> {
         )
     }
 
-    private async preProcessingChecks(
+    private async checkFileTaskModule(
         taskId: string,
         files: any,
         fileKey: string
@@ -66,6 +66,10 @@ class Task extends DBManager<ITask> {
         // Verify file exists
         let fileData = getFile(files, fileKey)
 
+        return { fileData, ...(await this.checkTaskAndModule(taskId)) }
+    }
+
+    private async checkTaskAndModule(taskId: string) {
         // Retrieve task
         let task = await this.db.get(taskId)
         if (!task.module) {
@@ -79,7 +83,7 @@ class Task extends DBManager<ITask> {
         await ModuleManager.db.assertIdExists(task.module)
         let mod = await ModuleManager.db.get(task.module)
 
-        return { fileData, modId: task.module, mod }
+        return { modId: task.module, mod }
     }
 
     private async saveFile(user: AuthUser, fileData: IFileData) {
@@ -114,7 +118,7 @@ class Task extends DBManager<ITask> {
         fileKey: string
     ) {
         // Check/retrieve data
-        let { mod, modId, fileData } = await this.preProcessingChecks(
+        let { mod, modId, fileData } = await this.checkFileTaskModule(
             taskId,
             files,
             fileKey
@@ -163,7 +167,7 @@ class Task extends DBManager<ITask> {
         files: any,
         fileKey: string
     ) {
-        let { mod, modId, fileData } = await this.preProcessingChecks(
+        let { mod, modId, fileData } = await this.checkFileTaskModule(
             taskId,
             files,
             fileKey
@@ -198,18 +202,8 @@ class Task extends DBManager<ITask> {
     /**
      * REVISE
      */
-    public async revise(
-        user: AuthUser,
-        taskId: string,
-        files: any,
-        fileKey: string,
-        reviseFileKey: string
-    ) {
-        let { mod, modId, fileData } = await this.preProcessingChecks(
-            taskId,
-            files,
-            fileKey
-        )
+    public async revise(user: AuthUser, taskId: string, reviseFileKey: string) {
+        let { mod, modId } = await this.checkTaskAndModule(taskId)
 
         // If files dont exist, we can't proceed
         if (!mod.files) {
@@ -250,12 +244,6 @@ class Task extends DBManager<ITask> {
             )
         }
 
-        // Save file
-        let fileId = await this.saveFile(user, fileData)
-
-        // Push latest
-        FilemetaManager.pushLatest(filemeta, fileId)
-
         // Update filemeta
         await FilemetaManager.db.update(filemeta, { mergeObjects: false })
 
@@ -269,8 +257,18 @@ class Task extends DBManager<ITask> {
      */
     public async approve(user: AuthUser, taskId: string) {
         await this.db.updateFaster([taskId], 'status', 'COMPLETE')
+        // ADVANCE
         let modId = await this.db.getOneFaster<string>(taskId, 'module')
         await ModuleManager.automaticAdvance(user, modId)
+    }
+
+    /**
+     * DENY
+     */
+    public async deny(user: AuthUser, taskId: string) {
+        // RESTART
+        let modId = await this.db.getOneFaster<string>(taskId, 'module')
+        await ModuleManager.restart(user, modId, false)
     }
 }
 

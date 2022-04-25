@@ -252,11 +252,14 @@ class Module extends DBManager<IModule> {
 
     // Restart a module. Clean it's file, mark all tasks as 'AWAITING',
     // then call `start` on it
-    public async restart(user: AuthUser, id: string) {
+    public async restart(user: AuthUser, id: string, full: boolean) {
         let mod = await this.db.get(id)
         mod.status = 'AWAITING'
-        // Reset files
-        delete mod.files
+
+        if (full) {
+            // Reset files
+            delete mod.files
+        }
 
         // Set tasks to AWAITING
         let allTasks = compressStepper<string>(mod.tasks)

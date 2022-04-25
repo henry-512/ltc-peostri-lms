@@ -234,7 +234,8 @@ export function routerBuilder(version: string) {
 
                         ctx.body = await ModuleManager.restart(
                             ctx.state.user,
-                            id
+                            id,
+                            true
                         )
                         ctx.status = HTTPStatus.OK
                     })
@@ -298,14 +299,11 @@ export function routerBuilder(version: string) {
                         let id = await TaskManager.db.assertKeyExists(
                             ctx.params.id
                         )
-                        let body = await parseBody(ctx.request)
 
                         await TaskManager.revise(
                             ctx.state.user,
                             id,
-                            ctx.request.files,
-                            body.file,
-                            body.review
+                            ctx.request.body.review
                         )
 
                         ctx.status = HTTPStatus.OK
@@ -316,6 +314,15 @@ export function routerBuilder(version: string) {
                         )
 
                         await TaskManager.approve(ctx.state.user, id)
+
+                        ctx.status = HTTPStatus.OK
+                    })
+                    .put('deny/:id', async (ctx) => {
+                        let id = await TaskManager.db.assertKeyExists(
+                            ctx.params.id
+                        )
+
+                        await TaskManager.deny(ctx.state.user, id)
 
                         ctx.status = HTTPStatus.OK
                     })
