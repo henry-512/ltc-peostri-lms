@@ -159,6 +159,7 @@ export function routerBuilder(version: string) {
 
                         let results =
                             await NotificationManager.getNotificationsAssignedToUser(
+                                ctx.state.user,
                                 id,
                                 ctx.request.query
                             )

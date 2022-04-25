@@ -1,9 +1,10 @@
 import { HTTPStatus } from '../../../lms/errors'
-import { compressStepper, getStep, stepperKeyToNum } from '../../../lms/Stepper'
+import { compressStepper, getStep } from '../../../lms/Stepper'
 import { IFile, IFilemeta, IModule } from '../../../lms/types'
 import { getUrl } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
+import { FilemetaManager } from './filemeta'
 import { ProjectManager } from './projects'
 import { TaskManager } from './tasks'
 
@@ -101,6 +102,26 @@ class Module extends DBManager<IModule> {
                 // Delete files on admin GET
                 delete mod.files
             }
+        }
+
+        return mod
+    }
+
+    // Dereference files
+    public override async convertIDtoKEY(
+        user: AuthUser,
+        doc: IModule
+    ): Promise<IModule> {
+        let mod = await super.convertIDtoKEY(user, doc)
+
+        if (mod.files && typeof mod.files === 'string') {
+            let id = FilemetaManager.db.asId(mod.files)
+            mod.files = (await FilemetaManager.getFromDB(
+                user,
+                id,
+                false,
+                false
+            )) as any
         }
 
         return mod

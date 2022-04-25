@@ -48,8 +48,11 @@ class Filedata extends DBManager<IFile> {
         return f
     }
 
-    public override async convertIDtoKEY(doc: IFile): Promise<IFile> {
-        let f = await super.convertIDtoKEY(doc)
+    public override async convertIDtoKEY(
+        user: AuthUser,
+        doc: IFile
+    ): Promise<IFile> {
+        let f = await super.convertIDtoKEY(user, doc)
 
         // Generate src path
         f.src = getUrl(`files/static/${f.id}`)

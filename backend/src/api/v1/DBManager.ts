@@ -221,12 +221,17 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
      * Retrieves a query from the server, following the passed parameters.
      * @return A cursor representing all db objects that fit the query
      */
-    public async runQuery(opts: IQueryGetOpts): Promise<IGetAllQueryResults> {
+    public async runQuery(
+        user: AuthUser,
+        opts: IQueryGetOpts
+    ): Promise<IGetAllQueryResults> {
         let query = await this.db.queryGet(opts)
         let all = await query.cursor.all()
 
         // Convert all document foreign ids to keys
-        await Promise.all(all.map(async (doc) => this.convertIDtoKEY(doc)))
+        await Promise.all(
+            all.map(async (doc) => this.convertIDtoKEY(user, doc))
+        )
 
         return {
             all,
@@ -236,12 +241,16 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         }
     }
 
-    public async runQueryWithFilter(q: any, ...filters: IFilterOpts[]) {
+    public async runQueryWithFilter(
+        user: AuthUser,
+        q: any,
+        ...filters: IFilterOpts[]
+    ) {
         let opts = this.parseQuery(q)
         if (filters.length !== 0) {
             opts.filters = opts.filters.concat(filters)
         }
-        return this.runQuery(opts)
+        return this.runQuery(user, opts)
     }
 
     public async queryLengthWithFilter(q: any, ...filters: IFilterOpts[]) {
@@ -336,7 +345,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                         (d) => d.type === 'parent'
                     )
                 }
-                await data.foreignData.convertIDtoKEY(v)
+                await data.foreignData.convertIDtoKEY(user, v)
                 return data.distortOnGet ? data.distortOnGet(v) : v
             },
             // other

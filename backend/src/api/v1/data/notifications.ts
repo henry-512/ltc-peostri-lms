@@ -6,6 +6,7 @@ import {
     NotificationType,
     ResourceType,
 } from '../../../lms/types'
+import { AuthUser } from '../../auth'
 import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
 import { UserManager } from './users'
@@ -121,6 +122,7 @@ class Notification extends DBManager<INotification> {
     }
 
     public async getNotificationsAssignedToUser(
+        user: AuthUser,
         userId: string,
         q: ParsedUrlQuery
     ) {
@@ -134,7 +136,9 @@ class Notification extends DBManager<INotification> {
 
         let all = await query.cursor.all()
 
-        await Promise.all(all.map(async (doc) => this.convertIDtoKEY(doc)))
+        await Promise.all(
+            all.map(async (doc) => this.convertIDtoKEY(user, doc))
+        )
 
         return {
             all,

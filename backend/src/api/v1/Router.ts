@@ -49,7 +49,8 @@ export class AdminRouter<Type extends IArangoIndexes> extends Router {
         if (!this.apiOpts?.noListGetAll) {
             this.get(
                 '/list',
-                async (ctx) => await parseRunSendQuery(this.manager, ctx)
+                async (ctx) =>
+                    await parseRunSendQuery(ctx.state.user, this.manager, ctx)
             )
         }
 
@@ -245,22 +246,23 @@ export class UserRouter<Type extends IArangoIndexes> extends Router {
             fetch = await permission<FetchType>(ctx, 'taskFetching')
         }
 
+        let user: AuthUser = ctx.state.user
+
         switch (fetch) {
             case 'ASSIGNED':
-                return await queryFilter(ctx, this.manager, {
+                return await queryFilter(user, ctx, this.manager, {
                     key: 'users', // unused
                     custom: this.filterUsers,
-                    inArray: (<AuthUser>ctx.state.user).id,
+                    inArray: user.id,
                 })
             case 'TEAM':
-                let user: AuthUser = ctx.state.user
-                return await queryFilter(ctx, this.manager, {
+                return await queryFilter(user, ctx, this.manager, {
                     key: 'undefined',
                     custom: this.filterTeam,
                     in: await user.getTeams(),
                 })
             default:
-                return await parseRunSendQuery(this.manager, ctx)
+                return await parseRunSendQuery(user, this.manager, ctx)
         }
     }
 }
@@ -291,19 +293,21 @@ export async function parseBody<Type extends IArangoIndexes>(req: any) {
 }
 
 export async function parseRunSendQuery(
+    user: AuthUser,
     manager: DBManager<any>,
     ctx: ParameterizedContext
 ) {
     let opts = manager.parseQuery(ctx.request.query)
-    return runAndSendQuery(manager, opts, ctx)
+    return runAndSendQuery(user, manager, opts, ctx)
 }
 
 export async function runAndSendQuery(
+    user: AuthUser,
     manager: DBManager<any>,
     opts: IQueryGetOpts,
     ctx: ParameterizedContext
 ) {
-    let results = await manager.runQuery(opts)
+    let results = await manager.runQuery(user, opts)
     sendRange(results, ctx)
 }
 
@@ -322,11 +326,13 @@ export function sendRange(
 }
 
 export async function queryFilter(
+    user: AuthUser,
     ctx: ParameterizedContext,
     manager: DBManager<any>,
     ...filters: IFilterOpts[]
 ) {
     let results = await manager.runQueryWithFilter(
+        user,
         ctx.request.query,
         ...filters
     )

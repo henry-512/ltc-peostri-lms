@@ -686,7 +686,7 @@ export class DataManager<Type> extends IErrorable {
     }
 
     // Called by GET-ALL and GET-ID
-    public async convertIDtoKEY(doc: Type): Promise<Type> {
+    public async convertIDtoKEY(user: AuthUser, doc: Type): Promise<Type> {
         return this.mapEachField(
             doc,
             // all
@@ -722,7 +722,7 @@ export class DataManager<Type> extends IErrorable {
             // data
             (v, d) => {
                 if (typeof v === 'object') {
-                    return d.foreignData.convertIDtoKEY(v)
+                    return d.foreignData.convertIDtoKEY(user, v)
                 }
                 throw this.internal(
                     'convertIds',

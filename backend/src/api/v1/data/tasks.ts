@@ -128,7 +128,7 @@ class Task extends DBManager<ITask> {
         let fileId = await this.saveFile(user, fileData)
 
         // Build/modify filemeta
-        let filemeta: IFilemeta = {} as any
+        let filemeta: IFilemeta
         if (mod.files) {
             let filemeta = await FilemetaManager.db.get(mod.files as string)
 
