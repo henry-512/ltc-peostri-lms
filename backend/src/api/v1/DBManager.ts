@@ -296,8 +296,6 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             // foreign
             async (v, data) => {
                 if (typeof v === 'string') {
-                    console.log(str(data))
-                    console.log(v)
                     let overrideDeref = userRoute && data.overrideUserDeref
                     if (!overrideDeref && (data.getIdKeepAsRef || noDeref)) {
                         return convertToKey(v)

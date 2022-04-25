@@ -87,6 +87,7 @@ export interface IProject extends IArangoIndexes, ICreateUpdate {
     users: Array<string> | Array<IUser>
     team?: string | ITeam
     currentStep: number
+    auto_assign: boolean
 }
 
 export type ApiPerm = keyof IPermission

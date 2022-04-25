@@ -3,7 +3,7 @@ import { HTTPStatus, IErrorable } from '../../lms/errors'
 import { IDataFieldData, IField, IForeignFieldData } from '../../lms/FieldData'
 import { fixStepper } from '../../lms/Stepper'
 import { ICreateUpdate } from '../../lms/types'
-import { convertToKey, isDBKey, PTR, splitId, str } from '../../lms/util'
+import { concatOrSetMapArray, convertToKey, isDBKey, PTR, splitId, str } from '../../lms/util'
 import { AuthUser } from '../auth'
 
 export class DataManager<Type> extends IErrorable {
@@ -527,11 +527,7 @@ export class DataManager<Type> extends IErrorable {
         )
 
         // Add the document to the map
-        if (map.has(this)) {
-            map.get(this)?.push(doc)
-        } else {
-            map.set(this, [doc])
-        }
+        concatOrSetMapArray<DataManager<any>, any>(map, this, doc)
 
         return doc
     }

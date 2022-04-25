@@ -6,12 +6,14 @@ import {
     stepperForEachInOrder,
 } from '../../../lms/Stepper'
 import { IModule, IProject, ITask } from '../../../lms/types'
+import { concatOrSetMapArray } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
 import { ModuleManager } from './modules'
 import { NotificationManager } from './notifications'
 import { TaskManager } from './tasks'
+import { UserManager } from './users'
 
 function addDays(date: Date, days: number) {
     let d = new Date(date)
@@ -63,6 +65,11 @@ class Project extends DBManager<IProject> {
                     type: 'number',
                     default: 0,
                 },
+                // True if we should automatically assign users
+                auto_assign: {
+                    type: 'boolean',
+                    default: false,
+                },
             },
             { hasUpdate: true, hasCreate: true, defaultFilter: 'title' }
         )
@@ -87,15 +94,16 @@ class Project extends DBManager<IProject> {
         )
 
         // Master list of all users for the project
-        // let allUsers = p.users as string[]
-        // let rankCursor = await UserManager.db.getWithIdFaster<string>(
-        //     allUsers,
-        //     'rank'
-        // )
-        // let userRankMap = new Map<string, string>()
-        // rankCursor.forEach((val) => {
-        //     // userRankMap.set()
-        // })
+        let allUsers = p.users as string[]
+        let rankCursor = await UserManager.db.getWithIdFaster<string>(
+            allUsers,
+            'rank'
+        )
+        let userRankMap = new Map<string, string[]>()
+        // Convert {user,rank}[] pairs to a rank:user[] map
+        await rankCursor.forEach((val) =>
+            concatOrSetMapArray<string, string>(userRankMap, val.v, val.id)
+        )
 
         // Start date of the project
         let startDate = new Date(p.start)
@@ -113,9 +121,8 @@ class Project extends DBManager<IProject> {
                 // Build modules
                 let modules: IModule[] = await Promise.all(
                     arrayOfModuleIds.map(async (id) => {
-                        let modKey = ModuleManager.db.asKey(id)
                         for (const m of mappedMods) {
-                            if (m.id === modKey) {
+                            if (m.id === id) {
                                 return m
                             }
                         }
@@ -147,9 +154,8 @@ class Project extends DBManager<IProject> {
                             // Build tasks
                             let tasks: ITask[] = await Promise.all(
                                 arrayOfTaskIds.map(async (id) => {
-                                    let taskKey = TaskManager.db.asKey(id)
                                     for (const t of mappedTasks) {
-                                        if (t.id === taskKey) {
+                                        if (t.id === id) {
                                             return t
                                         }
                                     }
@@ -175,11 +181,29 @@ class Project extends DBManager<IProject> {
                                 if (!task) continue
 
                                 let ttc = task.ttc ?? 0
+
+                                // Set suspense date
                                 task.suspense = addDays(
                                     startDate,
                                     incrementedTTC + ttc
                                 ).toJSON()
+                                // Attatch project
                                 task.project = this.db.asId(doc.id ?? '')
+                                // Auto-Assign users
+                                if (doc.auto_assign === true && task.rank) {
+                                    let usersByRank = userRankMap.get(task.rank)
+
+                                    if (usersByRank) {
+                                        // ES6 comprehension
+                                        let merged = [
+                                            ...new Set([
+                                                ...(task.users as string[]),
+                                                ...usersByRank,
+                                            ]),
+                                        ]
+                                        task.users = merged
+                                    }
+                                }
 
                                 if (ttc > maxTaskTime) {
                                     maxTaskTime = ttc

@@ -1,9 +1,9 @@
-import { APIError, HTTPStatus } from "./errors"
+import { APIError, HTTPStatus } from './errors'
 
 /**
  * Arrays of T, indexed by strings
  */
- export interface IStepper<T> {
+export interface IStepper<T> {
     [key: string]: T[]
 }
 
@@ -91,6 +91,10 @@ export async function stepperForEachInOrderSafe(
     }
 }
 
+/**
+ * @param cb Returns false if the loop should break
+ * @returns True iff the iterator consumed all steps
+ */
 export async function stepperForEachInOrder<T>(
     stepper: IStepper<T>,
     cb: (i: number, ar: T[]) => Promise<void | false>
@@ -99,8 +103,12 @@ export async function stepperForEachInOrder<T>(
         let stepKey = buildStepperKey(i)
         let stepAr = stepper[stepKey]
 
-        if (stepAr && (await cb(i, stepper[stepKey])) !== false) {
-            break
+        // If we've expended the stepper
+        if (!stepAr) {
+            return true
+        } else if ((await cb(i, stepper[stepKey])) === false) {
+            // If the callback returns false
+            return false
         }
     }
 }

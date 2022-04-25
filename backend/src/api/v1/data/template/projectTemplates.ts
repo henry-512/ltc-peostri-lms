@@ -71,6 +71,7 @@ class ProjectTemplate extends DBManager<IProjectTemplate> {
             users: [],
             ttc: temp.ttc,
             currentStep: 0,
+            auto_assign: true,
         }
     }
 }

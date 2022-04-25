@@ -152,3 +152,12 @@ export function getFile(files: any, fileKey: string): IFileData {
 export function getUrl(path: string) {
     return `http://${config.hostname}:${config.apiPort}/api/v1/${path}`
 }
+
+export function concatOrSetMapArray<Key, Value>(
+    map: Map<Key, Value[]>,
+    key: Key,
+    value: Value
+) {
+    let ar = map.get(key)
+    map.set(key, ar ? ar.concat(value) : [value])
+}
