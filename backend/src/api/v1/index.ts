@@ -195,11 +195,15 @@ export function routerBuilder(version: string) {
                             ctx.params.id
                         )
 
-                        ctx.body = await ProjectManager.complete(
-                            ctx.state.user,
-                            id,
-                            true
+                        await ProjectManager.complete(ctx.state.user, id, true)
+                        ctx.status = HTTPStatus.OK
+                    })
+                    .put('start/:id', async (ctx) => {
+                        let id = await ProjectManager.db.assertKeyExists(
+                            ctx.params.id
                         )
+
+                        await ProjectManager.start(ctx.state.user, id)
                         ctx.status = HTTPStatus.OK
                     })
                     .routes()
@@ -212,11 +216,7 @@ export function routerBuilder(version: string) {
                             ctx.params.id
                         )
 
-                        ctx.body = await ModuleManager.complete(
-                            ctx.state.user,
-                            id,
-                            true
-                        )
+                        await ModuleManager.complete(ctx.state.user, id, true)
                         ctx.status = HTTPStatus.OK
                     })
                     .put('start/:id', async (ctx) => {
@@ -224,7 +224,7 @@ export function routerBuilder(version: string) {
                             ctx.params.id
                         )
 
-                        ctx.body = await ModuleManager.start(ctx.state.user, id)
+                        await ModuleManager.start(ctx.state.user, id)
                         ctx.status = HTTPStatus.OK
                     })
                     .put('restart/:id', async (ctx) => {
@@ -232,11 +232,7 @@ export function routerBuilder(version: string) {
                             ctx.params.id
                         )
 
-                        ctx.body = await ModuleManager.restart(
-                            ctx.state.user,
-                            id,
-                            true
-                        )
+                        await ModuleManager.restart(ctx.state.user, id, true)
                         ctx.status = HTTPStatus.OK
                     })
                     .put('advance/:id', async (ctx) => {
@@ -244,11 +240,7 @@ export function routerBuilder(version: string) {
                             ctx.params.id
                         )
 
-                        ctx.body = await ModuleManager.advance(
-                            ctx.state.user,
-                            id,
-                            true
-                        )
+                        await ModuleManager.advance(ctx.state.user, id, true)
                         ctx.status = HTTPStatus.OK
                     })
                     .routes()
@@ -262,7 +254,6 @@ export function routerBuilder(version: string) {
                         )
 
                         await TaskManager.complete(ctx.state.user, id)
-
                         ctx.staus = HTTPStatus.OK
                     })
                     .put('upload/:id', async (ctx) => {

@@ -325,17 +325,15 @@ class Module extends DBManager<IModule> {
     }
 
     private async postStartNextStep(user: AuthUser, mod: IModule) {
-        // Pull current step
-        let currentStep = mod.currentStep ?? 0
+        // Calculate the next step. If not set, defaults to 0
+        let nextStep = (mod.currentStep ?? -1) + 1
 
         // Awaiting modules should be started, not advanced
         if (mod.status === 'AWAITING') {
             mod.status = 'IN_PROGRESS'
-            // Set to -1 to find lowest step key
-            currentStep = -1
+            // Start from the first step
+            nextStep = 0
         }
-
-        let nextStep = currentStep++
 
         let nextStepAr = getStep<string>(mod.tasks, nextStep)
 

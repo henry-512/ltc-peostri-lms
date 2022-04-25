@@ -258,6 +258,11 @@ class Project extends DBManager<IProject> {
             }
         )
 
+        if (d.status === 'AWAITING') {
+            console.log('DEBUG STARTING')
+            await this.start(user, id)
+        }
+
         return id
     }
 
@@ -279,6 +284,11 @@ class Project extends DBManager<IProject> {
                 id: this.db.asKey(id),
             }
         )
+
+        if (doc.status === 'AWAITING') {
+            console.log('DEBUG STARTING')
+            await this.start(user, id)
+        }
     }
 
     //
@@ -331,6 +341,53 @@ class Project extends DBManager<IProject> {
         }
 
         await this.db.update(pro, { mergeObjects: false })
+    }
+
+    //
+    // ROUTINES
+    //
+
+    public async start(user: AuthUser, id: string) {
+        let pro = await this.db.get(id)
+        if (pro.status !== 'AWAITING') {
+            throw this.error(
+                'start',
+                HTTPStatus.BAD_REQUEST,
+                'Project is not AWAITING',
+                `${pro} is not AWAITING`
+            )
+        }
+        return this.postStartNextStep(user, pro)
+    }
+
+    private async postStartNextStep(user: AuthUser, pro: IProject) {
+        // Calculate the next step. If not set, defaults to 0
+        let nextStep = (pro.currentStep ?? -1) + 1
+
+        // Awaiting projects should be started, not advanced
+        if (pro.status === 'AWAITING') {
+            pro.status = 'IN_PROGRESS'
+            // Start from the first step
+            nextStep = 0
+        }
+
+        let nextStepAr = getStep<string>(pro.modules, nextStep)
+
+        // Next key not found, therefore this project is complete
+        if (!nextStepAr) {
+            return this.postComplete(user, pro, false)
+        }
+
+        // Start the first step's modules
+        for (let modId of nextStepAr) {
+            await ModuleManager.start(user, modId)
+        }
+        // Update step
+        pro.currentStep = nextStep
+
+        // Update in the db
+        await this.db.update(pro, { mergeObjects: false })
+        return pro
     }
 
     public async complete(user: AuthUser, id: string, force: boolean) {
