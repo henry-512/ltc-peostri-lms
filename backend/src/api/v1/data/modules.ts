@@ -219,10 +219,8 @@ class Module extends DBManager<IModule> {
             await ProjectManager.automaticAdvance(user, mod.project)
         }
 
-        console.log(mod.percent_complete)
         // Calculate %-complete
         await this.calculatePercentComplete(mod)
-        console.log(mod.percent_complete)
         // Update module
         await this.db.update(mod, { mergeObjects: false })
     }
