@@ -323,10 +323,11 @@ class Project extends DBManager<IProject> {
      */
     private async calculatePercentComplete(pro: IProject) {
         let mods = compressStepper<string>(pro.modules)
-        let comp = await ModuleManager.db.assertOrEqualsFaster(mods, 'status', [
-            'COMPLETED',
-            'WAIVED',
-        ])
+        let comp = await ModuleManager.db.assertManyEqualsFaster(
+            mods,
+            'status',
+            ['COMPLETED', 'WAIVED']
+        )
         let compAll = await comp.all()
         pro.percent_complete =
             (100 * (mods.length - compAll.length)) / mods.length
@@ -360,7 +361,7 @@ class Project extends DBManager<IProject> {
         }
 
         // Verify module statuses
-        let invalids = await ModuleManager.db.assertOrEqualsFaster(
+        let invalids = await ModuleManager.db.assertManyEqualsFaster(
             currentStep,
             'status',
             ['COMPLETED', 'WAIVED']
@@ -369,9 +370,9 @@ class Project extends DBManager<IProject> {
         // If there are moudles remaining
         if (invalids.hasNext) {
             console.log(
-                `project ${
-                    pro.id
-                } failed auto-advance from ${currentStep}; modules ${await invalids.all()}`
+                `project ${pro.id} failed auto-advance from step #${
+                    pro.currentStep
+                }; modules ${await invalids.all()}`
             )
             return
         }
@@ -490,7 +491,7 @@ class Project extends DBManager<IProject> {
         // Verify all modules/tasks are completed, if required
         if (!force) {
             // Verify all modules are completed
-            let invalidModules = await ModuleManager.db.assertOrEqualsFaster(
+            let invalidModules = await ModuleManager.db.assertManyEqualsFaster(
                 allModules,
                 'status',
                 ['COMPLETED', 'WAIVED']

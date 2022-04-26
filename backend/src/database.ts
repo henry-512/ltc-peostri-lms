@@ -470,16 +470,16 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         )
     }
 
-    public async assertOrEqualsFaster(
+    public async assertManyEqualsFaster(
         ids: string[],
         key: string,
         equals: string[]
     ): Promise<ArrayCursor<string>> {
-        let q = aql`FOR i in ${ids} let d=DOCUMENT(i)FILTER`
+        let q = aql`FOR i IN ${ids} LET d=DOCUMENT(i)FILTER`
         let notFirst = false
         for (const equal of equals) {
             if (notFirst) {
-                q = aql`${q} || d.${key}!=${equal}`
+                q = aql`${q} && d.${key}!=${equal}`
             } else {
                 notFirst = true
                 q = aql`${q} d.${key}!=${equal}`

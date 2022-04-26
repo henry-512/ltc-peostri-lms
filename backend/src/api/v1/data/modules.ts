@@ -253,6 +253,9 @@ class Module extends DBManager<IModule> {
             // NotificationManager.buildAndSaveNotification()
 
             console.log(`Module ${mod.id} advanced to step ${mod.currentStep}`)
+
+            // Update module
+            await this.db.update(mod, { mergeObjects: false })
         } else {
             // If we can't find the next step, the module is complete
             mod.status = mod.waive_module ? 'WAIVED' : 'COMPLETED'
@@ -265,16 +268,16 @@ class Module extends DBManager<IModule> {
                     `Module ${mod} has invalid .project field`
                 )
             }
-            await ProjectManager.db.assertIdExists(mod.project)
-            await ProjectManager.automaticAdvance(user, mod.project)
+            console.log(`Module ${mod.id} completed; advancing project`)
+
             // Project is completed
             mod.percent_complete = 100
+            // Update module
+            await this.db.update(mod, { mergeObjects: false })
 
-            console.log(`Module ${mod.id} completed; project advanced`)
+            await ProjectManager.db.assertIdExists(mod.project)
+            await ProjectManager.automaticAdvance(user, mod.project)
         }
-
-        // Update module
-        await this.db.update(mod, { mergeObjects: false })
     }
 
     // Marks a module as 'COMPLETED'
