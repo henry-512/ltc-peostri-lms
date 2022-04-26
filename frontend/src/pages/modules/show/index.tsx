@@ -5,11 +5,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import TabbedModuleInfo from "src/components/TabbedModuleInfo";
 import AssignedTasksField from "src/components/AssignedTasksField";
 
-export type ModuleShowProps = {
-
-}
-
-const ModuleShow = (props: ModuleShowProps) => {
+const ModuleShow = () => {
     const createPath = useCreatePath();
 
     return (
