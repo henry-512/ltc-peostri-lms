@@ -1,24 +1,24 @@
+import { AuthUser } from '../../auth'
 import { TeamManager } from './teams'
-import { UserArangoWrapper } from './UserArangoWrapper'
 import { UserManager } from './users'
 
 /**
  * Assigns a user to a team
  */
-export async function assignUserToTeam(userId: string, teamId: string) {
-    let user = await UserManager.db.get(userId)
-    let team = await TeamManager.db.get(teamId)
+export async function assignUserToTeam(
+    user: AuthUser,
+    userId: string,
+    teamId: string
+) {
+    let userTeams = await UserManager.db.getOneFaster<string[]>(userId, 'teams')
+    let usersOnTeam = await TeamManager.db.getOneFaster<string[]>(
+        teamId,
+        'users'
+    )
 
-    user.teams = (<string[]>user.teams).concat(teamId)
-    team.users = (<string[]>team.users).concat(userId)
+    userTeams = userTeams.concat(teamId)
+    usersOnTeam = usersOnTeam.concat(userId)
 
-    await UserManager.db.update(user, { mergeObjects: false })
-    await TeamManager.db.update(team, { mergeObjects: false })
-}
-
-/**
- *
- */
-export async function syncUserToTeam(userId: string) {
-    let userWrapper = UserManager.db as UserArangoWrapper
+    await UserManager.db.updateOneFaster(userId, 'teams', userTeams)
+    await TeamManager.db.updateOneFaster(teamId, 'users', usersOnTeam)
 }

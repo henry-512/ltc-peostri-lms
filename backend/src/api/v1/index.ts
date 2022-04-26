@@ -1,7 +1,6 @@
 import Router from '@koa/router'
 import { aql } from 'arangojs/aql'
 import send from 'koa-send'
-import fs from 'fs'
 import { HTTPStatus } from '../../lms/errors'
 import { AuthUser } from '../auth'
 import { CommentManager } from './data/comments'
@@ -17,6 +16,7 @@ import { TeamManager } from './data/teams'
 import { ModuleTempManager } from './data/template/moduleTemplates'
 import { ProjectTempManager } from './data/template/projectTemplates'
 import { UserManager } from './data/users'
+import { assignUserToTeam } from './data/Utility'
 import { Managers } from './DBManager'
 import { AdminRouter, getOne, parseBody, sendRange, UserRouter } from './Router'
 
@@ -184,6 +184,20 @@ export function routerBuilder(version: string) {
                         await NotificationManager.read(id)
 
                         ctx.status = HTTPStatus.NO_CONTENT
+                    })
+                    .routes()
+            )
+            // TEAM ASSIGNMENT
+            .use(
+                new Router({ prefix: 'teams/' })
+                    .put('assign/:teamId', async (ctx) => {
+                        let user: AuthUser = ctx.state.user
+                        let userId = user.id
+                        let teamId = await TeamManager.db.assertKeyExists(
+                            ctx.params.teamId
+                        )
+
+                        assignUserToTeam(user, userId, teamId)
                     })
                     .routes()
             )
