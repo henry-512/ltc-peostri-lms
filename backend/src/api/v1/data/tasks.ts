@@ -270,6 +270,30 @@ class Task extends DBManager<ITask> {
             // If no file is provided, the current file is acceptable
             // Update task and ADVANCE
             await this.db.updateOneFaster(taskId, 'status', 'COMPLETED')
+
+            // // Check for reviews task and reviews file
+            // let currentStep = getStep<string>(mod.tasks, mod.currentStep)
+            // let ids = await TaskManager.db.filterIdsFaster(
+            //     currentStep,
+            //     'type',
+            //     'DOCUMENT_REVISE'
+            // )
+            // if (ids.hasNext) {
+            //     // Check if module has reviews files
+            //     // Get filemeta
+            //     let reviews = await FilemetaManager.db.getOneFaster<string[]>(
+            //         mod.files as string,
+            //         'reviews'
+            //     )
+
+            //     if (reviews.length !=== 0) {
+
+            //     }
+
+            //     // Review task exists
+            //     let reviseTaskId = await ids.next()
+            // }
+
             await ModuleManager.postAutomaticAdvance(user, mod)
         }
     }
