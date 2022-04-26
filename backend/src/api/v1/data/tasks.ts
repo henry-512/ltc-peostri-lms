@@ -312,7 +312,7 @@ class Task extends DBManager<ITask> {
      * APPROVE
      */
     public async approve(user: AuthUser, taskId: string) {
-        await this.db.updateOneFaster(taskId, 'status', 'COMPLETE')
+        await this.db.updateOneFaster(taskId, 'status', 'COMPLETED')
         // ADVANCE
         let modId = await this.db.getOneFaster<string>(taskId, 'module')
         await ModuleManager.automaticAdvance(user, modId)
