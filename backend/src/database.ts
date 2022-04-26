@@ -9,7 +9,7 @@ import { QueryOptions } from 'arangojs/database'
 import { config } from './config'
 import { HTTPStatus, IErrorable } from './lms/errors'
 import { IField } from './lms/FieldData'
-import { IArangoIndexes, IFilemeta } from './lms/types'
+import { IArangoIndexes } from './lms/types'
 import {
     appendReturnFields,
     generateDBID,
@@ -376,6 +376,17 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         let keys: string[] = ids.map((id) => this.asKey(id))
         return ArangoWrapper.db.query(
             aql`FOR k IN ${keys} UPDATE {_key:k} WITH{${key}:${value}} IN ${this.collection}`
+        )
+    }
+
+    public async updateWithFilterFaster(
+        fKey: string,
+        fEq: any,
+        key: string,
+        value: any
+    ) {
+        return ArangoWrapper.db.query(
+            aql`FOR d IN ${this.collection} FILTER d.${fKey}==${fEq} UPDATE d WITH {${key}:${value}} IN ${this.collection}`
         )
     }
 

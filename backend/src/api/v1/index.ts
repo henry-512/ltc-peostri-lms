@@ -1,7 +1,6 @@
 import Router from '@koa/router'
 import { aql } from 'arangojs/aql'
 import send from 'koa-send'
-import fs from 'fs'
 import { HTTPStatus } from '../../lms/errors'
 import { AuthUser } from '../auth'
 import { CommentManager } from './data/comments'
@@ -17,6 +16,7 @@ import { TeamManager } from './data/teams'
 import { ModuleTempManager } from './data/template/moduleTemplates'
 import { ProjectTempManager } from './data/template/projectTemplates'
 import { UserManager } from './data/users'
+import { assignUserToTeam } from './data/Utility'
 import { Managers } from './DBManager'
 import { AdminRouter, getOne, parseBody, sendRange, UserRouter } from './Router'
 
@@ -28,6 +28,9 @@ export function routerBuilder(version: string) {
 
     return (
         new Router({ prefix: `${version}/` })
+            //
+            // Administration
+            //
             .use(new AdminRouter('ranks', RankManager).routes())
             .use(new AdminRouter('tasks', TaskManager).routes())
             .use(new AdminRouter('modules', ModuleManager).routes())
@@ -82,7 +85,12 @@ export function routerBuilder(version: string) {
             // Files
             .use(new AdminRouter('filemeta', FilemetaManager).routes())
             .use(new AdminRouter('files', FiledataManager).routes())
-            // Download and management
+
+            //
+            // User-facing routes
+            //
+
+            // File download and management
             .use(
                 new Router({ prefix: 'files/' })
                     // Get raw metadata
@@ -121,14 +129,13 @@ export function routerBuilder(version: string) {
                     })
                     .routes()
             )
-            // User routes
-            // Tasks
+            // Special user routers
             .use(
                 new UserRouter(
                     'tasks',
                     TaskManager,
                     'taskFetching',
-                    aql`DOCUMENT(DOCUMENT(z.module).project).team`,
+                    aql`DOCUMENT(z.project).team`,
                     aql`z.users`
                 ).build()
             )
@@ -155,13 +162,15 @@ export function routerBuilder(version: string) {
                     // NOTIFICATIONS
                     .get('list', async (ctx) => {
                         let user: AuthUser = ctx.state.user
-                        let id = user.id
 
                         let results =
-                            await NotificationManager.getNotificationsAssignedToUser(
+                            await NotificationManager.runQueryWithFilter(
                                 ctx.state.user,
-                                id,
-                                ctx.request.query
+                                ctx.request.query,
+                                {
+                                    key: 'recipient',
+                                    eq: user.id,
+                                }
                             )
 
                         sendRange(results, ctx)
@@ -184,6 +193,20 @@ export function routerBuilder(version: string) {
                         await NotificationManager.read(id)
 
                         ctx.status = HTTPStatus.NO_CONTENT
+                    })
+                    .routes()
+            )
+            // TEAM ASSIGNMENT
+            .use(
+                new Router({ prefix: 'teams/' })
+                    .put('assign/:teamId', async (ctx) => {
+                        let user: AuthUser = ctx.state.user
+                        let userId = user.id
+                        let teamId = await TeamManager.db.assertKeyExists(
+                            ctx.params.teamId
+                        )
+
+                        assignUserToTeam(user, userId, teamId)
                     })
                     .routes()
             )

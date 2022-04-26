@@ -1,12 +1,9 @@
-import { ParsedUrlQuery } from 'querystring'
-import { IQueryGetOpts } from '../../../database'
 import {
     INotification,
     ISender,
     NotificationType,
     ResourceType,
 } from '../../../lms/types'
-import { AuthUser } from '../../auth'
 import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
 import { UserManager } from './users'
@@ -97,65 +94,11 @@ class Notification extends DBManager<INotification> {
     }
 
     public async readAllForUser(userId: string) {
-        let opts: IQueryGetOpts = {
-            range: {
-                offset: 0,
-                count: 10,
-            },
-            filters: [{ key: 'recipient', eq: userId }],
-            justIds: true,
-        }
-
-        let query = await this.db.queryGet(opts)
-        let ids = await query.cursor.all()
-        return this.db.updateFaster(ids, 'read', true)
+        return this.db.updateWithFilterFaster('recipient', userId, 'read', true)
     }
 
     public async read(id: string) {
-        let doc = await this.db.get(id)
-
-        doc.read = true
-
-        return this.db.update(doc, {
-            mergeObjects: false,
-        })
-    }
-
-    public async getNotificationsAssignedToUser(
-        user: AuthUser,
-        userId: string,
-        q: ParsedUrlQuery
-    ) {
-        let opts = this.parseQuery(q)
-        opts.filters = opts.filters.concat({
-            key: 'recipient',
-            eq: userId,
-        })
-
-        let query = await this.db.queryGet(opts)
-
-        let all = await query.cursor.all()
-
-        await Promise.all(
-            all.map(async (doc) => this.convertIDtoKEY(user, doc))
-        )
-
-        return {
-            all,
-            size: query.size,
-            low: opts.range.offset,
-            high: opts.range.offset + Math.min(query.size, opts.range.count),
-        }
-    }
-
-    public async getNumNotificationsAssignedToUser(userId: string, q: any) {
-        let opts = this.parseQuery(q)
-        opts.filters = opts.filters.concat({
-            key: 'recipient',
-            eq: userId,
-        })
-
-        return this.db.queryGetCount(opts)
+        return this.db.updateOneFaster(id, 'read', true)
     }
 }
 

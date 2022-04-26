@@ -1,5 +1,5 @@
 import { aql, GeneratedAqlQuery } from 'arangojs/aql'
-import { ArangoWrapper, IFilterOpts, ISortOpts } from '../../../database'
+import { ArangoWrapper, IFilterOpts } from '../../../database'
 import { HTTPStatus } from '../../../lms/errors'
 import { IField } from '../../../lms/FieldData'
 import { IUser } from '../../../lms/types'
@@ -21,7 +21,7 @@ export class UserArangoWrapper extends ArangoWrapper<IUser> {
     protected override returnQuery(
         query: GeneratedAqlQuery
     ): GeneratedAqlQuery {
-        return aql`${query} LET a = (RETURN DOCUMENT(z.rank))[0] RETURN {rank:(RETURN {id:a._key,name:a.name})[0],${this.getAllQueryFields}}`
+        return aql`${query} LET a = DOCUMENT(z.rank) RETURN {rank:{id:a._key,name:a.name},${this.getAllQueryFields}}`
     }
 
     public async getFromUsername(username: string) {
