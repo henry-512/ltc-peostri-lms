@@ -15,7 +15,7 @@ class User extends DBManager<IUser> {
             {
                 firstName: { type: 'string' },
                 lastName: { type: 'string' },
-                avatar: { type: 'string' },
+                avatar: { type: 'string', optional: true },
                 rank: {
                     type: 'fkey',
                     managerName: 'ranks',
