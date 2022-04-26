@@ -184,117 +184,85 @@ class Task extends DBManager<ITask> {
         files: any,
         fileKey: string
     ) {
-        let { mod, modId } = await this.checkTaskAndModule(taskId)
-        let fileData = tryGetFile(files, fileKey)
+        let { mod, modId, fileData } = await this.checkFileTaskModule(
+            taskId,
+            files,
+            fileKey
+        )
 
-        if (fileData) {
-            // File is uploaded, update mod.files
-            // If files dont exist, we can't proceed
-            if (!mod.files) {
-                // Throw an error, we need to upload a file first
-                throw this.error(
-                    'review',
-                    HTTPStatus.BAD_REQUEST,
-                    'Invalid module state.',
-                    `${JSON.stringify(mod)} lacks filemeta object`
-                )
-            }
+        // File is uploaded, update mod.files
+        // If files dont exist, we can't proceed
+        if (!mod.files) {
+            // Throw an error, we need to upload a file first
+            throw this.error(
+                'review',
+                HTTPStatus.BAD_REQUEST,
+                'Invalid module state.',
+                `${JSON.stringify(mod)} lacks filemeta object`
+            )
+        }
 
-            // Save file
-            let fileId = await this.saveFile(user, fileData)
+        // Save file
+        let fileId = await this.saveFile(user, fileData)
 
-            // Get filemeta
-            let filemeta = await FilemetaManager.db.get(mod.files as string)
-            // Modify filemeta
-            filemeta.reviews = (<string[]>filemeta.reviews).concat(fileId)
-            // Update filemeta
-            await FilemetaManager.db.update(filemeta, { mergeObjects: false })
-            // Task should remain unchanged. Module cannot advance from this
-            // state
+        // Get filemeta
+        let filemeta = await FilemetaManager.db.get(mod.files as string)
+        // Modify filemeta
+        filemeta.reviews = (<string[]>filemeta.reviews).concat(fileId)
+        // Update filemeta
+        await FilemetaManager.db.update(filemeta, { mergeObjects: false })
+        // Task should remain unchanged. Module cannot advance from this
+        // state
 
-            // Rip current step
-            let currentStep = getStep<string>(mod.tasks, mod.currentStep)
+        // Rip current step
+        let currentStep = getStep<string>(mod.tasks, mod.currentStep)
 
-            // Find revise task
-            let reviseTaskCursor = await this.db.filterIdsFaster(
-                currentStep,
-                'type',
-                'DOCUMENT_REVISE'
+        // Find revise task
+        let reviseTaskCursor = await this.db.filterIdsFaster(
+            currentStep,
+            'type',
+            'DOCUMENT_REVISE'
+        )
+
+        // Check if we already have a revise task
+        if (reviseTaskCursor.hasNext) {
+            // A revise task already exists here, set it back to IN_PROGRESS
+            let id: string = await reviseTaskCursor.next()
+            await this.db.updateOneFaster(id, 'status', 'IN_PROGRESS')
+        } else {
+            // No existing revise task
+
+            //
+            let id = this.db.generateDBID()
+
+            // Pull users from the project
+            let users = await ProjectManager.db.getOneFaster<string[]>(
+                mod.project as string,
+                'users'
             )
 
-            // Check if we already have a revise task
-            if (reviseTaskCursor.hasNext) {
-                // A revise task already exists here, set it back to IN_PROGRESS
-                let id: string = await reviseTaskCursor.next()
-                await this.db.updateOneFaster(id, 'status', 'IN_PROGRESS')
-            } else {
-                // No existing revise task
-
-                //
-                let id = this.db.generateDBID()
-
-                // Pull users from the project
-                let users = await ProjectManager.db.getOneFaster<string[]>(
-                    mod.project as string,
-                    'users'
-                )
-
-                // TODO: Rip user/rank from existing upload task
-                let task: ITask = {
-                    id,
-                    users,
-                    // rank: undefined,
-                    title: 'AUTO - Revise Documents',
-                    status: 'IN_PROGRESS',
-                    type: 'DOCUMENT_REVISE',
-                    module: modId,
-                    project: mod.project,
-                    // Should pull this from tasks in the step
-                    suspense: addDays(new Date(), REVISE_TASK_TTC).toJSON(),
-                    ttc: REVISE_TASK_TTC,
-                }
-
-                // Save new task
-                await this.db.save(task)
-
-                // Updates the reference of currentStep (which is a mutable part of the stepper mod.tasks)
-                currentStep.push(id)
-                // Update the task stepper of module with the new task, which works because the above modified the stepper
-                await ModuleManager.db.updateOneFaster(
-                    modId,
-                    'tasks',
-                    mod.tasks
-                )
+            // TODO: Rip user/rank from existing upload task
+            let task: ITask = {
+                id,
+                users,
+                // rank: undefined,
+                title: 'AUTO - Revise Documents',
+                status: 'IN_PROGRESS',
+                type: 'DOCUMENT_REVISE',
+                module: modId,
+                project: mod.project,
+                // Should pull this from tasks in the step
+                suspense: addDays(new Date(), REVISE_TASK_TTC).toJSON(),
+                ttc: REVISE_TASK_TTC,
             }
-        } else {
-            // If no file is provided, the current file is acceptable
-            // Update task and ADVANCE
-            await this.db.updateOneFaster(taskId, 'status', 'COMPLETED')
 
-            // // Check for reviews task and reviews file
-            // let currentStep = getStep<string>(mod.tasks, mod.currentStep)
-            // let ids = await TaskManager.db.filterIdsFaster(
-            //     currentStep,
-            //     'type',
-            //     'DOCUMENT_REVISE'
-            // )
-            // if (ids.hasNext) {
-            //     // Check if module has reviews files
-            //     // Get filemeta
-            //     let reviews = await FilemetaManager.db.getOneFaster<string[]>(
-            //         mod.files as string,
-            //         'reviews'
-            //     )
+            // Save new task
+            await this.db.save(task)
 
-            //     if (reviews.length !=== 0) {
-
-            //     }
-
-            //     // Review task exists
-            //     let reviseTaskId = await ids.next()
-            // }
-
-            await ModuleManager.postAutomaticAdvance(user, mod)
+            // Updates the reference of currentStep (which is a mutable part of the stepper mod.tasks)
+            currentStep.push(id)
+            // Update the task stepper of module with the new task, which works because the above modified the stepper
+            await ModuleManager.db.updateOneFaster(modId, 'tasks', mod.tasks)
         }
     }
 
