@@ -45,7 +45,6 @@ const TaskActionApprove = (props: TaskActionApproveProps) => {
     }
 
     const handleDeny = (data: any) => {
-        if (!data.file) return;
         update(`proceeding/tasks/deny`, { id: props.id, data, previousData: {} }, {
             onSuccess: (data) => {
                 refresh();

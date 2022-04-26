@@ -1,9 +1,80 @@
-import { Box, IconButton, Breadcrumbs, Divider } from "@mui/material";
-import { FunctionField, Link, ReferenceField, Show, ShowController, SimpleShowLayout, useCreatePath, TextField, ReferenceArrayField } from "react-admin";
+import { Box, IconButton, Breadcrumbs, Divider, Tooltip } from "@mui/material";
+import { FunctionField, Link, ReferenceField, Show, ShowController, SimpleShowLayout, useCreatePath, TextField, ReferenceArrayField, useUpdate, useNotify, useRefresh } from "react-admin";
 import Aside from "./Aside";
 import EditIcon from '@mui/icons-material/Edit';
 import TabbedModuleInfo from "src/components/TabbedModuleInfo";
 import AssignedTasksField from "src/components/AssignedTasksField";
+import FastForwardIcon from '@mui/icons-material/FastForward';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+
+const ActionButtons = ({record}: {record: any}) => {
+    const createPath = useCreatePath();
+    const [update, { isLoading, error }] = useUpdate();
+    const notify = useNotify();
+    const refresh = useRefresh();
+
+    const complete = () => {
+        update(`proceeding/modules/complete`, { id: record.id, data: {}, previousData: {} }, {
+            onSuccess: (data) => {
+                refresh();
+                notify('Submitted revision document.');
+            },
+            onError: (error: any) => {
+                notify(`Document upload error: ${error.message}`, { type: 'warning' });
+            },
+        })
+    }
+
+    const restart = () => {
+        update(`proceeding/modules/restart`, { id: record.id, data: {}, previousData: {} }, {
+            onSuccess: (data) => {
+                refresh();
+                notify('Submitted revision document.');
+            },
+            onError: (error: any) => {
+                notify(`Document upload error: ${error.message}`, { type: 'warning' });
+            },
+        })
+    }
+
+    const advance = () => {
+        update(`proceeding/modules/advance`, { id: record.id, data: {}, previousData: {} }, {
+            onSuccess: (data) => {
+                refresh();
+                notify('Submitted revision document.');
+            },
+            onError: (error: any) => {
+                notify(`Document upload error: ${error.message}`, { type: 'warning' });
+            },
+        })
+    }
+
+    return (
+        <>  
+            <Tooltip title="Complete">
+                <IconButton size="small" onClick={complete} >
+                    <CheckCircleOutlineIcon />
+                </IconButton>
+            </Tooltip>
+            <Tooltip title="Restart">
+                <IconButton size="small" onClick={restart} >
+                    <RestartAltIcon />
+                </IconButton>
+            </Tooltip>
+            <Tooltip title="Advance">
+                <IconButton size="small" onClick={advance} >
+                    <FastForwardIcon />
+                </IconButton>
+            </Tooltip>
+            <Tooltip title="Edit">
+                <IconButton size="small" component={Link} to={createPath({ resource: 'admin/projects', id: record.id, type: 'edit' })} replace={true} >
+                    <EditIcon />
+                </IconButton>
+            </Tooltip>
+        </>
+    )
+}
 
 const ModuleShow = () => {
     const createPath = useCreatePath();
@@ -31,9 +102,7 @@ const ModuleShow = () => {
                         <Box>
                             <ShowController>
                                 {({record}) => (
-                                    <IconButton size="small" component={Link} to={createPath({ resource: 'admin/projects', id: record.project, type: 'edit' })} replace={true} >
-                                        <EditIcon />
-                                    </IconButton>
+                                    <ActionButtons record={record} />
                                 )}
                             </ShowController>
                         </Box>

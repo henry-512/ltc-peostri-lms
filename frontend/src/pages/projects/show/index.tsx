@@ -1,17 +1,68 @@
-import { Box, IconButton, Breadcrumbs, Divider } from "@mui/material";
-import { FunctionField, Link, Show, ReferenceManyField, ShowController, SimpleShowLayout, useCreatePath } from "react-admin";
+import { Box, IconButton, Breadcrumbs, Divider, Tooltip } from "@mui/material";
+import { FunctionField, Link, Show, ReferenceManyField, ShowController, SimpleShowLayout, useCreatePath, useUpdate, useNotify, useRefresh } from "react-admin";
 import Aside from "./Aside";
 import EditIcon from '@mui/icons-material/Edit';
 import TabbedProjectInfo from "src/components/TabbedProjectInfo";
 import AssignedTasksField from "src/components/AssignedTasksField";
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+
+const ActionButtons = ({record}: {record: any}) => {
+    const createPath = useCreatePath();
+    const [update, { isLoading, error }] = useUpdate();
+    const notify = useNotify();
+    const refresh = useRefresh();
+
+    const complete = () => {
+        update(`proceeding/projects/complete`, { id: record.id, data: {}, previousData: {} }, {
+            onSuccess: (data) => {
+                refresh();
+                notify('Submitted revision document.');
+            },
+            onError: (error: any) => {
+                notify(`Document upload error: ${error.message}`, { type: 'warning' });
+            },
+        })
+    }
+
+    const restart = () => {
+        update(`proceeding/projects/restart`, { id: record.id, data: {}, previousData: {} }, {
+            onSuccess: (data) => {
+                refresh();
+                notify('Submitted revision document.');
+            },
+            onError: (error: any) => {
+                notify(`Document upload error: ${error.message}`, { type: 'warning' });
+            },
+        })
+    }
+
+    return (
+        <>  
+            <Tooltip title="Complete">
+                <IconButton size="small" onClick={complete} >
+                    <CheckCircleOutlineIcon />
+                </IconButton>
+            </Tooltip>
+            <Tooltip title="Restart">
+                <IconButton size="small" onClick={restart} >
+                    <RestartAltIcon />
+                </IconButton>
+            </Tooltip>
+            <Tooltip title="Edit">
+                <IconButton size="small" component={Link} to={createPath({ resource: 'admin/projects', id: record.id, type: 'edit' })} replace={true} >
+                    <EditIcon />
+                </IconButton>
+            </Tooltip>
+        </>
+    )
+}
 
 export type ProjectShowProps = {
 
 }
 
 const ProjectShow = (props: ProjectShowProps) => {
-    const createPath = useCreatePath();
-
     return (
         <Show aside={<Aside />} title={"Viewing Project"}>
             <SimpleShowLayout>
@@ -32,9 +83,7 @@ const ProjectShow = (props: ProjectShowProps) => {
                         <Box>
                             <ShowController>
                                 {({record}) => (
-                                    <IconButton size="small" component={Link} to={createPath({ resource: 'admin/projects', id: record.id, type: 'edit' })} replace={true} >
-                                        <EditIcon />
-                                    </IconButton>
+                                    <ActionButtons record={record} />
                                 )}
                             </ShowController>
                         </Box>

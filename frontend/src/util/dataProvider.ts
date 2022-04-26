@@ -321,6 +321,7 @@ const dataProvider = (
                 }))
             case 'proceeding/tasks/upload':
             case 'proceeding/tasks/review':
+            case 'proceeding/tasks/deny':
                 formData = convertFileUpload(params.data as fileBody);
 
                 return httpClient(`${apiUrl}/${resource}/${params.id}`, {
@@ -330,6 +331,11 @@ const dataProvider = (
             case 'proceeding/tasks/complete':
             case 'proceeding/tasks/approve':
             case 'proceeding/tasks/revise':
+            case 'proceeding/projects/complete':
+            case 'proceeding/projects/restart':
+            case 'proceeding/modules/complete':
+            case 'proceeding/modules/restart':
+            case 'proceeding/modules/advance':
                 return httpClient(`${apiUrl}/${resource}/${params.id}`, {
                     method: 'PUT',
                     body: JSON.stringify(params.data),
