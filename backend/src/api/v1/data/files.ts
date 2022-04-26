@@ -82,8 +82,8 @@ class Filedata extends DBManager<IFile> {
     }
 
     public async read(user: AuthUser, id: string) {
-        let file = await this.db.get(id)
-        return this.readSource(user, file.pathTo)
+        let pathTo = await this.db.getOneFaster<string>(id, 'pathTo')
+        return this.readSource(user, pathTo)
     }
 
     public async readSource(user: AuthUser, pathTo: string) {
