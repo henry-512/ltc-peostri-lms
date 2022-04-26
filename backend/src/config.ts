@@ -32,7 +32,7 @@ export const config: Config = {
     apiPort: process.env.API_PORT || '4000',
     hostname: process.env.API_HOST || 'localhost',
 
-    dbUrl: process.env.DB_URL || 'localhost',
+    dbUrl: process.env.DB_URL || 'localhost:4000',
     dbName: process.env.DB_NAME || 'db',
     dbUser: process.env.DB_USER || 'user',
     dbPass: process.env.DB_PASS || 'password',

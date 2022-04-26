@@ -154,7 +154,7 @@ export function tryGetFile(files: any, fileKey: string): IFileData | undefined {
 }
 
 export function getUrl(path: string) {
-    return `http://${config.hostname}:${config.apiPort}/api/v1/${path}`
+    return `http://${config.hostname}/api/v1/${path}`
 }
 
 export function concatOrSetMapArray<Key, Value>(
