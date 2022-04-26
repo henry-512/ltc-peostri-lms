@@ -371,6 +371,11 @@ class Project extends DBManager<IProject> {
 
         // If there are moudles remaining
         if (invalids.hasNext) {
+            console.log(
+                `project ${
+                    pro.id
+                } failed auto-advance from ${currentStep}; modules ${await invalids.all()}`
+            )
             return
         }
 
