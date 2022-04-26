@@ -334,7 +334,8 @@ class Project extends DBManager<IProject> {
             'WAIVED',
         ])
         let compAll = await comp.all()
-        pro.percent_complete = (100 * compAll.length) / mods.length
+        pro.percent_complete =
+            (100 * (mods.length - compAll.length)) / mods.length
     }
 
     public async automaticAdvance(user: AuthUser, pro: string) {

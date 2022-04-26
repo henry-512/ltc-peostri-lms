@@ -155,7 +155,8 @@ class Module extends DBManager<IModule> {
             'COMPLETE'
         )
         let compAll = await comp.all()
-        mod.percent_complete = (100 * compAll.length) / tasks.length
+        mod.percent_complete =
+            (100 * (tasks.length - compAll.length)) / tasks.length
     }
 
     // Checks for automatic step/module advancing
