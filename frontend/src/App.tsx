@@ -16,6 +16,7 @@ import auth from './util/authProvider';
 import LoginPage from './pages/login';
 import { UserCreate, UserEdit, UserList } from './pages/administration/users';
 import { TeamCreate, TeamEdit, TeamList } from './pages/administration/teams';
+import { AdminFilesList } from './pages/administration/files';
 import { ProjectTemplateCreate, ProjectTemplateEdit, ProjectTemplateList } from './pages/template/projects';
 import { ModuleTemplateCreate, ModuleTemplateEdit, ModuleTemplateList } from './pages/template/modules';
 import Layout from 'src/components/Layout';
@@ -53,6 +54,7 @@ const App = () => {
             <Resource name='admin/template/modules' list={ModuleTemplateList} create={ModuleTemplateCreate} edit={ModuleTemplateEdit} show={ShowGuesser} />
 
             <Resource name="admin/users" list={UserList} create={UserCreate} edit={UserEdit} show={ShowGuesser} />
+            <Resource name="admin/files" list={AdminFilesList} />
 
             <Resource name="admin/ranks" options={{ label: "layout.menu.ranks" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
             <Resource name="admin/teams" options={{ label: "layout.menu.teams" }} show={ShowGuesser} list={TeamList} create={TeamCreate} edit={TeamEdit}  />

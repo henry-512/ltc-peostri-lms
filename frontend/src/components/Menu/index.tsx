@@ -17,6 +17,7 @@ import { ProjectTemplateIcon } from '../../pages/template/projects';
 import { ModuleTemplateIcon } from '../../pages/template/modules';
 import { UserIcon } from '../../pages/administration/users';
 import { TeamIcon } from '../../pages/administration/teams';
+import { AdminFilesIcon } from '../../pages/administration/files';
 import PermissionIcon from '@mui/icons-material/Security';
 
 const PREFIX = 'Menu';
@@ -123,6 +124,14 @@ const Menu = ({ dense = false }: MenuProps) => {
                     replace={true}
                     primaryText={translate("layout.menu.teams")}
                     leftIcon={<TeamIcon />}
+                />
+                <MenuItemLink
+                    to={{
+                        pathname: '/admin/files'
+                    }}
+                    replace={true}
+                    primaryText={translate("layout.menu.files")}
+                    leftIcon={<AdminFilesIcon />}
                 />
             </SubMenu>
             <SubMenu

@@ -57,6 +57,7 @@ const domainMessages = {
                 "projects": "Projects",
                 "ranks": "Ranks",
                 "teams": "Teams",
+                "files": "Files",
                 "templates": "Templates",
                 "users": "Users"
             }
