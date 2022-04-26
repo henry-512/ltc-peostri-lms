@@ -9,9 +9,11 @@ const TabbedModuleList = () => {
         record
     } = useShowContext();
 
-    const currentModules = { [`key-${record.currentStep}`]: record.modules[`key-${record.currentStep}`] }
+    const currentModules = (record.currentStep != "-1") ? { [`key-${record.currentStep}`]: record.modules[`key-${record.currentStep}`] } : {} as IModuleStep
     const upcomingModules = (() => {
         let steps = {} as IModuleStep;
+        if (record.currentStep == "-1") return steps;
+
         for (let i = record.currentStep + 1; i < Object.keys(record.modules).length; i++) {
             steps[`key-${i}`] = record.modules[`key-${i}`];
         }
@@ -19,7 +21,11 @@ const TabbedModuleList = () => {
     })()
     const completedModules = (() => {
         let steps = {} as IModuleStep;
-        for (let i = record.currentStep - 1; i >= 0; i--) {
+        let starter = record.currentStep;
+        
+        if (starter == '-1') starter = Object.keys(record.tasks).length
+
+        for (let i = starter - 1; i >= 0; i--) {
             steps[`key-${i}`] = record.modules[`key-${i}`];
         }
         return steps;

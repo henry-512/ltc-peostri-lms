@@ -38,7 +38,7 @@ const ProjectListItem = ({ record }: ProjectListItemProps) => (
             <ReferenceArrayField record={record} reference="admin/users" source="users">
                 <AvatarGroupField height={24} width={24} fontSize="14px" max={6} color='blue' />
             </ReferenceArrayField>
-            <ProgressField value={parseInt(String(record.currentStep)) / Object.keys(record.modules).length} />
+            <ProgressField value={parseInt(`${record.percent_complete}`)} />
         </Box>
     </Box>
 )
