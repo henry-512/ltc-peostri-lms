@@ -10,6 +10,7 @@ import TaskActionUpload from "./TaskActionUpload";
 import TaskActionReview from "./TaskActionReview";
 import TaskActionWaiveApprove from "./TaskActionWaiveApprove";
 import TaskActionApprove from "./TaskActionApprove";
+import TaskActionRevise from "./TaskActionRevise";
 
 export type AssignedTaskActionProps = {
     id: string
@@ -34,7 +35,7 @@ const AssignedTaskAction = ({ id, type }: AssignedTaskActionProps) => {
             )
         case 'DOCUMENT_REVISE':
             return (
-                <TaskActionUpload id={id} open={(open == "DOCUMENT_REVISE")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_REVISE")} />
+                <TaskActionRevise id={id} open={(open == "DOCUMENT_REVISE")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_REVISE")} />
             )
         case 'WAIVER_APPROVE':
             return (

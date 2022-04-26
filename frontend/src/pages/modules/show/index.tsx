@@ -4,6 +4,7 @@ import Aside from "./Aside";
 import EditIcon from '@mui/icons-material/Edit';
 import TabbedProjectInfo from "./TabbedModuleInfo";
 import AssignedTasksField from "src/components/AssignedTasksField";
+import AssignedDocumentsField from "src/components/AssignedDocumentsField";
 
 export type ModuleShowProps = {
 

@@ -114,11 +114,11 @@ const EventList = () => {
                         <CardContent>
                             {(record?.files?.reviews && record?.files?.reviews.length > 0) ? (<>
                                 <Typography variant="h6" gutterBottom>
-                                    Latest Revisions:
+                                    Latest Comments:
                                 </Typography>
                                 <Box display="flex" flexDirection="column">
-                                    {record?.files?.reviews.map((revision: any) => (
-                                        <FileField record={revision} source="src" title="title" />
+                                    {record?.files?.reviews.map((revision: any, index: number) => (
+                                        <FileField record={revision} source="src" title="title" key={`revision-file-${index}`} />
                                     ))}
                                 </Box>
                             </>) : null }

@@ -328,6 +328,7 @@ const dataProvider = (
                 }).then(({ json }) => Promise.resolve({ data: { id: "" } }))
             case 'proceeding/tasks/complete':
             case 'proceeding/tasks/approve':
+            case 'proceeding/tasks/revise':
                 return httpClient(`${apiUrl}/${resource}/${params.id}`, {
                     method: 'PUT',
                     body: JSON.stringify(params.data),
