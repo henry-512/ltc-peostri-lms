@@ -35,8 +35,6 @@ const TaskActionReview = (props: TaskActionReviewProps) => {
     const task = useRecordContext(props);
     let { record } = useShowContext();
 
-    console.log(record);
-
     const [docOpen, setDocOpen] = useState(false);
 
     const [files, setFiles] = useState(record?.files);

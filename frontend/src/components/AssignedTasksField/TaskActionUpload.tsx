@@ -5,13 +5,13 @@
 * @author Braden Cariaga
 */
 
-import { ReferenceInput, required, AutocompleteInput, useDataProvider, useTranslate, useNotify, useUpdate, FileField, FileInput, useRefresh } from "react-admin";
+import { useDataProvider, useNotify, useUpdate, FileField, FileInput, useRefresh, useShowContext, useRecordContext } from "react-admin";
 import { styled } from '@mui/material/styles';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
-import { useFormContext, useFormState } from "react-hook-form";
+import { Button } from "@mui/material";
 import TaskActionDialog from "./TaskActionDialog";
-import { MouseEventHandler } from "react";
+import { MouseEventHandler, useEffect, useState } from "react";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import AssignedDocumentsField from "../AssignedDocumentsField";
 
 export type TaskActionUploadProps = {
     id: string
@@ -29,6 +29,20 @@ const TaskActionUpload = (props: TaskActionUploadProps) => {
     const [update, { isLoading, error }] = useUpdate();
     const refresh = useRefresh();
     const notify = useNotify();
+    const dataProvider = useDataProvider();
+    const task = useRecordContext(props);
+    let { record } = useShowContext();
+
+    const [files, setFiles] = useState(record?.files);
+
+    useEffect(() => {
+        if (!files && record.modules) {
+            dataProvider.getOne('modules', { id: props.record.module })
+            .then(({data}) => setFiles(data.files));
+        }
+    }, [record, task]);
+
+    if (!record || !task) return null;
 
     const handleSubmit = (data: any) => {
         update(`proceeding/tasks/upload`, { id: props.id, data, previousData: {} }, {
@@ -52,6 +66,8 @@ const TaskActionUpload = (props: TaskActionUploadProps) => {
                 UPLOAD
             </Button>
             <TaskActionDialog ariaLabel="document_upload_dialog" label="Upload a File to the Module" open={props.open} handleSubmit={handleSubmit} handleClose={handleClose} submitText={"Upload"} submitIcon={<UploadFileIcon />}>
+                { (!files || (!files.reviews && files.reviews?.length < 1)) ? <></> : <AssignedDocumentsField data={files.reviews} taskID={String(task.id)} /> }
+                
                 <FileInput source="file" accept="application/pdf" fullWidth label="project.fields.waive_file_upload" labelSingle="project.fields.waiver_file" helperText=" " sx={{
                     '& .RaFileInput-dropZone': {
                         backgroundColor: 'rgba(0, 0, 0, 0.04)',
