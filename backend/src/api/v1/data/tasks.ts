@@ -1,7 +1,7 @@
 import { ArangoWrapper } from '../../../database'
 import { HTTPStatus } from '../../../lms/errors'
-import { IFilemeta, ITask } from '../../../lms/types'
-import { getFile } from '../../../lms/util'
+import { IFilemeta, IModule, ITask } from '../../../lms/types'
+import { getFile, tryGetFile } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { FilemetaManager, IFileData } from './filemeta'
@@ -167,36 +167,41 @@ class Task extends DBManager<ITask> {
         files: any,
         fileKey: string
     ) {
-        let { mod, modId, fileData } = await this.checkFileTaskModule(
-            taskId,
-            files,
-            fileKey
-        )
+        let { mod, modId } = await this.checkTaskAndModule(taskId)
+        let fileData = tryGetFile(files, fileKey)
 
-        // If files dont exist, we can't proceed
-        if (!mod.files) {
-            // Throw an error, we need to upload a file first
-            throw this.error(
-                'review',
-                HTTPStatus.BAD_REQUEST,
-                'Invalid module state.',
-                `${JSON.stringify(mod)} lacks filemeta object`
-            )
+        if (fileData) {
+            // File is uploaded, update mod.files
+            // If files dont exist, we can't proceed
+            if (!mod.files) {
+                // Throw an error, we need to upload a file first
+                throw this.error(
+                    'review',
+                    HTTPStatus.BAD_REQUEST,
+                    'Invalid module state.',
+                    `${JSON.stringify(mod)} lacks filemeta object`
+                )
+            }
+
+            // Save file
+            let fileId = await this.saveFile(user, fileData)
+
+            // Get filemeta
+            let filemeta = await FilemetaManager.db.get(mod.files as string)
+            // Modify filemeta
+            filemeta.reviews = (<string[]>filemeta.reviews).concat(fileId)
+            // Update filemeta
+            await FilemetaManager.db.update(filemeta, { mergeObjects: false })
+            // Task should remain unchanged. Module cannot advance from this
+            // state
+
+            // TODO: Create REVISE task here
+        } else {
+            // If no file is provided, the current file is acceptable
+            // Update task and ADVANCE
+            await this.db.updateFaster([taskId], 'status', 'COMPLETED')
+            await ModuleManager.postAutomaticAdvance(user, mod)
         }
-
-        // Save file
-        let fileId = await this.saveFile(user, fileData)
-
-        // Get filemeta
-        let filemeta = await FilemetaManager.db.get(mod.files as string)
-        // Modify filemeta
-        filemeta.reviews = (<string[]>filemeta.reviews).concat(fileId)
-        // Update filemeta
-        await FilemetaManager.db.update(filemeta, { mergeObjects: false })
-
-        // Update task and ADVANCE
-        await this.db.updateFaster([taskId], 'status', 'COMPLETED')
-        await ModuleManager.postAutomaticAdvance(user, mod)
     }
 
     /**

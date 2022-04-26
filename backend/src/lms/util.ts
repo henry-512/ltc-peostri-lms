@@ -149,6 +149,10 @@ export function getFile(files: any, fileKey: string): IFileData {
     )
 }
 
+export function tryGetFile(files: any, fileKey: string): IFileData | undefined {
+    return files[fileKey]
+}
+
 export function getUrl(path: string) {
     return `http://${config.hostname}:${config.apiPort}/api/v1/${path}`
 }
