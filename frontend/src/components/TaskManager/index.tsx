@@ -1,6 +1,6 @@
 import { useTranslate } from 'react-admin';
 import { ITask, ITaskStep } from 'src/util/types';
-import Steps from '../StepBuilder';
+import StepBuilder from '../StepBuilder';
 import TaskFields from './TaskFields';
 import Creator from '../Creator';
 import { useEffect, useMemo, useState } from 'react';
@@ -55,6 +55,12 @@ const TaskManager = (props: TaskManagerProps) => {
     useEffect(() => {
         updateComponent()
     }, [waive]);
+
+    useEffect(() => {
+        if (!tasks) setTasks({
+            "key-0": []
+        })
+    }, [tasks]);
 
     //Current Step Key
     const [step, setStep] = useState(() => calculateStep());
@@ -117,7 +123,7 @@ const TaskManager = (props: TaskManagerProps) => {
 
     return (
         <>
-            <Steps
+            <StepBuilder
                 title={translate('project.layout.task_title')}
                 help={translate('project.layout.order_tasks_help')}
                 save={props.source}
@@ -131,7 +137,7 @@ const TaskManager = (props: TaskManagerProps) => {
                 emptyText={translate('project.layout.no_tasks')}
             >
                 <TaskCard baseSource={props.source} changeStep={setStep} changeIndex={setIndex} updateComponent={updateComponent} fields={props.fields} calculateTTC={props.calculateTTC} />
-            </Steps>
+            </StepBuilder>
             <Creator
                 label={translate('project.layout.create_task')}
                 open={creatorOpen}

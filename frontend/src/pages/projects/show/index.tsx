@@ -17,10 +17,10 @@ const ActionButtons = ({record}: {record: any}) => {
         update(`proceeding/projects/complete`, { id: record.id, data: {}, previousData: {} }, {
             onSuccess: (data) => {
                 refresh();
-                notify('Submitted revision document.');
+                notify('Successfully completed the module.');
             },
             onError: (error: any) => {
-                notify(`Document upload error: ${error.message}`, { type: 'warning' });
+                notify(`Complete error: ${error.message}`, { type: 'warning' });
             },
         })
     }
@@ -29,10 +29,10 @@ const ActionButtons = ({record}: {record: any}) => {
         update(`proceeding/projects/restart`, { id: record.id, data: {}, previousData: {} }, {
             onSuccess: (data) => {
                 refresh();
-                notify('Submitted revision document.');
+                notify('Successfully restarted the module.');
             },
             onError: (error: any) => {
-                notify(`Document upload error: ${error.message}`, { type: 'warning' });
+                notify(`Restart error: ${error.message}`, { type: 'warning' });
             },
         })
     }

@@ -110,7 +110,9 @@ export type StepBuilderProps = {
 }
 
 const StepBuilder = (props: StepBuilderProps) => {
-    const { title, help, save, children, changeOnAction, updateForm, createLabel, createAction, defaultValue, renderData, changeStep, changeIndex, updateComponent, emptyText, actions } = props;
+    const { title, help, save, children, changeOnAction, updateForm, createLabel, createAction, defaultValue, renderData = {
+        "key-0": []
+    }, changeStep, changeIndex, updateComponent, emptyText, actions } = props;
 
     const { setValue } = useFormContext();
 
