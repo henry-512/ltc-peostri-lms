@@ -2,7 +2,7 @@ import { Box, IconButton, Breadcrumbs, Divider } from "@mui/material";
 import { FunctionField, Link, Show, ReferenceManyField, ShowController, SimpleShowLayout, useCreatePath } from "react-admin";
 import Aside from "./Aside";
 import EditIcon from '@mui/icons-material/Edit';
-import TabbedProjectInfo from "./TabbedProjectInfo";
+import TabbedProjectInfo from "src/components/TabbedProjectInfo";
 import AssignedTasksField from "src/components/AssignedTasksField";
 
 export type ProjectShowProps = {
