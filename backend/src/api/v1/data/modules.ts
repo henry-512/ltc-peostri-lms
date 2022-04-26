@@ -10,6 +10,7 @@ import { getUrl } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { FilemetaManager } from './filemeta'
+import { NotificationManager } from './notifications'
 import { ProjectManager } from './projects'
 import { TaskManager } from './tasks'
 
@@ -247,6 +248,9 @@ class Module extends DBManager<IModule> {
             await TaskManager.db.updateFaster(nextStep, 'status', 'IN_PROGRESS')
             // Calculate %-complete
             await this.calculatePercentComplete(mod)
+
+            // Build notifications
+            // NotificationManager.buildAndSaveNotification()
 
             console.log(`Module ${mod.id} advanced to step ${mod.currentStep}`)
         } else {

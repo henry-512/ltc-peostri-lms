@@ -1,4 +1,5 @@
 import { ArangoWrapper } from '../../../database'
+import { NOTE_NEW_UPLOAD_AWAITING_REVIEW } from '../../../lang'
 import { HTTPStatus } from '../../../lms/errors'
 import { getStep } from '../../../lms/Stepper'
 import { IFilemeta, IModule, ITask } from '../../../lms/types'
@@ -8,6 +9,7 @@ import { DBManager } from '../DBManager'
 import { FilemetaManager, IFileData } from './filemeta'
 import { FiledataManager } from './files'
 import { ModuleManager } from './modules'
+import { NotificationManager } from './notifications'
 import { ProjectManager } from './projects'
 
 const REVISE_TASK_TTC = 10
@@ -60,6 +62,36 @@ class Task extends DBManager<ITask> {
                 defaultFilter: 'title',
             }
         )
+    }
+
+    public async sendNotification(id: string, content: string) {
+        let display = await this.db.getOneFaster<string>(id, 'title')
+        let users = await this.db.getOneFaster<string[]>(id, 'users')
+        await NotificationManager.sendToMultipleUsers(users, content, {
+            display,
+            id,
+            resource: 'tasks',
+        })
+    }
+
+    public async sendManyNotifications(ids: string[], content: string) {
+        // a = title, b = users
+        let titleUser = await this.db.getMultipleFaster<string, string[]>(
+            ids,
+            'title',
+            'users'
+        )
+        while (titleUser.hasNext) {
+            let next = await titleUser.next()
+            if (!next) {
+                return
+            }
+            await NotificationManager.sendToMultipleUsers(next.b, content, {
+                display: next.a,
+                id: next.id,
+                resource: 'tasks',
+            })
+        }
     }
 
     private async checkFileTaskModule(
@@ -162,12 +194,19 @@ class Task extends DBManager<ITask> {
         if (status === 'DOCUMENT_REVISE') {
             // Set all reviewers to IN_PROGRESS
             // Notify status
-            await this.db.updateWithFilterFaster(
+            let updated = await this.db.updateWithFilterFaster(
                 'type',
                 'DOCUMENT_REVIEW',
                 'status',
                 'IN_PROGRESS'
             )
+            // Send notifications
+            if (updated.hasNext) {
+                await this.sendManyNotifications(
+                    await updated.all(),
+                    NOTE_NEW_UPLOAD_AWAITING_REVIEW
+                )
+            }
         }
 
         // Update task and ADVANCE
@@ -227,8 +266,8 @@ class Task extends DBManager<ITask> {
         // Check if we already have a revise task
         if (reviseTaskCursor.hasNext) {
             // A revise task already exists here, set it back to IN_PROGRESS
-            let id: string = (await reviseTaskCursor.next()) as string
-            await this.db.updateOneFaster(id, 'status', 'IN_PROGRESS')
+            let reviseId: string = (await reviseTaskCursor.next()) as string
+            await this.db.updateOneFaster(reviseId, 'status', 'IN_PROGRESS')
         } else {
             // No existing revise task
 
@@ -264,6 +303,10 @@ class Task extends DBManager<ITask> {
             // Update the task stepper of module with the new task, which works because the above modified the stepper
             await ModuleManager.db.updateOneFaster(modId, 'tasks', mod.tasks)
         }
+
+        // Update this task
+        await this.db.updateOneFaster(taskId, 'status', 'COMPLETED')
+        await ModuleManager.postAutomaticAdvance(user, mod)
     }
 
     /**
@@ -313,10 +356,6 @@ class Task extends DBManager<ITask> {
 
         // Update filemeta
         await FilemetaManager.db.update(filemeta, { mergeObjects: false })
-
-        // Update this task
-        await this.db.updateOneFaster(taskId, 'status', 'COMPLETED')
-        await ModuleManager.postAutomaticAdvance(user, mod)
     }
 
     /**

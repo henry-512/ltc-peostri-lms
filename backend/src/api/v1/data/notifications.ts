@@ -1,8 +1,7 @@
 import {
     INotification,
     ISender,
-    NotificationType,
-    ResourceType,
+    ResourceTypeConverter,
 } from '../../../lms/types'
 import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
@@ -57,22 +56,7 @@ class Notification extends DBManager<INotification> {
         )
     }
 
-    public buildType(t: ResourceType): NotificationType {
-        switch (t) {
-            case 'projects':
-                return 'PROJECT'
-            case 'users':
-                return 'USER'
-            case 'modules':
-                return 'MODULE'
-            case 'tasks':
-                return 'TASK'
-            default:
-                throw this.internal('buildType', `type ${t} is not valid`)
-        }
-    }
-
-    public async buildAndSaveNotification(
+    public async sendNotification(
         recipient: string,
         content: string,
         sender: ISender
@@ -87,10 +71,20 @@ class Notification extends DBManager<INotification> {
             content,
             createdAt: new Date().toJSON(),
             read: false,
-            type: this.buildType(sender.resource),
+            type: ResourceTypeConverter[sender.resource],
         }
 
         return this.db.save(notification)
+    }
+
+    public async sendToMultipleUsers(
+        recipients: string[],
+        content: string,
+        sender: ISender
+    ) {
+        for (const r of recipients) {
+            await this.sendNotification(r, content, sender)
+        }
     }
 
     public async readAllForUser(userId: string) {

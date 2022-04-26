@@ -271,7 +271,7 @@ class Project extends DBManager<IProject> {
     ): Promise<string> {
         let id = await super.create(user, files, d, real)
 
-        await NotificationManager.buildAndSaveNotification(
+        await NotificationManager.sendNotification(
             user.id,
             `Project ${id} created.`,
             {
@@ -298,7 +298,7 @@ class Project extends DBManager<IProject> {
     ): Promise<void> {
         await super.update(user, files, id, doc, real)
 
-        await NotificationManager.buildAndSaveNotification(
+        await NotificationManager.sendNotification(
             user.id,
             `Project ${id} updated.`,
             {

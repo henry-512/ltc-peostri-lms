@@ -379,14 +379,17 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         )
     }
 
+    /**
+     * @return An ArrayCursor of all updated ids
+     */
     public async updateWithFilterFaster(
         fKey: string,
         fEq: any,
         key: string,
         value: any
-    ) {
+    ): Promise<ArrayCursor<string>> {
         return ArangoWrapper.db.query(
-            aql`FOR d IN ${this.collection} FILTER d.${fKey}==${fEq} UPDATE d WITH {${key}:${value}} IN ${this.collection}`
+            aql`FOR d IN ${this.collection} FILTER d.${fKey}==${fEq} FILTER d.${key}!=${value} UPDATE d WITH {${key}:${value}} IN ${this.collection} RETURN d._id`
         )
     }
 
@@ -439,6 +442,16 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     > {
         return ArangoWrapper.db.query(
             aql`FOR i in ${ids} let d=DOCUMENT(i)RETURN {id:d._id,v:d.${ret}}`
+        )
+    }
+
+    public async getMultipleFaster<A, B>(
+        ids: string[],
+        a: string,
+        b: string
+    ): Promise<ArrayCursor<{ id: string; a: A; b: B }>> {
+        return ArangoWrapper.db.query(
+            aql`FOR i IN ${ids} let d=DOCUMENT(i)RETURN{id:d._id,a:d.${a},b:d.${b}}`
         )
     }
 

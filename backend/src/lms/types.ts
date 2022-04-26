@@ -165,6 +165,15 @@ export interface INotification extends IArangoIndexes {
 export type NotificationType = 'PROJECT' | 'MODULE' | 'TASK' | 'USER'
 export type ResourceType = 'projects' | 'users' | 'modules' | 'tasks'
 
+export const ResourceTypeConverter: {
+    [Key in ResourceType]: NotificationType
+} = {
+    projects: 'PROJECT',
+    modules: 'MODULE',
+    users: 'USER',
+    tasks: 'TASK',
+}
+
 export interface ISender {
     // Fancy display name
     display: string
