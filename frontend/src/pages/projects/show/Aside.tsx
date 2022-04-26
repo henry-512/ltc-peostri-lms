@@ -147,7 +147,7 @@ const EventList = () => {
                         
                         <Grid item xs={6} display="flex" gap={1}>
                             <Box flexGrow={1}>
-                                <FunctionField record={record} variant="body2" fontWeight="600" render={(record: any) => `${(record.currentStep != "-1") ? parseInt(String(record.currentStep)) : Object.keys(record.tasks).length} of ${Object.keys(record.modules).length}`} />
+                                <FunctionField record={record} variant="body2" fontWeight="600" render={(record: any) => `${(record.currentStep != "-1") ? parseInt(String(record.currentStep)) : Object.keys(record.modules).length} of ${Object.keys(record.modules).length}`} />
                             </Box>
                         </Grid>
 

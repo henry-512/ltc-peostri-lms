@@ -23,7 +23,7 @@ const TabbedModuleList = () => {
         let steps = {} as IModuleStep;
         let starter = record.currentStep;
         
-        if (starter == '-1') starter = Object.keys(record.tasks).length
+        if (starter == '-1') starter = Object.keys(record.modules).length
 
         for (let i = starter - 1; i >= 0; i--) {
             steps[`key-${i}`] = record.modules[`key-${i}`];
