@@ -330,7 +330,7 @@ class Project extends DBManager<IProject> {
     private async calculatePercentComplete(pro: IProject) {
         let mods = compressStepper<string>(pro.modules)
         let comp = await ModuleManager.db.assertOrEqualsFaster(mods, 'status', [
-            'COMPLETE',
+            'COMPLETED',
             'WAIVED',
         ])
         let compAll = await comp.all()

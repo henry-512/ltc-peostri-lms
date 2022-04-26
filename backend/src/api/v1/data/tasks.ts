@@ -105,7 +105,7 @@ class Task extends DBManager<ITask> {
      * COMPLETE
      */
     public async complete(user: AuthUser, taskId: string) {
-        await this.db.updateOneFaster(taskId, 'status', 'COMPLETE')
+        await this.db.updateOneFaster(taskId, 'status', 'COMPLETED')
         let modId = await this.db.getOneFaster<string>(taskId, 'module')
         await ModuleManager.automaticAdvance(user, modId)
     }
