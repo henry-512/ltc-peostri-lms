@@ -345,7 +345,14 @@ export function routerBuilder(version: string) {
                             ctx.params.id
                         )
 
-                        await TaskManager.deny(ctx.state.user, id)
+                        let body = await parseBody(ctx.request)
+
+                        await TaskManager.deny(
+                            ctx.state.user,
+                            id,
+                            ctx.request.files,
+                            body.file
+                        )
 
                         ctx.status = HTTPStatus.OK
                     })
