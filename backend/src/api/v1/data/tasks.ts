@@ -243,15 +243,12 @@ class Task extends DBManager<ITask> {
 
         // Save file
         let fileId = await this.saveFile(user, fileData)
-
         // Get filemeta
         let filemeta = await FilemetaManager.db.get(mod.files as string)
         // Modify filemeta
         filemeta.reviews = (<string[]>filemeta.reviews).concat(fileId)
         // Update filemeta
         await FilemetaManager.db.update(filemeta, { mergeObjects: false })
-        // Task should remain unchanged. Module cannot advance from this
-        // state
 
         // Rip current step
         let currentStep = getStep<string>(mod.tasks, mod.currentStep)
@@ -371,9 +368,46 @@ class Task extends DBManager<ITask> {
     /**
      * DENY
      */
-    public async deny(user: AuthUser, taskId: string) {
+    public async deny(
+        user: AuthUser,
+        taskId: string,
+        files: any,
+        fileKey: string
+    ) {
         // RESTART
         let modId = await this.db.getOneFaster<string>(taskId, 'module')
+
+        let fileData = tryGetFile(files, fileKey)
+        if (fileData) {
+            // Append file (optional) to reviews
+            let fileMeta = await ModuleManager.db.getOneFaster<string>(
+                modId,
+                'files'
+            )
+
+            // If files dont exist, we can't proceed
+            if (!fileMeta) {
+                // Throw an error, we need to upload a file first
+                throw this.error(
+                    'review',
+                    HTTPStatus.BAD_REQUEST,
+                    'Invalid module state.',
+                    `Module ${modId} lacks filemeta object`
+                )
+            }
+
+            // Concat file to reviews
+
+            // Save file
+            let fileId = await this.saveFile(user, fileData)
+            // Get filemeta
+            let filemeta = await FilemetaManager.db.get(fileMeta)
+            // Modify filemeta
+            filemeta.reviews = (<string[]>filemeta.reviews).concat(fileId)
+            // Update filemeta
+            await FilemetaManager.db.update(filemeta, { mergeObjects: false })
+        }
+
         await ModuleManager.restart(user, modId, false)
     }
 }
