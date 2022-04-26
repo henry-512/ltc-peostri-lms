@@ -9,7 +9,7 @@ const ProjectDocumentList = () => {
 
     return (
         <>
-            <ReferenceManyField record={record} reference="modules" target="project">
+            <ReferenceManyField record={record} reference="modules" target="project" sort={{ field: "title", order: "DESC" }}>
                 <Datagrid
                     bulkActionButtons={false}
                 >
