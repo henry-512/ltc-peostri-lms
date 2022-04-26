@@ -1,5 +1,5 @@
 import { Datagrid, DateField, ReferenceArrayField, ReferenceField, TextField, useShowContext } from "react-admin";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ITaskStep } from "src/util/types";
 import StepTabber from "src/components/StepTabber";
 import statusRowStyle from "src/util/statusRowStyle";
@@ -31,6 +31,8 @@ const TabbedTaskList = () => {
         }
         return steps;
     })()
+
+    useEffect(() => {}, [record]);
 
     const [tab, setTab] = useState<number>(0);
 
