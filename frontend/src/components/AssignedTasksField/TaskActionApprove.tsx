@@ -5,10 +5,10 @@
 * @author Braden Cariaga
 */
 
-import { useRefresh, useUpdate, FileField, FileInput, useRecordContext, useNotify } from "react-admin";
+import { useRefresh, useUpdate, FileField, FileInput, useRecordContext, useNotify, useDataProvider, useShowContext } from "react-admin";
 import { Button, Typography, Box, Tooltip } from "@mui/material";
 import TaskActionDialog from "./TaskActionDialog";
-import { MouseEventHandler, useState } from "react";
+import { MouseEventHandler, useEffect, useState } from "react";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
@@ -31,9 +31,22 @@ const TaskActionApprove = (props: TaskActionApproveProps) => {
     const [update, { isLoading, error }] = useUpdate();
     const refresh = useRefresh();
     const notify = useNotify();
-    const record = useRecordContext();
+    const dataProvider = useDataProvider();
+    const task = useRecordContext(props);
+    let { record } = useShowContext();
 
     const [docOpen, setDocOpen] = useState(false);
+
+    const [files, setFiles] = useState(record?.files);
+
+    useEffect(() => {
+        if (!files && record.modules) {
+            dataProvider.getOne('modules', { id: props.record.module })
+            .then(({data}) => setFiles(data.files));
+        }
+    }, [record, task]);
+
+    if (!record || !task) return null;
 
     /**
      * The handleClose function is a function that is called when the user clicks the close button. It
@@ -87,9 +100,9 @@ const TaskActionApprove = (props: TaskActionApproveProps) => {
                 <DocumentViewer 
                     open={docOpen} 
                     handleClose={() => setDocOpen(false)} 
-                    ariaLabel={`document-reviewer-${record?.files?.latest?.title}`} 
-                    label={record?.files?.latest?.title} 
-                    src={record?.files?.latest?.src} 
+                    ariaLabel={`document-reviewer-${files?.latest?.title}`} 
+                    label={files?.latest?.title} 
+                    src={files?.latest?.src} 
                     maxWidth="md" 
                     actions={
                         [
