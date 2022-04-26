@@ -196,7 +196,7 @@ class Module extends DBManager<IModule> {
             console.log(
                 `module ${
                     mod.id
-                } failed auto-advance; tasks ${await invalids.all()}`
+                } failed auto-advance from ${currentStep}; tasks ${await invalids.all()}`
             )
             return
         }
