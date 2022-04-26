@@ -203,8 +203,13 @@ class Module extends DBManager<IModule> {
 
         mod.currentStep++
 
-        // If we can't find the next step, the module is complete
-        if (!getStep<string>(mod.tasks, mod.currentStep)) {
+        let nextStep = getStep<string>(mod.tasks, mod.currentStep)
+
+        if (nextStep) {
+            // If there is a next step set those to IN_PROGRESS
+            await TaskManager.db.updateFaster(nextStep, 'status', 'IN_PROGRESS')
+        } else {
+            // If we can't find the next step, the module is complete
             mod.status = mod.waive_module ? 'WAIVED' : 'COMPLETED'
             // Set current step to -1
             mod.currentStep = -1

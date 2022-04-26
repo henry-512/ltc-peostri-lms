@@ -381,8 +381,15 @@ class Project extends DBManager<IProject> {
 
         pro.currentStep++
 
-        // If we can't find the next step, the module is complete
-        if (!getStep<string>(pro.modules, pro.currentStep)) {
+        let nextStep = getStep<string>(pro.modules, pro.currentStep)
+
+        if (nextStep) {
+            // If there is a next step set those to IN_PROGRESS
+            for (const modId of nextStep) {
+                await ModuleManager.start(user, modId)
+            }
+        } else {
+            // If we can't find the next step, the module is complete
             pro.status = 'COMPLETED'
             // Set current step to -1
             pro.currentStep = -1
