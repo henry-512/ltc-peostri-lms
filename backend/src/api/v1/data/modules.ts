@@ -1,5 +1,10 @@
 import { HTTPStatus } from '../../../lms/errors'
-import { compressStepper, getStep } from '../../../lms/Stepper'
+import {
+    compressStepper,
+    getStep,
+    IStepper,
+    stepperForEachInOrder,
+} from '../../../lms/Stepper'
 import { IFile, IFilemeta, IModule } from '../../../lms/types'
 import { getUrl } from '../../../lms/util'
 import { AuthUser } from '../../auth'
@@ -143,6 +148,24 @@ class Module extends DBManager<IModule> {
     //
     // PROCEEDING
     //
+
+    /**
+     * Removes all of the `DOCUMENT_REVISE` tasks. Called by restart
+     * and reset
+     * @return true if the module was modified, false otherwise
+     */
+    private async removeReviseTasks(mod: IModule) {
+        await stepperForEachInOrder<string>(
+            mod.tasks as IStepper<string>,
+            async (i, tasksInStep) => {
+                let reviseTasks = await TaskManager.db.filterIdsFaster(
+                    tasksInStep,
+                    'type',
+                    'DOCUMENT_REVISE'
+                )
+            }
+        )
+    }
 
     /**
      * Calculates percent_complete based on the task status
@@ -338,6 +361,7 @@ class Module extends DBManager<IModule> {
         // Set tasks to AWAITING
         let allTasks = compressStepper<string>(mod.tasks)
         await TaskManager.db.updateFaster(allTasks, 'status', 'AWAITING')
+
         // Update status and files
         await this.db.update(mod, { mergeObjects: false })
     }

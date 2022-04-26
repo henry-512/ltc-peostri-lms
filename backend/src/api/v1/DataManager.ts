@@ -3,7 +3,14 @@ import { HTTPStatus, IErrorable } from '../../lms/errors'
 import { IDataFieldData, IField, IForeignFieldData } from '../../lms/FieldData'
 import { fixStepper } from '../../lms/Stepper'
 import { ICreateUpdate } from '../../lms/types'
-import { concatOrSetMapArray, convertToKey, isDBKey, PTR, splitId, str } from '../../lms/util'
+import {
+    concatOrSetMapArray,
+    convertToKey,
+    isDBKey,
+    PTR,
+    splitId,
+    str,
+} from '../../lms/util'
 import { AuthUser } from '../auth'
 
 export class DataManager<Type> extends IErrorable {
@@ -615,19 +622,13 @@ export class DataManager<Type> extends IErrorable {
             }
 
             let db = data.foreignApi.db
-            let id = doc.id
+            let id: string = doc.id
             let exists = false
 
             // doc.id is either null (new document) or KEY
             if (id) {
-                if (!isDBKey(id)) {
-                    throw this.internal(
-                        'parseGet',
-                        `${id} is not a KEY ${JSON.stringify(doc)}`
-                    )
-                }
-
-                id = db.keyToId(doc.id)
+                // Check if it is an id or key
+                id = db.asId(id)
                 exists = await db.exists(id)
 
                 // If this is new

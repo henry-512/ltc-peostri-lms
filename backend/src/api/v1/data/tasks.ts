@@ -227,7 +227,7 @@ class Task extends DBManager<ITask> {
         // Check if we already have a revise task
         if (reviseTaskCursor.hasNext) {
             // A revise task already exists here, set it back to IN_PROGRESS
-            let id: string = await reviseTaskCursor.next()
+            let id: string = (await reviseTaskCursor.next()) as string
             await this.db.updateOneFaster(id, 'status', 'IN_PROGRESS')
         } else {
             // No existing revise task

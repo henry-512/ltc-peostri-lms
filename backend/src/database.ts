@@ -476,7 +476,11 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         return ArangoWrapper.db.query(q)
     }
 
-    public async filterIdsFaster(ids: string[], key: string, equals: string) {
+    public async filterIdsFaster(
+        ids: string[],
+        key: string,
+        equals: string
+    ): Promise<ArrayCursor<string>> {
         return ArangoWrapper.db.query(
             aql`FOR i in ${ids} LET d=DOCUMENT(i)FILTER d.${key}==${equals} RETURN i._id`
         )
