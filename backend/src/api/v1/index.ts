@@ -235,7 +235,7 @@ export function routerBuilder(version: string) {
                             ctx.params.id
                         )
 
-                        await ProjectManager.restart(ctx.state.user, id, true)
+                        await ProjectManager.restart(ctx.state.user, id)
                         ctx.status = HTTPStatus.OK
                     })
                     .routes()

@@ -2,13 +2,15 @@ import { ArangoWrapper } from '../../../database'
 import { HTTPStatus } from '../../../lms/errors'
 import { getStep } from '../../../lms/Stepper'
 import { IFilemeta, IModule, ITask } from '../../../lms/types'
-import { getFile, tryGetFile } from '../../../lms/util'
+import { addDays, getFile, tryGetFile } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { FilemetaManager, IFileData } from './filemeta'
 import { FiledataManager } from './files'
 import { ModuleManager } from './modules'
 import { ProjectManager } from './projects'
+
+const REVISE_TASK_TTC = 10
 
 class Task extends DBManager<ITask> {
     constructor() {
@@ -241,11 +243,15 @@ class Task extends DBManager<ITask> {
                 let task: ITask = {
                     id,
                     users,
+                    // rank: undefined,
                     title: 'AUTO - Revise Documents',
                     status: 'IN_PROGRESS',
                     type: 'DOCUMENT_REVISE',
                     module: modId,
                     project: mod.project,
+                    // Should pull this from tasks in the step
+                    suspense: addDays(new Date(), REVISE_TASK_TTC).toJSON(),
+                    ttc: REVISE_TASK_TTC,
                 }
 
                 // Save new task

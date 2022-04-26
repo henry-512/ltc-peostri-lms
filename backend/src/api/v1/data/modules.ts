@@ -208,6 +208,10 @@ class Module extends DBManager<IModule> {
         if (nextStep) {
             // If there is a next step set those to IN_PROGRESS
             await TaskManager.db.updateFaster(nextStep, 'status', 'IN_PROGRESS')
+            // Calculate %-complete
+            await this.calculatePercentComplete(mod)
+
+            console.log(`Module ${mod.id} advanced to step ${mod.currentStep}`)
         } else {
             // If we can't find the next step, the module is complete
             mod.status = mod.waive_module ? 'WAIVED' : 'COMPLETED'
@@ -222,10 +226,12 @@ class Module extends DBManager<IModule> {
             }
             await ProjectManager.db.assertIdExists(mod.project)
             await ProjectManager.automaticAdvance(user, mod.project)
+            // Project is completed
+            mod.percent_complete = 100
+
+            console.log(`Module ${mod.id} completed; project advanced`)
         }
 
-        // Calculate %-complete
-        await this.calculatePercentComplete(mod)
         // Update module
         await this.db.update(mod, { mergeObjects: false })
     }
@@ -292,7 +298,7 @@ class Module extends DBManager<IModule> {
                 'start',
                 HTTPStatus.BAD_REQUEST,
                 'Module is not AWAITING',
-                `${mod} is not AWAITING`
+                `${JSON.stringify(mod)} is not AWAITING`
             )
         }
         return this.postStartNextStep(user, mod)
@@ -315,6 +321,25 @@ class Module extends DBManager<IModule> {
 
         // Start module
         return this.postStartNextStep(user, mod)
+    }
+
+    /**
+     * Resets the module to factory conditions
+     */
+    public async reset(user: AuthUser, id: string) {
+        console.log(`Reset called on module ${id}`)
+
+        let mod = await this.db.get(id)
+        mod.status = 'AWAITING'
+
+        // Reset files
+        delete mod.files
+
+        // Set tasks to AWAITING
+        let allTasks = compressStepper<string>(mod.tasks)
+        await TaskManager.db.updateFaster(allTasks, 'status', 'AWAITING')
+        // Update status and files
+        await this.db.update(mod, { mergeObjects: false })
     }
 
     // Advances a module to the next step, or marks it as complete if

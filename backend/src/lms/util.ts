@@ -181,3 +181,9 @@ export function tryParseJSON(json: string): any {
         return undefined
     }
 }
+
+export function addDays(date: Date, days: number) {
+    let d = new Date(date)
+    d.setDate(d.getDate() + days)
+    return d
+}

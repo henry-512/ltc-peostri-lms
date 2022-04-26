@@ -6,7 +6,7 @@ import {
     stepperForEachInOrder,
 } from '../../../lms/Stepper'
 import { IModule, IProject, ITask } from '../../../lms/types'
-import { concatOrSetMapArray } from '../../../lms/util'
+import { addDays, concatOrSetMapArray } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
@@ -14,12 +14,6 @@ import { ModuleManager } from './modules'
 import { NotificationManager } from './notifications'
 import { TaskManager } from './tasks'
 import { UserManager } from './users'
-
-function addDays(date: Date, days: number) {
-    let d = new Date(date)
-    d.setDate(d.getDate() + days)
-    return d
-}
 
 class Project extends DBManager<IProject> {
     constructor() {
@@ -348,6 +342,9 @@ class Project extends DBManager<IProject> {
             pro.status = 'IN_PROGRESS'
         } else if (pro.status !== 'IN_PROGRESS') {
             // Only in-progress modules can be automatically advanced
+            console.log(
+                `Project ${pro.id} attempted to advance, not IN_PROGRESS ${pro.status}`
+            )
             return
         }
 
@@ -386,6 +383,7 @@ class Project extends DBManager<IProject> {
         if (nextStep) {
             // If there is a next step set those to IN_PROGRESS
             for (const modId of nextStep) {
+                console.log(modId)
                 await ModuleManager.start(user, modId)
             }
         } else {
@@ -405,7 +403,7 @@ class Project extends DBManager<IProject> {
     // ROUTINES
     //
 
-    public async restart(user: AuthUser, id: string, full: boolean) {
+    public async restart(user: AuthUser, id: string) {
         let pro = await this.db.get(id)
         pro.status = 'AWAITING'
         pro.percent_complete = 0
@@ -413,7 +411,7 @@ class Project extends DBManager<IProject> {
         let modules = compressStepper<string>(pro.modules)
 
         for (const m of modules) {
-            await ModuleManager.restart(user, m, full)
+            await ModuleManager.reset(user, m)
         }
 
         // Start project
