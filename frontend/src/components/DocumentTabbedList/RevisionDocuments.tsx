@@ -12,9 +12,9 @@ const RevisionDocuments = ({ record }: { record: RaRecord }) => {
     const [documentView, setDocumentView] = useState("");
     const [documentSrc, setDocumentSource] = useState("");
 
-    const openMainDocument = () => {
-        setDocumentView(record?.files?.latest?.title);
-        setDocumentSource(record?.files?.latest?.src);
+    const openDocument = (fileRecord: any) => {
+        setDocumentView(fileRecord.title);
+        setDocumentSource(fileRecord.src);
     }
     const closeDocumentViewer = () => {
         setDocumentView("");
@@ -43,7 +43,7 @@ const RevisionDocuments = ({ record }: { record: RaRecord }) => {
                                 cursor: 'pointer'
                             }
                         }}
-                        onClick={openMainDocument}
+                        onClick={() => openDocument(reviewFile)}
                     >
                         <Box display="flex" gap="8px">
                             <FilePresentIcon color="secondary" />

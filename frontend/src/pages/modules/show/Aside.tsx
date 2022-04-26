@@ -44,31 +44,7 @@ const EventList = () => {
 
     return (
         <>
-            {(record?.files?.latest || (record?.files?.reviews && record?.files?.reviews.length > 0)) ? 
-                <Box ml={2} mb={2}>
-                    <Card>
-                        <CardContent>
-                            {(record?.files?.reviews && record?.files?.reviews.length > 0) ? (<>
-                                <Typography variant="h6" gutterBottom>
-                                    Latest Revisions:
-                                </Typography>
-                                {record?.files?.reviews.map((revision: any) => (
-                                    <FileField record={revision} source="src" title="title" />
-                                ))}
-                            </>) : null }
-                            <Box height="1rem" />
-                            {(record?.files?.latest) ? (<>
-                                <Typography variant="h6" gutterBottom>
-                                    Latest File:
-                                </Typography>
-                                <FileField record={record} source="files.latest.src" title="files.latest.title" />
-                            </>) : null }
-                        </CardContent>
-                    </Card>    
-                </Box>
-            : null }
-
-            <Box ml={2}>
+            <Box ml={2} mb={2}>
                 <Card>
                     <CardContent>
                         <Typography variant="h6" gutterBottom>
@@ -132,6 +108,31 @@ const EventList = () => {
                     </CardContent>
                 </Card>
             </Box>
+            {(record?.files?.latest || (record?.files?.reviews && record?.files?.reviews.length > 0)) ? 
+                <Box ml={2}>
+                    <Card>
+                        <CardContent>
+                            {(record?.files?.reviews && record?.files?.reviews.length > 0) ? (<>
+                                <Typography variant="h6" gutterBottom>
+                                    Latest Revisions:
+                                </Typography>
+                                <Box display="flex" flexDirection="column">
+                                    {record?.files?.reviews.map((revision: any) => (
+                                        <FileField record={revision} source="src" title="title" />
+                                    ))}
+                                </Box>
+                            </>) : null }
+                            <Box height="1rem" />
+                            {(record?.files?.latest) ? (<>
+                                <Typography variant="h6" gutterBottom>
+                                    Latest File:
+                                </Typography>
+                                <FileField record={record} source="files.latest.src" title="files.latest.title" />
+                            </>) : null }
+                        </CardContent>
+                    </Card>    
+                </Box>
+            : null }
         </>
     );
 };
