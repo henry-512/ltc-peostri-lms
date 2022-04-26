@@ -38,7 +38,7 @@ const AssignedTaskItem = ({ record }: AssignedTaskItemProps) => (
         <ReferenceArrayField record={record} reference="admin/users" source="users">
             <AvatarGroupField height={24} width={24} fontSize="14px" max={6} color='blue' />
         </ReferenceArrayField>
-        <AssignedTaskAction id={`${record.id}`} type={record.type} />
+        <AssignedTaskAction id={`${record.id}`} type={record.type} record={record} />
     </Box>
 )
 

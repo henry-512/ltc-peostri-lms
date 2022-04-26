@@ -44,7 +44,7 @@ const EventList = () => {
 
     return (
         <>
-            <Box ml={2} mb={2}>
+            <Box ml={2}>
                 <Card>
                     <CardContent>
                         <Typography variant="h6" gutterBottom>
@@ -109,20 +109,19 @@ const EventList = () => {
                 </Card>
             </Box>
             {(record?.files?.latest || (record?.files?.reviews && record?.files?.reviews.length > 0)) ? 
-                <Box ml={2}>
+                <Box ml={2} mt={2}>
                     <Card>
                         <CardContent>
                             {(record?.files?.reviews && record?.files?.reviews.length > 0) ? (<>
                                 <Typography variant="h6" gutterBottom>
                                     Latest Comments:
                                 </Typography>
-                                <Box display="flex" flexDirection="column">
+                                <Box display="flex" flexDirection="column" marginBottom="1rem">
                                     {record?.files?.reviews.map((revision: any, index: number) => (
                                         <FileField record={revision} source="src" title="title" key={`revision-file-${index}`} />
                                     ))}
                                 </Box>
                             </>) : null }
-                            <Box height="1rem" />
                             {(record?.files?.latest) ? (<>
                                 <Typography variant="h6" gutterBottom>
                                     Latest File:

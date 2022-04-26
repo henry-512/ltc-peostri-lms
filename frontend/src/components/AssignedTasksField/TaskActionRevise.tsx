@@ -5,10 +5,10 @@
 * @author Braden Cariaga
 */
 
-import { useRefresh, useUpdate, FileField, FileInput, useRecordContext, useShowContext } from "react-admin";
+import { useRefresh, useUpdate, FileField, FileInput, useRecordContext, useShowContext, useDataProvider } from "react-admin";
 import { Button, Typography, Box, Tooltip } from "@mui/material";
 import TaskActionDialog from "./TaskActionDialog";
-import { MouseEventHandler, useState } from "react";
+import { MouseEventHandler, useEffect, useState } from "react";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import DocumentViewer from "../DocumentViewer";
 import AssignedDocumentsField from "../AssignedDocumentsField";
@@ -18,6 +18,7 @@ export type TaskActionReviseProps = {
     open: boolean
     close: Function
     setOpen: MouseEventHandler<HTMLButtonElement>
+    record: any
 }
 
 /**
@@ -27,8 +28,20 @@ export type TaskActionReviseProps = {
 const TaskActionRevise = (props: TaskActionReviseProps) => {
     const [update, { isLoading, error }] = useUpdate();
     const refresh = useRefresh();
+    const dataProvider = useDataProvider();
     const task = useRecordContext();
-    const { record } = useShowContext();
+    let { record } = useShowContext();
+
+    const [files, setFiles] = useState(record.files);
+
+    useEffect(() => {
+        if (!files && record.modules) {
+            dataProvider.getOne('modules', { id: props.record.module })
+            .then(({data}) => setFiles(data.files));
+        }
+    }, [record, task]);
+
+    if (!record || !task) return null;
 
     /**
      * The handleClose function is a function that is called when the user clicks the close button. It
@@ -38,8 +51,8 @@ const TaskActionRevise = (props: TaskActionReviseProps) => {
         props.close()
     }
 
-    const handleSubmit = () => {
-
+    const handleSubmit = (data: any) => {
+        update(`proceeding/tasks/upload`, { id: props.id, data, previousData: {} }).then(() => refresh()).finally(() => props.close())   
     }
 
     return (
@@ -50,7 +63,7 @@ const TaskActionRevise = (props: TaskActionReviseProps) => {
                 </Button>
             </Box>
             <TaskActionDialog ariaLabel="document_upload_dialog" label="Upload Revision Comments" open={props.open} handleSubmit={handleSubmit} handleClose={handleClose} submitText={"Upload"} submitIcon={<UploadFileIcon />}>
-                { (!record.files.reviews && record.files.reviews.length < 1) ? <></> : <AssignedDocumentsField data={record.files.reviews} taskID={String(task.id)} /> }
+                { (!files.reviews && files.reviews?.length < 1) ? <></> : <AssignedDocumentsField data={files.reviews} taskID={String(props.record.id)} /> }
                 <Typography variant="subtitle1" mb="-.75rem">Please upload a new document:</Typography>
                 <FileInput source="file" accept="application/pdf" fullWidth label=" " labelSingle="project.fields.waiver_file" helperText=" " sx={{
                     '& .RaFileInput-dropZone': {

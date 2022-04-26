@@ -19,6 +19,7 @@ export type TaskActionUploadProps = {
     open: boolean
     close: Function
     setOpen: MouseEventHandler<HTMLButtonElement>
+    record: any
 }
 
 /**

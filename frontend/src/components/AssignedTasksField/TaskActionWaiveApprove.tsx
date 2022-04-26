@@ -16,6 +16,7 @@ export type TaskActionWaiveApproveProps = {
     open: boolean
     close: Function
     setOpen: MouseEventHandler<HTMLButtonElement>
+    record: any
 }
 
 /**

@@ -20,6 +20,7 @@ export type TaskActionReviewProps = {
     open: boolean
     close: Function
     setOpen: MouseEventHandler<HTMLButtonElement>
+    record: any
 }
 
 /**
