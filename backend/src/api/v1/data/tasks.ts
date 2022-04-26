@@ -155,6 +155,19 @@ class Task extends DBManager<ITask> {
             await ModuleManager.db.update(mod, { mergeObjects: false })
         }
 
+        // Check if this is the DOCUMENT_REVISE task
+        let status = await this.db.getOneFaster<string>(taskId, 'type')
+        if (status === 'DOCUMENT_REVISE') {
+            // Set all reviewers to IN_PROGRESS
+            // Notify status
+            await this.db.updateWithFilterFaster(
+                'type',
+                'DOCUMENT_REVIEW',
+                'status',
+                'IN_PROGRESS'
+            )
+        }
+
         // Update task and ADVANCE
         await this.db.updateOneFaster(taskId, 'status', 'COMPLETED')
         await ModuleManager.postAutomaticAdvance(user, mod)
@@ -303,7 +316,7 @@ class Task extends DBManager<ITask> {
         // Update filemeta
         await FilemetaManager.db.update(filemeta, { mergeObjects: false })
 
-        // Update task and ADVANCE
+        // Update this task
         await this.db.updateOneFaster(taskId, 'status', 'COMPLETED')
         await ModuleManager.postAutomaticAdvance(user, mod)
     }
