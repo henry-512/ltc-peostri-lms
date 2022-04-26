@@ -43,7 +43,7 @@ class Filedata extends DBManager<IFile> {
         let f = await super.getFromDB(user, id, noDeref, userRoute)
 
         // Generate src path
-        f.src = getUrl(`files/static/${f.id}`)
+        f.src = getUrl(`files/static/${f.id}/${f.title}`)
 
         return f
     }
@@ -55,7 +55,7 @@ class Filedata extends DBManager<IFile> {
         let f = await super.convertIDtoKEY(user, doc)
 
         // Generate src path
-        f.src = getUrl(`files/static/${f.id}`)
+        f.src = getUrl(`files/static/${f.id}/${f.title}`)
 
         return f
     }

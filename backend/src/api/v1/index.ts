@@ -117,7 +117,7 @@ export function routerBuilder(version: string) {
                         // ctx.ok(buffer)
                         await send(ctx, pathTo, { root: FULL_FILE_PATH })
                     })
-                    .get('static/:id', async (ctx) => {
+                    .get('static/:id/:filename', async (ctx) => {
                         let id = await FiledataManager.db.assertKeyExists(
                             ctx.params.id
                         )
