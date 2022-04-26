@@ -8,7 +8,7 @@ import {
 import { APIError, HTTPStatus } from '../../lms/errors'
 import { IField, IForeignFieldData } from '../../lms/FieldData'
 import { IArangoIndexes } from '../../lms/types'
-import { convertToKey, splitId, str } from '../../lms/util'
+import { convertToKey, splitId, str, tryParseJSON } from '../../lms/util'
 import { AuthUser } from '../auth'
 import { DataManager } from './DataManager'
 
@@ -115,102 +115,100 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
 
         // Filtering
         if (q.filter) {
-            let filter: any = {}
-            try {
-                filter = JSON.parse(q.filter)
-            } catch (err) {
-                throw this.error(
-                    'parseQuery/JSON.parse',
-                    HTTPStatus.BAD_REQUEST,
-                    'Malformed filter query',
-                    `${filter} is not a valid JSON string object`
-                )
-            }
+            let filter = tryParseJSON(q.filter)
+            if (filter) {
+                for (let [key, value] of Object.entries(filter)) {
+                    let f: IFilterOpts = { key }
 
-            for (let [key, value] of Object.entries(filter)) {
-                let f: IFilterOpts = { key }
-
-                if (f.key === 'q') {
-                    f.key = this.defaultFilter
-                } else if (
-                    !(f.key in this.fieldData) ||
-                    this.fieldData[f.key].hideGetAll
-                ) {
-                    console.warn(`Invalid filtering id ${f.key}`)
-                    console.warn(f)
-                    continue
-                }
-
-                let data = this.fieldData[f.key]
-
-                if (data.type === 'array') {
-                    if (typeof value === 'string') {
-                        if (data.foreignApi) {
-                            f.inArray = data.foreignApi.db.keyToId(value)
-                        } else {
-                            f.inArray = value
-                        }
-                    } else {
-                        console.warn(`Invalid filtering value [${value}]`)
-                        continue
-                    }
-                } else if (Array.isArray(value)) {
-                    if (data.type === 'parent' && data.parentManager) {
-                        let dbWrapper = data.parentManager.db
-                        f.in = value.map((k) => dbWrapper.keyToId(k))
-                    } else if (data.foreignApi) {
-                        let dbWrapper = data.foreignApi.db
-                        f.in = value.map((k) => dbWrapper.keyToId(k))
-                    }
-                    f.in = value
-                } else {
-                    let type = typeof value
-                    if (
-                        type === 'string' ||
-                        type === 'boolean' ||
-                        type === 'number'
+                    if (f.key === 'q') {
+                        f.key = this.defaultFilter
+                    } else if (
+                        !(f.key in this.fieldData) ||
+                        this.fieldData[f.key].hideGetAll
                     ) {
-                        f.q = value as string
-                    } else {
-                        console.warn(`Invalid filtering value [${value}]`)
+                        console.warn(`Invalid filtering id ${f.key}`)
                         console.warn(f)
-                        console.warn(value)
                         continue
                     }
-                }
 
-                // ids are _keys
-                if (f.key === 'id') {
-                    f.key = '_key'
-                }
+                    let data = this.fieldData[f.key]
 
-                opts.filters.push(f)
+                    if (data.type === 'array') {
+                        if (typeof value === 'string') {
+                            if (data.foreignApi) {
+                                f.inArray = data.foreignApi.db.keyToId(value)
+                            } else {
+                                f.inArray = value
+                            }
+                        } else {
+                            console.warn(`Invalid filtering value [${value}]`)
+                            continue
+                        }
+                    } else if (Array.isArray(value)) {
+                        if (data.type === 'parent' && data.parentManager) {
+                            let dbWrapper = data.parentManager.db
+                            f.in = value.map((k) => dbWrapper.keyToId(k))
+                        } else if (data.foreignApi) {
+                            let dbWrapper = data.foreignApi.db
+                            f.in = value.map((k) => dbWrapper.keyToId(k))
+                        }
+                        f.in = value
+                    } else {
+                        let type = typeof value
+                        if (
+                            type === 'string' ||
+                            type === 'boolean' ||
+                            type === 'number'
+                        ) {
+                            f.q = value as string
+                        } else {
+                            console.warn(`Invalid filtering value [${value}]`)
+                            console.warn(f)
+                            console.warn(value)
+                            continue
+                        }
+                    }
+
+                    // ids are _keys
+                    if (f.key === 'id') {
+                        f.key = '_key'
+                    }
+
+                    opts.filters.push(f)
+                }
+            } else {
+                console.warn(`Invalid filter [${q.filter}] passed`)
             }
         }
 
         // Sorting
-        if (q.sort && q.sort.length === 2) {
-            let key: string = q.sort[0]
+        if (q.sort) {
+            let sort = tryParseJSON(q.sort)
+            if (sort && sort.length >= 2) {
+                let key: string = sort[0]
 
-            // Remove trailing '.id'
-            if (key.endsWith('.id')) {
-                key = key.slice(0, -3)
-            }
+                // Remove trailing '.id'
+                if (key.endsWith('.id')) {
+                    key = key.slice(0, -3)
+                }
 
-            if (key in this.fieldData && !this.fieldData[key].hideGetAll) {
-                let desc = q.sort[1] === 'DESC'
-
-                opts.sort = { key, desc }
-            } else {
-                console.warn(`Invalid sorting id ${key}`)
+                if (key in this.fieldData && !this.fieldData[key].hideGetAll) {
+                    let desc = sort[1] === 'DESC'
+                    opts.sort = { key, desc }
+                } else {
+                    console.warn(`Invalid sorting id ${key}`)
+                }
             }
         }
 
-        // range
-        if (q.range && q.range.length == 2) {
-            opts.range = {
-                offset: parseInt(q.range[0]),
-                count: Math.min(parseInt(q.range[1]), 50),
+        // Range
+        if (q.range) {
+            let range = tryParseJSON(q.range)
+            if (range && range.length >= 2) {
+                opts.range = {
+                    offset: Math.max(parseInt(range[0]), 0),
+                    count: Math.min(parseInt(range[1]), 50),
+                }
             }
         }
 

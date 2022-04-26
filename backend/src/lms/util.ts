@@ -165,3 +165,19 @@ export function concatOrSetMapArray<Key, Value>(
     let ar = map.get(key)
     map.set(key, ar ? ar.concat(value) : [value])
 }
+
+export function tryParseJSON(json: string): any {
+    // If json is already an object, don't convert it
+    if (typeof json === 'object') {
+        return json
+    }
+
+    try {
+        let o = JSON.parse(json)
+        if (o && typeof o === 'object') {
+            return o
+        }
+    } catch (e) {
+        return undefined
+    }
+}
