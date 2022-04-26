@@ -11,7 +11,7 @@ import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "
 import { useFormContext, useFormState } from "react-hook-form";
 import TaskActionDialog from "./TaskActionDialog";
 import { MouseEventHandler } from "react";
-import AddBoxIcon from '@mui/icons-material/AddBox';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { useRefresh } from 'react-admin';
 
 export type TaskActionUploadProps = {
@@ -42,7 +42,7 @@ const TaskActionUpload = (props: TaskActionUploadProps) => {
             <Button variant="outlined" onClick={props.setOpen}>
                 UPLOAD
             </Button>
-            <TaskActionDialog ariaLabel="document_upload_dialog" label="Upload a File to the Module" open={props.open} handleSubmit={handleSubmit} handleClose={handleClose} submitText={"Upload"} submitIcon={<AddBoxIcon />}>
+            <TaskActionDialog ariaLabel="document_upload_dialog" label="Upload a File to the Module" open={props.open} handleSubmit={handleSubmit} handleClose={handleClose} submitText={"Upload"} submitIcon={<UploadFileIcon />}>
                 <FileInput source="file" accept="application/pdf" fullWidth label="project.fields.waive_file_upload" labelSingle="project.fields.waiver_file" helperText=" " sx={{
                     '& .RaFileInput-dropZone': {
                         backgroundColor: 'rgba(0, 0, 0, 0.04)',

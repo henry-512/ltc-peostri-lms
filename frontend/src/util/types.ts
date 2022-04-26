@@ -127,6 +127,7 @@ export interface IModule extends RaRecord {
     };
     ttc?: number | string
     waive_comment?: string
+    percent_complete?: string
 }
 
 export interface IProject extends RaRecord, ICreateUpdate {
@@ -141,6 +142,7 @@ export interface IProject extends RaRecord, ICreateUpdate {
     module_template_id?: string;
     ttc?: number | string;
     currentStep?: number | string;
+    percent_complete?: string
 }
 
 export interface IRank extends IArangoIndexes {

@@ -2,7 +2,7 @@ import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Box, Tab } from "@mui/material";
 import { useState } from "react";
 import TasksTabbedList from "./TasksTabbedList";
-import DocumentTabbedList from "./DocumentTabbedList";
+import DocumentTabbedList from "../../../components/DocumentTabbedList";
 import { IModule } from "src/util/types";
 import { useShowContext } from 'react-admin';
 

@@ -25,6 +25,8 @@ import AutorenewIcon from '@mui/icons-material/Autorenew';
 import AvatarGroupField from 'src/components/AvatarGroupField';
 import WarningIcon from '@mui/icons-material/Warning';
 import ProgressField from 'src/components/ProgressField';
+import { useMemo } from 'react';
+import { IModule, IProject } from 'src/util/types';
 
 const Aside = () => {
     const record = useRecordContext();
@@ -36,7 +38,7 @@ const Aside = () => {
 };
 
 const EventList = () => {
-    const record = useRecordContext();
+    const record: IProject = useRecordContext();
     const translate = useTranslate();
     const [locale] = useLocaleState();
 
@@ -150,7 +152,7 @@ const EventList = () => {
                         </Grid>
 
                         <Grid item xs={12}>
-                            <ProgressField value={parseInt(String(record.currentStep)) / Object.keys(record.modules).length} />
+                            <ProgressField value={parseInt(record.percent_complete || "0")} color="secondary" />
                         </Grid>
                     </Grid>
                 </CardContent>

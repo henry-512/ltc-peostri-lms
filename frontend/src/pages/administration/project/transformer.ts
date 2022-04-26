@@ -14,6 +14,7 @@ const transformer = (projectData: IProject) => {
 
     //Integer the TTC
     data.ttc = parseInt(`${data.ttc}`);
+    delete data.auto_assign
 
     let mStepCounter = 0; //Keep track of current step, in case of deletion and need for refactoring.
     for (const mKey in data.modules) {

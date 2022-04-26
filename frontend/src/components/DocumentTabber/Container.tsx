@@ -13,6 +13,7 @@ export type ContainerProps = {
     title?: string
     startOpen: boolean
     children: JSX.Element
+    sx?: any
 }
 
 /**
@@ -29,6 +30,7 @@ const Container = ({ title = "Old Files", ...props }: ContainerProps) => (
             aria-controls={props.id}
             id={props.id + "-header"}
             sx={{
+                ...props.sx,
                 minHeight: '0px',
                 '&.Mui-expanded': {
                     minHeight: '0px',
