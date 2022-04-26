@@ -19,7 +19,7 @@ const TabbedProjectInfo = () => {
                     <TabList onChange={handleChange} aria-label="Project-Tabs" variant="fullWidth">
                         <Tab label="Modules" value="MODULES" />
                         <Tab label="Documents" value="DOCS" />
-                        <Tab label="Logs" value="LOGS" />
+                        {/*<Tab label="Logs" value="LOGS" />*/}
                     </TabList>
                 </Box>
                 <TabPanel value="MODULES" sx={{
@@ -32,11 +32,11 @@ const TabbedProjectInfo = () => {
                 }}>
                     <ProjectDocumentList />
                 </TabPanel>
-                <TabPanel value="LOGS" sx={{
+                {/*<TabPanel value="LOGS" sx={{
                     padding: '0'
                 }}>
 
-                </TabPanel>
+                </TabPanel>*/}
             </TabContext>
         </>
     )

@@ -33,7 +33,7 @@ const TabbedModuleInfo = (props: TabbedModuleInfoProps) => {
                     <TabList onChange={handleChange} aria-label="Project-Tabs" variant="fullWidth">
                         <Tab label="Tasks" value="TASKS" />
                         {(hasFiles(record)) ? <Tab label="Documents" value="DOCS" /> : null }
-                        <Tab label="Logs" value="LOGS" />
+                        {/*<Tab label="Logs" value="LOGS" />*/}
                     </TabList>
                 </Box>
                 <TabPanel value="TASKS" sx={{
@@ -48,11 +48,11 @@ const TabbedModuleInfo = (props: TabbedModuleInfoProps) => {
                         <DocumentTabbedList />
                     </TabPanel>
                 ) : null }
-                <TabPanel value="LOGS" sx={{
+                {/*<TabPanel value="LOGS" sx={{
                     padding: '0'
                 }}>
 
-                </TabPanel>
+                </TabPanel>*/}
             </TabContext>
         </>
     )
