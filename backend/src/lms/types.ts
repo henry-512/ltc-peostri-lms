@@ -68,6 +68,7 @@ export interface IModule extends IArangoIndexes {
 
     files?: string | IFilemeta
     waive_module?: boolean
+    percent_complete?: number
 }
 
 export interface IProjectTemplate extends IArangoIndexes, ICreateUpdate {
@@ -88,6 +89,7 @@ export interface IProject extends IArangoIndexes, ICreateUpdate {
     team?: string | ITeam
     currentStep: number
     auto_assign: boolean
+    percent_complete?: number
 }
 
 export type ApiPerm = keyof IPermission

@@ -116,12 +116,7 @@ class Module extends DBManager<IModule> {
 
         if (mod.files && typeof mod.files === 'string') {
             let id = FilemetaManager.db.asId(mod.files)
-            mod.files = (await FilemetaManager.getFromDB(
-                user,
-                id,
-                false,
-                false
-            )) as any
+            mod.files = await FilemetaManager.getFromDB(user, id, false, false)
         }
 
         return mod
@@ -148,6 +143,20 @@ class Module extends DBManager<IModule> {
     //
     // PROCEEDING
     //
+
+    /**
+     * Calculates percent_complete based on the task status
+     */
+    private async calculatePercentComplete(mod: IModule) {
+        let tasks = compressStepper<string>(mod.tasks)
+        let comp = await TaskManager.db.assertEqualsFaster(
+            tasks,
+            'status',
+            'COMPLETE'
+        )
+        let compAll = await comp.all()
+        mod.percent_complete = (100 * compAll.length) / tasks.length
+    }
 
     // Checks for automatic step/module advancing
     public async automaticAdvance(user: AuthUser, id: string) {
@@ -209,6 +218,9 @@ class Module extends DBManager<IModule> {
             await ProjectManager.automaticAdvance(user, mod.project)
         }
 
+        // Calculate %-complete
+        await this.calculatePercentComplete(mod)
+        // Update module
         await this.db.update(mod, { mergeObjects: false })
     }
 
@@ -250,9 +262,18 @@ class Module extends DBManager<IModule> {
             // Mark all tasks as COMPLETED
             await TaskManager.db.updateFaster(allTasks, 'status', 'COMPLETED')
         }
+        // Calculate %-complete
+        await this.calculatePercentComplete(mod)
         // Update module
         await this.db.update(mod, { mergeObjects: false })
         // Advance project
+        if (!mod.project) {
+            throw this.internal(
+                'postComplete',
+                `Module ${mod} lacks project field`
+            )
+        }
+        await ProjectManager.automaticAdvance(user, mod.project)
         return mod
     }
 
@@ -369,6 +390,8 @@ class Module extends DBManager<IModule> {
         // Update step
         mod.currentStep = nextStep
 
+        // Calculate %-complete
+        await this.calculatePercentComplete(mod)
         // Update in the db
         await this.db.update(mod, { mergeObjects: false })
         return mod

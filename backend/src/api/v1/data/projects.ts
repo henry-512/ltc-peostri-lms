@@ -70,6 +70,11 @@ class Project extends DBManager<IProject> {
                     type: 'boolean',
                     default: false,
                 },
+                // Automatically calculated
+                percent_complete: {
+                    type: 'number',
+                    optional: true,
+                },
             },
             { hasUpdate: true, hasCreate: true, defaultFilter: 'title' }
         )
@@ -104,6 +109,10 @@ class Project extends DBManager<IProject> {
         await rankCursor.forEach((val) =>
             concatOrSetMapArray<string, string>(userRankMap, val.v, val.id)
         )
+
+        // Calculate %-complete
+        let totalModules = 0
+        let completeModules = 0
 
         // Start date of the project
         let startDate = new Date(p.start)
@@ -147,6 +156,14 @@ class Project extends DBManager<IProject> {
                 for (const mod of modules) {
                     if (!mod) continue
 
+                    totalModules++
+                    if (mod.status === 'COMPLETED' || mod.status === 'WAIVED') {
+                        completeModules++
+                    }
+
+                    let totalTasks = 0
+                    let completeTasks = 0
+
                     let totalModuleTTC = 0
                     await stepperForEachInOrder<string>(
                         mod.tasks as IStepper<string>,
@@ -179,6 +196,12 @@ class Project extends DBManager<IProject> {
                             // For each task array
                             for (const task of tasks) {
                                 if (!task) continue
+
+                                // Increment task counts
+                                totalTasks++
+                                if (task.status === 'COMPLETED') {
+                                    completeTasks++
+                                }
 
                                 let ttc = task.ttc ?? 0
 
@@ -221,6 +244,9 @@ class Project extends DBManager<IProject> {
                         incrementedTTC + totalModuleTTC
                     ).toJSON()
 
+                    // Set module %-complete
+                    mod.percent_complete = (100 * completeTasks) / totalTasks
+
                     // Update longest moudle
                     if (totalModuleTTC > maxModTTC) {
                         maxModTTC = totalModuleTTC
@@ -236,6 +262,9 @@ class Project extends DBManager<IProject> {
         // Set project ttc and suspense
         p.ttc = incrementedTTC
         p.suspense = addDays(startDate, incrementedTTC)
+
+        // Set project %-complete
+        p.percent_complete = (100 * completeModules) / totalModules
 
         return p
     }
@@ -295,6 +324,19 @@ class Project extends DBManager<IProject> {
     // PROCEEDING
     //
 
+    /**
+     * Calculates percent_complete based on the module status
+     */
+    private async calculatePercentComplete(pro: IProject) {
+        let mods = compressStepper<string>(pro.modules)
+        let comp = await ModuleManager.db.assertOrEqualsFaster(mods, 'status', [
+            'COMPLETE',
+            'WAIVED',
+        ])
+        let compAll = await comp.all()
+        pro.percent_complete = (100 * compAll.length) / mods.length
+    }
+
     public async automaticAdvance(user: AuthUser, pro: string) {
         return this.postAutomaticAdvance(user, await this.db.get(pro))
     }
@@ -340,6 +382,9 @@ class Project extends DBManager<IProject> {
             pro.currentStep = -1
         }
 
+        // Calculate %-complete
+        await this.calculatePercentComplete(pro)
+        // Update the db
         await this.db.update(pro, { mergeObjects: false })
     }
 
@@ -350,6 +395,7 @@ class Project extends DBManager<IProject> {
     public async restart(user: AuthUser, id: string, full: boolean) {
         let pro = await this.db.get(id)
         pro.status = 'AWAITING'
+        pro.percent_complete = 0
 
         let modules = compressStepper<string>(pro.modules)
 
@@ -371,6 +417,7 @@ class Project extends DBManager<IProject> {
                 `${pro} is not AWAITING`
             )
         }
+        pro.percent_complete = 0
         return this.postStartNextStep(user, pro)
     }
 
@@ -398,6 +445,9 @@ class Project extends DBManager<IProject> {
         }
         // Update step
         pro.currentStep = nextStep
+
+        // Calculate %-complete
+        await this.calculatePercentComplete(pro)
 
         // Update in the db
         await this.db.update(pro, { mergeObjects: false })
@@ -476,6 +526,9 @@ class Project extends DBManager<IProject> {
             )
             await TaskManager.db.updateFaster(allTasks, 'status', 'COMPLETED')
         }
+
+        // Set %-complete
+        pro.percent_complete = 100
 
         // Update project
         await this.db.update(pro, { mergeObjects: false })
