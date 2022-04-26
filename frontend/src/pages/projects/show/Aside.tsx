@@ -31,7 +31,7 @@ import { IModule, IProject } from 'src/util/types';
 const Aside = () => {
     const record = useRecordContext();
     return (
-        <Box width={400} display={{ xs: 'none', lg: 'block' }}>
+        <Box width={350} minWidth={350} display={{ xs: 'none', lg: 'block' }}>
             {record && <EventList />}
         </Box>
     );

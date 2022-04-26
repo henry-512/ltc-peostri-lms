@@ -1,26 +1,27 @@
-import { Datagrid, DateField, TextField, useShowContext } from "react-admin";
+import { Datagrid, DateField, ReferenceArrayField, ReferenceField, TextField, useShowContext } from "react-admin";
 import { useState } from "react";
-import { IModuleStep } from "src/util/types";
+import { ITaskStep } from "src/util/types";
 import StepTabber from "src/components/StepTabber";
 import statusRowStyle from "src/util/statusRowStyle";
+import AvatarGroupField from "src/components/AvatarGroupField";
 
-const ModulesTabbedList = () => {
+const TabbedTaskList = () => {
     const {
         record
     } = useShowContext();
 
-    const currentModules = { [`key-${record.currentStep}`]: record.modules[`key-${record.currentStep}`] }
+    const currentModules = { [`key-${record.currentStep}`]: record.tasks[`key-${record.currentStep}`] }
     const upcomingModules = (() => {
-        let steps = {} as IModuleStep;
-        for (let i = record.currentStep + 1; i < Object.keys(record.modules).length; i++) {
-            steps[`key-${i}`] = record.modules[`key-${i}`];
+        let steps = {} as ITaskStep;
+        for (let i = record.currentStep + 1; i < Object.keys(record.tasks).length; i++) {
+            steps[`key-${i}`] = record.tasks[`key-${i}`];
         }
         return steps;
     })()
     const completedModules = (() => {
-        let steps = {} as IModuleStep;
+        let steps = {} as ITaskStep;
         for (let i = record.currentStep - 1; i >= 0; i--) {
-            steps[`key-${i}`] = record.modules[`key-${i}`];
+            steps[`key-${i}`] = record.tasks[`key-${i}`];
         }
         return steps;
     })()
@@ -38,20 +39,25 @@ const ModulesTabbedList = () => {
 
     return (
         <>
-            <StepTabber tab={tab} tabOptions={tabOptions} handleChange={handleChange} reference="modules" >
+            <StepTabber tab={tab} tabOptions={tabOptions} handleChange={handleChange} reference="tasks" >
                 <Datagrid
                     bulkActionButtons={false}
-                    rowClick="show"
                     rowStyle={statusRowStyle}
                 >
+                    <TextField source="type" />
                     <TextField source="title" />
                     <DateField source="suspense" locales="en-GB" />
                     <TextField source="status" />
-                    <TextField source="currentStep" />
+                    <ReferenceField source="rank" reference="admin/ranks">
+                        <TextField source="name" />
+                    </ReferenceField>
+                    <ReferenceArrayField reference="admin/users" source="users">
+                        <AvatarGroupField height={24} width={24} fontSize="14px" max={6} color='blue' />
+                    </ReferenceArrayField>
                 </Datagrid>
             </StepTabber>
         </>
     )
 }
 
-export default ModulesTabbedList;
+export default TabbedTaskList;

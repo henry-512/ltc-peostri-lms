@@ -5,14 +5,13 @@
 * @author Braden Cariaga
 */
 
-import { ReferenceInput, required, AutocompleteInput, useDataProvider, useTranslate, useNotify, useUpdate, FileField, FileInput, useRecordContext } from "react-admin";
+import { ReferenceInput, required, AutocompleteInput, useDataProvider, useTranslate, useNotify, useUpdate, FileField, FileInput, useRefresh } from "react-admin";
 import { styled } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { useFormContext, useFormState } from "react-hook-form";
 import TaskActionDialog from "./TaskActionDialog";
 import { MouseEventHandler } from "react";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
-import { useRefresh } from 'react-admin';
 
 export type TaskActionUploadProps = {
     id: string
@@ -29,9 +28,18 @@ export type TaskActionUploadProps = {
 const TaskActionUpload = (props: TaskActionUploadProps) => {
     const [update, { isLoading, error }] = useUpdate();
     const refresh = useRefresh();
+    const notify = useNotify();
 
     const handleSubmit = (data: any) => {
-        update(`proceeding/tasks/upload`, { id: props.id, data, previousData: {} }).then(() => refresh()).finally(() => props.close())   
+        update(`proceeding/tasks/upload`, { id: props.id, data, previousData: {} }, {
+            onSuccess: (data) => {
+                refresh();
+                notify('Uploaded document.');
+            },
+            onError: (error: any) => {
+                notify(`Document upload error: ${error.message}`, { type: 'warning' });
+            },
+        }).finally(() => props.close()); 
     }
 
     const handleClose = () => {

@@ -1,16 +1,12 @@
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Box, Tab } from "@mui/material";
 import { useState } from "react";
-import ModulesTabbedList from "./ModulesTabbedList";
-import DocumentList from "./DocumentList";
+import TabbedModuleList from "../TabbedModuleList";
+import ProjectDocumentList from "../ProjectDocumentList";
 
 type ProjectTabs = "DOCS" | "MODULES" | "LOGS";
 
-export type TabbedProjectInfoProps = {
-
-}
-
-const TabbedProjectInfo = (props: TabbedProjectInfoProps) => {
+const TabbedProjectInfo = () => {
     const [tab, setTab] = useState<ProjectTabs>("MODULES");
     const handleChange = (event: React.SyntheticEvent, newValue: ProjectTabs) => {
         setTab(newValue);
@@ -29,12 +25,12 @@ const TabbedProjectInfo = (props: TabbedProjectInfoProps) => {
                 <TabPanel value="MODULES" sx={{
                     padding: '0'
                 }}>
-                    <ModulesTabbedList />
+                    <TabbedModuleList />
                 </TabPanel>
                 <TabPanel value="DOCS" sx={{
                     padding: '0'
                 }}>
-                    <DocumentList />
+                    <ProjectDocumentList />
                 </TabPanel>
                 <TabPanel value="LOGS" sx={{
                     padding: '0'

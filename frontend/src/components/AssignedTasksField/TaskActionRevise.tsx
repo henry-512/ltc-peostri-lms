@@ -5,7 +5,7 @@
 * @author Braden Cariaga
 */
 
-import { useRefresh, useUpdate, FileField, FileInput, useRecordContext, useShowContext, useDataProvider } from "react-admin";
+import { useRefresh, useUpdate, FileField, FileInput, useRecordContext, useShowContext, useDataProvider, useNotify } from "react-admin";
 import { Button, Typography, Box, Tooltip } from "@mui/material";
 import TaskActionDialog from "./TaskActionDialog";
 import { MouseEventHandler, useEffect, useState } from "react";
@@ -28,11 +28,12 @@ export type TaskActionReviseProps = {
 const TaskActionRevise = (props: TaskActionReviseProps) => {
     const [update, { isLoading, error }] = useUpdate();
     const refresh = useRefresh();
+    const notify = useNotify();
     const dataProvider = useDataProvider();
-    const task = useRecordContext();
+    const task = useRecordContext(props);
     let { record } = useShowContext();
 
-    const [files, setFiles] = useState(record.files);
+    const [files, setFiles] = useState(record?.files);
 
     useEffect(() => {
         if (!files && record.modules) {
@@ -52,7 +53,15 @@ const TaskActionRevise = (props: TaskActionReviseProps) => {
     }
 
     const handleSubmit = (data: any) => {
-        update(`proceeding/tasks/upload`, { id: props.id, data, previousData: {} }).then(() => refresh()).finally(() => props.close())   
+        update(`proceeding/tasks/upload`, { id: props.id, data, previousData: {} }, {
+            onSuccess: (data) => {
+                refresh();
+                notify('Uploaded document.');
+            },
+            onError: (error: any) => {
+                notify(`Document upload error: ${error.message}`, { type: 'warning' });
+            },
+        }).finally(() => props.close());
     }
 
     return (
@@ -63,7 +72,7 @@ const TaskActionRevise = (props: TaskActionReviseProps) => {
                 </Button>
             </Box>
             <TaskActionDialog ariaLabel="document_upload_dialog" label="Upload Revision Comments" open={props.open} handleSubmit={handleSubmit} handleClose={handleClose} submitText={"Upload"} submitIcon={<UploadFileIcon />}>
-                { (!files.reviews && files.reviews?.length < 1) ? <></> : <AssignedDocumentsField data={files.reviews} taskID={String(props.record.id)} /> }
+                { (!files || (!files.reviews && files.reviews?.length < 1)) ? <></> : <AssignedDocumentsField data={files.reviews} taskID={String(task.id)} /> }
                 <Typography variant="subtitle1" mb="-.75rem">Please upload a new document:</Typography>
                 <FileInput source="file" accept="application/pdf" fullWidth label=" " labelSingle="project.fields.waiver_file" helperText=" " sx={{
                     '& .RaFileInput-dropZone': {

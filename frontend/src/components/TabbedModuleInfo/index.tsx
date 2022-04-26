@@ -1,10 +1,10 @@
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Box, Tab } from "@mui/material";
 import { useState } from "react";
-import TasksTabbedList from "./TasksTabbedList";
-import DocumentTabbedList from "../../../components/DocumentTabbedList";
 import { IModule } from "src/util/types";
 import { useShowContext } from 'react-admin';
+import TabbedTaskList from "../TabbedTaskList";
+import DocumentTabbedList from "../DocumentTabbedList";
 
 const hasFiles = (record: IModule) => {
     return (record && record?.files && (record?.files?.latest || record?.files?.old?.length > 0 || record?.files?.reviews?.length > 0 || record?.files?.oldReviews?.length > 0))
@@ -39,7 +39,7 @@ const TabbedModuleInfo = (props: TabbedModuleInfoProps) => {
                 <TabPanel value="TASKS" sx={{
                     padding: '0'
                 }}>
-                    <TasksTabbedList />
+                    <TabbedTaskList />
                 </TabPanel>
                 {(hasFiles(record)) ? (
                     <TabPanel value="DOCS" sx={{

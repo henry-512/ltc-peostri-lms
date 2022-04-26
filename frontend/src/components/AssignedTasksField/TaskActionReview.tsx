@@ -5,7 +5,7 @@
 * @author Braden Cariaga
 */
 
-import { useRefresh, useUpdate, FileField, FileInput, useRecordContext } from "react-admin";
+import { useRefresh, useUpdate, FileField, FileInput, useRecordContext, useNotify } from "react-admin";
 import { Button, Typography, Box, Tooltip } from "@mui/material";
 import TaskActionDialog from "./TaskActionDialog";
 import { MouseEventHandler, useState } from "react";
@@ -30,6 +30,7 @@ export type TaskActionReviewProps = {
 const TaskActionReview = (props: TaskActionReviewProps) => {
     const [update, { isLoading, error }] = useUpdate();
     const refresh = useRefresh();
+    const notify = useNotify();
     const record = useRecordContext();
 
     const [docOpen, setDocOpen] = useState(false);
@@ -45,11 +46,27 @@ const TaskActionReview = (props: TaskActionReviewProps) => {
 
     const handleDeny = (data: any) => {
         if (!data.file) return;
-        update(`proceeding/tasks/review`, { id: props.id, data, previousData: {} }).finally(() => props.close()) 
+        update(`proceeding/tasks/review`, { id: props.id, data, previousData: {} }, {
+            onSuccess: (data) => {
+                refresh();
+                notify('Submitted revision document.');
+            },
+            onError: (error: any) => {
+                notify(`Document upload error: ${error.message}`, { type: 'warning' });
+            },
+        }).finally(() => props.close()); 
     }
 
     const handleApprove = () => {
-        update(`proceeding/tasks/complete`, { id: props.id, data: {}, previousData: {} }).then(() => refresh()).finally(() => props.close())
+        update(`proceeding/tasks/complete`, { id: props.id, data: {}, previousData: {} }, {
+            onSuccess: (data) => {
+                refresh();
+                notify('Approved document.');
+            },
+            onError: (error: any) => {
+                notify(`Approval error: ${error.message}`, { type: 'warning' });
+            },
+        }).finally(() => props.close()); 
     }
 
     return (

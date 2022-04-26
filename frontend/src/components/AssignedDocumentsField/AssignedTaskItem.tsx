@@ -6,7 +6,7 @@
 */
 
 import { Box, Button, Typography } from "@mui/material";
-import { ReferenceField, FunctionField, useUpdate } from "react-admin";
+import { ReferenceField, FunctionField, useUpdate, useRefresh } from "react-admin";
 import { dateFormatToString } from "src/util/dateFormatter";
 import { getProgressStatusColor } from "src/util/getProgressStatus";
 import { ITask } from "src/util/types";
@@ -29,11 +29,16 @@ const AssignedTaskItem = ({ record, id }: AssignedTaskItemProps) => {
     const [viewed, setViewed] = useState(false);
     const [documentOpen, setDocumentOpen] = useState(false);
     const [update, { isLoading, error }] = useUpdate();
+    const refresh = useRefresh();
 
     const openDocument = () => {
         setViewed(true); 
         setDocumentOpen(true);
-        update(`proceeding/tasks/revise`, { id: id, data: { review: record.id }, previousData: {} });
+        update(`proceeding/tasks/revise`, { id: id, data: { review: record.id }, previousData: {} }, {
+            onSuccess: (data) => {
+                refresh();
+            },
+        }); 
     }
 
     return (

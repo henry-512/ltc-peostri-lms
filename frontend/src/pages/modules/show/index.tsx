@@ -2,9 +2,8 @@ import { Box, IconButton, Breadcrumbs, Divider } from "@mui/material";
 import { FunctionField, Link, ReferenceField, Show, ShowController, SimpleShowLayout, useCreatePath, TextField, ReferenceArrayField } from "react-admin";
 import Aside from "./Aside";
 import EditIcon from '@mui/icons-material/Edit';
-import TabbedProjectInfo from "./TabbedModuleInfo";
+import TabbedModuleInfo from "src/components/TabbedModuleInfo";
 import AssignedTasksField from "src/components/AssignedTasksField";
-import AssignedDocumentsField from "src/components/AssignedDocumentsField";
 
 export type ModuleShowProps = {
 
@@ -51,7 +50,7 @@ const ModuleShow = (props: ModuleShowProps) => {
                             </ReferenceArrayField>
                         )}
                     </ShowController>
-                    <TabbedProjectInfo />
+                    <TabbedModuleInfo />
                 </Box>
             </SimpleShowLayout>
         </Show>
