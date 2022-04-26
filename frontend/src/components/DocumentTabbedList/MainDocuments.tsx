@@ -67,7 +67,7 @@ const MainDocuments = ({ record }: { record: RaRecord }) => {
                             sort={{ field: 'title', order: 'ASC' }}
                         >
                             <FunctionField render={(record: any) => `${record.title.split('.')[0]}`} source="title" />
-                            <FileField source="src" title="title" label="Document" />
+                            <FileField source="src" title="title" label="Document" target="_blank" />
                             <DateField source='createdAt' showTime locales="en-GB" options={dateOptions} />
                             <ReferenceField reference="admin/users" source="author" >
                                 <AvatarField />

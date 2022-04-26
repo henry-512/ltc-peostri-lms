@@ -11,17 +11,17 @@ import { FieldProps, useRecordContext } from 'react-admin';
 import { IUser } from 'src/util/types';
 
 export interface AvatarFieldProps extends FieldProps<IUser> {
-    record?: any
     className?: string;
     size?: string;
+    record?: any;
 }
 
 /**
  * Component used to render the avatar image provided a record.
  * @param {AvatarFieldProps} props - AvatarFieldProps
  */
-const AvatarField = ({ size = '25', className }: AvatarFieldProps) => {
-    const record = useRecordContext();
+const AvatarField = ({ size = '25', className, ...props }: AvatarFieldProps) => {
+    const record = useRecordContext(props);
 
     if (!record) return null;
 

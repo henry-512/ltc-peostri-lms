@@ -118,7 +118,7 @@ const EventList = () => {
                                 </Typography>
                                 <Box display="flex" flexDirection="column" marginBottom="1rem">
                                     {record?.files?.reviews.map((revision: any, index: number) => (
-                                        <FileField record={revision} source="src" title="title" key={`revision-file-${index}`} />
+                                        <FileField record={revision} source="src" title="title" key={`revision-file-${index}`} target="_blank"/>
                                     ))}
                                 </Box>
                             </>) : null }
@@ -126,7 +126,7 @@ const EventList = () => {
                                 <Typography variant="h6" gutterBottom>
                                     Latest File:
                                 </Typography>
-                                <FileField record={record} source="files.latest.src" title="files.latest.title" />
+                                <FileField record={record} source="files.latest.src" title="files.latest.title" target="_blank" />
                             </>) : null }
                         </CardContent>
                     </Card>    

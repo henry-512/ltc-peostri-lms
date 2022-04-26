@@ -23,7 +23,7 @@ const AdminFilesList = (props: ListProps) => {
                         }
                     }}
                 >
-                    <FileField source="src" title="title" src="src"  />
+                    <FileField source="src" title="title" src="src" target="_blank" />
                     <TextField source="id" />
                     <ReferenceField reference="admin/users" source="author">
                         <AvatarField /> 
