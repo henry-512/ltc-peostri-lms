@@ -97,7 +97,7 @@ export async function stepperForEachInOrderSafe(
  */
 export async function stepperForEachInOrder<T>(
     stepper: IStepper<T>,
-    cb: (i: number, ar: T[]) => Promise<void | false>
+    cb: (i: number, ar: T[], key: string) => Promise<void | false>
 ) {
     for (let i = 0; true; i++) {
         let stepKey = buildStepperKey(i)
@@ -106,7 +106,7 @@ export async function stepperForEachInOrder<T>(
         // If we've expended the stepper
         if (!stepAr) {
             return true
-        } else if ((await cb(i, stepper[stepKey])) === false) {
+        } else if ((await cb(i, stepAr, stepKey)) === false) {
             // If the callback returns false
             return false
         }

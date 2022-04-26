@@ -157,12 +157,26 @@ class Module extends DBManager<IModule> {
     private async removeReviseTasks(mod: IModule) {
         await stepperForEachInOrder<string>(
             mod.tasks as IStepper<string>,
-            async (i, tasksInStep) => {
+            async (i, tasksInStep, stepKey) => {
+                // Filter the REVISE tasks
                 let reviseTasks = await TaskManager.db.filterIdsFaster(
                     tasksInStep,
                     'type',
                     'DOCUMENT_REVISE'
                 )
+                // If there are no revise tasks, shortcut
+                if (reviseTasks.hasNext) return
+                // Pull all revised tasks
+                let allRevised = await reviseTasks.all()
+                // Remove in O(n)
+                let set = new Set(allRevised)
+                let diff = tasksInStep.filter((id) => !set.has(id))
+                // Update mod.tasks
+                mod.tasks[stepKey] = diff
+                // Remove all the tasks from the db
+                for (const t of allRevised) {
+                    await TaskManager.db.remove(t)
+                }
             }
         )
     }
@@ -338,6 +352,8 @@ class Module extends DBManager<IModule> {
             delete mod.files
         }
 
+        // Remove the REVISE tasks
+        await this.removeReviseTasks(mod)
         // Set tasks to AWAITING
         let allTasks = compressStepper<string>(mod.tasks)
         await TaskManager.db.updateFaster(allTasks, 'status', 'AWAITING')
@@ -357,6 +373,9 @@ class Module extends DBManager<IModule> {
 
         // Reset files
         delete mod.files
+
+        // Remove the REVISE tasks
+        await this.removeReviseTasks(mod)
 
         // Set tasks to AWAITING
         let allTasks = compressStepper<string>(mod.tasks)
