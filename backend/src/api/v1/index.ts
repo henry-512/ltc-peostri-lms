@@ -280,7 +280,7 @@ export function routerBuilder(version: string) {
 
                         ctx.status = HTTPStatus.OK
                     })
-                    .put('reivew/:id', async (ctx) => {
+                    .put('review/:id', async (ctx) => {
                         let id = await TaskManager.db.assertKeyExists(
                             ctx.params.id
                         )
