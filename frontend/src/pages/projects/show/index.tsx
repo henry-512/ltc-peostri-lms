@@ -42,7 +42,7 @@ const ProjectShow = (props: ProjectShowProps) => {
                     <Divider sx={{ margin: "0 -15px" }} />
                     <ShowController>
                         {({record}) => (
-                            <ReferenceManyField reference="tasks/assigned" filter={{ satus: "IN_PROGRESS" }} target="project" sort={{ field: 'suspense', order: 'ASC' }} >
+                            <ReferenceManyField reference="tasks/assigned" filter={{ status: "IN_PROGRESS" }} target="project" sort={{ field: 'suspense', order: 'ASC' }} >
                                 <AssignedTasksField />
                             </ReferenceManyField>
                         )}
