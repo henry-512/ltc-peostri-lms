@@ -379,6 +379,16 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         )
     }
 
+    /**
+     * Sets DOCUMENT(id).key = value
+     */
+    public async updateOneFaster(id: string, key: string, value: any) {
+        let k = this.asKey(id)
+        return ArangoWrapper.db.query(
+            aql`UPDATE{_key:${k}}WITH{${key}:${value}}IN${this.collection}`
+        )
+    }
+
     public async getIds(ids: string[]): Promise<ArrayCursor<Type>> {
         return ArangoWrapper.db.query(aql`FOR i IN ${ids} RETURN DOCUMENT(i)`)
     }
@@ -453,6 +463,12 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         }
         q = aql`${q} RETURN i`
         return ArangoWrapper.db.query(q)
+    }
+
+    public async filterIdsFaster(ids: string[], key: string, equals: string) {
+        return ArangoWrapper.db.query(
+            aql`FOR i in ${ids} LET d=DOCUMENT(i)FILTER d.${key}==${equals} RETURN i._id`
+        )
     }
 }
 

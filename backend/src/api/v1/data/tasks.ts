@@ -1,5 +1,6 @@
 import { ArangoWrapper } from '../../../database'
 import { HTTPStatus } from '../../../lms/errors'
+import { getStep } from '../../../lms/Stepper'
 import { IFilemeta, IModule, ITask } from '../../../lms/types'
 import { getFile, tryGetFile } from '../../../lms/util'
 import { AuthUser } from '../../auth'
@@ -7,6 +8,7 @@ import { DBManager } from '../DBManager'
 import { FilemetaManager, IFileData } from './filemeta'
 import { FiledataManager } from './files'
 import { ModuleManager } from './modules'
+import { ProjectManager } from './projects'
 
 class Task extends DBManager<ITask> {
     constructor() {
@@ -103,7 +105,7 @@ class Task extends DBManager<ITask> {
      * COMPLETE
      */
     public async complete(user: AuthUser, taskId: string) {
-        await this.db.updateFaster([taskId], 'status', 'COMPLETE')
+        await this.db.updateOneFaster(taskId, 'status', 'COMPLETE')
         let modId = await this.db.getOneFaster<string>(taskId, 'module')
         await ModuleManager.automaticAdvance(user, modId)
     }
@@ -154,7 +156,7 @@ class Task extends DBManager<ITask> {
         }
 
         // Update task and ADVANCE
-        await this.db.updateFaster([taskId], 'status', 'COMPLETED')
+        await this.db.updateOneFaster(taskId, 'status', 'COMPLETED')
         await ModuleManager.postAutomaticAdvance(user, mod)
     }
 
@@ -195,11 +197,60 @@ class Task extends DBManager<ITask> {
             // Task should remain unchanged. Module cannot advance from this
             // state
 
-            // TODO: Create REVISE task here
+            // Rip current step
+            let currentStep = getStep<string>(mod.tasks, mod.currentStep)
+
+            // Find revise task
+            let reviseTaskCursor = await this.db.filterIdsFaster(
+                currentStep,
+                'type',
+                'DOCUMENT_REVISE'
+            )
+
+            // Check if we already have a revise task
+            if (reviseTaskCursor.hasNext) {
+                // A revise task already exists here, set it back to IN_PROGRESS
+                let id: string = await reviseTaskCursor.next()
+                await this.db.updateOneFaster(id, 'status', 'IN_PROGRESS')
+            } else {
+                // No existing revise task
+
+                //
+                let id = this.db.generateDBID()
+
+                // Pull users from the project
+                let users = await ProjectManager.db.getOneFaster<string[]>(
+                    mod.project as string,
+                    'users'
+                )
+
+                // TODO: Rip user/rank from existing upload task
+                let task: ITask = {
+                    id,
+                    users,
+                    title: 'AUTO - Revise Documents',
+                    status: 'IN_PROGRESS',
+                    type: 'DOCUMENT_REVISE',
+                    module: modId,
+                    project: mod.project,
+                }
+
+                // Save new task
+                await this.db.save(task)
+
+                // Updates the reference of currentStep (which is a mutable part of the stepper mod.tasks)
+                currentStep.push(id)
+                // Update the task stepper of module with the new task, which works because the above modified the stepper
+                await ModuleManager.db.updateOneFaster(
+                    modId,
+                    'tasks',
+                    mod.tasks
+                )
+            }
         } else {
             // If no file is provided, the current file is acceptable
             // Update task and ADVANCE
-            await this.db.updateFaster([taskId], 'status', 'COMPLETED')
+            await this.db.updateOneFaster(taskId, 'status', 'COMPLETED')
             await ModuleManager.postAutomaticAdvance(user, mod)
         }
     }
@@ -253,7 +304,7 @@ class Task extends DBManager<ITask> {
         await FilemetaManager.db.update(filemeta, { mergeObjects: false })
 
         // Update task and ADVANCE
-        await this.db.updateFaster([taskId], 'status', 'COMPLETED')
+        await this.db.updateOneFaster(taskId, 'status', 'COMPLETED')
         await ModuleManager.postAutomaticAdvance(user, mod)
     }
 
@@ -261,7 +312,7 @@ class Task extends DBManager<ITask> {
      * APPROVE
      */
     public async approve(user: AuthUser, taskId: string) {
-        await this.db.updateFaster([taskId], 'status', 'COMPLETE')
+        await this.db.updateOneFaster(taskId, 'status', 'COMPLETE')
         // ADVANCE
         let modId = await this.db.getOneFaster<string>(taskId, 'module')
         await ModuleManager.automaticAdvance(user, modId)
