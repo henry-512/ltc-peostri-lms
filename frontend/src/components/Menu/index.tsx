@@ -72,14 +72,6 @@ const Menu = ({ dense = false }: MenuProps) => {
             <DashboardMenuItem />
             <MenuItemLink
                 to={{
-                    pathname: '/tasks'
-                }}
-                replace={true}
-                primaryText={translate("layout.menu.my_tasks")}
-                leftIcon={<AdminProjectIcon />}
-            />
-            <MenuItemLink
-                to={{
                     pathname: '/projects'
                 }}
                 replace={true}
