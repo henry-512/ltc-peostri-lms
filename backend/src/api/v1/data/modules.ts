@@ -10,9 +10,8 @@ import { getUrl } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { FilemetaManager } from './filemeta'
-import { NotificationManager } from './notifications'
 import { ProjectManager } from './projects'
-import { TaskManager } from './tasks'
+import { NotificationType, TaskManager } from './tasks'
 
 class Module extends DBManager<IModule> {
     constructor() {
@@ -246,6 +245,13 @@ class Module extends DBManager<IModule> {
         if (nextStep) {
             // If there is a next step set those to IN_PROGRESS
             await TaskManager.db.updateFaster(nextStep, 'status', 'IN_PROGRESS')
+            // Send task notifications
+            await TaskManager.sendManyNotifications(
+                mod.title,
+                mod.id ?? 'null-pointer2',
+                nextStep,
+                NotificationType.TASK_AWAITING_ACTION
+            )
             // Calculate %-complete
             await this.calculatePercentComplete(mod)
 
@@ -467,6 +473,12 @@ class Module extends DBManager<IModule> {
 
         // Change tasks in next step to in-progress
         await TaskManager.db.updateFaster(nextStepAr, 'status', 'IN_PROGRESS')
+        await TaskManager.sendManyNotifications(
+            mod.title,
+            mod.id ?? 'null-pointer',
+            nextStepAr,
+            NotificationType.TASK_AWAITING_ACTION
+        )
 
         // Update step
         mod.currentStep = nextStep

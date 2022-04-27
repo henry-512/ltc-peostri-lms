@@ -1,8 +1,6 @@
-import { ArangoWrapper } from '../../../database'
-import { NOTE_NEW_UPLOAD_AWAITING_REVIEW } from '../../../lang'
-import { HTTPStatus } from '../../../lms/errors'
+import { APIError, HTTPStatus } from '../../../lms/errors'
 import { getStep } from '../../../lms/Stepper'
-import { IFilemeta, IModule, ITask } from '../../../lms/types'
+import { IFilemeta, ITask } from '../../../lms/types'
 import { addDays, getFile, tryGetFile } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
@@ -11,6 +9,34 @@ import { FiledataManager } from './files'
 import { ModuleManager } from './modules'
 import { NotificationManager } from './notifications'
 import { ProjectManager } from './projects'
+
+export enum NotificationType {
+    UPLOAD_AWAITING_REVIEW,
+    AWAITING_REVIEW,
+    TASK_AWAITING_ACTION,
+}
+
+function notificationContent(
+    t: NotificationType,
+    taskTitle: string,
+    moduleTitle: string
+): string {
+    switch (t) {
+        case NotificationType.AWAITING_REVIEW:
+            return `A new document is awaiting your review for the "${moduleTitle}" module.`
+        case NotificationType.UPLOAD_AWAITING_REVIEW:
+            return `A commented document is awaiting your revisions for the "${moduleTitle}" module.`
+        case NotificationType.TASK_AWAITING_ACTION:
+            return `Task "${taskTitle}" is awaiting your action for the "${moduleTitle}" module.`
+    }
+    throw new APIError(
+        'Task/notificationContent',
+        'notificationContent',
+        HTTPStatus.INTERNAL_SERVER_ERROR,
+        'Internal Server Error',
+        `${t} is not a valid NotificationType`
+    )
+}
 
 const REVISE_TASK_TTC = 10
 
@@ -64,20 +90,38 @@ class Task extends DBManager<ITask> {
         )
     }
 
-    public async sendNotification(id: string, content: string) {
-        let display = await this.db.getOneFaster<string>(id, 'title')
-        let users = await this.db.getOneFaster<string[]>(id, 'users')
-        await NotificationManager.sendToMultipleUsers(users, content, {
-            display,
-            id,
-            resource: 'tasks',
+    public async sendNotification(
+        moduleTitle: string,
+        moduleId: string,
+        taskId: string,
+        content: string | NotificationType
+    ) {
+        let titleUser = await this.db.getOneMultipleFaster<string, string[]>(
+            taskId,
+            'title',
+            'users'
+        )
+        // Generate notification content based on notification type
+        content =
+            typeof content === 'string'
+                ? content
+                : notificationContent(content, titleUser.a, moduleTitle)
+        await NotificationManager.sendToMultipleUsers(titleUser.b, content, {
+            display: moduleTitle,
+            id: moduleId,
+            resource: 'modules',
         })
     }
 
-    public async sendManyNotifications(ids: string[], content: string) {
+    public async sendManyNotifications(
+        moduleTitle: string,
+        moduleId: string,
+        taskIds: string[],
+        content: string | NotificationType
+    ) {
         // a = title, b = users
         let titleUser = await this.db.getMultipleFaster<string, string[]>(
-            ids,
+            taskIds,
             'title',
             'users'
         )
@@ -86,10 +130,15 @@ class Task extends DBManager<ITask> {
             if (!next) {
                 return
             }
+            // Generate notification content based on notification type
+            content =
+                typeof content === 'string'
+                    ? content
+                    : notificationContent(content, next.a, moduleTitle)
             await NotificationManager.sendToMultipleUsers(next.b, content, {
-                display: next.a,
-                id: next.id,
-                resource: 'tasks',
+                display: moduleTitle,
+                id: moduleId,
+                resource: 'modules',
             })
         }
     }
@@ -203,8 +252,10 @@ class Task extends DBManager<ITask> {
             // Send notifications
             if (updated.hasNext) {
                 await this.sendManyNotifications(
+                    mod.title,
+                    modId,
                     await updated.all(),
-                    NOTE_NEW_UPLOAD_AWAITING_REVIEW
+                    NotificationType.UPLOAD_AWAITING_REVIEW
                 )
             }
         }
@@ -260,16 +311,24 @@ class Task extends DBManager<ITask> {
             'DOCUMENT_REVISE'
         )
 
+        let reviseId: string
+
         // Check if we already have a revise task
         if (reviseTaskCursor.hasNext) {
             // A revise task already exists here, set it back to IN_PROGRESS
-            let reviseId: string = (await reviseTaskCursor.next()) as string
+            reviseId = (await reviseTaskCursor.next()) as string
             await this.db.updateOneFaster(reviseId, 'status', 'IN_PROGRESS')
+            // Send notification
+            await this.sendNotification(
+                mod.title,
+                modId,
+                reviseId,
+                NotificationType.AWAITING_REVIEW
+            )
         } else {
             // No existing revise task
-
-            //
-            let id = this.db.generateDBID()
+            // Generate id for the task
+            reviseId = this.db.generateDBID()
 
             // Pull users from the project
             let users = await ProjectManager.db.getOneFaster<string[]>(
@@ -279,7 +338,7 @@ class Task extends DBManager<ITask> {
 
             // TODO: Rip user/rank from existing upload task
             let task: ITask = {
-                id,
+                id: reviseId,
                 users,
                 // rank: undefined,
                 title: 'AUTO - Revise Documents',
@@ -295,11 +354,20 @@ class Task extends DBManager<ITask> {
             // Save new task
             await this.db.save(task)
 
+            // Send notification
             // Updates the reference of currentStep (which is a mutable part of the stepper mod.tasks)
-            currentStep.push(id)
+            currentStep.push(reviseId)
             // Update the task stepper of module with the new task, which works because the above modified the stepper
             await ModuleManager.db.updateOneFaster(modId, 'tasks', mod.tasks)
         }
+
+        // Send notification
+        await this.sendNotification(
+            mod.title,
+            modId,
+            reviseId,
+            NotificationType.AWAITING_REVIEW
+        )
 
         // Update this task
         await this.db.updateOneFaster(taskId, 'status', 'COMPLETED')
@@ -374,7 +442,6 @@ class Task extends DBManager<ITask> {
         files: any,
         fileKey: string
     ) {
-        // RESTART
         let modId = await this.db.getOneFaster<string>(taskId, 'module')
 
         let fileData = tryGetFile(files, fileKey)
@@ -408,6 +475,7 @@ class Task extends DBManager<ITask> {
             await FilemetaManager.db.update(filemeta, { mergeObjects: false })
         }
 
+        // RESTART
         await ModuleManager.restart(user, modId, false)
     }
 }

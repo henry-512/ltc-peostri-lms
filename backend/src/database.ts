@@ -431,6 +431,25 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         }
     }
 
+    public async getOneMultipleFaster<A, B>(
+        id: string,
+        a: string,
+        b: string
+    ): Promise<{ a: A; b: B }> {
+        let cursor = await ArangoWrapper.db.query(
+            aql`LET d=DOCUMENT(${id}) RETURN {a:d.${a},b:d.${b}}`
+        )
+
+        if (cursor.hasNext) {
+            return cursor.next()
+        } else {
+            throw this.internal(
+                `getOneMultipleFaster`,
+                `${id} lacks ${a} or ${b} field`
+            )
+        }
+    }
+
     public async getWithIdFaster<T>(
         ids: string[],
         ret: string

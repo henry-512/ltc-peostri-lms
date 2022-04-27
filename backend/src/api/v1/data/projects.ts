@@ -271,16 +271,6 @@ class Project extends DBManager<IProject> {
     ): Promise<string> {
         let id = await super.create(user, files, d, real)
 
-        await NotificationManager.sendNotification(
-            user.id,
-            `Project ${id} created.`,
-            {
-                display: d.title,
-                resource: 'projects',
-                id: this.db.asKey(id),
-            }
-        )
-
         if (d.status === 'AWAITING') {
             console.log('DEBUG STARTING')
             await this.start(user, id)
@@ -297,16 +287,6 @@ class Project extends DBManager<IProject> {
         real: boolean
     ): Promise<void> {
         await super.update(user, files, id, doc, real)
-
-        await NotificationManager.sendNotification(
-            user.id,
-            `Project ${id} updated.`,
-            {
-                display: doc.title,
-                resource: 'projects',
-                id: this.db.asKey(id),
-            }
-        )
 
         if (doc.status === 'AWAITING') {
             console.log('DEBUG STARTING')
