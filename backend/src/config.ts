@@ -13,9 +13,10 @@ export interface Config {
     dbUser: string
     dbPass: string
 
-    devRoutes?: boolean
+    devRoutes: boolean
     // True if we should actually/send store files
-    releaseFileSystem?: boolean
+    releaseFileSystem: boolean
+    spoofFileSave: boolean
 
     basePath: string
     secret: string
@@ -38,6 +39,7 @@ export const config: Config = {
     dbPass: process.env.DB_PASS || 'password',
     devRoutes: process.env.DEV_ROUTES === 'true',
     releaseFileSystem: process.env.RELEASE_FILE_SYSTEM === 'true',
+    spoofFileSave: process.env.SPOOF_FILE_SAVE === 'true',
     secret: process.env.SECRET || 'soyoung',
 
     // 3600: 1 hour, 86,400: 24 hours

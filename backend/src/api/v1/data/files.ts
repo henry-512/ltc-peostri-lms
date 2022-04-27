@@ -77,8 +77,13 @@ class Filedata extends DBManager<IFile> {
         let key = generateBase64UUID()
         let pathTo: string = key + '-' + file.name
 
-        // Move file from OS 'tmp' to the LMS 'fs' directory
-        await fs.promises.rename(file.path, path.join(FULL_FILE_PATH, pathTo))
+        if (config.spoofFileSave) {
+            // Move file from OS 'tmp' to the LMS 'fs' directory
+            await fs.promises.rename(
+                file.path,
+                path.join(FULL_FILE_PATH, pathTo)
+            )
+        }
 
         return {
             id: this.db.keyToId(key),
