@@ -94,7 +94,7 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
                     users: [],
                     rank: t.rank && convertToKey(t.rank),
                     type: t.type,
-                    ttc: temp.ttc,
+                    ttc: t.ttc,
                 } as ITask
             })
         }

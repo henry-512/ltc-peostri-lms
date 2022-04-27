@@ -120,6 +120,7 @@ export interface ITaskTemplate extends IArangoIndexes {
     rank?: string
     type: TaskTypes
     status: Status
+    ttc: number
 }
 
 export interface ITask extends IArangoIndexes {
