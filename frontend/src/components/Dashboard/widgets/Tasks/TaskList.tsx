@@ -38,7 +38,8 @@ const TaskList = (props: TaskListProps) => {
     if (isError) return null;
 
     return (
-        <CardWithIcon icon={TaskAltIcon} to={createPath({ resource: `tasks`, type: 'list' })} title={props.title || "dashboard.widget.tasks.my_title"} subtitle={(isLoading) ? <Box display="flex" justifyContent="center"><LinearProgress /></Box> : (total || "0")}>
+        //@ts-ignore
+        <CardWithIcon icon={TaskAltIcon} to={createPath({ resource: `modules `, id: record.module, type: 'show' })} title={props.title || "dashboard.widget.tasks.my_title"} subtitle={(isLoading) ? <Box display="flex" justifyContent="center"><LinearProgress /></Box> : (total || "0")}>
             {(tasks && tasks.length > 0) ? (
                 <>
                     <List sx={{ display }}>
