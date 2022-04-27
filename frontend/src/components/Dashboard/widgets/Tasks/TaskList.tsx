@@ -47,7 +47,7 @@ const TaskList = (props: TaskListProps) => {
                                 key={record.id}
                                 button
                                 component={Link}
-                                to={createPath({ resource: `tasks`, id: record.id, type: 'show' })}
+                                to={createPath({ resource: `modules`, id: record.module, type: 'show' })}
                                 replace={true}
                                 alignItems="flex-start"
                                 sx={{
