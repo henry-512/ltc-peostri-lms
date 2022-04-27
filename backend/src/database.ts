@@ -84,23 +84,55 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         return this.collection.update(doc._key as string, doc, opt)
     }
 
+    /**
+     * Removes the passed ID from the database.
+     * @param id A valid ID for this collection
+     */
     private async removeUnsafe(id: string) {
         await this.collection.remove(id)
     }
 
+    /**
+     * Regular Expression used to validate if a string as an ID for this collection
+     */
     private idRegex
+    /**
+     *  Returns true if this looks like an `ID` for this collection
+     * @param id A string to test
+     * @return true if the string matches the ID regex
+     */
     public isDBId(id: string) {
         return this.idRegex.test(id)
     }
+    /**
+     * Converts a key to an ID. Does not perform input checking.
+     * @param key A `KEY`
+     * @returns An `ID` for this collection
+     */
     public keyToId(key: string) {
         return keyToId(key, this.dbName)
     }
+    /**
+     * Generates a DB `ID` for this collection.
+     * @return An `ID` where they `KEY` section is a url-safe base-64 UUID.
+     */
     public generateDBID() {
         return generateDBID(this.dbName)
     }
+    /**
+     * Returns true if the passed string is a `KEY` or an `ID`
+     * @param idOrKey A string
+     * @return True if idOrKey is either a `KEY` or an `ID` for this collection.
+     */
     public isKeyOrId(idOrKey: string) {
         return isDBKey(idOrKey) || this.idRegex.test(idOrKey)
     }
+    /**
+     * Converts an id or a key into an `ID`.
+     * @param idOrKey The string to convert
+     * @returns An `ID` for this collection
+     * @throws BAD_REQUEST if the string isn't an `ID` or `KEY`
+     */
     public asId(idOrKey: string) {
         if (this.isDBId(idOrKey)) {
             return idOrKey
@@ -115,6 +147,12 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
             )
         }
     }
+    /**
+     * Converts an id or a key into a `KEY`.
+     * @param idOrKey The string to convert
+     * @returns A `KEY`
+     * @throws BAD_REQUEST if the string isn't an `ID` or `KEY`
+     */
     public asKey(idOrKey: string) {
         if (isDBKey(idOrKey)) {
             return idOrKey
@@ -130,10 +168,16 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         }
     }
 
+    /**
+     * Builds the collection manager from its string name and field data.
+     */
     constructor(private dbName: string, fields: [string, IField][]) {
+        // Build error handler
         super(dbName)
 
+        // Set collection
         this.collection = ArangoWrapper.db.collection(this.dbName)
+        // Generate AQL return query
         this.getAllQueryFields = appendReturnFields(
             aql`id:z._key,`,
             fields
@@ -141,19 +185,32 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
                 .map((d) => d[0])
         )
 
+        // Set regex
         this.idRegex = new RegExp(`^${dbName}\/([0-9]|[a-z]|[A-Z]|-|_)+$`)
     }
 
+    /**
+     * Converts a filter into its document key.
+     * @param filter The filter to parse
+     * @returns An AQL string to use for filtering 
+     */
     protected getFilterKey(filter: IFilterOpts) {
         return filter.ref
             ? aql`DOCUMENT(z.${filter.key}).${filter.ref}`
             : aql`z.${filter.key}`
     }
 
+    /**
+     * Appends the return segment to the query.
+     * @param query An AQL query to append to
+     * @returns The finalized query
+     */
     protected returnQuery(query: GeneratedAqlQuery) {
         return aql`${query} RETURN {${this.getAllQueryFields}}`
     }
 
+    /**
+     */
     protected getAllQuery(
         sort: ISortOpts,
         offset: number,
