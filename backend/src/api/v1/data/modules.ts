@@ -61,6 +61,7 @@ class Module extends DBManager<IModule> {
                         oldReviews: [],
                     },
                     overrideUserDeref: true,
+                    getIdKeepAsRef: true,
                 },
                 waive_module: {
                     type: 'boolean',
