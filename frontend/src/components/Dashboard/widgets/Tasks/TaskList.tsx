@@ -47,6 +47,7 @@ const TaskList = (props: TaskListProps) => {
                                 key={record.id}
                                 button
                                 component={Link}
+                                //@ts-ignore
                                 to={createPath({ resource: `modules`, id: record.module, type: 'show' })}
                                 replace={true}
                                 alignItems="flex-start"
