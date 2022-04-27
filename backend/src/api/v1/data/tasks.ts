@@ -96,6 +96,7 @@ class Task extends DBManager<ITask> {
         taskId: string,
         content: string | NotificationType
     ) {
+        let moduleKey = ModuleManager.db.asKey(moduleId)
         let titleUser = await this.db.getOneMultipleFaster<string, string[]>(
             taskId,
             'title',
@@ -108,7 +109,7 @@ class Task extends DBManager<ITask> {
                 : notificationContent(content, titleUser.a, moduleTitle)
         await NotificationManager.sendToMultipleUsers(titleUser.b, content, {
             display: moduleTitle,
-            id: moduleId,
+            id: moduleKey,
             resource: 'modules',
         })
     }
@@ -119,6 +120,7 @@ class Task extends DBManager<ITask> {
         taskIds: string[],
         content: string | NotificationType
     ) {
+        let moduleKey = ModuleManager.db.asKey(moduleId)
         // a = title, b = users
         let titleUser = await this.db.getMultipleFaster<string, string[]>(
             taskIds,
@@ -137,7 +139,7 @@ class Task extends DBManager<ITask> {
                     : notificationContent(content, next.a, moduleTitle)
             await NotificationManager.sendToMultipleUsers(next.b, content, {
                 display: moduleTitle,
-                id: moduleId,
+                id: moduleKey,
                 resource: 'modules',
             })
         }
