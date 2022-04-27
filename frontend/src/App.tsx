@@ -24,6 +24,7 @@ import { ProjectShow, ProjectList } from './pages/projects';
 import { ModuleShow } from './pages/modules';
 import { lightTheme } from 'src/config/themes';
 import { Navigate, Route } from 'react-router-dom';
+import { NotificationList } from './pages/notifications';
 
 const API_URL = process.env.REACT_APP_API_URL + "/" + process.env.REACT_APP_API_VERSION || "http://localhost:5000/api/v1";
 
@@ -64,7 +65,7 @@ const App = () => {
             <Resource name="projects" options={{ label: "layout.menu.my_projects" }} show={ProjectShow} list={ProjectList} />
             <Resource name="projects/all" options={{ label: "layout.menu.my_projects" }} list={ProjectList} />
             <Resource name="projects/team" options={{ label: "layout.menu.my_projects" }} list={ProjectList} />
-            <Resource name="notifications" list={ListGuesser} />
+            <Resource name="notifications" list={NotificationList} />
 
             <CustomRoutes>
                 <Route path="/modules" element={<Navigate to="/projects" />} />
