@@ -39,7 +39,7 @@ const TaskList = (props: TaskListProps) => {
 
     return (
         //@ts-ignore
-        <CardWithIcon icon={TaskAltIcon} title={props.title || "dashboard.widget.tasks.my_title"} subtitle={(isLoading) ? <Box display="flex" justifyContent="center"><LinearProgress /></Box> : (total || "0")}>
+        <CardWithIcon icon={TaskAltIcon} to={createPath({ resource: `projects `, type: 'list' })} title={props.title || "dashboard.widget.tasks.my_title"} subtitle={(isLoading) ? <Box display="flex" justifyContent="center"><LinearProgress /></Box> : (total || "0")}>
             {(tasks && tasks.length > 0) ? (
                 <>
                     <List sx={{ display }}>
@@ -47,6 +47,9 @@ const TaskList = (props: TaskListProps) => {
                             <ListItem
                                 key={record.id}
                                 button
+                                component={Link}
+                                //@ts-ignore
+                                to={createPath({ resource: `projects `, type: 'list' })}
                                 replace={true}
                                 alignItems="flex-start"
                                 sx={{
