@@ -49,7 +49,7 @@ const TaskList = (props: TaskListProps) => {
                                 button
                                 component={Link}
                                 //@ts-ignore
-                                to={createPath({ resource: `projects `, type: 'list' })}
+                                to={createPath({ resource: `projects`, type: 'list' })}
                                 replace={true}
                                 alignItems="flex-start"
                                 sx={{
