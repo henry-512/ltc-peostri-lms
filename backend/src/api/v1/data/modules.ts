@@ -385,7 +385,11 @@ class Module extends DBManager<IModule> {
         mod.status = 'AWAITING'
 
         // Reset files
-        delete mod.files
+        if (mod.files) {
+            await FilemetaManager.delete(user, mod.files as string, true, true)
+            delete mod.files
+        }
+
 
         // Remove the REVISE tasks
         await this.removeReviseTasks(mod)
@@ -393,6 +397,8 @@ class Module extends DBManager<IModule> {
         // Set tasks to AWAITING
         let allTasks = compressStepper<string>(mod.tasks)
         await TaskManager.db.updateFaster(allTasks, 'status', 'AWAITING')
+
+        console.log(mod)
 
         // Update status and files
         await this.db.update(mod, { mergeObjects: false })

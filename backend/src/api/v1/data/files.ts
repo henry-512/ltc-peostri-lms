@@ -34,6 +34,18 @@ class Filedata extends DBManager<IFile> {
         )
     }
 
+    public override async delete(
+        user: AuthUser,
+        id: string,
+        real: boolean,
+        base: boolean
+    ): Promise<void> {
+        let path = await this.db.getOneFaster<string>(id, 'pathTo')
+        await super.delete(user, id, real, base)
+        // Delete the file after super.delete completes in case of errors
+        await this.deleteFile(user, path)
+    }
+
     public override async getFromDB(
         user: AuthUser,
         id: string,
@@ -74,6 +86,28 @@ class Filedata extends DBManager<IFile> {
             title: file.name,
             author: user.id,
             createdAt: new Date().toJSON(),
+        }
+    }
+
+    // Delete a file from the filesystem
+    public async deleteFile(user: AuthUser, pathTo: string) {
+        let fullPath = path.join(FULL_FILE_PATH, pathTo)
+
+        if (fs.existsSync(fullPath)) {
+            if ((await fs.promises.stat(fullPath)).isFile()) {
+                fs.unlinkSync(fullPath)
+            } else {
+                throw this.internal(
+                    'deleteFile',
+                    `pathTo ${fullPath} is not a file.`
+                )
+            }
+        } else {
+            if (config.releaseFileSystem) {
+                throw this.internal('deleteFile', `Path ${pathTo} dne`)
+            } else {
+                console.log(`Path ${pathTo} dne`)
+            }
         }
     }
 
