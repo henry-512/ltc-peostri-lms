@@ -110,7 +110,7 @@ class Project extends DBManager<IProject> {
 
         // Start date of the project
         let startDate = new Date(p.start)
-        let incrementedTTC = 0
+        let projectIncrementedTTC = 0
 
         let moduleIdStepper = p.modules as IStepper<string>
         // All modules we need to process
@@ -157,6 +157,7 @@ class Project extends DBManager<IProject> {
 
                     let totalTasks = 0
                     let completeTasks = 0
+                    let moduleIncrementedTTC = 0
 
                     let totalModuleTTC = 0
                     await stepperForEachInOrder<string>(
@@ -202,7 +203,9 @@ class Project extends DBManager<IProject> {
                                 // Set suspense date
                                 task.suspense = addDays(
                                     startDate,
-                                    incrementedTTC + ttc
+                                    projectIncrementedTTC +
+                                        moduleIncrementedTTC +
+                                        ttc
                                 ).toJSON()
                                 // Attatch project
                                 task.project = this.db.asId(doc.id ?? '')
@@ -228,14 +231,14 @@ class Project extends DBManager<IProject> {
                             }
 
                             totalModuleTTC += maxTaskTime
-                            incrementedTTC += maxTaskTime
+                            moduleIncrementedTTC += maxTaskTime
                         }
                     )
                     // Set module suspense and ttc
                     mod.ttc = totalModuleTTC
                     mod.suspense = addDays(
                         startDate,
-                        incrementedTTC + totalModuleTTC
+                        projectIncrementedTTC + totalModuleTTC
                     ).toJSON()
 
                     // Set module %-complete
@@ -249,13 +252,13 @@ class Project extends DBManager<IProject> {
 
                 // Increment project ttc
                 // totalProjectTTC += maxModTTC
-                incrementedTTC += maxModTTC
+                projectIncrementedTTC += maxModTTC
             }
         )
 
         // Set project ttc and suspense
-        p.ttc = incrementedTTC
-        p.suspense = addDays(startDate, incrementedTTC)
+        p.ttc = projectIncrementedTTC
+        p.suspense = addDays(startDate, projectIncrementedTTC)
 
         // Set project %-complete
         p.percent_complete = (100 * completeModules) / totalModules
