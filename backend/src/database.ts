@@ -18,6 +18,19 @@ import {
     splitId,
 } from './lms/util'
 
+/**
+ * A wrapper for ArangoJS function calls to avoid directly using AQL syntax. This was done to more easily facilitate switching underlying database architecture.
+ * 
+ * The database configuration is established by config.ts.
+ * 
+ * Each ArangoWrapper instance manages a single collection in the database. Some functions run independent of the collection, but should always be associated with the data they are using.
+ * 
+ * Extends IErrorable to provide cleaner error handling.
+ * 
+ * Note: `ID`s are in the form `[collection]/[KEY]`, while `KEY`s lack the `[collection]` prefix. `ID`s are required for internal document relations but `KEY`s are more useful for the frontend (the collection prefix makes filtering and `/:id` routes more difficult).
+ * 
+ * @typeParam Type An interface for the data managed by this collection.
+ */
 export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     // Set up database
     protected static db = new Database({
@@ -26,23 +39,47 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         auth: { username: config.dbUser, password: config.dbPass },
     })
 
+    // Internal collection
     protected collection: DocumentCollection<Type>
+    /**
+     * An AQL query representing the fields that should be return from a GET-ALL request.
+     */
     protected getAllQueryFields: GeneratedAqlQuery
 
+    /**
+     * Check if the id exists in the collection.
+     * @param id An ID for this collection
+     * @return A Promise that resolves true if the document exists
+     */
     private async existsUnsafe(id: string) {
         return this.collection.documentExists(id)
     }
 
+    /**
+     * Return a document from its ID
+     * @param id An ID for this collection
+     * @return A raw document from the database matching the ID.
+     * @throws An error if the id is invalid
+     */
     private async getUnsafe(id: string): Promise<Type> {
         return this.collection.document(id)
     }
 
+    /**
+     * Save a document in the database. `doc._key` is the collection primary key for upload.
+     * @param A document for this collection
+     */
     private async saveUnsafe(doc: Type) {
         return this.collection.save(doc, {
             overwriteMode: 'replace',
         })
     }
 
+    /**
+     * Updates the passed collection with the passed data. Uses the doc._key value to check what document to update.
+     * @param doc An update document
+     * @param opt A set of update options
+     */
     private async updateUnsafe(doc: Type, opt: CollectionUpdateOptions) {
         return this.collection.update(doc._key as string, doc, opt)
     }
