@@ -332,13 +332,16 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         throw this.internal('save', `${JSON.stringify(doc)} lacks id key`)
     }
 
-    public async update(doc: Type, opt: CollectionUpdateOptions) {
+    public async update(doc: Type) {
         if (doc.id) {
             doc._key = this.asKey(doc.id)
             delete doc.id
         }
         if (doc._key) {
-            return this.updateUnsafe(doc, opt)
+            return this.updateUnsafe(doc, {
+                keepNull: false,
+                mergeObjects: false,
+            })
         }
         throw this.internal(
             'save',
@@ -514,7 +517,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         equals: string
     ): Promise<ArrayCursor<string>> {
         return ArangoWrapper.db.query(
-            aql`FOR i in ${ids} LET d=DOCUMENT(i)FILTER d.${key}==${equals} RETURN i._id`
+            aql`FOR i in ${ids} LET d=DOCUMENT(i)FILTER d.${key}==${equals} RETURN i`
         )
     }
 }

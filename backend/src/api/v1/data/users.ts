@@ -97,7 +97,7 @@ class User extends DBManager<IUser> {
         }
         user.lastVisited = new Date().toJSON()
 
-        return this.db.update(user, { mergeObjects: false })
+        return this.db.update(user)
     }
 }
 

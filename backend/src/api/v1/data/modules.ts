@@ -165,7 +165,7 @@ class Module extends DBManager<IModule> {
                     'DOCUMENT_REVISE'
                 )
                 // If there are no revise tasks, shortcut
-                if (reviseTasks.hasNext) return
+                if (!reviseTasks.hasNext) return
                 // Pull all revised tasks
                 let allRevised = await reviseTasks.all()
                 // Remove in O(n)
@@ -261,7 +261,7 @@ class Module extends DBManager<IModule> {
             console.log(`Module ${mod.id} advanced to step ${mod.currentStep}`)
 
             // Update module
-            await this.db.update(mod, { mergeObjects: false })
+            await this.db.update(mod)
         } else {
             // If we can't find the next step, the module is complete
             mod.status = mod.waive_module ? 'WAIVED' : 'COMPLETED'
@@ -279,7 +279,7 @@ class Module extends DBManager<IModule> {
             // Project is completed
             mod.percent_complete = 100
             // Update module
-            await this.db.update(mod, { mergeObjects: false })
+            await this.db.update(mod)
 
             await ProjectManager.db.assertIdExists(mod.project)
             await ProjectManager.automaticAdvance(user, mod.project)
@@ -327,7 +327,7 @@ class Module extends DBManager<IModule> {
         // Calculate %-complete
         await this.calculatePercentComplete(mod)
         // Update module
-        await this.db.update(mod, { mergeObjects: false })
+        await this.db.update(mod)
         // Advance project
         if (!mod.project) {
             throw this.internal(
@@ -359,10 +359,12 @@ class Module extends DBManager<IModule> {
     public async restart(user: AuthUser, id: string, full: boolean) {
         let mod = await this.db.get(id)
         mod.status = 'AWAITING'
+        mod.percent_complete = 0
+        mod.currentStep = 0
 
         if (full) {
-            // Reset files
-            delete mod.files
+            // Reset files (Arangodb is fun :) )
+            mod.files = null as any
         }
 
         // Remove the REVISE tasks
@@ -383,13 +385,15 @@ class Module extends DBManager<IModule> {
 
         let mod = await this.db.get(id)
         mod.status = 'AWAITING'
+        mod.percent_complete = 0
+        mod.currentStep = 0
 
         // Reset files
         if (mod.files) {
             await FilemetaManager.delete(user, mod.files as string, true, true)
-            delete mod.files
+            // Arangodb is fun :)
+            mod.files = null as any
         }
-
 
         // Remove the REVISE tasks
         await this.removeReviseTasks(mod)
@@ -398,10 +402,8 @@ class Module extends DBManager<IModule> {
         let allTasks = compressStepper<string>(mod.tasks)
         await TaskManager.db.updateFaster(allTasks, 'status', 'AWAITING')
 
-        console.log(mod)
-
         // Update status and files
-        await this.db.update(mod, { mergeObjects: false })
+        await this.db.update(mod)
     }
 
     // Advances a module to the next step, or marks it as complete if
@@ -492,8 +494,7 @@ class Module extends DBManager<IModule> {
         // Calculate %-complete
         await this.calculatePercentComplete(mod)
         // Update in the db
-        await this.db.update(mod, { mergeObjects: false })
-        return mod
+        await this.db.update(mod)
     }
 }
 

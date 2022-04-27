@@ -457,10 +457,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                     console.log(
                         `Updating ${api.className} | ${JSON.stringify(d)}`
                     )
-                    real &&
-                        (await api.db.update(d, {
-                            mergeObjects: false,
-                        }))
+                    real && (await api.db.update(d))
                 } else {
                     console.log(
                         `Saving ${api.className} | ${JSON.stringify(d)}`
@@ -472,7 +469,8 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
     }
 
     /**
-     * Deletes a document and all its associated documents
+     * Deletes a document and all its associated documents. This does not
+     * update parent documents.
      * @param base True if this is the base call (ie the call that should
      *  update parent fields)
      */
@@ -498,32 +496,6 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             },
             (data) => !data.freeable
         )
-
-        // Update parent
-        // The original call is the only one that should update
-        // the parent field
-        if (base && this.parentField) {
-            let localId = this.parentField.local
-            if (localId in doc) {
-                let parentId = (<any>doc)[localId]
-                if (!this.db.isDBId(parentId)) {
-                    throw this.internal(
-                        'delete',
-                        `Parent id [${parentId}] invalid`
-                    )
-                }
-                await getApiInstanceFromId(parentId).removeReference(
-                    doc._id as string,
-                    this.parentField.foreign,
-                    real
-                )
-            } else {
-                throw this.internal(
-                    'delete',
-                    `Parent id key ${this.className}.${localId} dne in ${doc}`
-                )
-            }
-        }
 
         console.log(
             `${real ? 'DELETING' : 'FAKE DELETING'} ${
@@ -619,9 +591,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                 }
             )
 
-            await this.db.update(doc, {
-                mergeObjects: false,
-            })
+            await this.db.update(doc)
         }
     }
 

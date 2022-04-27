@@ -377,7 +377,7 @@ class Project extends DBManager<IProject> {
         // Calculate %-complete
         await this.calculatePercentComplete(pro)
         // Update the db
-        await this.db.update(pro, { mergeObjects: false })
+        await this.db.update(pro)
     }
 
     //
@@ -442,7 +442,7 @@ class Project extends DBManager<IProject> {
         await this.calculatePercentComplete(pro)
 
         // Update in the db
-        await this.db.update(pro, { mergeObjects: false })
+        await this.db.update(pro)
         return pro
     }
 
@@ -523,7 +523,7 @@ class Project extends DBManager<IProject> {
         pro.percent_complete = 100
 
         // Update project
-        await this.db.update(pro, { mergeObjects: false })
+        await this.db.update(pro)
         return pro
     }
 }

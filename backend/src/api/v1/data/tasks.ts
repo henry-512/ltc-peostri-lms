@@ -220,7 +220,7 @@ class Task extends DBManager<ITask> {
             FilemetaManager.pushLatest(filemeta, fileId)
 
             // Update filemeta
-            await FilemetaManager.db.update(filemeta, { mergeObjects: false })
+            await FilemetaManager.db.update(filemeta)
         } else {
             // Build a new filemeta object
             filemeta = {
@@ -235,7 +235,7 @@ class Task extends DBManager<ITask> {
             mod.files = filemeta.id
             // Update filemeta
             await FilemetaManager.db.save(filemeta)
-            await ModuleManager.db.update(mod, { mergeObjects: false })
+            await ModuleManager.db.update(mod)
         }
 
         // Check if this is the DOCUMENT_REVISE task
@@ -299,7 +299,7 @@ class Task extends DBManager<ITask> {
         // Modify filemeta
         filemeta.reviews = (<string[]>filemeta.reviews).concat(fileId)
         // Update filemeta
-        await FilemetaManager.db.update(filemeta, { mergeObjects: false })
+        await FilemetaManager.db.update(filemeta)
 
         // Rip current step
         let currentStep = getStep<string>(mod.tasks, mod.currentStep)
@@ -420,7 +420,7 @@ class Task extends DBManager<ITask> {
         }
 
         // Update filemeta
-        await FilemetaManager.db.update(filemeta, { mergeObjects: false })
+        await FilemetaManager.db.update(filemeta)
     }
 
     /**
@@ -472,7 +472,7 @@ class Task extends DBManager<ITask> {
             // Modify filemeta
             filemeta.reviews = (<string[]>filemeta.reviews).concat(fileId)
             // Update filemeta
-            await FilemetaManager.db.update(filemeta, { mergeObjects: false })
+            await FilemetaManager.db.update(filemeta)
         }
 
         // RESTART
