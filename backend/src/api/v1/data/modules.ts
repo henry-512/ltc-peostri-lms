@@ -81,6 +81,10 @@ class Module extends DBManager<IModule> {
                     type: 'number',
                     default: 0,
                 },
+                percent_complete: {
+                    type: 'number',
+                    optional: true,
+                }
             },
             {
                 defaultFilter: 'title',
