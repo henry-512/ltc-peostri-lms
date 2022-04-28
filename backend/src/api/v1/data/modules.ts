@@ -5,7 +5,7 @@ import {
     IStepper,
     stepperForEachInOrder,
 } from '../../../lms/Stepper'
-import { IFile, IFilemeta, IModule } from '../../../lms/types'
+import { IFileMetadata, IFileRevisions, IModule } from '../../../lms/types'
 import { getUrl } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
@@ -104,8 +104,8 @@ class Module extends DBManager<IModule> {
             if (mod.waive_module) {
                 // Warp waive files on admin GET
                 mod.files = {
-                    title: (<IFile>(<IFilemeta>mod?.files).latest).title,
-                    src: getUrl(`files/static/${(<IFilemeta>mod.files).id}`),
+                    title: (<IFileMetadata>(<IFileRevisions>mod?.files).latest).title,
+                    src: getUrl(`files/static/${(<IFileRevisions>mod.files).id}`),
                     old: true,
                 } as any
             } else {
@@ -164,7 +164,7 @@ class Module extends DBManager<IModule> {
             mod.tasks as IStepper<string>,
             async (i, tasksInStep, stepKey) => {
                 // Filter the REVISE tasks
-                let reviseTasks = await TaskManager.db.filterIdsFaster(
+                let reviseTasks = await TaskManager.db.filterField(
                     tasksInStep,
                     'type',
                     'DOCUMENT_REVISE'
@@ -191,7 +191,7 @@ class Module extends DBManager<IModule> {
      */
     private async calculatePercentComplete(mod: IModule) {
         let tasks = compressStepper<string>(mod.tasks)
-        let comp = await TaskManager.db.assertEqualsFaster(
+        let comp = await TaskManager.db.getNotEqual(
             tasks,
             'status',
             'COMPLETED'
@@ -227,7 +227,7 @@ class Module extends DBManager<IModule> {
         }
 
         // Verify task statuses
-        let invalids = await TaskManager.db.assertEqualsFaster(
+        let invalids = await TaskManager.db.getNotEqual(
             currentStep,
             'status',
             'COMPLETED'
@@ -249,7 +249,7 @@ class Module extends DBManager<IModule> {
 
         if (nextStep) {
             // If there is a next step set those to IN_PROGRESS
-            await TaskManager.db.updateFaster(nextStep, 'status', 'IN_PROGRESS')
+            await TaskManager.db.updateManyFaster(nextStep, 'status', 'IN_PROGRESS')
             // Send task notifications
             await TaskManager.sendManyNotifications(
                 mod.title,
@@ -306,7 +306,7 @@ class Module extends DBManager<IModule> {
 
         if (!force) {
             // Verify all tasks are completed in all steps
-            let invalids = await TaskManager.db.assertEqualsFaster(
+            let invalids = await TaskManager.db.getNotEqual(
                 allTasks,
                 'status',
                 'COMPLETED'
@@ -327,7 +327,7 @@ class Module extends DBManager<IModule> {
             }
         } else {
             // Mark all tasks as COMPLETED
-            await TaskManager.db.updateFaster(allTasks, 'status', 'COMPLETED')
+            await TaskManager.db.updateManyFaster(allTasks, 'status', 'COMPLETED')
         }
         // Calculate %-complete
         await this.calculatePercentComplete(mod)
@@ -376,7 +376,7 @@ class Module extends DBManager<IModule> {
         await this.removeReviseTasks(mod)
         // Set tasks to AWAITING
         let allTasks = compressStepper<string>(mod.tasks)
-        await TaskManager.db.updateFaster(allTasks, 'status', 'AWAITING')
+        await TaskManager.db.updateManyFaster(allTasks, 'status', 'AWAITING')
 
         // Start module
         return this.postStartNextStep(user, mod)
@@ -405,7 +405,7 @@ class Module extends DBManager<IModule> {
 
         // Set tasks to AWAITING
         let allTasks = compressStepper<string>(mod.tasks)
-        await TaskManager.db.updateFaster(allTasks, 'status', 'AWAITING')
+        await TaskManager.db.updateManyFaster(allTasks, 'status', 'AWAITING')
 
         // Update status and files
         await this.db.update(mod)
@@ -434,7 +434,7 @@ class Module extends DBManager<IModule> {
                 }
 
                 // Verify task statuses
-                let invalids = await TaskManager.db.assertEqualsFaster(
+                let invalids = await TaskManager.db.getNotEqual(
                     currentStep,
                     'status',
                     'COMPLETED'
@@ -456,7 +456,7 @@ class Module extends DBManager<IModule> {
             } else {
                 // Set all tasks in current step as COMPLETED
                 let allTasks = compressStepper<string>(mod.tasks)
-                await TaskManager.db.updateFaster(
+                await TaskManager.db.updateManyFaster(
                     allTasks,
                     'status',
                     'COMPLETED'
@@ -485,7 +485,7 @@ class Module extends DBManager<IModule> {
         }
 
         // Change tasks in next step to in-progress
-        await TaskManager.db.updateFaster(nextStepAr, 'status', 'IN_PROGRESS')
+        await TaskManager.db.updateManyFaster(nextStepAr, 'status', 'IN_PROGRESS')
         await TaskManager.sendManyNotifications(
             mod.title,
             mod.id ?? 'null-pointer',

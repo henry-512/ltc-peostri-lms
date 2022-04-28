@@ -94,7 +94,7 @@ class Project extends DBManager<IProject> {
 
         // Master list of all users for the project
         let allUsers = p.users as string[]
-        let rankCursor = await UserManager.db.getWithIdFaster<string>(
+        let rankCursor = await UserManager.db.getManyFieldWithId<string>(
             allUsers,
             'rank'
         )
@@ -306,7 +306,7 @@ class Project extends DBManager<IProject> {
      */
     private async calculatePercentComplete(pro: IProject) {
         let mods = compressStepper<string>(pro.modules)
-        let comp = await ModuleManager.db.assertManyEqualsFaster(
+        let comp = await ModuleManager.db.getAllNotEqual(
             mods,
             'status',
             ['COMPLETED', 'WAIVED']
@@ -344,7 +344,7 @@ class Project extends DBManager<IProject> {
         }
 
         // Verify module statuses
-        let invalids = await ModuleManager.db.assertManyEqualsFaster(
+        let invalids = await ModuleManager.db.getAllNotEqual(
             currentStep,
             'status',
             ['COMPLETED', 'WAIVED']
@@ -459,7 +459,7 @@ class Project extends DBManager<IProject> {
         // Retrieve all modules
         let allModules = compressStepper<string>(pro.modules)
         // Retrieve all tasks
-        let cursor = await this.db.getFaster<IStepper<string>>(
+        let cursor = await this.db.getManyField<IStepper<string>>(
             allModules,
             'tasks'
         )
@@ -474,7 +474,7 @@ class Project extends DBManager<IProject> {
         // Verify all modules/tasks are completed, if required
         if (!force) {
             // Verify all modules are completed
-            let invalidModules = await ModuleManager.db.assertManyEqualsFaster(
+            let invalidModules = await ModuleManager.db.getAllNotEqual(
                 allModules,
                 'status',
                 ['COMPLETED', 'WAIVED']
@@ -493,7 +493,7 @@ class Project extends DBManager<IProject> {
                 )
             }
             // Verify all tasks are completed
-            let invalidTasks = await TaskManager.db.assertEqualsFaster(
+            let invalidTasks = await TaskManager.db.getNotEqual(
                 allTasks,
                 'status',
                 'COMPLETED'
@@ -514,12 +514,12 @@ class Project extends DBManager<IProject> {
         } else {
             // Mark all modules and their tasks as COMPLETED
             // BUG: Modules with files are not set to WAIVED
-            await ModuleManager.db.updateFaster(
+            await ModuleManager.db.updateManyFaster(
                 allModules,
                 'status',
                 'COMPLETED'
             )
-            await TaskManager.db.updateFaster(allTasks, 'status', 'COMPLETED')
+            await TaskManager.db.updateManyFaster(allTasks, 'status', 'COMPLETED')
         }
 
         // Set %-complete

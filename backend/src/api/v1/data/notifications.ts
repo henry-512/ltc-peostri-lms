@@ -40,7 +40,7 @@ class Notification extends DBManager<INotification> {
                 },
                 sender: {
                     type: 'data',
-                    foreignData: SenderManager,
+                    dataManager: SenderManager,
                 },
                 type: {
                     type: 'string',
@@ -88,11 +88,11 @@ class Notification extends DBManager<INotification> {
     }
 
     public async readAllForUser(userId: string) {
-        return this.db.updateWithFilterFaster('recipient', userId, 'read', true)
+        return this.db.updateFilterFaster('recipient', userId, 'read', true)
     }
 
     public async read(id: string) {
-        return this.db.updateOneFaster(id, 'read', true)
+        return this.db.updateFaster(id, 'read', true)
     }
 }
 

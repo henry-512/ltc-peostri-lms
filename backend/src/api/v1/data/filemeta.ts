@@ -1,11 +1,11 @@
 import { HTTPStatus } from '../../../lms/errors'
-import { IFilemeta } from '../../../lms/types'
+import { IFileRevisions } from '../../../lms/types'
 import { getFile } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { FiledataManager } from './files'
 
-class Filemeta extends DBManager<IFilemeta> {
+class Filemeta extends DBManager<IFileRevisions> {
     constructor() {
         super(
             'filemeta',
@@ -54,7 +54,7 @@ class Filemeta extends DBManager<IFilemeta> {
         files: any,
         str: string,
         par: string
-    ): Promise<IFilemeta> => {
+    ): Promise<IFileRevisions> => {
         if (files[str] === undefined) {
             throw this.error(
                 'buildFromString',
@@ -78,7 +78,7 @@ class Filemeta extends DBManager<IFilemeta> {
         }
     }
 
-    public pushLatest(filemeta: IFilemeta, fileId: string) {
+    public pushLatest(filemeta: IFileRevisions, fileId: string) {
         filemeta.old = (<string[]>filemeta.old).concat(<string>filemeta.latest)
         filemeta.latest = fileId
     }

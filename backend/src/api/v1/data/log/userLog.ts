@@ -10,7 +10,7 @@ class UserLog extends DBManager<IUserLog> {
             },
             sender: {
                 type: 'data',
-                foreignData: SenderManager,
+                dataManager: SenderManager,
             },
             project: {
                 type: 'fkey',

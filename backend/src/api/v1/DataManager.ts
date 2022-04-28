@@ -1,6 +1,6 @@
 import { config } from '../../config'
 import { HTTPStatus, IErrorable } from '../../lms/errors'
-import { IDataFieldData, IField, IForeignFieldData } from '../../lms/FieldData'
+import { IDataFieldData, IFieldData, IForeignFieldData } from '../../lms/FieldData'
 import { fixStepper } from '../../lms/Stepper'
 import { ICreateUpdate } from '../../lms/types'
 import {
@@ -17,7 +17,7 @@ export class DataManager<Type> extends IErrorable {
     protected hasCreate: boolean
     protected hasUpdate: boolean
 
-    protected fieldEntries: [string, IField][]
+    protected fieldEntries: [string, IFieldData][]
     protected foreignEntries: [string, IForeignFieldData][]
     private dataEntries: [string, IDataFieldData][]
     protected parentField: null | {
@@ -73,7 +73,7 @@ export class DataManager<Type> extends IErrorable {
         )
     }
 
-    protected async mapKeys<T extends IField>(
+    protected async mapKeys<T extends IFieldData>(
         doc: Type,
         entries: [string, T][],
         fn: (value: string, data: T) => Promise<any>,
@@ -118,15 +118,15 @@ export class DataManager<Type> extends IErrorable {
     protected async mapEachField(
         doc: any,
         // Runs for all keys. Returns true if this key should be skipped
-        allFn?: (pointer: PTR<any>, data: IField) => Promise<boolean>,
+        allFn?: (pointer: PTR<any>, data: IFieldData) => Promise<boolean>,
         // Runs for each foreign key
         foreignFn?: (value: any, data: IForeignFieldData) => Promise<any>,
         // Runs for each data key
         dataFn?: (value: any, data: IDataFieldData) => Promise<any>,
         // Runs for each other key
-        otherFn?: (value: any, data: IField) => Promise<any>,
+        otherFn?: (value: any, data: IFieldData) => Promise<any>,
         // Runs for parent keys
-        parentFn?: (value: any, data: IField) => Promise<any>
+        parentFn?: (value: any, data: IFieldData) => Promise<any>
     ): Promise<any> {
         for (let [key, data] of this.fieldEntries) {
             if (data.dummy) continue
@@ -165,14 +165,14 @@ export class DataManager<Type> extends IErrorable {
                         break
                     }
 
-                    if (data.foreignApi) {
+                    if (data.foreignManager) {
                         if (foreignFn) {
                             let d = data as IForeignFieldData
                             doc[key] = await Promise.all(
                                 value.map(async (o: any) => foreignFn(o, d))
                             )
                         }
-                    } else if (data.foreignData) {
+                    } else if (data.dataManager) {
                         if (dataFn) {
                             let d = data as IDataFieldData
                             doc[key] = await Promise.all(
@@ -180,7 +180,7 @@ export class DataManager<Type> extends IErrorable {
                             )
                         }
                     } else {
-                        console.log(data.foreignApi)
+                        console.log(data.foreignManager)
                         throw this.internal(
                             'mapEachField',
                             `${str(data)} has array type but neither reference.`
@@ -204,14 +204,14 @@ export class DataManager<Type> extends IErrorable {
                             )
                         }
 
-                        if (data.foreignApi) {
+                        if (data.foreignManager) {
                             if (!foreignFn) {
                                 break
                             }
                             stepper[stepId] = await Promise.all(
                                 stepArray.map((o: any) => foreignFn(o, dF))
                             )
-                        } else if (data.foreignData) {
+                        } else if (data.dataManager) {
                             if (!dataFn) {
                                 break
                             }
@@ -232,7 +232,7 @@ export class DataManager<Type> extends IErrorable {
         return doc
     }
 
-    protected async forEachField<T extends IField>(
+    protected async forEachField<T extends IFieldData>(
         doc: Type,
         entries: [string, T][],
         // Runs for each foreign key
@@ -307,7 +307,7 @@ export class DataManager<Type> extends IErrorable {
 
     constructor(
         className: string,
-        protected fieldData: { [key: string]: IField },
+        protected fieldData: { [key: string]: IFieldData },
         opts?: {
             // createdAt timestamp
             hasCreate?: boolean
@@ -451,7 +451,7 @@ export class DataManager<Type> extends IErrorable {
                         delete o[k]
                     } else {
                         if (data.type === 'step') {
-                            o[k] = await fixStepper(o[k])
+                            o[k] = fixStepper(o[k])
                         }
                         return false
                     }
@@ -501,10 +501,10 @@ export class DataManager<Type> extends IErrorable {
             },
             // foreign
             async (v, d) =>
-                d.foreignApi.parseGet(user, files, v, d, map, id ?? lastDBId),
+                d.foreignManager.parseGet(user, files, v, d, map, id ?? lastDBId),
             // data
             async (v, d) =>
-                d.foreignData.parseGet(user, files, v, d, map, id ?? lastDBId),
+                d.dataManager.parseGet(user, files, v, d, map, id ?? lastDBId),
             // other
             async (value, data) => {
                 if (typeof value === data.type) {
@@ -543,15 +543,15 @@ export class DataManager<Type> extends IErrorable {
         user: AuthUser,
         files: any,
         doc: any,
-        data: IField,
+        data: IFieldData,
         map: Map<DataManager<any>, any[]>,
         par: string
     ): Promise<any> {
         // Doc is either a foreign key or a string to serialize
         if (typeof doc === 'string') {
             // Verify foreign reference
-            if (data.foreignApi) {
-                let db = data.foreignApi.db
+            if (data.foreignManager) {
+                let db = data.foreignManager.db
                 // Check if foreign key reference is valid
                 if (db.isKeyOrId(doc)) {
                     let id = db.asId(doc)
@@ -579,8 +579,8 @@ export class DataManager<Type> extends IErrorable {
             let built = await this.buildFromString(user, files, doc, par)
             // Verify id and add to call stack
             let id = (<any>built).id
-            if (data.foreignApi) {
-                if (!id || !data.foreignApi.db.isDBId(id)) {
+            if (data.foreignManager) {
+                if (!id || !data.foreignManager.db.isDBId(id)) {
                     throw this.internal(
                         'parseGet',
                         `buildFromString on ${this.className} returns document without id field`
@@ -596,7 +596,7 @@ export class DataManager<Type> extends IErrorable {
                 id ?? par
             )
             // Return either the id reference or the built object
-            return data.foreignApi ? id : built
+            return data.foreignManager ? id : built
             // Objects are fully-formed documents
         } else if (typeof doc === 'object') {
             // Update parent field only if it isn't already set
@@ -610,7 +610,7 @@ export class DataManager<Type> extends IErrorable {
             }
 
             // Non-foreign documents are verified directly
-            if (!data.foreignApi) {
+            if (!data.foreignManager) {
                 return this.verifyAddedDocument(
                     user,
                     files,
@@ -621,7 +621,7 @@ export class DataManager<Type> extends IErrorable {
                 )
             }
 
-            let db = data.foreignApi.db
+            let db = data.foreignManager.db
             let id: string = doc.id
             let exists = false
 
@@ -709,7 +709,7 @@ export class DataManager<Type> extends IErrorable {
             },
             // foreign
             (v, d) => {
-                if (typeof v === 'string' && d.foreignApi.db.isDBId(v)) {
+                if (typeof v === 'string' && d.foreignManager.db.isDBId(v)) {
                     return splitId(v).key
                 } else if (typeof v === 'object') {
                     // d.distortOnGet(v)
@@ -717,13 +717,13 @@ export class DataManager<Type> extends IErrorable {
                 }
                 throw this.internal(
                     'convertIds',
-                    `${this.className} [${v}] expected to be a DB id for ${d.foreignApi.db.className} (${d})`
+                    `${this.className} [${v}] expected to be a DB id for ${d.foreignManager.db.className} (${d})`
                 )
             },
             // data
             (v, d) => {
                 if (typeof v === 'object') {
-                    return d.foreignData.convertIDtoKEY(user, v)
+                    return d.dataManager.convertIDtoKEY(user, v)
                 }
                 throw this.internal(
                     'convertIds',

@@ -8,7 +8,7 @@ import { ArrayCursor } from 'arangojs/cursor'
 import { QueryOptions } from 'arangojs/database'
 import { config } from './config'
 import { HTTPStatus, IErrorable } from './lms/errors'
-import { IField } from './lms/FieldData'
+import { IFieldData } from './lms/FieldData'
 import { IArangoIndexes } from './lms/types'
 import {
     appendReturnFields,
@@ -19,21 +19,30 @@ import {
 } from './lms/util'
 
 /**
- * A wrapper for ArangoJS function calls to avoid directly using AQL syntax. This was done to more easily facilitate switching underlying database architecture.
- * 
+ * A wrapper for ArangoJS function calls to avoid directly using AQL syntax.
+ * This was done to more easily facilitate switching underlying database
+ * architecture.
+ *
  * The database configuration is established by config.ts.
- * 
- * Each ArangoWrapper instance manages a single collection in the database. Some functions run independent of the collection, but should always be associated with the data they are using.
- * 
+ *
+ * Each ArangoWrapper instance manages a single collection in the database. Some
+ * functions run independent of the collection, but should always be associated
+ * with the data they are using.
+ *
  * Extends IErrorable to provide cleaner error handling.
- * 
- * Note: `ID`s are in the form `[collection]/[KEY]`, while `KEY`s lack the `[collection]` prefix. `ID`s are required for internal document relations but `KEY`s are more useful for the frontend (the collection prefix makes filtering and `/:id` routes more difficult).
- * 
+ *
+ * Note: `ID`s are in the form `[collection]/[KEY]`, while `KEY`s lack the
+ * `[collection]` prefix. `ID`s are required for internal document relations but
+ * `KEY`s are more useful for the frontend (the collection prefix makes
+ * filtering and `/:id` routes more difficult).
+ *
  * @typeParam Type An interface for the data managed by this collection.
  */
-export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
+export class ArangoCollectionWrapper<
+    Type extends IArangoIndexes
+> extends IErrorable {
     // Set up database
-    protected static db = new Database({
+    protected static DatabaseInstance = new Database({
         url: config.dbUrl,
         databaseName: config.dbName,
         auth: { username: config.dbUser, password: config.dbPass },
@@ -67,7 +76,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
 
     /**
      * Save a document in the database. `doc._key` is the collection primary key for upload.
-     * @param A document for this collection
+     * @param doc A document for this collection
      */
     private async saveUnsafe(doc: Type) {
         return this.collection.save(doc, {
@@ -170,16 +179,18 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
 
     /**
      * Builds the collection manager from its string name and field data.
-     * 
+     *
      * @param dbName The collection name
      * @param fields An array of field data to use to build the return query
      */
-    constructor(private dbName: string, fields: [string, IField][]) {
+    constructor(private dbName: string, fields: [string, IFieldData][]) {
         // Build error handler
         super(dbName)
 
         // Set collection
-        this.collection = ArangoWrapper.db.collection(this.dbName)
+        this.collection = ArangoCollectionWrapper.DatabaseInstance.collection(
+            this.dbName
+        )
         // Generate AQL return query
         this.getAllQueryFields = appendReturnFields(
             aql`id:z._key,`,
@@ -195,9 +206,9 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     /**
      * Converts a filter into its document key.
      * @param filter The filter to parse
-     * @returns An AQL string to use for filtering 
+     * @returns An AQL string to use for filtering
      */
-    protected getFilterKey(filter: IFilterOpts) {
+    protected getAllBuildFilterKey(filter: IFilterOpts) {
         return filter.ref
             ? aql`DOCUMENT(z.${filter.key}).${filter.ref}`
             : aql`z.${filter.key}`
@@ -208,25 +219,27 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
      * @param query An AQL query to append to
      * @returns The finalized query
      */
-    protected returnQuery(query: GeneratedAqlQuery) {
+    protected getAllReturnQuery(query: GeneratedAqlQuery) {
         return aql`${query} RETURN {${this.getAllQueryFields}}`
     }
 
     /**
-     * Generates a query that performs filtering, sorting, and offsets on the entire collection. This accepts several options which are typically prepared from the request query.
-     * 
+     * Generates a query that performs filtering, sorting, and offsets on the
+     * entire collection. This accepts several options which are typically
+     * prepared from the request query.
+     *
      * The return fields are specified by the fields passed in the constructor.
-     * 
+     *
      * @param sort Sorting key and direction
      * @param offset The number of documents to use as an offset
      * @param count The maximum number of documents to return
      * @param filters All of the filters to apply to the query
      * @param justIds True if this query should return only database `ID`s
      * @param raw True if this query should return the raw documents
-     * 
+     *
      * @return An AQL query for the passed options
      */
-    protected getAllQuery(
+    protected buildGetAllQuery(
         sort: ISortOpts,
         offset: number,
         count: number,
@@ -240,7 +253,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         // Loop over the fulters
         for (const filter of filters) {
             // Support for custom keys
-            let k = filter.custom ?? this.getFilterKey(filter)
+            let k = filter.custom ?? this.getAllBuildFilterKey(filter)
             // Filter checkings
             if (filter.inArray) {
                 query = aql`${query} FILTER ${filter.inArray} IN ${k}`
@@ -288,24 +301,25 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         } else if (raw) {
             query = aql`${query} RETURN z`
         } else {
-            query = this.returnQuery(query)
+            query = this.getAllReturnQuery(query)
         }
 
         return query
     }
 
     /**
-     * Runs a get-all query with the passed options, returning the queried elements and the query's size.
-     * 
+     * Runs a get-all query with the passed options, returning the queried
+     * elements and the query's size.
+     *
      * @param opts All of the query options
      * @return cursor The cursor containing the elements in the array
      * @return size The full return of the query, ignoring the range
      */
-    public async queryGet(opts: IQueryGetOpts): Promise<{
+    public async runGetAllQuery(opts: IQueryGetOpts): Promise<{
         cursor: ArrayCursor<any>
         size: number
     }> {
-        let query = this.getAllQuery(
+        let query = this.buildGetAllQuery(
             opts.sort ?? { desc: false, key: '_key' },
             opts.range.offset,
             opts.range.count,
@@ -314,9 +328,12 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
             opts.raw ?? false
         )
 
-        let cursor = await ArangoWrapper.db.query(query, {
-            fullCount: true,
-        })
+        let cursor = await ArangoCollectionWrapper.DatabaseInstance.query(
+            query,
+            {
+                fullCount: true,
+            }
+        )
 
         let size =
             cursor.extra.stats?.fullCount ??
@@ -327,12 +344,12 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
 
     /**
      * Gets the number of elements returned by the query.
-     * 
+     *
      * @param opts All of the query options
      * @return The number of elements in the query
      */
-    public async queryGetCount(opts: IQueryGetOpts): Promise<number> {
-        let query = this.getAllQuery(
+    public async getAllCount(opts: IQueryGetOpts): Promise<number> {
+        let query = this.buildGetAllQuery(
             opts.sort ?? { desc: false, key: '_key' },
             opts.range.offset,
             opts.range.count,
@@ -341,9 +358,12 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
             opts.raw ?? false
         )
 
-        let cursor = await ArangoWrapper.db.query(query, {
-            count: true,
-        })
+        let cursor = await ArangoCollectionWrapper.DatabaseInstance.query(
+            query,
+            {
+                count: true,
+            }
+        )
 
         if (cursor.count === undefined) {
             throw this.internal('queryGetCount', '.count field missing')
@@ -354,9 +374,10 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
 
     /**
      * Checks if the passed `ID` is in this collection.
-     * 
+     *
      * @param id A database `ID` to check
-     * @return True if the document exists, false if the string is not an `ID` or if the document does not exist
+     * @return True if the document exists, false if the string is not an `ID`
+     * or if the document does not exist
      */
     public async tryExists(id: string) {
         return this.isDBId(id) && this.existsUnsafe(id)
@@ -364,9 +385,10 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
 
     /**
      * Checks if the passed `KEY` is in this collection.
-     * 
+     *
      * @param key A `KEY` to check
-     * @return True if the document exists, false if the string is not a `KEY` or if the document does not exist
+     * @return True if the document exists, false if the string is not a `KEY`
+     * or if the document does not exist
      */
     public async tryKeyExists(key: string) {
         return isDBKey(key) && this.existsUnsafe(key)
@@ -374,7 +396,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
 
     /**
      * Checks if the passed `ID` is in this collection but throws errors.
-     * 
+     *
      * @param id A database `ID` to check
      * @return True if the document exists, false otherwise
      * @throws NOT_FOUND if `id` is not an `ID`
@@ -393,8 +415,8 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
 
     /**
      * Checks if the passed `KEY` is in this collection but throws errors.
-     * 
-     * @param id A `KEY` to check
+     *
+     * @param key A `KEY` to check
      * @return True if the document exists, false otherwise
      * @throws NOT_FOUND if `key` is not an `KEY`
      */
@@ -411,8 +433,9 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 
     /**
-     * Asserts that the passed `key` exists in this collection. Also converts it into an `ID`.
-     * 
+     * Asserts that the passed `key` exists in this collection. Also converts it
+     * into an `ID`.
+     *
      * @param key A `KEY` to check
      * @return `key` as an `ID`
      * @throws NOT_FOUND if `key` is not a `KEY` or if it does not exist
@@ -426,6 +449,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
                 `[${key}] is not a valid key for this collection`
             )
         }
+        // Convert to key
         let id = this.keyToId(key)
         if (!(await this.existsUnsafe(id))) {
             throw this.error(
@@ -440,7 +464,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
 
     /**
      * Asserts that the passed `ID` exists in this collection.
-     * 
+     *
      * @param id An `ID` to check
      * @throws NOT_FOUND if `id` is not an `ID` or if it does not exist
      */
@@ -465,9 +489,10 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
 
     /**
      * Returns the raw document specified by the `id` field.
-     * 
+     *
      * @param id An `ID` to retrieve
-     * @return A raw document (without internal _ fields and with a `KEY` .id field)
+     * @return A raw document (without internal _ fields and with a `KEY` .id
+     * field)
      * @throws NOT_FOUND if `id` is not an `ID` or if it does not exist
      */
     public async get(id: string) {
@@ -500,8 +525,10 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 
     /**
-     * Saves the passed document in the database. Requires a `.id` field as an `ID` or `KEY`.
-     * 
+     * Saves the passed document in the database. Requires a `.id` field as an
+     * `ID` or `KEY`. The parameter `doc` should be considered unusable after
+     * calling this function.
+     *
      * @param doc A document to save in the database
      * @returns The new document's document handle
      * @throws INTERNAL If the `doc` is missing an `ID` field
@@ -520,9 +547,13 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 
     /**
-     * Updates the document in the database with the passed fields. Not that this does not replace an existing document. Deletion of fields requires setting that field to `null`,
-     * 
-     * @param doc A document to use as an update. This should have a `.id` or `._key` field with the document reference to update.
+     * Updates the document in the database with the passed fields. Not that
+     * this does not replace an existing document. Deletion of fields requires
+     * setting that field to `null`.  The parameter `doc` should be considered
+     * unusable after calling this function.
+     *
+     * @param doc A document to use as an update. This should have a `.id` or
+     * `._key` field with the document reference to update.
      * @throws INTERNAL If the `doc` is missing a `.id` or `._key` field
      * @throws NOT_FOUND If the `doc.id` field is invalid
      */
@@ -548,7 +579,7 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
 
     /**
      * Deletes the passed `ID` from the database
-     * 
+     *
      * @param id An `ID` for this collection
      */
     public async remove(id: string) {
@@ -559,114 +590,123 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 
     /**
-     * Filters documents with parent fields that cannot be properly dereferenced ie. `DOCUMENT(d.parent) === null` and deletes them.
-     * 
+     * Filters documents with parent fields that cannot be properly dereferenced
+     * ie. `DOCUMENT(d.parent) === null` and deletes them.
+     *
      * @param parentFieldLocal The parent key in this document to check
      */
     public async deleteOrphans(parentFieldLocal: string) {
-        return ArangoWrapper.db.query(
+        return ArangoCollectionWrapper.DatabaseInstance.query(
             aql`FOR d IN ${this.collection} FILTER DOCUMENT(d.${parentFieldLocal}) == null REMOVE d IN ${this.collection}`
         )
     }
 
     /**
      * Returns all documents in the collection.
-     * 
+     *
      * @param opts Optional AQL query options to use for the query
      * @return A cursor with all of the documents in the query
      */
     public async getAll(opts?: QueryOptions) {
-        return ArangoWrapper.db.query(
+        return ArangoCollectionWrapper.DatabaseInstance.query(
             aql`FOR d in ${this.collection} RETURN d`,
             opts
         )
     }
 
     /**
-     * Updates all of the `ids` with `document(id)[key] = value`     * 
+     * Updates all of the `ids` with `document(id)[key] = value`
      * @param ids An array of `ID`s to update
      * @param key A key in the document to update
      * @param value The value to set the key to.
      */
-    public async updateFaster(ids: string[], key: string, value: any) {
+    public async updateManyFaster(ids: string[], key: string, value: any) {
         let keys: string[] = ids.map((id) => this.asKey(id))
-        return ArangoWrapper.db.query(
+        return ArangoCollectionWrapper.DatabaseInstance.query(
             aql`FOR k IN ${keys} UPDATE {_key:k} WITH{${key}:${value}} IN ${this.collection}`
         )
     }
 
     /**
-     * Updates all documents in this collection that pass a simple == filter with the passed value and returns the `ID`s that were updated.
-     * 
+     * Updates all documents in this collection that pass a simple == filter
+     * with the passed value and returns the `ID`s that were updated.
+     *
      * @param fKey The filtering key
      * @param fEq The filtering value to compare against
      * @param key The document key to update
      * @param value The value to set the key to
-     * @return An ArrayCursor of all updated ids. Documents that already have the value set are not returned.
+     * @return An ArrayCursor of all updated ids. Documents that already have
+     * the value set are not returned.
      */
-    public async updateWithFilterFaster(
+    public async updateFilterFaster(
         fKey: string,
         fEq: any,
         key: string,
         value: any
     ): Promise<ArrayCursor<string>> {
-        return ArangoWrapper.db.query(
+        return ArangoCollectionWrapper.DatabaseInstance.query(
             aql`FOR d IN ${this.collection} FILTER d.${fKey}==${fEq} FILTER d.${key}!=${value} UPDATE d WITH {${key}:${value}} IN ${this.collection} RETURN d._id`
         )
     }
 
     /**
      * Sets `DOCUMENT(id).key = value`
-     * 
+     *
      * @param id An `ID` to update
      * @param key The key of the document to update
      * @param value The value to set the key to
      */
-    public async updateOneFaster(id: string, key: string, value: any) {
+    public async updateFaster(id: string, key: string, value: any) {
         let k = this.asKey(id)
-        return ArangoWrapper.db.query(
+        return ArangoCollectionWrapper.DatabaseInstance.query(
             aql`UPDATE{_key:${k}}WITH{${key}:${value}}IN${this.collection}`
         )
     }
 
     /**
-     * Returns all of the raw documents that are in the array of `ID`s. ***DOES NOT SET `.id` OR CLEAR `_` FIELDS***
-     * 
+     * Returns all of the raw documents that are in the array of `ID`s. ***DOES
+     * NOT SET `.id` OR CLEAR `_` FIELDS***
+     *
      * @param ids An array of `ID`s to return
-     * @return A cursor with all of the documents
+     * @return A cursor with all of the raw documents
      */
-    public async getIds(ids: string[]): Promise<ArrayCursor<Type>> {
-        return ArangoWrapper.db.query(aql`FOR i IN ${ids} RETURN DOCUMENT(i)`)
+    public async getFromIds(ids: string[]): Promise<ArrayCursor<Type>> {
+        return ArangoCollectionWrapper.DatabaseInstance.query(
+            aql`FOR i IN ${ids} RETURN DOCUMENT(i)`
+        )
     }
 
     /**
-     * Gets a single key off each document referenced by `ids`. The ordering of the return values cannot be guaranteed to map directly to the passed `ids`.
-     * 
-     * @typeParam T The type of `doc.ret`. This affects the return type of the cursor.
+     * Gets a single key off each document referenced by `ids`. The ordering of
+     * the return values cannot be guaranteed to map directly to the passed
+     * `ids`.
+     *
+     * @typeParam T The type of `doc.ret`. This affects the return type of the
+     * cursor.
      * @param ids An array of `ID`s to return values from
      * @param ret A key of Type to return
      * @return A cursor that returns the values
      */
-    public async getFaster<T>(
+    public async getManyField<T>(
         ids: string[],
         ret: string
     ): Promise<ArrayCursor<T>> {
-        return ArangoWrapper.db.query(
+        return ArangoCollectionWrapper.DatabaseInstance.query(
             aql`FOR i in ${ids} let d=DOCUMENT(i)RETURN d.${ret}`
         )
     }
 
     /**
      * Gets a single key off a single document. Returns the value directly.
-     * 
+     *
      * @typeParam T The type of `doc.ret`
      * @param id An `ID` to retrieve data for
      * @param ret The key of Type to return
      * @return `DOCUMENT(id).ret`
      * @throws INTERNAL If the cursor returns no values
      */
-    public async getOneFaster<T>(id: string, ret: string): Promise<T> {
-        let cursor = await ArangoWrapper.db.query(
+    public async getOneField<T>(id: string, ret: string): Promise<T> {
+        let cursor = await ArangoCollectionWrapper.DatabaseInstance.query(
             aql`RETURN DOCUMENT(${id}).${ret}`
         )
 
@@ -679,21 +719,22 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
 
     /**
      * Returns multiple fields from a single document.
-     * 
+     *
      * @typeParam A The type of `a`'s value
      * @typeParam B The type of `b`'s value
      * @param id An `ID` to check
      * @param a A key of Type to return
      * @param b A key of Type to return
-     * @return An object with an `a` and `b` field coresponding to the two keys passed as `a` and `b`
+     * @return An object with an `a` and `b` field coresponding to the two keys
+     * passed as `a` and `b`
      * @throws INTERNAL If the cursor returns no values
      */
-    public async getOneMultipleFaster<A, B>(
+    public async getOneFields<A, B>(
         id: string,
         a: string,
         b: string
     ): Promise<{ a: A; b: B }> {
-        let cursor = await ArangoWrapper.db.query(
+        let cursor = await ArangoCollectionWrapper.DatabaseInstance.query(
             aql`LET d=DOCUMENT(${id}) RETURN {a:d.${a},b:d.${b}}`
         )
 
@@ -708,68 +749,78 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 
     /**
-     * Gets a single key and its document's `ID` from each document referenced by `ids`. This should be used if mapping a value with its document's `ID` is important.
-     * 
-     * @typeParam T The type of `doc.ret`. This affects the return type of the cursor.
+     * Gets a single key and its document's `ID` from each document referenced
+     * by `ids`. This should be used if mapping a value with its document's `ID`
+     * is important.
+     *
+     * @typeParam T The type of `doc.ret`. This affects the return type of the
+     * cursor.
      * @param ids An array of `ID`s to return values from
      * @param ret A key of Type to return
-     * @return A cursor that returns an id+value object representing the document `ID` and value of `doc.ret`
+     * @return A cursor that returns an id+value object representing the
+     * document `ID` and value of `doc.ret`
      */
-    public async getWithIdFaster<T>(
+    public async getManyFieldWithId<T>(
         ids: string[],
         ret: string
-    ): Promise<ArrayCursor<{ id: string, v: T }>> {
-        return ArangoWrapper.db.query(
+    ): Promise<ArrayCursor<{ id: string; v: T }>> {
+        return ArangoCollectionWrapper.DatabaseInstance.query(
             aql`FOR i in ${ids} let d=DOCUMENT(i)RETURN {id:d._id,v:d.${ret}}`
         )
     }
 
     /**
-     * Gets multiple key values and their respective document's `ID` field from the passed array of `ID`s.
-     * 
+     * Gets multiple key values and their respective document's `ID` field from
+     * the passed array of `ID`s.
+     *
      * @typeParam A the type of `doc.a`
      * @typeParam B the type of `doc.b`
      * @param ids An array of `ID`s to return values for
      * @param a The first key to return
      * @param b The second key to return
-     * @return A cursor of objects containing the `a` and `b` values alongside their `ID`
+     * @return A cursor of objects containing the `a` and `b` values alongside
+     * their `ID`
      */
-    public async getMultipleFaster<A, B>(
+    public async getManyFields<A, B>(
         ids: string[],
         a: string,
         b: string
     ): Promise<ArrayCursor<{ id: string; a: A; b: B }>> {
-        return ArangoWrapper.db.query(
+        return ArangoCollectionWrapper.DatabaseInstance.query(
             aql`FOR i IN ${ids} let d=DOCUMENT(i)RETURN{id:d._id,a:d.${a},b:d.${b}}`
         )
     }
 
     /**
-     * Returns an array of `ID`s that **DO NOT** match the passed filter. To assert that all of the passed `ID`s match, `cursor.hasNext` should be `false`.
-     * 
+     * Returns an array of `ID`s that **DO NOT** match the passed filter. To
+     * assert that all of the passed `ID`s match, `cursor.hasNext` should be
+     * `false`.
+     *
      * @param ids An array of `ID`s to filter with
      * @param key Key to filter on
      * @param equals The filter value to compare against with `==`
      * @return A cursor of `ID`s that do not match the filter
      */
-    public async assertEqualsFaster(
+    public async getNotEqual(
         ids: string[],
         key: string,
         equals: string
     ): Promise<ArrayCursor<string>> {
-        return ArangoWrapper.db.query(
+        return ArangoCollectionWrapper.DatabaseInstance.query(
             aql`FOR i in ${ids} let d=DOCUMENT(i)FILTER d.${key}!=${equals} RETURN i`
         )
     }
 
     /**
-     * Returns an array of `ID`s that **DO NOT** match **ANY** of the passed values of the filter. To assert that all of the passed `ID`s match, `cursor.hasNext` should be `false`.
-     * 
+     * Returns an array of `ID`s that **DO NOT** match **ANY** of the passed
+     * values of the filter. To assert that all of the passed `ID`s match,
+     * `cursor.hasNext` should be `false`.
+     *
      * @param ids An array of `ID`s to filter with
      * @param key Key to filter on
      * @param equals An array of values to filter against
      */
-    public async assertManyEqualsFaster(
+    public async getAllNotEqual(
         ids: string[],
         key: string,
         equals: string[]
@@ -785,23 +836,23 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
             }
         }
         q = aql`${q} RETURN i`
-        return ArangoWrapper.db.query(q)
+        return ArangoCollectionWrapper.DatabaseInstance.query(q)
     }
 
     /**
      * Returns an array of `ID`s that **DO** match the passed filter.
-     * 
+     *
      * @param ids An array of `ID`s to filter with
      * @param key Key to filter on
      * @param equals The filter value to compare against with `==`
      * @return A cursor of `ID`s that match the filter
      */
-    public async filterIdsFaster(
+    public async filterField(
         ids: string[],
         key: string,
         equals: string
     ): Promise<ArrayCursor<string>> {
-        return ArangoWrapper.db.query(
+        return ArangoCollectionWrapper.DatabaseInstance.query(
             aql`FOR i in ${ids} LET d=DOCUMENT(i)FILTER d.${key}==${equals} RETURN i`
         )
     }
@@ -811,24 +862,25 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
  * An object containing a query's filtering options.
  */
 export interface IFilterOpts {
-    // The key to use for filtering
+    /** The key to use for filtering */
     key: string
     /**
-     * If set, `filter.key` is a document reference that will be de-referenced and use `filter.ref`'s value as a key of that document for filtering.
-     * ie. {key:rank, ref:name, q:Admin} uses `DOCUMENT(doc.key).ref` for filtering
+     * If set, `filter.key` is a document reference that will be de-referenced
+     * and use `filter.ref`'s value as a key of that document for filtering. ie.
+     * {key:rank, ref:name, q:Admin} uses `DOCUMENT(doc.key).ref` for filtering
      */
     ref?: string
-    // Complete checking
+    /** Complete checking */
     in?: string[]
-    // Substring check
+    /** Substring check */
     q?: string
-    // Complete checking against single element
+    /** Complete checking against single element */
     eq?: string
-    // Checks if the passed string is in the array target
+    /** Checks if the passed string is in the array target */
     inArray?: string
-    // Checks if the passed array intersects with the array target
+    /** Checks if the passed array intersects with the array target */
     intersect?: string[]
-    // Runs the passed AQL subquery
+    /** Runs the passed AQL subquery */
     custom?: GeneratedAqlQuery
 }
 
@@ -836,13 +888,15 @@ export interface IFilterOpts {
  * An object containing a query's sorting options
  */
 export interface ISortOpts {
-    // True if the sorting should be descending, false if the sorting should be ascending
+    /** True if the sorting should be descending, false if the sorting should be
+     * ascending */
     desc: boolean
-    // The key to use for sorting
+    /** The key to use for sorting */
     key: string
     /**
-     * If set, `filter.key` is a document reference that will be de-referenced and use `filter.ref`'s value as a key of that document for filtering.
-     * ie. {key:rank, ref:name, q:Admin} uses `DOCUMENT(doc.key).ref` for filtering
+     * If set, `filter.key` is a document reference that will be de-referenced
+     * and use `filter.ref`'s value as a key of that document for filtering. ie.
+     * {key:rank, ref:name, q:Admin} uses `DOCUMENT(doc.key).ref` for filtering
      */
     ref?: string
 }
@@ -851,31 +905,33 @@ export interface ISortOpts {
  * A full object containing all of the query options
  */
 export interface IQueryGetOpts {
-    // An array of filters to apply
+    /** An array of filters to apply */
     filters: IFilterOpts[]
-    // The sorting direction and key
+    /** The sorting direction and key */
     sort?: ISortOpts
-    // The offset and count to use for the query
+    /** The offset and count to use for the query */
     range: {
         offset: number
         count: number
     }
-    // True if this should return just the `._id` field
+    /** True if this should return just the `._id` field */
     justIds?: boolean
-    // True if this should return the raw document
+    /** True if this should return the raw document */
     raw?: boolean
 }
 
 /**
- * A representation of the return values of a query. This is designed for converting a query into an outgoing HTTP message and building it's `content-range` header.
+ * A representation of the return values of a query. This is designed for
+ * converting a query into an outgoing HTTP message and building it's
+ * `content-range` header.
  */
 export interface IGetAllQueryResults {
-    // All documents
+    /** All documents */
     all: any[]
-    // The number of documents that are returned
+    /** The number of documents that are returned */
     size: number
-    // The index in the query matching the first element
+    /** The index in the query matching the first element */
     low: number
-    // The index in the query matching the last element
+    /** The index in the query matching the last element */
     high: number
 }

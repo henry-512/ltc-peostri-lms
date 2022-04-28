@@ -1,12 +1,12 @@
 import Router from '@koa/router'
 import {
-    ArangoWrapper,
+    ArangoCollectionWrapper,
     IFilterOpts,
     IGetAllQueryResults,
     IQueryGetOpts,
 } from '../../database'
 import { APIError, HTTPStatus } from '../../lms/errors'
-import { IField, IForeignFieldData } from '../../lms/FieldData'
+import { IFieldData, IForeignFieldData } from '../../lms/FieldData'
 import { IArangoIndexes } from '../../lms/types'
 import { convertToKey, splitId, str, tryParseJSON } from '../../lms/util'
 import { AuthUser } from '../auth'
@@ -23,7 +23,7 @@ export function getApiInstanceFromId(id: string): DBManager<IArangoIndexes> {
 export const Managers: { [dbname: string]: DBManager<IArangoIndexes> } = {}
 
 export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
-    public db: ArangoWrapper<Type>
+    public db: ArangoCollectionWrapper<Type>
     private defaultFilter: string
 
     // Dependency resolver
@@ -35,7 +35,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                 if (foreign) {
                     let m = Managers[data.managerName]
                     if (m) {
-                        data.foreignApi = m
+                        data.foreignManager = m
                         continue
                     }
                 } else if (data.type === 'parent') {
@@ -71,7 +71,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
     constructor(
         dbName: string,
         className: string,
-        fields: { [key: string]: IField },
+        fields: { [key: string]: IFieldData },
         opts?: {
             hasCreate?: boolean
             hasUpdate?: boolean
@@ -98,7 +98,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             }
         }
 
-        this.db = new ArangoWrapper<Type>(dbName, this.fieldEntries)
+        this.db = new ArangoCollectionWrapper<Type>(dbName, this.fieldEntries)
 
         // Add this to the lookup table
         Managers[dbName] = this
@@ -135,8 +135,9 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
 
                     if (data.type === 'array') {
                         if (typeof value === 'string') {
-                            if (data.foreignApi) {
-                                f.inArray = data.foreignApi.db.keyToId(value)
+                            if (data.foreignManager) {
+                                f.inArray =
+                                    data.foreignManager.db.keyToId(value)
                             } else {
                                 f.inArray = value
                             }
@@ -148,8 +149,8 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                         if (data.type === 'parent' && data.parentManager) {
                             let dbWrapper = data.parentManager.db
                             f.in = value.map((k) => dbWrapper.keyToId(k))
-                        } else if (data.foreignApi) {
-                            let dbWrapper = data.foreignApi.db
+                        } else if (data.foreignManager) {
+                            let dbWrapper = data.foreignManager.db
                             f.in = value.map((k) => dbWrapper.keyToId(k))
                         }
                         f.in = value
@@ -223,7 +224,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         user: AuthUser,
         opts: IQueryGetOpts
     ): Promise<IGetAllQueryResults> {
-        let query = await this.db.queryGet(opts)
+        let query = await this.db.runGetAllQuery(opts)
         let all = await query.cursor.all()
 
         // Convert all document foreign ids to keys
@@ -256,7 +257,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         if (filters.length !== 0) {
             opts.filters = opts.filters.concat(filters)
         }
-        return this.db.queryGetCount(opts)
+        return this.db.getAllCount(opts)
     }
 
     /**
@@ -306,19 +307,14 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                     let overrideDeref = userRoute && data.overrideUserDeref
                     if (!overrideDeref && (data.getIdKeepAsRef || noDeref)) {
                         return convertToKey(v)
-                    } else if (data.foreignApi.db.isDBId(v)) {
+                    } else if (data.foreignManager.db.isDBId(v)) {
                         // Dereference the id into an object
-                        let subdoc = await data.foreignApi.getFromDB(
+                        return await data.foreignManager.getFromDB(
                             user,
                             v,
                             noDeref,
                             userRoute
                         )
-                        // Warps return values
-                        if (data.distortOnGet) {
-                            subdoc = data.distortOnGet(subdoc)
-                        }
-                        return subdoc
                     }
                 }
                 throw this.internal(
@@ -330,10 +326,10 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             // Warp return values and convert foreign keys
             async (v, data) => {
                 if (!noDeref || (data.overrideUserDeref && userRoute)) {
-                    await data.foreignData.mapForeignKeys(
+                    await data.dataManager.mapForeignKeys(
                         v,
                         (v, d) => {
-                            return d.foreignApi.getFromDB(
+                            return d.foreignManager.getFromDB(
                                 user,
                                 v,
                                 noDeref,
@@ -343,8 +339,8 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                         (d) => d.type === 'parent'
                     )
                 }
-                await data.foreignData.convertIDtoKEY(user, v)
-                return data.distortOnGet ? data.distortOnGet(v) : v
+                await data.dataManager.convertIDtoKEY(user, v)
+                return v
             },
             // other
             async (v, data) => {
@@ -492,7 +488,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                         `[${v}] is not a string`
                     )
                 }
-                return data.foreignApi.delete(user, v, real, false)
+                return data.foreignManager.delete(user, v, real, false)
             },
             (data) => !data.freeable
         )
@@ -556,13 +552,13 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                 doc,
                 this.foreignEntries,
                 async (p, k, d) => {
-                    let c = d.foreignApi
+                    let c = d.foreignManager
                     if (!(await c.db.tryExists(k))) {
                         p.obj[p.key] = <any>''
                     }
                 },
                 async (p, a, d) => {
-                    let c = d.foreignApi
+                    let c = d.foreignManager
                     for (var i = a.length - 1; i >= 0; i--) {
                         if (!(await c.db.tryExists(a[i]))) {
                             a.splice(i, 1)
@@ -570,7 +566,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                     }
                 },
                 async (p, o, d) => {
-                    let c = d.foreignApi
+                    let c = d.foreignManager
                     for (let k in o) {
                         let sAr = o[k]
 

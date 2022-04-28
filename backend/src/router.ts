@@ -3,16 +3,20 @@ import fs from 'fs'
 import path from 'path'
 
 /**
- * Appends the API version and `/api` prefix to all routes. Adding additional API versions requires the following:
- * 
+ * Appends the API version and `/api` prefix to all routes. Adding additional
+ * API versions requires the following:
+ *
  * 1. A single directory in `src/api` with the version name.
- * 2. An `index.ts` file that exports a function named `routerBuilder` which accept the API version string and returns a koa/router object's `.routes()`.
- * 
- * This function is called once in `src/index.ts` as part of the preparation stage.
- * 
+ * 2. An `index.ts` file that exports a function named `routerBuilder` which
+ *    accept the API version string and returns a koa/router object's
+ *    `.routes()`.
+ *
+ * This function is called once in `src/index.ts` as part of the preparation
+ * stage.
+ *
  * @return A Router containing all of the routes for the API.
  */
-export async function apiRouter() {
+export default async function BuildApiRouters() {
     // API prefix
     const apiRouter = new Router({
         prefix: '/api/',

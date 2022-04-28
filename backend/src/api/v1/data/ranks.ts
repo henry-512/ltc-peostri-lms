@@ -18,7 +18,7 @@ export const RankManager = new DBManager<IRank>(
         permissions: {
             type: 'data',
             default: defaultPermissions,
-            foreignData: PermissionManager,
+            dataManager: PermissionManager,
             hideGetRef: true,
         },
     },

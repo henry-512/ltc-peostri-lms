@@ -1,5 +1,6 @@
 /**
- * Main entrypoint for the program. Builds and starts the koa app, builds and attaches all middleware, and conducts error handling.
+ * Main entrypoint for the program. Builds and starts the koa app, builds and
+ * attaches all middleware, and conducts error handling.
  */
 
 import cors from '@koa/cors'
@@ -10,13 +11,14 @@ import { AuthUser } from './api/auth'
 import { parseBody } from './api/v1/Router'
 import { config } from './config'
 import { APIError, HTTPStatus } from './lms/errors'
-import { apiRouter } from './router'
+import BuildApiRouters from './router'
 
 // Build the koa app
 const app = require('koa-qs')(new Koa()) as Koa
 
-// apiRouter is an asyncronous function (due to file loading) and we can't use promise/await syntax here so we must use the .then callback.
-apiRouter().then(
+// apiRouter is an asynchronous function (due to file loading) and we can't use
+// promise/await syntax here so we must use the .then callback.
+BuildApiRouters().then(
     async (api) => {
         // Output all API router paths. Mostly for debugging
         console.log(`API Router stack`)
@@ -30,7 +32,8 @@ apiRouter().then(
                 credentials: true,
             })
         )
-        // Body parser. Converts `ctx.request.body` into parsable text and deconstructs multiparts
+        // Body parser. Converts `ctx.request.body` into parsable text and
+        // deconstructs multiparts
         app.use(
             koaBody({
                 multipart: true,
@@ -46,11 +49,14 @@ apiRouter().then(
         // API parser and error handler
         app.use(async (ctx, next) => {
             try {
-                // Attempt to run the next middleware. If this fails, it gets caught by the try-catch instead of crashing the program.
+                // Attempt to run the next middleware. If this fails, it gets
+                // caught by the try-catch instead of crashing the program.
                 await next()
             } catch (e: any) {
                 if (e instanceof APIError) {
-                    // The error is an APIError which has additional fields associated with it, such as the caller function and error messages
+                    // The error is an APIError which has additional fields
+                    // associated with it, such as the caller function and error
+                    // messages
                     e.path = ctx.request.url
                     e.method = ctx.request.method
                     e.body = await parseBody(ctx.request)
@@ -72,7 +78,9 @@ apiRouter().then(
                     ctx.body = {
                         error: e.message,
                     }
-                    // If the user has the `verboseLogging` permission, send the build message as well. This is useful on deployment servers without access to the logs.
+                    // If the user has the `verboseLogging` permission, send the
+                    // build message as well. This is useful on deployment
+                    // servers without access to the logs.
                     if (ctx.state.user instanceof AuthUser) {
                         let u = ctx.state.user
                         if (await u.getPermission('verboseLogging')) {
@@ -101,10 +109,12 @@ apiRouter().then(
         app.use(ar.routes())
 
         // Authentication Validator
-        /** Validates the user's `token` cookie, set by the authentication routes, and stores the resulting data into `ctx.state.user`.
-         * This runs before the API routes but after the Authentication routes.
-         * All routes after this assume that `ctx.state.user` is a valid AuthUser instance.
-        */
+        /** Validates the user's `token` cookie, set by the authentication
+         * routes, and stores the resulting data into `ctx.state.user`. This
+         * runs before the API routes but after the Authentication routes. All
+         * routes after this assume that `ctx.state.user` is a valid AuthUser
+         * instance.
+         */
         app.use(async (ctx, next) => {
             // Check if we should fake user authentication
             if (config.spoofUser) {
@@ -134,7 +144,9 @@ apiRouter().then(
         })
     },
     (err) => {
-        // Catch any errors with startup. This doesn't do a whole lot, since there is no path back to a valid system state if it crashes during startup.
+        // Catch any errors with startup. This doesn't do a whole lot, since
+        // there is no path back to a valid system state if it crashes during
+        // startup.
         console.log('Startup error')
         console.log(err)
     }

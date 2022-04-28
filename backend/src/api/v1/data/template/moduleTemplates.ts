@@ -19,7 +19,7 @@ class TaskTemplate extends DataManager<ITaskTemplate> {
                 title: { type: 'string' },
                 rank: {
                     type: 'fkey',
-                    foreignApi: RankManager,
+                    foreignManager: RankManager,
                     optional: true,
                 },
                 status: {
@@ -62,7 +62,7 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
                 tasks: {
                     type: 'step',
                     instance: 'data',
-                    foreignData: TaskTempManager,
+                    dataManager: TaskTempManager,
                 },
                 status: {
                     type: 'string',

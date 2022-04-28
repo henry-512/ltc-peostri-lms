@@ -10,8 +10,8 @@ export async function assignUserToTeam(
     userId: string,
     teamId: string
 ) {
-    let userTeams = await UserManager.db.getOneFaster<string[]>(userId, 'teams')
-    let usersOnTeam = await TeamManager.db.getOneFaster<string[]>(
+    let userTeams = await UserManager.db.getOneField<string[]>(userId, 'teams')
+    let usersOnTeam = await TeamManager.db.getOneField<string[]>(
         teamId,
         'users'
     )
@@ -19,6 +19,6 @@ export async function assignUserToTeam(
     userTeams = userTeams.concat(teamId)
     usersOnTeam = usersOnTeam.concat(userId)
 
-    await UserManager.db.updateOneFaster(userId, 'teams', userTeams)
-    await TeamManager.db.updateOneFaster(teamId, 'users', usersOnTeam)
+    await UserManager.db.updateFaster(userId, 'teams', userTeams)
+    await TeamManager.db.updateFaster(teamId, 'users', usersOnTeam)
 }

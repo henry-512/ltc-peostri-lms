@@ -1,24 +1,24 @@
 import { aql, GeneratedAqlQuery } from 'arangojs/aql'
-import { ArangoWrapper, IFilterOpts } from '../../../database'
+import { ArangoCollectionWrapper, IFilterOpts } from '../../../database'
 import { HTTPStatus } from '../../../lms/errors'
-import { IField } from '../../../lms/FieldData'
+import { IFieldData } from '../../../lms/FieldData'
 import { IUser } from '../../../lms/types'
 import { DB_NAME } from './users'
 
-export class UserArangoWrapper extends ArangoWrapper<IUser> {
-    constructor(fields: [string, IField][]) {
+export class UserArangoWrapper extends ArangoCollectionWrapper<IUser> {
+    constructor(fields: [string, IFieldData][]) {
         super(DB_NAME, fields)
     }
 
     // 'name' concats first and last names
-    protected override getFilterKey(filter: IFilterOpts): GeneratedAqlQuery {
+    protected override getAllBuildFilterKey(filter: IFilterOpts): GeneratedAqlQuery {
         return filter.key === 'name'
             ? aql`CONCAT(z.firstName, ' ', z.lastName)`
-            : super.getFilterKey(filter)
+            : super.getAllBuildFilterKey(filter)
     }
 
     // Modify return query to resolve user rank
-    protected override returnQuery(
+    protected override getAllReturnQuery(
         query: GeneratedAqlQuery
     ): GeneratedAqlQuery {
         return aql`${query} LET a = DOCUMENT(z.rank) RETURN {rank:{id:a._key,name:a.name},${this.getAllQueryFields}}`
@@ -27,7 +27,7 @@ export class UserArangoWrapper extends ArangoWrapper<IUser> {
     public async getFromUsername(username: string) {
         let query = aql`FOR z IN users FILTER z.username == ${username} RETURN {${this.getAllQueryFields}password:z.password}`
 
-        let cursor = await ArangoWrapper.db.query(query)
+        let cursor = await ArangoCollectionWrapper.DatabaseInstance.query(query)
 
         if (!cursor.hasNext) {
             throw this.error(

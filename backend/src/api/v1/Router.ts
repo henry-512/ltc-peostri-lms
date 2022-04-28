@@ -5,7 +5,7 @@ import { ParameterizedContext } from 'koa'
 import { config } from '../../config'
 import { IFilterOpts, IGetAllQueryResults, IQueryGetOpts } from '../../database'
 import { HTTPStatus } from '../../lms/errors'
-import { ApiPerm, FetchType, IArangoIndexes } from '../../lms/types'
+import { PermissionType, FetchType, IArangoIndexes } from '../../lms/types'
 import { AuthUser } from '../auth'
 import { DBManager } from './DBManager'
 
@@ -150,7 +150,7 @@ export class UserRouter<Type extends IArangoIndexes> extends Router {
     constructor(
         prefix: string,
         private manager: DBManager<Type>,
-        private fetchPermission: ApiPerm,
+        private fetchPermission: PermissionType,
         // Aql query to return the team for this object
         private filterTeam: GeneratedAqlQuery,
         // Aql query to return users for this object
@@ -351,6 +351,6 @@ export async function queryFilterCount(
     ctx.status = HTTPStatus.OK
 }
 
-export async function permission<T>(ctx: ParameterizedContext, perm: ApiPerm) {
+export async function permission<T>(ctx: ParameterizedContext, perm: PermissionType) {
     return (<AuthUser>ctx.state.user).getPermission(perm) as any as T
 }

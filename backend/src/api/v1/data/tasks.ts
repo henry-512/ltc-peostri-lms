@@ -1,6 +1,6 @@
 import { APIError, HTTPStatus } from '../../../lms/errors'
 import { getStep } from '../../../lms/Stepper'
-import { IFilemeta, ITask } from '../../../lms/types'
+import { IFileRevisions, ITask } from '../../../lms/types'
 import { addDays, getFile, tryGetFile } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
@@ -97,7 +97,7 @@ class Task extends DBManager<ITask> {
         content: string | NotificationType
     ) {
         let moduleKey = ModuleManager.db.asKey(moduleId)
-        let titleUser = await this.db.getOneMultipleFaster<string, string[]>(
+        let titleUser = await this.db.getOneFields<string, string[]>(
             taskId,
             'title',
             'users'
@@ -122,7 +122,7 @@ class Task extends DBManager<ITask> {
     ) {
         let moduleKey = ModuleManager.db.asKey(moduleId)
         // a = title, b = users
-        let titleUser = await this.db.getMultipleFaster<string, string[]>(
+        let titleUser = await this.db.getManyFields<string, string[]>(
             taskIds,
             'title',
             'users'
@@ -190,8 +190,8 @@ class Task extends DBManager<ITask> {
      * COMPLETE
      */
     public async complete(user: AuthUser, taskId: string) {
-        await this.db.updateOneFaster(taskId, 'status', 'COMPLETED')
-        let modId = await this.db.getOneFaster<string>(taskId, 'module')
+        await this.db.updateFaster(taskId, 'status', 'COMPLETED')
+        let modId = await this.db.getOneField<string>(taskId, 'module')
         await ModuleManager.automaticAdvance(user, modId)
     }
 
@@ -215,7 +215,7 @@ class Task extends DBManager<ITask> {
         let fileId = await this.saveFile(user, fileData)
 
         // Build/modify filemeta
-        let filemeta: IFilemeta
+        let filemeta: IFileRevisions
         if (mod.files) {
             let filemeta = await FilemetaManager.db.get(mod.files as string)
 
@@ -241,11 +241,11 @@ class Task extends DBManager<ITask> {
         }
 
         // Check if this is the DOCUMENT_REVISE task
-        let status = await this.db.getOneFaster<string>(taskId, 'type')
+        let status = await this.db.getOneField<string>(taskId, 'type')
         if (status === 'DOCUMENT_REVISE') {
             // Set all reviewers to IN_PROGRESS
             // Notify status
-            let updated = await this.db.updateWithFilterFaster(
+            let updated = await this.db.updateFilterFaster(
                 'type',
                 'DOCUMENT_REVIEW',
                 'status',
@@ -263,7 +263,7 @@ class Task extends DBManager<ITask> {
         }
 
         // Update task and ADVANCE
-        await this.db.updateOneFaster(taskId, 'status', 'COMPLETED')
+        await this.db.updateFaster(taskId, 'status', 'COMPLETED')
         await ModuleManager.postAutomaticAdvance(user, mod)
     }
 
@@ -307,7 +307,7 @@ class Task extends DBManager<ITask> {
         let currentStep = getStep<string>(mod.tasks, mod.currentStep)
 
         // Find revise task
-        let reviseTaskCursor = await this.db.filterIdsFaster(
+        let reviseTaskCursor = await this.db.filterField(
             currentStep,
             'type',
             'DOCUMENT_REVISE'
@@ -319,7 +319,7 @@ class Task extends DBManager<ITask> {
         if (reviseTaskCursor.hasNext) {
             // A revise task already exists here, set it back to IN_PROGRESS
             reviseId = (await reviseTaskCursor.next()) as string
-            await this.db.updateOneFaster(reviseId, 'status', 'IN_PROGRESS')
+            await this.db.updateFaster(reviseId, 'status', 'IN_PROGRESS')
             // Send notification
             await this.sendNotification(
                 mod.title,
@@ -333,7 +333,7 @@ class Task extends DBManager<ITask> {
             reviseId = this.db.generateDBID()
 
             // Pull users from the project
-            let users = await ProjectManager.db.getOneFaster<string[]>(
+            let users = await ProjectManager.db.getOneField<string[]>(
                 mod.project as string,
                 'users'
             )
@@ -360,7 +360,7 @@ class Task extends DBManager<ITask> {
             // Updates the reference of currentStep (which is a mutable part of the stepper mod.tasks)
             currentStep.push(reviseId)
             // Update the task stepper of module with the new task, which works because the above modified the stepper
-            await ModuleManager.db.updateOneFaster(modId, 'tasks', mod.tasks)
+            await ModuleManager.db.updateFaster(modId, 'tasks', mod.tasks)
         }
 
         // Send notification
@@ -372,7 +372,7 @@ class Task extends DBManager<ITask> {
         )
 
         // Update this task
-        await this.db.updateOneFaster(taskId, 'status', 'COMPLETED')
+        await this.db.updateFaster(taskId, 'status', 'COMPLETED')
         await ModuleManager.postAutomaticAdvance(user, mod)
     }
 
@@ -429,9 +429,9 @@ class Task extends DBManager<ITask> {
      * APPROVE
      */
     public async approve(user: AuthUser, taskId: string) {
-        await this.db.updateOneFaster(taskId, 'status', 'COMPLETED')
+        await this.db.updateFaster(taskId, 'status', 'COMPLETED')
         // ADVANCE
-        let modId = await this.db.getOneFaster<string>(taskId, 'module')
+        let modId = await this.db.getOneField<string>(taskId, 'module')
         await ModuleManager.automaticAdvance(user, modId)
     }
 
@@ -444,12 +444,12 @@ class Task extends DBManager<ITask> {
         files: any,
         fileKey: string
     ) {
-        let modId = await this.db.getOneFaster<string>(taskId, 'module')
+        let modId = await this.db.getOneField<string>(taskId, 'module')
 
         let fileData = tryGetFile(files, fileKey)
         if (fileData) {
             // Append file (optional) to reviews
-            let fileMeta = await ModuleManager.db.getOneFaster<string>(
+            let fileMeta = await ModuleManager.db.getOneField<string>(
                 modId,
                 'files'
             )

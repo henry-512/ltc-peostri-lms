@@ -1,58 +1,62 @@
+/** Wrapper for HTTP status codes */
 export enum HTTPStatus {
+    // Acceptable responses
     OK = 200,
     CREATED = 201,
-    // Recieved but not acted on
+    /** Received but not acted on */
     ACCEPTED = 202,
-    // No content, but headers are useful
+    /** No content, but headers are useful */
     NO_CONTENT = 204,
-    // Reset document
+    /** Reset document */
     RESET_CONTENT = 205,
-    // Range header is only part of a resource
+    /** Range header is only part of a resource */
     PARTIAL_CONTENT = 206,
 
-    // Client error and cannot process
+    // Client error codes
+    /** Client error and cannot process */
     BAD_REQUEST = 400,
-    // User unknown
+    /** User unknown */
     UNAUTHORIZED = 401,
-    // User known, operation not permitted
+    /** User known, operation not permitted */
     FORBIDDEN = 403,
-    // Hide responses from 403
+    /** Hide responses from 403 */
     NOT_FOUND = 404,
-    // Request known but not supported
+    /** Request known but not supported */
     METHOD_NOT_ALLOWED = 405,
-    // Request conflict with resource state
-    // ie PUT conflicts
+    /** Request conflict with resource state ie PUT conflicts */
     CONFLICT = 409,
 
+    // Server error codes
     INTERNAL_SERVER_ERROR = 500,
     NOT_IMPLEMENTED = 501,
 }
 
 /**
- * An error object
+ * An APIError class. Should be an object to facilitate instanceof checking for
+ * catch.
  */
 export class APIError extends Error {
-    // The API path that threw the message
+    /** The API path that threw the message */
     public path?: string
-    // API Method that threw the message
+    /** API Method that threw the message */
     public method?: string
-    // CTX Body that threw the message
+    /** CTX Body that threw the message */
     public body?: any
-    // CTX Files that threw the message
+    /** CTX Files that threw the message */
     public files?: any
-    // Server-side message
+    /** Server-side message */
     public verbose: string
 
     constructor(
-        // API Name that threw the message
+        /** API Name that threw the message */
         public apiName: string,
-        // Server function that threw the message
+        /** Server function that threw the message */
         public fn: string,
-        // HTTP Status code that should be returned
+        /** HTTP Status code that should be returned */
         public status: HTTPStatus,
-        // Client-safe message
+        /** Client-safe message */
         message?: string,
-        // Server-side message
+        /** Server-side message */
         verbose?: string
     ) {
         super(message || HTTPStatus[status])
@@ -64,11 +68,20 @@ export class APIError extends Error {
 }
 
 /**
- * An interface denoting errorable objects
+ * A superclass for errorable classes.
  */
 export abstract class IErrorable {
     constructor(public className: string) {}
 
+    /**
+     * Creates a standard error.
+     * 
+     * @param fn The function that caused the error
+     * @param status The status code
+     * @param message Client-safe error message
+     * @param verbose Full error message for administrators
+     * @return An APIError
+     */
     public error = (
         fn: string,
         status: HTTPStatus,
@@ -76,6 +89,13 @@ export abstract class IErrorable {
         verbose?: string
     ) => new APIError(this.className, fn, status, message, verbose)
 
+    /**
+     * Creates a internal error. Uses a static client-safe message.
+     * 
+     * @param fn The function that caused the error
+     * @param verbose Full error message for administrators
+     * @return An APIError
+     */
     public internal = (fn: string, verbose?: string) =>
         new APIError(
             this.className,

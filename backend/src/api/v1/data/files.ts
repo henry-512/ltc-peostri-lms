@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { config } from '../../../config'
-import { IFile, IFilemeta } from '../../../lms/types'
+import { IFileMetadata, IFileRevisions } from '../../../lms/types'
 import { generateBase64UUID, getUrl } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
@@ -11,7 +11,7 @@ const FILE_PATH = path.join('fs')
 export const FULL_FILE_PATH = path.resolve(config.basePath, FILE_PATH)
 const FILE_404 = path.join('404.pdf')
 
-class Filedata extends DBManager<IFile> {
+class Filedata extends DBManager<IFileMetadata> {
     constructor() {
         super(
             'files',
@@ -40,7 +40,7 @@ class Filedata extends DBManager<IFile> {
         real: boolean,
         base: boolean
     ): Promise<void> {
-        let path = await this.db.getOneFaster<string>(id, 'pathTo')
+        let path = await this.db.getOneField<string>(id, 'pathTo')
         await super.delete(user, id, real, base)
         // Delete the file after super.delete completes in case of errors
         await this.deleteFile(user, path)
@@ -51,7 +51,7 @@ class Filedata extends DBManager<IFile> {
         id: string,
         noDeref: boolean,
         userRoute: boolean
-    ): Promise<IFile> {
+    ): Promise<IFileMetadata> {
         let f = await super.getFromDB(user, id, noDeref, userRoute)
 
         // Generate src path
@@ -62,8 +62,8 @@ class Filedata extends DBManager<IFile> {
 
     public override async convertIDtoKEY(
         user: AuthUser,
-        doc: IFile
-    ): Promise<IFile> {
+        doc: IFileMetadata
+    ): Promise<IFileMetadata> {
         let f = await super.convertIDtoKEY(user, doc)
 
         // Generate src path
@@ -73,7 +73,7 @@ class Filedata extends DBManager<IFile> {
     }
 
     // Write a new file from the file data
-    public async writeFile(user: AuthUser, file: IFileData): Promise<IFile> {
+    public async writeFile(user: AuthUser, file: IFileData): Promise<IFileMetadata> {
         let key = generateBase64UUID()
         let pathTo: string = key + '-' + file.name
 
@@ -116,12 +116,12 @@ class Filedata extends DBManager<IFile> {
         }
     }
 
-    public async readLatest(user: AuthUser, doc: IFilemeta) {
-        return this.readSource(user, (<IFile>doc.latest).pathTo)
+    public async readLatest(user: AuthUser, doc: IFileRevisions) {
+        return this.readSource(user, (<IFileMetadata>doc.latest).pathTo)
     }
 
     public async read(user: AuthUser, id: string) {
-        let pathTo = await this.db.getOneFaster<string>(id, 'pathTo')
+        let pathTo = await this.db.getOneField<string>(id, 'pathTo')
         return this.readSource(user, pathTo)
     }
 
