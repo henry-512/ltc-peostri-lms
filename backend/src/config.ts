@@ -1,11 +1,22 @@
+/**
+ * Configuration loader from a .env file. Applies defaults and should catch invalid entries.
+ */
+
 import dotenv from 'dotenv'
 import path from 'path'
 
+// Load .env file
 dotenv.config()
 
-// Parsed .env configs
+/**
+ *  Parsed .env config type
+ */
 export interface Config {
+    // Port to expose the API on
     apiPort: string
+    /**
+     * The hostname of the API. This is used for
+     */
     hostname: string
 
     dbUrl: string

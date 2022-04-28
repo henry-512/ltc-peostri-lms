@@ -570,7 +570,10 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 
     /**
-     * Returns all documents in the collection
+     * Returns all documents in the collection.
+     * 
+     * @param opts Optional AQL query options to use for the query
+     * @return A cursor with all of the documents in the query
      */
     public async getAll(opts?: QueryOptions) {
         return ArangoWrapper.db.query(
@@ -580,8 +583,10 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 
     /**
-     * Updates all `ids` with document(id)[key] = value
-     * @param key
+     * Updates all of the `ids` with `document(id)[key] = value`     * 
+     * @param ids An array of `ID`s to update
+     * @param key A key in the document to update
+     * @param value The value to set the key to.
      */
     public async updateFaster(ids: string[], key: string, value: any) {
         let keys: string[] = ids.map((id) => this.asKey(id))
@@ -591,7 +596,13 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 
     /**
-     * @return An ArrayCursor of all updated ids
+     * Updates all documents in this collection that pass a simple == filter with the passed value and returns the `ID`s that were updated.
+     * 
+     * @param fKey The filtering key
+     * @param fEq The filtering value to compare against
+     * @param key The document key to update
+     * @param value The value to set the key to
+     * @return An ArrayCursor of all updated ids. Documents that already have the value set are not returned.
      */
     public async updateWithFilterFaster(
         fKey: string,
@@ -605,7 +616,11 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 
     /**
-     * Sets DOCUMENT(id).key = value
+     * Sets `DOCUMENT(id).key = value`
+     * 
+     * @param id An `ID` to update
+     * @param key The key of the document to update
+     * @param value The value to set the key to
      */
     public async updateOneFaster(id: string, key: string, value: any) {
         let k = this.asKey(id)
@@ -614,12 +629,23 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         )
     }
 
+    /**
+     * Returns all of the raw documents that are in the array of `ID`s. ***DOES NOT SET `.id` OR CLEAR `_` FIELDS***
+     * 
+     * @param ids An array of `ID`s to return
+     * @return A cursor with all of the documents
+     */
     public async getIds(ids: string[]): Promise<ArrayCursor<Type>> {
         return ArangoWrapper.db.query(aql`FOR i IN ${ids} RETURN DOCUMENT(i)`)
     }
 
     /**
-     * @param ret Looks like `status`
+     * Gets a single key off each document referenced by `ids`. The ordering of the return values cannot be guaranteed to map directly to the passed `ids`.
+     * 
+     * @typeParam T The type of `doc.ret`. This affects the return type of the cursor.
+     * @param ids An array of `ID`s to return values from
+     * @param ret A key of Type to return
+     * @return A cursor that returns the values
      */
     public async getFaster<T>(
         ids: string[],
@@ -630,6 +656,15 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         )
     }
 
+    /**
+     * Gets a single key off a single document. Returns the value directly.
+     * 
+     * @typeParam T The type of `doc.ret`
+     * @param id An `ID` to retrieve data for
+     * @param ret The key of Type to return
+     * @return `DOCUMENT(id).ret`
+     * @throws INTERNAL If the cursor returns no values
+     */
     public async getOneFaster<T>(id: string, ret: string): Promise<T> {
         let cursor = await ArangoWrapper.db.query(
             aql`RETURN DOCUMENT(${id}).${ret}`
@@ -642,6 +677,17 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         }
     }
 
+    /**
+     * Returns multiple fields from a single document.
+     * 
+     * @typeParam A The type of `a`'s value
+     * @typeParam B The type of `b`'s value
+     * @param id An `ID` to check
+     * @param a A key of Type to return
+     * @param b A key of Type to return
+     * @return An object with an `a` and `b` field coresponding to the two keys passed as `a` and `b`
+     * @throws INTERNAL If the cursor returns no values
+     */
     public async getOneMultipleFaster<A, B>(
         id: string,
         a: string,
@@ -661,20 +707,33 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         }
     }
 
+    /**
+     * Gets a single key and its document's `ID` from each document referenced by `ids`. This should be used if mapping a value with its document's `ID` is important.
+     * 
+     * @typeParam T The type of `doc.ret`. This affects the return type of the cursor.
+     * @param ids An array of `ID`s to return values from
+     * @param ret A key of Type to return
+     * @return A cursor that returns an id+value object representing the document `ID` and value of `doc.ret`
+     */
     public async getWithIdFaster<T>(
         ids: string[],
         ret: string
-    ): Promise<
-        ArrayCursor<{
-            id: string
-            v: T
-        }>
-    > {
+    ): Promise<ArrayCursor<{ id: string, v: T }>> {
         return ArangoWrapper.db.query(
             aql`FOR i in ${ids} let d=DOCUMENT(i)RETURN {id:d._id,v:d.${ret}}`
         )
     }
 
+    /**
+     * Gets multiple key values and their respective document's `ID` field from the passed array of `ID`s.
+     * 
+     * @typeParam A the type of `doc.a`
+     * @typeParam B the type of `doc.b`
+     * @param ids An array of `ID`s to return values for
+     * @param a The first key to return
+     * @param b The second key to return
+     * @return A cursor of objects containing the `a` and `b` values alongside their `ID`
+     */
     public async getMultipleFaster<A, B>(
         ids: string[],
         a: string,
@@ -686,9 +745,12 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 
     /**
-     * @param key looks like `status`
-     * @param equals looks like 'COMPLETED'
-     * @return An array of IDs that are invalid
+     * Returns an array of `ID`s that **DO NOT** match the passed filter. To assert that all of the passed `ID`s match, `cursor.hasNext` should be `false`.
+     * 
+     * @param ids An array of `ID`s to filter with
+     * @param key Key to filter on
+     * @param equals The filter value to compare against with `==`
+     * @return A cursor of `ID`s that do not match the filter
      */
     public async assertEqualsFaster(
         ids: string[],
@@ -700,6 +762,13 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         )
     }
 
+    /**
+     * Returns an array of `ID`s that **DO NOT** match **ANY** of the passed values of the filter. To assert that all of the passed `ID`s match, `cursor.hasNext` should be `false`.
+     * 
+     * @param ids An array of `ID`s to filter with
+     * @param key Key to filter on
+     * @param equals An array of values to filter against
+     */
     public async assertManyEqualsFaster(
         ids: string[],
         key: string,
@@ -719,6 +788,14 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
         return ArangoWrapper.db.query(q)
     }
 
+    /**
+     * Returns an array of `ID`s that **DO** match the passed filter.
+     * 
+     * @param ids An array of `ID`s to filter with
+     * @param key Key to filter on
+     * @param equals The filter value to compare against with `==`
+     * @return A cursor of `ID`s that match the filter
+     */
     public async filterIdsFaster(
         ids: string[],
         key: string,
@@ -730,10 +807,16 @@ export class ArangoWrapper<Type extends IArangoIndexes> extends IErrorable {
     }
 }
 
+/**
+ * An object containing a query's filtering options.
+ */
 export interface IFilterOpts {
+    // The key to use for filtering
     key: string
-    // If true, REF is a key in the document referenced by key
-    // Ie. {key:rank, ref:name, q:Admin} filters users with rank 'Admin'
+    /**
+     * If set, `filter.key` is a document reference that will be de-referenced and use `filter.ref`'s value as a key of that document for filtering.
+     * ie. {key:rank, ref:name, q:Admin} uses `DOCUMENT(doc.key).ref` for filtering
+     */
     ref?: string
     // Complete checking
     in?: string[]
@@ -749,27 +832,50 @@ export interface IFilterOpts {
     custom?: GeneratedAqlQuery
 }
 
+/**
+ * An object containing a query's sorting options
+ */
 export interface ISortOpts {
+    // True if the sorting should be descending, false if the sorting should be ascending
     desc: boolean
+    // The key to use for sorting
     key: string
-    // If true, REF is a key in the document referenced by key
+    /**
+     * If set, `filter.key` is a document reference that will be de-referenced and use `filter.ref`'s value as a key of that document for filtering.
+     * ie. {key:rank, ref:name, q:Admin} uses `DOCUMENT(doc.key).ref` for filtering
+     */
     ref?: string
 }
 
+/**
+ * A full object containing all of the query options
+ */
 export interface IQueryGetOpts {
+    // An array of filters to apply
     filters: IFilterOpts[]
+    // The sorting direction and key
     sort?: ISortOpts
+    // The offset and count to use for the query
     range: {
         offset: number
         count: number
     }
+    // True if this should return just the `._id` field
     justIds?: boolean
+    // True if this should return the raw document
     raw?: boolean
 }
 
+/**
+ * A representation of the return values of a query. This is designed for converting a query into an outgoing HTTP message and building it's `content-range` header.
+ */
 export interface IGetAllQueryResults {
+    // All documents
     all: any[]
+    // The number of documents that are returned
     size: number
+    // The index in the query matching the first element
     low: number
+    // The index in the query matching the last element
     high: number
 }
