@@ -1,6 +1,10 @@
 import { config } from '../../config'
 import { HTTPStatus, IErrorable } from '../../lms/errors'
-import { IDataFieldData, IFieldData, IForeignFieldData } from '../../lms/FieldData'
+import {
+    IDataFieldData,
+    IFieldData,
+    IForeignFieldData,
+} from '../../lms/FieldData'
 import { fixStepper } from '../../lms/Stepper'
 import { ICreateUpdate } from '../../lms/types'
 import {
@@ -341,13 +345,7 @@ export class DataManager<Type> extends IErrorable {
                 this.foreignEntries.push([key, data as IForeignFieldData])
             } else if (data.type === 'data' || data.instance === 'data') {
                 this.dataEntries.push([key, data as IDataFieldData])
-            } else if (data.type === 'parent') {
-                if (!data.parentReferenceKey) {
-                    throw this.internal(
-                        'constructor',
-                        `Data ${str(data)} missing parentReference field`
-                    )
-                }
+            } else if (data.type === 'parent' && data.parentReferenceKey) {
                 this.parentField = {
                     local: key,
                     foreign: data.parentReferenceKey,
@@ -501,7 +499,14 @@ export class DataManager<Type> extends IErrorable {
             },
             // foreign
             async (v, d) =>
-                d.foreignManager.parseGet(user, files, v, d, map, id ?? lastDBId),
+                d.foreignManager.parseGet(
+                    user,
+                    files,
+                    v,
+                    d,
+                    map,
+                    id ?? lastDBId
+                ),
             // data
             async (v, d) =>
                 d.dataManager.parseGet(user, files, v, d, map, id ?? lastDBId),
@@ -604,7 +609,7 @@ export class DataManager<Type> extends IErrorable {
             if (this.parentField) {
                 let local = this.parentField.local
                 if (!doc[local]) {
-                    // We're assigning the parent/module/project fieldof documents here, so they hold references to their parent.
+                    // We're assigning the parent/module/project field of documents here, so they hold references to their parent.
                     doc[local] = par
                 }
             }

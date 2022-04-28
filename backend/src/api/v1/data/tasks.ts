@@ -75,7 +75,8 @@ class Task extends DBManager<ITask> {
                 },
                 // Parent key for project
                 project: {
-                    type: 'string',
+                    type: 'parent',
+                    managerName: 'projects',
                     optional: true,
                 },
                 type: { type: 'string' },

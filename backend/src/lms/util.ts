@@ -103,8 +103,8 @@ export function splitId(id: string) {
 
 // Collection names are alphabetic character names
 // DB keys are url/filename-safe base64, alphanumeric with - and _
-const idRegex = /^([a-z]|[A-Z])+\/[A-D][\w\-]+$/
-const keyRegex = /^[A-D][\w\-]+$/
+const idRegex = /^([a-z]|[A-Z])+\/[\w\-]+$/
+const keyRegex = /^[\w\-]+$/
 
 /**
  * Returns true if the passed string looks like a database id. DOES NOT CHECK IF
