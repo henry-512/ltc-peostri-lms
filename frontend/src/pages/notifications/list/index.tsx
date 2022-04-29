@@ -1,3 +1,10 @@
+/**
+* @file Notifications list page.
+* @module NotificationsListPage
+* @category NotificationsPage
+* @author Braden Cariaga
+*/
+
 import { List, Datagrid, TextField, BooleanField, DateField, useCreatePath } from "react-admin";
 import { dateOptions } from "src/util/dateFormatter";
 

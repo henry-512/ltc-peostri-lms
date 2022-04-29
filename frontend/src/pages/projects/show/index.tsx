@@ -1,3 +1,10 @@
+/**
+* @file Projects show page.
+* @module ProjectsShowPage
+* @category ProjectsPage
+* @author Braden Cariaga
+*/
+
 import { Box, IconButton, Breadcrumbs, Divider, Tooltip } from "@mui/material";
 import { FunctionField, Link, Show, ReferenceManyField, ShowController, SimpleShowLayout, useCreatePath, useUpdate, useNotify, useRefresh } from "react-admin";
 import Aside from "./Aside";

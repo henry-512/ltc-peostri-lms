@@ -1,3 +1,10 @@
+/**
+* @file Administration User export file.
+* @module AdministrationUserExport
+* @category AdministrationUserPage
+* @author Braden Cariaga
+*/
+
 import UserCreate from './create'
 import UserEdit from './edit'
 import UserList from './list'

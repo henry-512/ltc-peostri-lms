@@ -1,3 +1,10 @@
+/**
+* @file Administration Team export file.
+* @module AdministrationTeamExport
+* @category AdministrationTeamPage
+* @author Braden Cariaga
+*/
+
 import TeamCreate from './create'
 import TeamEdit from './edit'
 import TeamList from './list'

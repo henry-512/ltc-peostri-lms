@@ -1,3 +1,10 @@
+/**
+* @file Administration Project transformer method.
+* @module AdministrationProjectTransformerMethod
+* @category AdministrationProjectPage
+* @author Braden Cariaga
+*/
+
 import { IProject } from "src/util/types";
 import cloneDeep from 'lodash.clonedeep';
 

@@ -1,3 +1,10 @@
+/**
+* @file Tasks list page.
+* @module TasksListPage
+* @category TasksPage
+* @author Braden Cariaga
+*/
+
 import { List, Datagrid, TextField, DateField, useCreatePath, ReferenceArrayField, ReferenceField } from "react-admin";
 import AvatarGroupField from "src/components/AvatarGroupField";
 

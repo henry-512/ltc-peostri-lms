@@ -1,3 +1,10 @@
+/**
+* @file Administration Project Form Step Modules
+* @module AdministrationProjectFormStepModules
+* @category AdministrationProjectPage
+* @author Braden Cariaga
+*/
+
 import { FormGroupContextProvider } from "react-admin";
 import ModuleManager from "src/components/ModuleManager";
 import { useFormContext } from "react-hook-form";

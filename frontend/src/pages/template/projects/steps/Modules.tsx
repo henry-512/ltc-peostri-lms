@@ -1,3 +1,10 @@
+/**
+* @file Template Project Form Step Modules
+* @module TemplateProjectFormStepModules
+* @category TemplateProjectPage
+* @author Braden Cariaga
+*/
+
 import { FormGroupContextProvider } from "react-admin";
 import ModuleManager from "src/components/ModuleManager";
 import { Step } from "src/components/FormStepper/Step";

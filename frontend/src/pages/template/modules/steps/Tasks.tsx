@@ -1,3 +1,10 @@
+/**
+* @file Template Module Form Step Tasks
+* @module TemplateModuleFormStepTasks
+* @category TemplateModulePage
+* @author Braden Cariaga
+*/
+
 import { FormGroupContextProvider } from "react-admin";
 import { Step } from "src/components/FormStepper/Step";
 import ModuleTemplateTaskFields from "src/components/ModuleTemplateTaskFields";

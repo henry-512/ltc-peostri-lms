@@ -1,3 +1,10 @@
+/**
+* @file Template Module validation method.
+* @module TemplateModuleValidationMethod
+* @category TemplateModulePage
+* @author Braden Cariaga
+*/
+
 import { FieldValues } from "react-hook-form";
 
 export default function validateModuleTemplate(module: FieldValues) {

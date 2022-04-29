@@ -1,3 +1,10 @@
+/**
+* @file Template Project validation method.
+* @module TemplateProjectValidationMethod
+* @category TemplateProjectPage
+* @author Braden Cariaga
+*/
+
 import { FieldValues } from "react-hook-form";
 
 export default function validateProjectTemplate(project: FieldValues) {

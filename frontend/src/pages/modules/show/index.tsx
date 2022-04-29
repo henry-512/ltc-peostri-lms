@@ -1,3 +1,10 @@
+/**
+* @file Moudles show page.
+* @module ModulesShowPage
+* @category ModulesPage
+* @author Braden Cariaga
+*/
+
 import { Box, IconButton, Breadcrumbs, Divider, Tooltip } from "@mui/material";
 import { FunctionField, Link, ReferenceField, Show, ShowController, SimpleShowLayout, useCreatePath, TextField, ReferenceArrayField, useUpdate, useNotify, useRefresh } from "react-admin";
 import Aside from "./Aside";

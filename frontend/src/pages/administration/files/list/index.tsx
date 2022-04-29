@@ -1,3 +1,10 @@
+/**
+* @file Admin files list page.
+* @module AdministrationFilesListPage
+* @category AdministrationFilesPage
+* @author Braden Cariaga
+*/
+
 import { Datagrid, FileField, DeleteButton, List, ListProps, TextField, ReferenceField } from 'react-admin';
 import AvatarField from 'src/components/AvatarField';
 

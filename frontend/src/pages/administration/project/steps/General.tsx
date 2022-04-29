@@ -1,3 +1,10 @@
+/**
+* @file Administration Project Form Step General
+* @module AdministrationProjectFormStepGeneral
+* @category AdministrationProjectPage
+* @author Braden Cariaga
+*/
+
 import { Grid } from "@mui/material"
 import { BooleanInput, DateInput, FormGroupContextProvider, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin"
 import { Step } from "src/components/FormStepper/Step";

@@ -1,3 +1,10 @@
+/**
+* @file Projects show sidebar component.
+* @module ProjectsShowAside
+* @category ProjectsPage
+* @author Braden Cariaga
+*/
+
 import {
     DateField,
     useTranslate,

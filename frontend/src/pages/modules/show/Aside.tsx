@@ -1,3 +1,10 @@
+/**
+* @file Modules show sidebar component.
+* @module ModulesShowAside
+* @category ModulesPage
+* @author Braden Cariaga
+*/
+
 import {
     DateField,
     FunctionField,

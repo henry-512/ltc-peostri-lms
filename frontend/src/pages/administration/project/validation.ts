@@ -1,3 +1,10 @@
+/**
+* @file Administration Project validation method.
+* @module AdministrationProjectValidationMethod
+* @category AdministrationProjectPage
+* @author Braden Cariaga
+*/
+
 import { FieldValues } from "react-hook-form";
 
 export default function validateProject(project: FieldValues) {

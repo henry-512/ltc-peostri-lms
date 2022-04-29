@@ -1,3 +1,10 @@
+/**
+* @file Template Project Form Step General
+* @module TemplateProjectFormStepGeneral
+* @category TemplateProjectPage
+* @author Braden Cariaga
+*/
+
 import { Box, Grid } from "@mui/material"
 import { FormGroupContextProvider, maxLength, minLength, NumberInput, required, SelectInput, TextInput } from "react-admin"
 import SectionTitle from "src/components/SectionTitle";

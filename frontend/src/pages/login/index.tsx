@@ -1,3 +1,10 @@
+/**
+* @file Main login page.
+* @module LoginPage
+* @category LoginPage
+* @author Braden Cariaga
+*/
+
 import { useState } from 'react';
 import { createTheme, styled } from '@mui/material/styles';
 import PropTypes from 'prop-types';

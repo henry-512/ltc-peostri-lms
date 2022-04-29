@@ -1,3 +1,10 @@
+/**
+* @file Projects list page.
+* @module ProjectsListPage
+* @category ProjectsPage
+* @author Braden Cariaga
+*/
+
 import { Datagrid, DateField, List, ListProps, TextField } from 'react-admin';
 import ProjectEmptyList from 'src/components/ProjectEmptyList';
 import statusRowStyle from 'src/util/statusRowStyle';

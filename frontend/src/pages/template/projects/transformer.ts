@@ -1,12 +1,23 @@
+/**
+* @file Template Project transformer method.
+* @module TemplateProjectTransformerMethod
+* @category TemplateProjectPage
+* @author Braden Cariaga
+*/
+
 import { IProject } from "src/util/types";
 import cloneDeep from 'lodash.clonedeep';
 
 const transformer = (projectData: IProject) => {
     let data = cloneDeep(projectData);
+
+    /* This is deleting the module_template_id from the data. */
     delete data.module_template_id;
 
+    /* This is a way to convert a string to a number. */
     data.ttc = parseInt(`${data.ttc}`);
 
+    /* Removing empty steps from the data. */
     let mStepCounter = 0; //Keep track of current step, in case of deletion and need for refactoring.
     for (const mKey in data.modules) {
         if (data.modules[mKey].length <= 0) {

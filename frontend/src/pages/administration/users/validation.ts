@@ -1,3 +1,10 @@
+/**
+* @file Administration User validation method.
+* @module AdministrationUserValidationMethod
+* @category AdministrationUserPage
+* @author Braden Cariaga
+*/
+
 import { FieldValues } from "react-hook-form";
 
 export default function validateUser(user: FieldValues) {
