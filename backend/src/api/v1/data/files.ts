@@ -1,6 +1,10 @@
+import Router from '@koa/router'
+import { aql } from 'arangojs/aql'
 import fs from 'fs'
+import { DefaultState, DefaultContext } from 'koa'
 import path from 'path'
 import { config } from '../../../config'
+import { HTTPStatus } from '../../../lms/errors'
 import { IFileMetadata, IFileRevisions } from '../../../lms/types'
 import { generateBase64UUID, getUrl } from '../../../lms/util'
 import { AuthUser } from '../../auth'
@@ -73,7 +77,10 @@ class Filedata extends DBManager<IFileMetadata> {
     }
 
     // Write a new file from the file data
-    public async writeFile(user: AuthUser, file: IFileData): Promise<IFileMetadata> {
+    public async writeFile(
+        user: AuthUser,
+        file: IFileData
+    ): Promise<IFileMetadata> {
         let key = generateBase64UUID()
         let pathTo: string = key + '-' + file.name
 
@@ -143,6 +150,24 @@ class Filedata extends DBManager<IFileMetadata> {
         } else {
             throw this.internal('readLatest', `${fullPath} is not a file`)
         }
+    }
+
+    public async deleteLostFiles() {
+        return this.db.rawQuery(
+            aql`let v=(for f in files for m in filemeta filter f._id == m.latest or CONTAINS(m.old, f._id) or CONTAINS(m.reviews, f._id) or CONTAINS(m.oldReviews, f._id) return f._id) for f in files filter not CONTAINS(v, f._id) remove f in files`
+        )
+    }
+
+    public override debugRoutes(r: Router): void {
+        super.debugRoutes(r)
+        r.delete('/lost', async (ctx, next) => {
+            if (ctx.header['user-agent'] === 'backend-testing') {
+                await this.deleteLostFiles()
+                ctx.status = HTTPStatus.OK
+            } else {
+                await next()
+            }
+        })
     }
 }
 

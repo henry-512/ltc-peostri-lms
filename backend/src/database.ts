@@ -856,6 +856,15 @@ export class ArangoCollectionWrapper<
             aql`FOR i in ${ids} LET d=DOCUMENT(i)FILTER d.${key}==${equals} RETURN i`
         )
     }
+
+    /**
+     * Runs the passed AQL query. This should be used sparingly.
+     * 
+     * @param aql An AQL query to run
+     */
+    public async rawQuery(aql: GeneratedAqlQuery) {
+        return ArangoCollectionWrapper.DatabaseInstance.query(aql)
+    }
 }
 
 /**
