@@ -1,3 +1,10 @@
+/**
+* @file Template Project Create file.
+* @module TemplateProjectCreate
+* @category TemplateProjectsPage
+* @author Braden Cariaga
+*/
+
 import { Create, useTranslate } from "react-admin";
 import FormStepper from "src/components/FormStepper";
 import General from "../steps/General";

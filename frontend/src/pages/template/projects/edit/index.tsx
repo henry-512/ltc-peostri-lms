@@ -1,3 +1,10 @@
+/**
+* @file Template Project Edit file.
+* @module TemplateProjectEdit
+* @category TemplateProjectsPage
+* @author Braden Cariaga
+*/
+
 import { Edit, useTranslate } from "react-admin";
 import TemplateEditToolbar from "src/components/TemplateEditToolbar";
 import FormStepper from "src/components/FormStepper";

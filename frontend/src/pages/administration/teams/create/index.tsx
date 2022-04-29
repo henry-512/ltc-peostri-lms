@@ -1,3 +1,10 @@
+/**
+* @file Administration Team Create file.
+* @module AdministrationTeamCreate
+* @category AdministrationTeamPage
+* @author Braden Cariaga
+*/
+
 import { Box } from "@mui/material";
 import { AutocompleteArrayInput, Create, ReferenceArrayInput, SimpleForm, TextInput, useTranslate } from "react-admin";
 import SectionTitle from "src/components/SectionTitle";

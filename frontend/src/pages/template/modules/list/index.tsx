@@ -1,3 +1,10 @@
+/**
+* @file Template Module List file.
+* @module TemplateModuleList
+* @category TemplateModulesPage
+* @author Braden Cariaga
+*/
+
 import { Datagrid, DateField, FunctionField, List, ListProps, NumberField, TextField } from 'react-admin';
 import { IModuleTemplate, ITaskTemplate } from 'src/util/types';
 import { dateOptions } from 'src/util/dateFormatter';

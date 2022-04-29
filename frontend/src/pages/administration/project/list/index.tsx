@@ -1,3 +1,10 @@
+/**
+* @file Administration Project list file.
+* @module AdministrationProjectList
+* @category AdministrationProjectPage
+* @author Braden Cariaga
+*/
+
 import { Datagrid, DateField, List, ListProps, TextField } from 'react-admin';
 import statusRowStyle from 'src/util/statusRowStyle';
 import { dateOptions } from 'src/util/dateFormatter';
