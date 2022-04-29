@@ -711,7 +711,7 @@ export class DataManager<Type> extends IErrorable {
                     if (data.default !== undefined) {
                         // Put default value in
                         p.obj[p.key] = data.default
-                    } else {
+                    } else if (!data.hideGetAll) {
                         console.warn(`${String(p.key)} missing in GET/ ${doc}`)
                     }
                     return true
