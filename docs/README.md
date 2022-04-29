@@ -4,6 +4,10 @@
 - demo_video.mp4 - Showcase demo video.
 - documents - Template documents for demo purposes.
 
+## Tutorials `/tutorials`
+- `lms-user-guide.pdf` - Text tutorial on how to use the software.
+- `videos.zip` - Help tutorial videos.
+
 ## Workflows
 - `workflow-old` - Previous process workflow diagrams.
 - `workflow-new` - Improved process workflow diagrams.
