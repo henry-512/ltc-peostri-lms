@@ -75,7 +75,6 @@ class Team extends DBManager<ITeam> {
             if (newUsers.length !== 0) {
                 await UserManager.db.unionManyField(newUsers, 'teams', [teamId])
             }
-
         } else {
             // Update the users
             await UserManager.db.unionManyField(<string[]>t.users, 'teams', [
@@ -86,12 +85,7 @@ class Team extends DBManager<ITeam> {
         return t
     }
 
-    public override async delete(
-        user: AuthUser,
-        id: string,
-        real: boolean,
-        base: boolean
-    ): Promise<void> {
+    public override async delete(user: AuthUser, id: string): Promise<void> {
         // Retrieve list of users
         let users = await this.db.getOneField<string[]>(id, 'users')
 
@@ -99,7 +93,7 @@ class Team extends DBManager<ITeam> {
         await UserManager.db.removeFromFieldArray(users, 'teams', id)
 
         // Pass to super
-        return super.delete(user, id, real, base)
+        return super.delete(user, id)
     }
 }
 

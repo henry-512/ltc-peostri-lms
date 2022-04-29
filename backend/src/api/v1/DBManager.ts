@@ -2,8 +2,8 @@ import Router from '@koa/router'
 import {
     ArangoCollectionWrapper,
     IFilterOpts,
-    IGetAllQueryResults,
-    IQueryGetOpts,
+    IQueryRange,
+    IQueryOpts,
 } from '../../database'
 import { APIError, HTTPStatus } from '../../lms/errors'
 import { IFieldData, IForeignFieldData } from '../../lms/FieldData'
@@ -104,8 +104,8 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         Managers[dbName] = this
     }
 
-    public parseQuery(q: any): IQueryGetOpts {
-        let opts: IQueryGetOpts = {
+    public parseQuery(q: any): IQueryOpts {
+        let opts: IQueryOpts = {
             range: {
                 offset: 0,
                 count: 10,
@@ -222,8 +222,8 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
      */
     public async runQuery(
         user: AuthUser,
-        opts: IQueryGetOpts
-    ): Promise<IGetAllQueryResults> {
+        opts: IQueryOpts
+    ): Promise<IQueryRange> {
         let query = await this.db.runGetAllQuery(opts)
         let all = await query.cursor.all()
 
@@ -354,7 +354,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         )
     }
 
-    public async create(user: AuthUser, files: any, d: Type, real: boolean) {
+    public async create(user: AuthUser, files: any, d: Type) {
         // Generate a new ID for this document
         let id = this.db.generateDBID()
         d.id = id
@@ -370,7 +370,6 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         let map = new Map<DataManager<any>, any[]>()
         await this.verifyAddedDocument(user, files, d, false, map, id)
 
-        real || console.log('FAKING CREATE')
         // Saves each document in the map to its respective collection
         try {
             for (let [api, docs] of map) {
@@ -381,7 +380,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                     console.log(
                         `Saving ${api.className} | ${JSON.stringify(doc)}`
                     )
-                    real && (await api.db.save(doc))
+                    await api.db.save(doc)
                 }
             }
         } catch (err: any) {
@@ -417,25 +416,12 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         return id
     }
 
-    public async update(
-        user: AuthUser,
-        files: any,
-        id: string,
-        doc: Type,
-        real: boolean
-    ) {
-        // doc.id is a KEY here and needs to be converted
+    public async update(user: AuthUser, files: any, id: string, doc: Type) {
         doc.id = id
-
-        // TODO: update parent
-        // if (this.parentKey) {
-        //     //if ()
-        // }
 
         let map = new Map<DataManager<any>, any[]>()
         await this.verifyAddedDocument(user, files, doc, true, map, id)
 
-        real || console.log('FAKING UPDATE')
         // Updates each document in the map to its respective collection
         // TODO Delete/revert malformed docs
         for (let [api, docs] of map) {
@@ -453,12 +439,12 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                     console.log(
                         `Updating ${api.className} | ${JSON.stringify(d)}`
                     )
-                    real && (await api.db.update(d))
+                    await api.db.update(d)
                 } else {
                     console.log(
                         `Saving ${api.className} | ${JSON.stringify(d)}`
                     )
-                    real && (await api.db.save(d))
+                    await api.db.save(d)
                 }
             }
         }
@@ -470,12 +456,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
      * @param base True if this is the base call (ie the call that should
      *  update parent fields)
      */
-    public async delete(
-        user: AuthUser,
-        id: string,
-        real: boolean,
-        base: boolean
-    ) {
+    public async delete(user: AuthUser, id: string) {
         let doc = await this.db.get(id)
 
         // Delete children
@@ -488,17 +469,13 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                         `[${v}] is not a string`
                     )
                 }
-                return data.foreignManager.delete(user, v, real, false)
+                return data.foreignManager.delete(user, v)
             },
             (data) => !data.freeable
         )
 
-        console.log(
-            `${real ? 'DELETING' : 'FAKE DELETING'} ${
-                this.className
-            } | ${id} | ${doc}`
-        )
-        real && (await this.db.remove(id))
+        console.log(`DELETING ${this.className} | ${id} | ${doc}`)
+        await this.db.remove(id)
     }
 
     /**
@@ -517,18 +494,6 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             )
         }
         return this.db.deleteOrphans(this.parentField.local)
-    }
-
-    /**
-     * Removes all abandoned documents from this collection.
-     * A document is abandoned iff:
-     * - It has a parent field that points to a valid document
-     * - AND its parent document does not hold a reference to it
-     * NOTE: VERY EXPENSIVE, don't run that often
-     */
-    private async deleteAbandoned() {
-        // Not implemented :)
-        return
     }
 
     /**
@@ -594,25 +559,17 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
     public debugRoutes(r: Router) {
         // Orphan delete
         if (this.parentField) {
-            r.delete('/orphan', async (ctx, next) => {
-                if (ctx.header['user-agent'] === 'backend-testing') {
-                    await this.deleteOrphans()
-                    ctx.status = HTTPStatus.OK
-                } else {
-                    await next()
-                }
+            r.delete('/orphan', async (ctx) => {
+                await this.deleteOrphans()
+                ctx.status = HTTPStatus.OK
             })
         }
 
         // Disown update
         if (this.foreignEntries.length !== 0) {
-            r.delete('/disown', async (ctx, next) => {
-                if (ctx.header['user-agent'] === 'backend-testing') {
-                    await this.disown()
-                    ctx.status = HTTPStatus.OK
-                } else {
-                    await next()
-                }
+            r.delete('/disown', async (ctx) => {
+                await this.disown()
+                ctx.status = HTTPStatus.OK
             })
         }
     }

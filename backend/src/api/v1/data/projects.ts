@@ -270,10 +270,9 @@ class Project extends DBManager<IProject> {
     public override async create(
         user: AuthUser,
         files: any,
-        d: IProject,
-        real: boolean
+        d: IProject
     ): Promise<string> {
-        let id = await super.create(user, files, d, real)
+        let id = await super.create(user, files, d)
 
         // Update module statuses
         await this.updateStatus(user, id)
@@ -285,10 +284,9 @@ class Project extends DBManager<IProject> {
         user: AuthUser,
         files: any,
         id: string,
-        doc: IProject,
-        real: boolean
+        doc: IProject
     ): Promise<void> {
-        await super.update(user, files, id, doc, real)
+        await super.update(user, files, id, doc)
 
         // Update module statuses
         await this.updateStatus(user, id)
