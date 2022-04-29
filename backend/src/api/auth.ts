@@ -139,6 +139,12 @@ export class AuthUser {
         return rank?.permissions?.[perm] ?? defaultPermissions[perm]
     }
 
+    /**
+     * Builds the authentication router. Checks if the user's login information
+     * is valid and returns their user data.
+     *
+     * @return The route middleware to apply to the app
+     */
     public static authRouter() {
         return (
             new Router({ prefix: '/api/auth' })
@@ -180,9 +186,8 @@ export class AuthUser {
                     let token = jsonwebtoken.sign(
                         {
                             user: dbUserWOPass.id,
-                            // 3600: 1hour
-                            // 86 400: 1day
-                            // Date.now() is in mili, exp requires seconds
+                            // Date.now() is in milliseconds, exp requires
+                            // seconds
                             exp:
                                 Math.floor(Date.now() / 1000) +
                                 config.authDuration,
@@ -196,6 +201,7 @@ export class AuthUser {
                     // Set cookies and status
                     ctx.cookies.set('token', token, {
                         httpOnly: true,
+                        // maxAge requires milliseconds
                         maxAge: config.authDuration * 1000,
                     })
                     // This contains different values from get/:id
@@ -204,9 +210,9 @@ export class AuthUser {
                     }
                     ctx.status = HTTPStatus.OK
                 })
-                // Verifies the current login
+                // Verifies the current login and returns the authenticated user
                 .get('/', async (ctx, next) => {
-                    // Runs the authentication routes
+                    // Runs the authentication route
                     await next()
 
                     let user = ctx.state.user

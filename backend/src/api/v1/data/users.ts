@@ -135,12 +135,7 @@ class User extends DBManager<IUser> {
         return u
     }
 
-    public override async delete(
-        user: AuthUser,
-        id: string,
-        real: boolean,
-        base: boolean
-    ): Promise<void> {
+    public override async delete(user: AuthUser, id: string): Promise<void> {
         // Retrieve list of teams
         let teams = await this.db.getOneField<string[]>(id, 'teams')
 
@@ -148,7 +143,7 @@ class User extends DBManager<IUser> {
         await TeamManager.db.removeFromFieldArray(teams, 'users', id)
 
         // Pass to super
-        return super.delete(user, id, real, base)
+        return super.delete(user, id)
     }
 
     protected override modifyDoc = async (

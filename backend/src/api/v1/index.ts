@@ -17,7 +17,14 @@ import { ModuleTempManager } from './data/template/moduleTemplates'
 import { ProjectTempManager } from './data/template/projectTemplates'
 import { UserManager } from './data/users'
 import { Managers } from './DBManager'
-import { AdminRouter, getOne, parseBody, sendRange, UserRouter } from './Router'
+import {
+    AdminRouter,
+    getOne,
+    IFileBody,
+    parseBody,
+    sendRange,
+    UserRouter,
+} from './Router'
 
 export function routerBuilder(version: string) {
     // Resolve dependency issue
@@ -172,7 +179,7 @@ export function routerBuilder(version: string) {
                                 }
                             )
 
-                        sendRange(results, ctx)
+                        sendRange(ctx, results)
                     })
                     .put('readall', async (ctx) => {
                         let user: AuthUser = ctx.state.user
@@ -278,7 +285,7 @@ export function routerBuilder(version: string) {
                             ctx.params.id
                         )
 
-                        let body = await parseBody(ctx.request)
+                        let body = await parseBody<IFileBody>(ctx.request)
                         await TaskManager.upload(
                             ctx.state.user,
                             id,
@@ -292,7 +299,7 @@ export function routerBuilder(version: string) {
                         let id = await TaskManager.db.assertKeyExists(
                             ctx.params.id
                         )
-                        let body = await parseBody(ctx.request)
+                        let body = await parseBody<IFileBody>(ctx.request)
 
                         await TaskManager.review(
                             ctx.state.user,
@@ -330,7 +337,7 @@ export function routerBuilder(version: string) {
                             ctx.params.id
                         )
 
-                        let body = await parseBody(ctx.request)
+                        let body = await parseBody<IFileBody>(ctx.request)
 
                         await TaskManager.deny(
                             ctx.state.user,

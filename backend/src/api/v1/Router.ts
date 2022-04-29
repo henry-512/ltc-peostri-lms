@@ -1,148 +1,114 @@
 import Router from '@koa/router'
 import { GeneratedAqlQuery } from 'arangojs/aql'
 import fs from 'fs'
-import { ParameterizedContext } from 'koa'
+import { ParameterizedContext, Request } from 'koa'
 import { config } from '../../config'
-import { IFilterOpts, IGetAllQueryResults, IQueryGetOpts } from '../../database'
+import { IFilterOpts, IQueryRange, IQueryOpts } from '../../database'
 import { HTTPStatus } from '../../lms/errors'
-import { PermissionType, FetchType, IArangoIndexes } from '../../lms/types'
+import {
+    PermissionType,
+    FetchType,
+    IArangoIndexes,
+    PermissionValue,
+} from '../../lms/types'
 import { AuthUser } from '../auth'
 import { DBManager } from './DBManager'
 
-export interface AdminRouterOpts {
-    noDebugRoute?: boolean
-    noListGetAll?: boolean
-    noListGetId?: boolean
-    noListPost?: boolean
-    noListPut?: boolean
-    noListDelete?: boolean
-}
-
-export const allDisabled: AdminRouterOpts = {
-    noDebugRoute: true,
-    noListGetAll: true,
-    noListGetId: true,
-    noListPost: true,
-    noListPut: true,
-    noListDelete: true,
-}
-
+/**
+ * Administrative router. Mostly a wrapper for database function calls, but also
+ * used for a few frontend list generations. Supports GET, GET-ALL, POST, PUT,
+ * and DELETE. All administrative routes are prefixed with `admin` and use the
+ * `list` prefix for CRUD operations.
+ *
+ * Associated with a DBManager that manages data manipulation.
+ */
 export class AdminRouter<Type extends IArangoIndexes> extends Router {
     /**
      * Create a new router.
      */
-    constructor(
-        prefix: string,
-        private manager: DBManager<Type>,
-        private apiOpts?: AdminRouterOpts
-    ) {
+    constructor(prefix: string, private manager: DBManager<Type>) {
         // Apply prefix
         super({ prefix: `admin/${prefix}` })
     }
 
+    // Attaches custom routes to the router
     public override routes() {
-        // Attatch default routes
+        // Development-only routes
         if (config.devRoutes) {
             this.manager.debugRoutes(this)
         }
 
-        if (!this.apiOpts?.noListGetAll) {
-            this.get(
-                '/list',
-                async (ctx) =>
-                    await parseRunSendQuery(ctx.state.user, this.manager, ctx)
+        this.get(
+            '/list',
+            async (ctx) =>
+                await parseAndSendQuery(ctx, ctx.state.user, this.manager)
+        )
+
+        this.get(
+            '/list/:id',
+            async (ctx) => await getOne(ctx, this.manager, ctx.params.id)
+        )
+
+        this.post('/list', async (ctx) => {
+            // Support for multipart requests
+            let doc: Type = await parseBody<Type>(ctx.request)
+
+            // Create new document
+            let id = await this.manager.create(
+                ctx.state.user,
+                ctx.request.files,
+                doc
             )
-        }
 
-        if (!this.apiOpts?.noListGetId) {
-            this.get(
-                '/list/:id',
-                async (ctx) => await getOne(ctx, this.manager, ctx.params.id)
+            // Convert id to key
+            let key = this.manager.db.asKey(id)
+
+            ctx.status = HTTPStatus.CREATED
+            ctx.body = {
+                id: key,
+                message: `${this.manager.className} created with id [${id}]`,
+            }
+        })
+
+        this.put('/list/:id', async (ctx) => {
+            // Support multipart
+            let doc: Type = await parseBody<Type>(ctx.request)
+            let id = this.manager.db.keyToId(ctx.params.id)
+
+            await this.manager.update(
+                ctx.state.user,
+                ctx.request.files,
+                id,
+                doc
             )
-        }
 
-        if (!this.apiOpts?.noListPost) {
-            this.post('/list', async (ctx) => {
-                let doc: Type = await parseBody<Type>(ctx.request)
+            ctx.body = await this.manager.getFromDB(
+                ctx.state.user,
+                id,
+                false,
+                false
+            )
+            ctx.status = HTTPStatus.OK
+        })
 
-                let id = await this.manager.create(
-                    ctx.state.user,
-                    ctx.request.files,
-                    doc,
-                    ctx.header['user-agent'] !== 'backend-testing'
-                )
+        this.delete('/list/:id', async (ctx) => {
+            let id = await this.manager.db.assertKeyExists(ctx.params.id)
+            await this.manager.delete(ctx.state.user, id)
 
-                let key = this.manager.db.asKey(id)
-
-                ctx.status = HTTPStatus.CREATED
-                ctx.body = {
-                    id: key,
-                    message: `${this.manager.className} created with id [${id}]`,
-                }
-            })
-        }
-
-        if (!this.apiOpts?.noListPut) {
-            this.put('/list/:id', async (ctx) => {
-                let id = this.manager.db.keyToId(ctx.params.id)
-                let doc: Type = await parseBody<Type>(ctx.request)
-
-                await this.manager.update(
-                    ctx.state.user,
-                    ctx.request.files,
-                    id,
-                    doc,
-                    ctx.header['user-agent'] !== 'backend-testing'
-                )
-
-                ctx.body = await this.manager.getFromDB(
-                    ctx.state.user,
-                    id,
-                    false,
-                    false
-                )
-                ctx.status = HTTPStatus.OK
-            })
-        }
-
-        if (!this.apiOpts?.noListDelete) {
-            this.delete('/list/:id', async (ctx) => {
-                let id = await this.manager.db.assertKeyExists(ctx.params.id)
-                await this.manager.delete(
-                    ctx.state.user,
-                    id,
-                    ctx.header['user-agent'] !== 'backend-testing',
-                    true
-                )
-
-                ctx.status = HTTPStatus.OK
-                ctx.body = {
-                    id: ctx.params.id,
-                    message: `${this.manager.className} deleted`,
-                }
-            })
-        }
+            ctx.status = HTTPStatus.OK
+            ctx.body = {
+                id: ctx.params.id,
+                message: `${this.manager.className} deleted`,
+            }
+        })
 
         return super.routes()
     }
 }
 
-export interface UserRouterOpts {
-    noAssigned?: boolean
-    noAll?: boolean
-    noTeam?: boolean
-    noDefault?: boolean
-    noListGet?: boolean
-}
-
-export const allDisabledUser: UserRouterOpts = {
-    noAssigned: true,
-    noAll: true,
-    noTeam: true,
-    noDefault: true,
-    noListGet: true,
-}
-
+/**
+ * User processing router. Designed for queries based on user assignment status.
+ */
 export class UserRouter<Type extends IArangoIndexes> extends Router {
     /**
      * Create a new router.
@@ -151,78 +117,85 @@ export class UserRouter<Type extends IArangoIndexes> extends Router {
         prefix: string,
         private manager: DBManager<Type>,
         private fetchPermission: PermissionType,
-        // Aql query to return the team for this object
+        /** Aql query to return the team for this object */
         private filterTeam: GeneratedAqlQuery,
-        // Aql query to return users for this object
-        private filterUsers: GeneratedAqlQuery,
-        private routerOpts?: UserRouterOpts
+        /** Aql query to return users for this object */
+        private filterUsers: GeneratedAqlQuery
     ) {
         // Apply prefix
         super({ prefix: `${prefix}/` })
     }
 
+    /**
+     * Builds the router and calls the callback function. The callback is called
+     * before the other routes.
+     *
+     * @param cb A callback function to run to add additional routes
+     */
     public build(cb?: (r: Router, manager: DBManager<Type>) => void) {
         if (cb) cb(this, this.manager)
 
-        if (!this.routerOpts?.noListGet) {
-            this.get('list/:id', async (ctx) => {
-                let id = await this.manager.db.assertKeyExists(ctx.params.id)
+        this.get('list/:id', async (ctx) => {
+            let id = await this.manager.db.assertKeyExists(ctx.params.id)
 
-                ctx.body = await this.manager.getFromDB(
-                    ctx.state.user,
-                    id,
-                    true,
-                    true
-                )
-                ctx.status = HTTPStatus.OK
-            })
-        }
+            ctx.body = await this.manager.getFromDB(
+                ctx.state.user,
+                id,
+                true,
+                true
+            )
+            ctx.status = HTTPStatus.OK
+        })
 
-        if (!this.routerOpts?.noAssigned) {
-            this.get('assigned/count', async (ctx) => {
-                await this.getCount(ctx, 'ASSIGNED')
-            })
-            this.get('assigned/list', async (ctx) => {
-                await this.getList(ctx, 'ASSIGNED')
-            })
-        }
+        // Filters based on assignment
+        this.get('assigned/count', async (ctx) => {
+            await this.getCount(ctx, 'ASSIGNED')
+        })
+        this.get('assigned/list', async (ctx) => {
+            await this.getList(ctx, 'ASSIGNED')
+        })
 
-        if (!this.routerOpts?.noTeam) {
-            this.get('team/count', async (ctx) => {
-                await this.getCount(ctx, 'TEAM')
-            })
-            this.get('team/list', async (ctx) => {
-                await this.getList(ctx, 'TEAM')
-            })
-        }
+        // Filters based on team
+        this.get('team/count', async (ctx) => {
+            await this.getCount(ctx, 'TEAM')
+        })
+        this.get('team/list', async (ctx) => {
+            await this.getList(ctx, 'TEAM')
+        })
 
-        if (!this.routerOpts?.noAll) {
-            this.get(`all/count`, async (ctx) => {
-                await this.getCount(ctx, 'ALL')
-            })
-            this.get(`all/list`, async (ctx) => {
-                await this.getList(ctx, 'ALL')
-            })
-        }
+        // Filters based on all documents
+        this.get(`all/count`, async (ctx) => {
+            await this.getCount(ctx, 'ALL')
+        })
+        this.get(`all/list`, async (ctx) => {
+            await this.getList(ctx, 'ALL')
+        })
 
-        if (!this.routerOpts?.noDefault) {
-            this.get('default/count', async (ctx) => {
-                await this.getCount(ctx)
-            })
-            this.get('default/list', async (ctx) => {
-                await this.getList(ctx)
-            })
-        }
+        // Uses user permissions to determine filters
+        this.get('default/count', async (ctx) => {
+            await this.getCount(ctx)
+        })
+        this.get('default/list', async (ctx) => {
+            await this.getList(ctx)
+        })
 
         return super.routes()
     }
 
+    /**
+     * Gets the number of documents with additional filter.
+     *
+     * @param ctx The context to use
+     * @param fetchType The FetchType to determine filtering options. If not
+     * set, fetches permissions from the user.
+     */
     private async getCount(ctx: ParameterizedContext, fetchType?: FetchType) {
-        let f =
-            fetchType ??
-            (await permission<FetchType>(ctx, this.fetchPermission))
+        // Use passed fetching type or pull from user
+        if (fetchType === undefined) {
+            fetchType = await permission<FetchType>(ctx, this.fetchPermission)
+        }
 
-        switch (f) {
+        switch (fetchType) {
             case 'ASSIGNED':
                 return await queryFilterCount(ctx, this.manager, {
                     key: 'users', // unused
@@ -241,32 +214,46 @@ export class UserRouter<Type extends IArangoIndexes> extends Router {
         }
     }
 
-    private async getList(ctx: ParameterizedContext, fetch?: FetchType) {
-        if (fetch === undefined) {
-            fetch = await permission<FetchType>(ctx, 'taskFetching')
+    /**
+     * Gets all of the documents including the additional filter.
+     *
+     * @param ctx The context to use
+     * @param fetchType The FetchType to determine filtering options. If not
+     * set, fetches permissions from the user.
+     */
+    private async getList(ctx: ParameterizedContext, fetchType?: FetchType) {
+        if (fetchType === undefined) {
+            fetchType = await permission<FetchType>(ctx, this.fetchPermission)
         }
 
         let user: AuthUser = ctx.state.user
 
-        switch (fetch) {
+        switch (fetchType) {
             case 'ASSIGNED':
-                return await queryFilter(user, ctx, this.manager, {
+                return await parseAndSendQueryFilter(ctx, user, this.manager, {
                     key: 'users', // unused
                     custom: this.filterUsers,
                     inArray: user.id,
                 })
             case 'TEAM':
-                return await queryFilter(user, ctx, this.manager, {
+                return await parseAndSendQueryFilter(ctx, user, this.manager, {
                     key: 'undefined',
                     custom: this.filterTeam,
                     in: await user.getTeams(),
                 })
             default:
-                return await parseRunSendQuery(user, this.manager, ctx)
+                return await parseAndSendQuery(ctx, user, this.manager)
         }
     }
 }
 
+/**
+ * Gets a single document.
+ *
+ * @param ctx The context to use
+ * @param manager The DB manager associated with the key
+ * @param key The `KEY` to retrieve
+ */
 export async function getOne(
     ctx: ParameterizedContext,
     manager: DBManager<any>,
@@ -277,7 +264,13 @@ export async function getOne(
     ctx.status = HTTPStatus.OK
 }
 
-export async function parseBody<Type extends IArangoIndexes>(req: any) {
+/**
+ * Returns the JSON part of a multipart form, if required. Otherwise just
+ * returns req.body.
+ *
+ * @param req A `ctx.request` object
+ */
+export async function parseBody<T>(req: Request): Promise<T> {
     // Multipart form requests put the POST data in a different spot
     if (req.files && req.files.json) {
         let file = req.files.json
@@ -286,35 +279,37 @@ export async function parseBody<Type extends IArangoIndexes>(req: any) {
         }
         let buf = await fs.promises.readFile(file.path)
 
+        // Parse the JSON body
         return JSON.parse(buf.toString())
     } else {
-        return req.body as Type
+        return req.body
     }
 }
 
-export async function parseRunSendQuery(
+/**
+ * Parses and sends a GET-ALL query on the passed DB manager,
+ *
+ * @param ctx The context to use
+ * @param user The user that initialized the request
+ * @param manager The DB manager to query with
+ */
+export async function parseAndSendQuery(
+    ctx: ParameterizedContext,
     user: AuthUser,
-    manager: DBManager<any>,
-    ctx: ParameterizedContext
+    manager: DBManager<any>
 ) {
     let opts = manager.parseQuery(ctx.request.query)
-    return runAndSendQuery(user, manager, opts, ctx)
-}
-
-export async function runAndSendQuery(
-    user: AuthUser,
-    manager: DBManager<any>,
-    opts: IQueryGetOpts,
-    ctx: ParameterizedContext
-) {
     let results = await manager.runQuery(user, opts)
-    sendRange(results, ctx)
+    sendRange(ctx, results)
 }
 
-export function sendRange(
-    results: IGetAllQueryResults,
-    ctx: ParameterizedContext
-) {
+/**
+ * Sends a query range. Sets `Content-Range` headers and sets the return body.
+ *
+ * @param ctx The context to use
+ * @param results The results of the query
+ */
+export function sendRange(ctx: ParameterizedContext, results: IQueryRange) {
     ctx.status = HTTPStatus.OK
     ctx.body = results.all
 
@@ -325,9 +320,17 @@ export function sendRange(
     ctx.set('Access-Control-Expose-Headers', 'Content-Range')
 }
 
-export async function queryFilter(
-    user: AuthUser,
+/**
+ * Runs a query with additional filters.
+ *
+ * @param ctx The context to use
+ * @param user The user to associate with the request
+ * @param manager The database manager to query on
+ * @param filters An optional array of additional filters
+ */
+export async function parseAndSendQueryFilter(
     ctx: ParameterizedContext,
+    user: AuthUser,
     manager: DBManager<any>,
     ...filters: IFilterOpts[]
 ) {
@@ -336,9 +339,16 @@ export async function queryFilter(
         ctx.request.query,
         ...filters
     )
-    sendRange(results, ctx)
+    sendRange(ctx, results)
 }
 
+/**
+ * Runs a query with additional filters and returns its length.
+ *
+ * @param ctx The context to use
+ * @param manager The database manager to query on
+ * @param filters An optional array of additional filters
+ */
 export async function queryFilterCount(
     ctx: ParameterizedContext,
     manager: DBManager<any>,
@@ -351,6 +361,22 @@ export async function queryFilterCount(
     ctx.status = HTTPStatus.OK
 }
 
-export async function permission<T>(ctx: ParameterizedContext, perm: PermissionType) {
-    return (<AuthUser>ctx.state.user).getPermission(perm) as any as T
+/**
+ * Retrieves the user's permission.
+ *
+ * @typeParam T The permission return type
+ * @param ctx The context to retrieve `.state.user` from
+ * @param perm The permission to retrieve
+ * @return The permission's value with the user or its default value
+ */
+export async function permission<T extends PermissionValue>(
+    ctx: ParameterizedContext,
+    perm: PermissionType
+): Promise<T> {
+    return (<AuthUser>ctx.state.user).getPermission(perm) as any
+}
+
+/** An interface for ctx bodies that are a multipart reference string. */
+export interface IFileBody {
+    file: string
 }

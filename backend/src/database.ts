@@ -315,7 +315,7 @@ export class ArangoCollectionWrapper<
      * @return cursor The cursor containing the elements in the array
      * @return size The full return of the query, ignoring the range
      */
-    public async runGetAllQuery(opts: IQueryGetOpts): Promise<{
+    public async runGetAllQuery(opts: IQueryOpts): Promise<{
         cursor: ArrayCursor<any>
         size: number
     }> {
@@ -348,7 +348,7 @@ export class ArangoCollectionWrapper<
      * @param opts All of the query options
      * @return The number of elements in the query
      */
-    public async getAllCount(opts: IQueryGetOpts): Promise<number> {
+    public async getAllCount(opts: IQueryOpts): Promise<number> {
         let query = this.buildGetAllQuery(
             opts.sort ?? { desc: false, key: '_key' },
             opts.range.offset,
@@ -941,7 +941,7 @@ export interface ISortOpts {
 /**
  * A full object containing all of the query options
  */
-export interface IQueryGetOpts {
+export interface IQueryOpts {
     /** An array of filters to apply */
     filters: IFilterOpts[]
     /** The sorting direction and key */
@@ -962,10 +962,10 @@ export interface IQueryGetOpts {
  * converting a query into an outgoing HTTP message and building it's
  * `content-range` header.
  */
-export interface IGetAllQueryResults {
+export interface IQueryRange {
     /** All documents */
     all: any[]
-    /** The number of documents that are returned */
+    /** The number of documents in the entire collection (including filter) */
     size: number
     /** The index in the query matching the first element */
     low: number

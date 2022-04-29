@@ -434,7 +434,7 @@ class Module extends DBManager<IModule> {
 
         // Reset files
         if (mod.files) {
-            await FilemetaManager.delete(user, mod.files as string, true, true)
+            await FilemetaManager.delete(user, mod.files as string)
             // Arangodb is fun :)
             mod.files = null as any
         }

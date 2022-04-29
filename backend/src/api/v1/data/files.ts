@@ -1,7 +1,6 @@
 import Router from '@koa/router'
 import { aql } from 'arangojs/aql'
 import fs from 'fs'
-import { DefaultState, DefaultContext } from 'koa'
 import path from 'path'
 import { config } from '../../../config'
 import { HTTPStatus } from '../../../lms/errors'
@@ -38,14 +37,9 @@ class Filedata extends DBManager<IFileMetadata> {
         )
     }
 
-    public override async delete(
-        user: AuthUser,
-        id: string,
-        real: boolean,
-        base: boolean
-    ): Promise<void> {
+    public override async delete(user: AuthUser, id: string): Promise<void> {
         let path = await this.db.getOneField<string>(id, 'pathTo')
-        await super.delete(user, id, real, base)
+        await super.delete(user, id)
         // Delete the file after super.delete completes in case of errors
         await this.deleteFile(user, path)
     }
@@ -164,13 +158,9 @@ class Filedata extends DBManager<IFileMetadata> {
 
     public override debugRoutes(r: Router): void {
         super.debugRoutes(r)
-        r.delete('/lost', async (ctx, next) => {
-            if (ctx.header['user-agent'] === 'backend-testing') {
-                await this.deleteLostFiles()
-                ctx.status = HTTPStatus.OK
-            } else {
-                await next()
-            }
+        r.delete('/lost', async (ctx) => {
+            await this.deleteLostFiles()
+            ctx.status = HTTPStatus.OK
         })
     }
 }
