@@ -72,6 +72,9 @@ export interface IFieldData {
      * disabled
      */
     overrideUserDeref?: boolean
+
+    /** True if this is string should preserve trailing whitespace */
+    preserveWhitespace?: boolean
 }
 
 /** Guarantees that `foreignManager` is set */

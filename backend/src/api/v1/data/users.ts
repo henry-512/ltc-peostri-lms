@@ -48,6 +48,7 @@ class User extends DBManager<IUser> {
                     hideGetAll: true,
                     hideGetId: true,
                     hideGetRef: true,
+                    preserveWhitespace: true,
                 },
                 firstVisited: {
                     type: 'string',

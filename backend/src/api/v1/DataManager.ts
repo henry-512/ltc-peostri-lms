@@ -450,6 +450,12 @@ export class DataManager<Type> extends IErrorable {
                     } else {
                         if (data.type === 'step') {
                             o[k] = fixStepper(o[k])
+                        } else if (
+                            data.type === 'string' &&
+                            !data.preserveWhitespace
+                        ) {
+                            // Trim whitespace
+                            o[k] = (<string>o[k]).trim()
                         }
                         return false
                     }
