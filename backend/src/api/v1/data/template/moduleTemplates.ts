@@ -11,7 +11,7 @@ import { DataManager } from '../../DataManager'
 import { DBManager } from '../../DBManager'
 import { RankManager } from '../ranks'
 
-class TaskTemplate extends DataManager<ITaskTemplate> {
+export class TaskTemplate extends DataManager<ITaskTemplate> {
     constructor() {
         super(
             'Task Template',
@@ -52,7 +52,7 @@ class TaskTemplate extends DataManager<ITaskTemplate> {
 
 const TaskTempManager = new TaskTemplate()
 
-class ModuleTemplate extends DBManager<IModuleTemplate> {
+export class ModuleTemplate extends DBManager<IModuleTemplate> {
     constructor() {
         super(
             'moduleTemplates',
@@ -78,12 +78,13 @@ class ModuleTemplate extends DBManager<IModuleTemplate> {
         )
     }
 
+    /**
+     * Constructs a module from a template.
+     *
+     * @param id The template id to produce a module instance
+     */
     public async buildModuleFromId(id: string): Promise<IModule> {
-        let template = await this.db.get(id)
-        return this.buildModuleFromTemplate(template)
-    }
-
-    private buildModuleFromTemplate(temp: IModuleTemplate): IModule {
+        let temp = await this.db.get(id)
         let tasks: IStepper<ITask> = {}
 
         for (let [stepName, tempArray] of Object.entries(temp.tasks)) {

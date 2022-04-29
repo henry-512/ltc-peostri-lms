@@ -83,6 +83,12 @@ export class Filemeta extends DBManager<IFileRevisions> {
         }
     }
 
+    /**
+     * Pushes the latest file into `old` and updates `latest` with the passed `ID`. Mutably modifies it.
+     * 
+     * @param filemeta A set of file revisions
+     * @param fileId The file to use as latest
+     */
     public pushLatest(filemeta: IFileRevisions, fileId: string) {
         filemeta.old = (<string[]>filemeta.old).concat(<string>filemeta.latest)
         filemeta.latest = fileId

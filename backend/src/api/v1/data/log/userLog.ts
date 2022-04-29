@@ -2,7 +2,7 @@ import { IUserLog } from '../../../../lms/types'
 import { DBManager } from '../../DBManager'
 import { SenderManager } from '../notifications'
 
-class UserLog extends DBManager<IUserLog> {
+export class UserLog extends DBManager<IUserLog> {
     constructor() {
         super('userLogs', 'User Logs', {
             content: {
