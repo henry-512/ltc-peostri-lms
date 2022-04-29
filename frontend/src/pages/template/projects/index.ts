@@ -1,7 +1,7 @@
 /**
 * @file Template Project export file.
 * @module TemplateProjectExport
-* @category TemplateProjectPage
+* @category TemplateProjectsPage
 * @author Braden Cariaga
 */
 

@@ -1,7 +1,7 @@
 /**
 * @file Template Module Form Step General
 * @module TemplateModuleFormStepGeneral
-* @category TemplateModulePage
+* @category TemplateModulesPage
 * @author Braden Cariaga
 */
 

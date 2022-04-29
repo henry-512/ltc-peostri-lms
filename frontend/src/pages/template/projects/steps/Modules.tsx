@@ -1,7 +1,7 @@
 /**
 * @file Template Project Form Step Modules
 * @module TemplateProjectFormStepModules
-* @category TemplateProjectPage
+* @category TemplateProjectsPage
 * @author Braden Cariaga
 */
 

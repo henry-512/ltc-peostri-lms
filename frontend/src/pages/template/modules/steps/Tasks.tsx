@@ -1,7 +1,7 @@
 /**
 * @file Template Module Form Step Tasks
 * @module TemplateModuleFormStepTasks
-* @category TemplateModulePage
+* @category TemplateModulesPage
 * @author Braden Cariaga
 */
 

@@ -1,7 +1,7 @@
 /**
 * @file Template Project validation method.
 * @module TemplateProjectValidationMethod
-* @category TemplateProjectPage
+* @category TemplateProjectsPage
 * @author Braden Cariaga
 */
 

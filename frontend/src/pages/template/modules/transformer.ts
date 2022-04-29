@@ -1,7 +1,7 @@
 /**
 * @file Template Module transformer method.
 * @module TemplateModuleTransformerMethod
-* @category TemplateModulePage
+* @category TemplateModulesPage
 * @author Braden Cariaga
 */
 

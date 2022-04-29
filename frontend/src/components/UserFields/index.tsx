@@ -97,6 +97,7 @@ export default function UserFields() {
                             optionText={choice => `${choice.name}`}
                             optionValue="id"
                             helperText=" "
+                            validate={[required()]}
                         />
                     </ReferenceInput>
                     <ReferenceArrayInput reference="admin/teams" source="teams">

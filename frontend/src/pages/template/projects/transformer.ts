@@ -1,7 +1,7 @@
 /**
 * @file Template Project transformer method.
 * @module TemplateProjectTransformerMethod
-* @category TemplateProjectPage
+* @category TemplateProjectsPage
 * @author Braden Cariaga
 */
 
