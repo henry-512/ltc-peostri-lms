@@ -75,10 +75,13 @@ export const convertProjectToFormData = (data: IProject) => {
 
     for (let step of Object.values<IModule[]>(localData.modules)) {
         for (let module of step) {
+            if (!module.id) module.id = generateBase64UUID(); //Set ID for the module if none exists.
             if (!module.waive_module) continue;
             if (!module.files) continue;
-            if (module.files?.old) continue;
-            if (!module.id) module.id = generateBase64UUID();
+            if (module.files?.old) {
+                delete module.files;
+                continue;
+            }
 
             if (module.files) {
                 formData.append(`${module.id}-${module.files.title}`, module.files.rawFile)
