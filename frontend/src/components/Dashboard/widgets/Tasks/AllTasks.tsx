@@ -9,7 +9,7 @@ import TaskList from "./TaskList";
 
 const AllTasks = () => {
     return (
-        <TaskList resource="tasks/all" title="dashboard.widget.tasks.all_title" />
+        <TaskList resource="tasks/all" filter={{ status: "IN_PROGRESS" }} title="dashboard.widget.tasks.all_title" />
     )
 }
 

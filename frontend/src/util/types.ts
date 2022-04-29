@@ -79,7 +79,7 @@ export interface ITask extends RaRecord {
     title: string;
     status: Status;
     users?: Array<string> | Array<IUser>;
-    module?: string | IModule;
+    module?: string;
     type?: TaskTypes;
     rank?: string
 }

@@ -25,6 +25,7 @@ import { ModuleShow } from './pages/modules';
 import { lightTheme } from 'src/config/themes';
 import { Navigate, Route } from 'react-router-dom';
 import { NotificationList } from './pages/notifications';
+import { TasksList } from './pages/tasks';
 
 const API_URL = process.env.REACT_APP_API_URL + "/" + process.env.REACT_APP_API_VERSION || "http://localhost:5000/api/v1";
 
@@ -60,7 +61,7 @@ const App = () => {
             <Resource name="admin/ranks" options={{ label: "layout.menu.ranks" }} show={ShowGuesser} list={ListGuesser} edit={EditGuesser}  />
             <Resource name="admin/teams" options={{ label: "layout.menu.teams" }} show={ShowGuesser} list={TeamList} create={TeamCreate} edit={TeamEdit}  />
 
-            <Resource name="tasks" options={{ label: "layout.menu.my_tasks" }} show={ShowGuesser} />
+            <Resource name="tasks" options={{ label: "layout.menu.my_tasks" }} list={TasksList} />
             <Resource name="modules" options={{ label: "layout.menu.my_tasks" }} show={ModuleShow}  />
             <Resource name="projects" options={{ label: "layout.menu.my_projects" }} show={ProjectShow} list={ProjectList} />
             <Resource name="projects/all" options={{ label: "layout.menu.my_projects" }} list={ProjectList} />

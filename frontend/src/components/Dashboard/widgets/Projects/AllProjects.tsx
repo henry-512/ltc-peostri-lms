@@ -8,7 +8,7 @@
 import ProjectList from "./ProjectList";
 
 const AllProjects = () => (
-    <ProjectList resource="projects/all" title="dashboard.widget.projects.all_title" />
+    <ProjectList resource="projects/all" filter={{ status: "IN_PROGRESS" }} title="dashboard.widget.projects.all_title" />
 )
 
 

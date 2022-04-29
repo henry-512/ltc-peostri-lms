@@ -17,7 +17,7 @@ const Header = ({disabled, markAllRead}: {disabled: boolean, markAllRead: any}) 
                 </Typography>
                 <Box sx={{ flex: '1 1 auto' }} />
                 {(disabled) ? null :
-                    <Link href="#" onClick={markAllRead} >
+                    <Link href="" onClick={markAllRead} >
                         {translate('notification.mark_all_read')}
                     </Link>
                 }
