@@ -1,8 +1,7 @@
-import { Accordion, AccordionSummary, Typography, AccordionDetails, Tabs, Box, Tab, Divider } from "@mui/material";
+import { Accordion, AccordionSummary, Typography, AccordionDetails } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { useGetList, useShowContext, Datagrid, TextField, ReferenceArrayField, FunctionField } from "react-admin";
-import { useEffect, useState } from "react";
-import { IModuleStep, IModule, IProject } from "src/util/types";
+import { ReferenceArrayField } from "react-admin";
+import { IModule } from "src/util/types";
 
 export type StepContainerProps = {
     step: IModule[]

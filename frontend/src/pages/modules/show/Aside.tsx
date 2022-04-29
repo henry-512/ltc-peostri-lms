@@ -1,12 +1,8 @@
 import {
     DateField,
-    useTranslate,
     FunctionField,
     TextField,
-    useLocaleState,
     useRecordContext,
-    ReferenceField,
-    ReferenceArrayField,
     FileField
 } from 'react-admin';
 import {
@@ -14,16 +10,11 @@ import {
     Card,
     CardContent,
     Box,
-    Stepper,
-    Step,
-    StepLabel,
-    StepContent,
     Grid,
 } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { getProgressStatus, getProgressStatusColor} from 'src/util/getProgressStatus';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
-import AvatarGroupField from 'src/components/AvatarGroupField';
 import WarningIcon from '@mui/icons-material/Warning';
 import ProgressField from 'src/components/ProgressField';
 
@@ -97,7 +88,7 @@ const EventList = () => {
                             
                             <Grid item xs={6} display="flex" gap={1}>
                                 <Box flexGrow={1}>
-                                    <FunctionField record={record} variant="body2" fontWeight="600" render={(record: any) => `${(record.currentStep != "-1") ? parseInt(String(record.currentStep)) : Object.keys(record.tasks).length} of ${Object.keys(record.tasks).length}`} />
+                                    <FunctionField record={record} variant="body2" fontWeight="600" render={(record: any) => `${(record.currentStep !== "-1") ? parseInt(String(record.currentStep)) : Object.keys(record.tasks).length} of ${Object.keys(record.tasks).length}`} />
                                 </Box>
                             </Grid>
 

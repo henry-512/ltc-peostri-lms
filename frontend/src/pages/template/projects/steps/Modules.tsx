@@ -20,16 +20,16 @@ const Modules = (props: ModulesManagerStep) => {
         if (!modules) return;
 
         let project_ttc = 0;
-        for (let [stepKey, step] of Object.entries<IModuleTemplate[]>(modules)) {
+        for (let [, step] of Object.entries<IModuleTemplate[]>(modules)) {
             let stepTTC: number = 0;
-            for (let [moduleKey, module] of Object.entries<IModuleTemplate>(step)) {
+            for (let [, module] of Object.entries<IModuleTemplate>(step)) {
                 if (parseInt(`${module.ttc}`) < stepTTC) continue;
                 stepTTC = parseInt(`${module.ttc}`);
             }
             project_ttc += stepTTC;
         }
 
-        if (project_ttc == getValues('ttc')) return;
+        if (project_ttc === getValues('ttc')) return;
 
         setValue('ttc', project_ttc);
     }

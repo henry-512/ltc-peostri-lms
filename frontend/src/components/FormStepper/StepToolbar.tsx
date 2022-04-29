@@ -26,7 +26,7 @@ export interface StepToolbarProps extends ToolbarProps {
  * @param {StepToolbarProps} props - StepToolbarProps
  */
 export default function StepToolbar(props: StepToolbarProps) {
-    const { isValid, isDirty, errors } = useFormGroup(props.validator);
+    const { isValid, isDirty } = useFormGroup(props.validator);
 
     const record = useRecordContext();
     const translate = useTranslate();
@@ -55,7 +55,7 @@ export default function StepToolbar(props: StepToolbarProps) {
                 label={translate('layout.button.back')}
             />
             {
-                (props?.backText != "") ? (
+                (props?.backText !== "") ? (
                     <Typography variant="caption">
                         {props.backText}
                     </Typography>

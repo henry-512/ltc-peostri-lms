@@ -4,7 +4,6 @@ import StepBuilder from '../StepBuilder';
 import TaskFields from './TaskFields';
 import Creator from '../Creator';
 import { useEffect, useMemo, useState } from 'react';
-import get from 'lodash.get';
 import TaskCard from './TaskCard';
 import React from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';

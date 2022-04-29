@@ -8,7 +8,7 @@
 import CardWithIcon from "../base/CardWithIcon"
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import { IProject } from "src/util/types";
-import { Box, Button, Divider, List, ListItem, ListItemText, CircularProgress } from "@mui/material";
+import { Box, Button, Divider, List, ListItem, ListItemText } from "@mui/material";
 import { LinearProgress, SortPayload, useCreatePath, useGetList, useTranslate } from "react-admin";
 import { Link } from "react-router-dom";
 import ProjectListItem from "./ProjectListItem";

@@ -6,7 +6,6 @@
 */
 
 import { useDataProvider, useNotify, useUpdate, FileField, FileInput, useRefresh, useShowContext, useRecordContext } from "react-admin";
-import { styled } from '@mui/material/styles';
 import { Button } from "@mui/material";
 import TaskActionDialog from "./TaskActionDialog";
 import { MouseEventHandler, useEffect, useState } from "react";
@@ -26,7 +25,7 @@ export type TaskActionUploadProps = {
  * @param {TaskActionUploadProps} props - TaskActionUploadProps
  */
 const TaskActionUpload = (props: TaskActionUploadProps) => {
-    const [update, { isLoading, error }] = useUpdate();
+    const [update] = useUpdate();
     const refresh = useRefresh();
     const notify = useNotify();
     const dataProvider = useDataProvider();
@@ -40,7 +39,7 @@ const TaskActionUpload = (props: TaskActionUploadProps) => {
             dataProvider.getOne('modules', { id: props.record.module })
             .then(({data}) => setFiles(data.files));
         }
-    }, [record, task]);
+    }, [record.modules, task, dataProvider]);
 
     if (!record || !task) return null;
 

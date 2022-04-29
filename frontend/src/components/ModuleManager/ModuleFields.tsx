@@ -3,8 +3,7 @@ import { styled } from '@mui/material/styles';
 import IDField from "src/components/IDField";
 import WaiverInput from "./WaiverInput";
 import classNames from "classnames";
-import { RichTextInput } from "ra-input-rich-text";
-import { FileField, FileInput, maxLength, minLength, NumberInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
+import { FileField, FileInput, maxLength, minLength, required, SelectInput, TextInput, useTranslate } from "react-admin";
 import { useState } from "react";
 import TaskManager from "../TaskManager";
 import { ITask } from "src/util/types";
@@ -67,9 +66,9 @@ const ModuleFields = (props: ModuleFieldsProps) => {
         if (!tasks) return;
 
         let module_ttc = 0;
-        for (let [stepKey, step] of Object.entries<ITask[]>(tasks)) {
+        for (let [, step] of Object.entries<ITask[]>(tasks)) {
             let stepTTC: number = 0;
-            for (let [taskKey, task] of Object.entries<ITask>(step)) {
+            for (let [, task] of Object.entries<ITask>(step)) {
                 if (parseInt(`${task.ttc}`) < stepTTC) continue;
                 stepTTC = parseInt(`${task.ttc}`);
             }

@@ -12,9 +12,6 @@ import { LinearProgress, SortPayload, useCreatePath, useGetList, useTranslate } 
 import { Link } from "react-router-dom";
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import TaskListItem from "./TaskListItem";
-import TaskEmpty from "./TaskEmpty";
-import { AnyNsRecord } from "dns";
-import { useEffect } from "react";
 
 export type TaskListProps = {
     title?: string
@@ -40,7 +37,6 @@ const TaskList = (props: TaskListProps) => {
     if (isLoading) return null;
 
     return (
-        //@ts-ignore
         <CardWithIcon icon={TaskAltIcon} to={createPath({ resource: `tasks`, type: 'list' })} title={props.title || "dashboard.widget.tasks.my_title"} subtitle={(isLoading) ? <Box display="flex" justifyContent="center"><LinearProgress /></Box> : (total || "0")}>
             {(tasks && tasks.length > 0) ? (
                 <>

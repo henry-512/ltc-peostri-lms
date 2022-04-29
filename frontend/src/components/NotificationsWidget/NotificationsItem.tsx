@@ -1,4 +1,4 @@
-import { INotification, NotificationTypes } from "src/util/types";
+import { INotification } from "src/util/types";
 import { styled } from '@mui/material/styles';
 import { Box, Divider, Typography } from "@mui/material";
 import { Link } from "react-router-dom";

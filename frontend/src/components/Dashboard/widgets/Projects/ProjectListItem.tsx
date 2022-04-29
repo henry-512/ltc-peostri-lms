@@ -6,7 +6,6 @@
 */
 
 import { Box, Typography } from "@mui/material";
-import { display } from "@mui/system";
 import { ReferenceArrayField, ReferenceField, TextField } from "react-admin";
 import ProgressField from "src/components/ProgressField";
 import AvatarGroupField from "src/components/AvatarGroupField";

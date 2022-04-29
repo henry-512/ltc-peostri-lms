@@ -5,12 +5,10 @@
 * @author Braden Cariaga
 */
 
-import { Form, SaveButton, useTranslate } from "react-admin";
+import { useTranslate } from "react-admin";
 import { Breakpoint, styled } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
-import { cloneElement } from "react";
 import React from "react";
-import { FieldValues } from "react-hook-form";
 import CloseIcon from '@mui/icons-material/Close';
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
@@ -52,6 +50,7 @@ export type DocumentViewerProps = {
 
 /**
  * Dialog document viewer. This returns a dialog and opens a document by its src prop in an iframe.
+ * @param {DocumentViewerProps} props - DocumentViewerProps
  */
 const DocumentViewer = (props: DocumentViewerProps) => {
     const translate = useTranslate();
@@ -68,7 +67,7 @@ const DocumentViewer = (props: DocumentViewerProps) => {
                     </Button>
                 </DialogTitle>
                 <DialogContent>
-                    <iframe src={props.src} height="100%" width="100%"></iframe>
+                    <iframe title={props.label} src={props.src} height="100%" width="100%"></iframe>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={props.handleClose} color="error">

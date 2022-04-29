@@ -1,9 +1,5 @@
 import { Datagrid, FileField, DeleteButton, List, ListProps, TextField, ReferenceField } from 'react-admin';
-import ProjectEmptyList from 'src/components/ProjectEmptyList';
-import ProjectListActions from 'src/components/ProjectListActions';
 import AvatarField from 'src/components/AvatarField';
-import DocumentViewer from 'src/components/DocumentViewer';
-import { Button } from '@mui/material';
 
 // TODO: Enable viewing documents
 

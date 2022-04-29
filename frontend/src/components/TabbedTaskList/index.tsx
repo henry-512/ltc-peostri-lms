@@ -10,10 +10,10 @@ const TabbedTaskList = () => {
         record
     } = useShowContext();
 
-    const currentTasks = (record.currentStep != "-1") ? { [`key-${record.currentStep}`]: record.tasks[`key-${record.currentStep}`] } : {} as ITaskStep
+    const currentTasks = (record.currentStep !== "-1") ? { [`key-${record.currentStep}`]: record.tasks[`key-${record.currentStep}`] } : {} as ITaskStep
     const upcomingTasks = (() => {
         let steps = {} as ITaskStep;
-        if (record.currentStep == "-1") return steps
+        if (record.currentStep === "-1") return steps
 
         for (let i = record.currentStep + 1; i < Object.keys(record.tasks).length; i++) {
             steps[`key-${i}`] = record.tasks[`key-${i}`];
@@ -24,7 +24,7 @@ const TabbedTaskList = () => {
         let steps = {} as ITaskStep;
         let starter = record.currentStep
         
-        if (starter == '-1') starter = Object.keys(record.tasks).length
+        if (starter === '-1') starter = Object.keys(record.tasks).length
 
         for (let i = starter - 1; i >= 0; i--) {
             steps[`key-${i}`] = record.tasks[`key-${i}`];

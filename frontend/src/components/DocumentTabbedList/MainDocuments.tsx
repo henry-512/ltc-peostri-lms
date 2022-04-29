@@ -11,7 +11,7 @@ import { dateOptions } from "src/util/dateFormatter";
 import DocumentViewer from "src/components/DocumentViewer";
 import FilePresentIcon from '@mui/icons-material/FilePresent';
 import { useState } from "react";
-import { Datagrid, TextField, RaRecord, useShowContext, DateField, ReferenceField, FileField, DatagridHeader, FunctionField } from "react-admin";
+import { Datagrid, RaRecord, DateField, ReferenceField, FileField, FunctionField } from "react-admin";
 
 /**
  * A React component that displays the main documents of a module.
@@ -90,7 +90,7 @@ const MainDocuments = ({ record }: { record: RaRecord }) => {
             : null }
             <DocumentViewer 
                 src={documentSrc} 
-                open={(documentView != "" && documentSrc != "")} 
+                open={(documentView !== "" && documentSrc !== "")} 
                 handleClose={closeDocumentViewer} 
                 ariaLabel={"document-viewer-" + documentView.toLowerCase().replace(" ", "-")} 
                 label={"Viewing Document: " + documentView} 

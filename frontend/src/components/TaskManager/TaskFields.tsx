@@ -1,8 +1,7 @@
 import { Grid } from "@mui/material";
 import { styled } from '@mui/material/styles';
-import get from "lodash.get";
 import { useEffect } from "react";
-import { maxLength, minLength, NumberInput, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
+import { maxLength, minLength, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
 import AutoAssignArrayInput from "./AutoAssignArrayInput";
 import IDField from "src/components/IDField";
 import { useFormContext } from "react-hook-form";

@@ -83,7 +83,7 @@ const ModuleCard = ({ info, index, stepKey, changeStep, changeIndex, fields, upd
         modules.splice(index, 1);
         setValue(`modules[${stepKey}]`, modules);
 
-        if (parseInt(stepKey?.split('-')[1] || "0") == (moduleStepCount - 1)) {
+        if (parseInt(stepKey?.split('-')[1] || "0") === (moduleStepCount - 1)) {
             changeIndex(modules.length);
         }
         

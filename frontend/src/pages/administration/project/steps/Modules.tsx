@@ -13,16 +13,16 @@ const Modules = (props: any) => {
         if (!modules) return;
 
         let project_ttc = 0;
-        for (let [stepKey, step] of Object.entries<IModule[]>(modules)) {
+        for (let [, step] of Object.entries<IModule[]>(modules)) {
             let stepTTC: number = 0;
-            for (let [moduleKey, module] of Object.entries<IModule>(step)) {
+            for (let [, module] of Object.entries<IModule>(step)) {
                 if (parseInt(`${module.ttc}`) < stepTTC) continue;
                 stepTTC = parseInt(`${module.ttc}`);
             }
             project_ttc += stepTTC;
         }
 
-        if (project_ttc == getValues('ttc')) return;
+        if (project_ttc === getValues('ttc')) return;
 
         setValue('ttc', project_ttc);
     }

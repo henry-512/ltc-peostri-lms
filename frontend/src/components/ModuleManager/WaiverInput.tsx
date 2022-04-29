@@ -22,7 +22,7 @@ const WaiverInput = (props: WaiverInputProps): JSX.Element => {
         }
 
         return {
-            ["key-0"]: [
+            "key-0": [
                 waiveApproval
             ]
         };
@@ -49,7 +49,7 @@ const WaiverInput = (props: WaiverInputProps): JSX.Element => {
             setValue(props.source + ".tasks", cacheTasks);
         } else {
             setValue(props.source + ".tasks", {
-                ["0"]: []
+                "0": []
             })
         }
 

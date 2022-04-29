@@ -9,7 +9,6 @@ import { useRefresh, useUpdate, FileField, FileInput, useRecordContext, useNotif
 import { Button, Typography, Box, Tooltip } from "@mui/material";
 import TaskActionDialog from "./TaskActionDialog";
 import { MouseEventHandler, useEffect, useState } from "react";
-import AddBoxIcon from '@mui/icons-material/AddBox';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import { red, green } from "@mui/material/colors";
@@ -28,7 +27,7 @@ export type TaskActionReviewProps = {
  * @param {TaskActionReviewProps} props - TaskActionReviewProps
  */
 const TaskActionReview = (props: TaskActionReviewProps) => {
-    const [update, { isLoading, error }] = useUpdate();
+    const [update] = useUpdate();
     const refresh = useRefresh();
     const notify = useNotify();
     const dataProvider = useDataProvider();
@@ -44,7 +43,7 @@ const TaskActionReview = (props: TaskActionReviewProps) => {
             dataProvider.getOne('modules', { id: props.record.module })
             .then(({data}) => setFiles(data.files));
         }
-    }, [record, task]);
+    }, [record.modules, task, dataProvider]);
 
     if (!record || !task) return null;
 

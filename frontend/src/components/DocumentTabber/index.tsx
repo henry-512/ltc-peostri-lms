@@ -52,7 +52,7 @@ const DocumentTabber = (props: DocumentTabberProps) => (
         {props.tabOptions?.map((tabOption, index) => (
             <Panel key={`tab-option-${index}`} value={props.tab} index={index}>
                 {(tabOption?.container) ? (
-                    <Container id={`container-option-${index}`} startOpen={(index == 0)} >
+                    <Container id={`container-option-${index}`} startOpen={(index === 0)} >
                         {tabOption.element}
                     </Container>
                 ) : (

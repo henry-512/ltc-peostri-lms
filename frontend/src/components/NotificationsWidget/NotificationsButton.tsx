@@ -1,4 +1,4 @@
-import { Badge, BadgeProps, IconButton, styled, Tooltip } from "@mui/material";
+import { Badge, IconButton, Tooltip } from "@mui/material";
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import { useTranslate } from "react-admin";

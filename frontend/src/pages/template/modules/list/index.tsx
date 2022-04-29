@@ -6,8 +6,8 @@ const getTaskCount = (record?: Record<string, IModuleTemplate>) => {
     if (!record) return 0;
 
     let count = 0;
-    for (let [stepKey, step] of Object.entries<ITaskTemplate[]>(record.tasks)) {
-        for (let [taskKey, task] of Object.entries<ITaskTemplate>(step)) {
+    for (let [, step] of Object.entries<ITaskTemplate[]>(record.tasks)) {
+        for (let _ of Object.entries<ITaskTemplate>(step)) {
             count++;
         }
     }

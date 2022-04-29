@@ -21,16 +21,16 @@ const Tasks = (props: ModuleTemplateTasksProps) => {
         if (!tasks) return;
 
         let module_ttc = 0;
-        for (let [stepKey, step] of Object.entries<ITaskTemplate[]>(tasks)) {
+        for (let [, step] of Object.entries<ITaskTemplate[]>(tasks)) {
             let stepTTC: number = 0;
-            for (let [taskKey, task] of Object.entries<ITaskTemplate>(step)) {
+            for (let [, task] of Object.entries<ITaskTemplate>(step)) {
                 if (parseInt(`${`${task.ttc}`}`) < stepTTC) continue;
                 stepTTC = parseInt(`${`${task.ttc}`}`);
             }
             module_ttc += stepTTC;
         }
 
-        if (module_ttc == getValues(getSource?.('ttc'))) return;
+        if (module_ttc === getValues(getSource?.('ttc'))) return;
 
         setValue(getSource?.('ttc'), module_ttc);
 

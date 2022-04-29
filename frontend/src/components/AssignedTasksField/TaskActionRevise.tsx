@@ -6,11 +6,10 @@
 */
 
 import { useRefresh, useUpdate, FileField, FileInput, useRecordContext, useShowContext, useDataProvider, useNotify } from "react-admin";
-import { Button, Typography, Box, Tooltip } from "@mui/material";
+import { Button, Typography, Box } from "@mui/material";
 import TaskActionDialog from "./TaskActionDialog";
 import { MouseEventHandler, useEffect, useState } from "react";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
-import DocumentViewer from "../DocumentViewer";
 import AssignedDocumentsField from "../AssignedDocumentsField";
 
 export type TaskActionReviseProps = {
@@ -26,7 +25,7 @@ export type TaskActionReviseProps = {
  * @param {TaskActionReviseProps} props - TaskActionReviseProps
  */
 const TaskActionRevise = (props: TaskActionReviseProps) => {
-    const [update, { isLoading, error }] = useUpdate();
+    const [update] = useUpdate();
     const refresh = useRefresh();
     const notify = useNotify();
     const dataProvider = useDataProvider();
@@ -40,7 +39,7 @@ const TaskActionRevise = (props: TaskActionReviseProps) => {
             dataProvider.getOne('modules', { id: props.record.module })
             .then(({data}) => setFiles(data.files));
         }
-    }, [record, task]);
+    }, [record.modules, task, dataProvider]);
 
     if (!record || !task) return null;
 

@@ -1,6 +1,5 @@
-import { List, Datagrid, TextField, BooleanField, DateField, useCreatePath, ReferenceArrayField, ReferenceField } from "react-admin";
+import { List, Datagrid, TextField, DateField, useCreatePath, ReferenceArrayField, ReferenceField } from "react-admin";
 import AvatarGroupField from "src/components/AvatarGroupField";
-import { dateOptions } from "src/util/dateFormatter";
 
 const TasksList = () => {
     const createPath = useCreatePath();

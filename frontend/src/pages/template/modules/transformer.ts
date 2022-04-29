@@ -14,7 +14,7 @@ const transformer = (moduleData: IModuleTemplate) => {
         }
 
         let stepKeyInt = parseInt(stepKey.split('-')[1]);
-        if (stepCounter != stepKeyInt) {
+        if (stepCounter !== stepKeyInt) {
             data.tasks["key-" + stepCounter] = data.tasks[stepKey];
             delete data.tasks[stepKey];
         }

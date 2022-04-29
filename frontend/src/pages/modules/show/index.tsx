@@ -10,7 +10,7 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
 const ActionButtons = ({record}: {record: any}) => {
     const createPath = useCreatePath();
-    const [update, { isLoading, error }] = useUpdate();
+    const [update] = useUpdate();
     const notify = useNotify();
     const refresh = useRefresh();
 
@@ -77,8 +77,6 @@ const ActionButtons = ({record}: {record: any}) => {
 }
 
 const ModuleShow = () => {
-    const createPath = useCreatePath();
-
     return (
         <Show aside={<Aside />} title={"Viewing Project"}>
             <SimpleShowLayout>

@@ -1,5 +1,5 @@
 import { PopoverOrigin } from "@mui/material";
-import { MouseEventHandler, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import NotificationsMenu from "./NotificationsMenu";
 import NotificationsButton from "./NotificationsButton";
 import { useDataProvider } from 'react-admin';

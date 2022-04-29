@@ -9,7 +9,7 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
 const ActionButtons = ({record}: {record: any}) => {
     const createPath = useCreatePath();
-    const [update, { isLoading, error }] = useUpdate();
+    const [update] = useUpdate();
     const notify = useNotify();
     const refresh = useRefresh();
 

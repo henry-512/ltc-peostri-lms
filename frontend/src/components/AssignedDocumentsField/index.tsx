@@ -6,7 +6,6 @@
 */
 
 import { Box, Typography, List, ListItem, ListItemText } from "@mui/material";
-import { ITask } from "src/util/types";
 import AssignedTaskItem from "./AssignedTaskItem";
 
 export type AssignedDocumentsFieldProps = {

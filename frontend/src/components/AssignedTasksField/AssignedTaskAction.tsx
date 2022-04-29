@@ -28,23 +28,23 @@ const AssignedTaskAction = ({ id, type, record }: AssignedTaskActionProps) => {
     switch (type) {
         case 'DOCUMENT_UPLOAD':
             return (
-                <TaskActionUpload id={id} open={(open == "DOCUMENT_UPLOAD")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_UPLOAD")} record={record} />
+                <TaskActionUpload id={id} open={(open === "DOCUMENT_UPLOAD")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_UPLOAD")} record={record} />
             )
         case 'DOCUMENT_REVIEW':
             return (
-                <TaskActionReview id={id} open={(open == "DOCUMENT_REVIEW")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_REVIEW")} record={record}/>
+                <TaskActionReview id={id} open={(open === "DOCUMENT_REVIEW")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_REVIEW")} record={record}/>
             )
         case 'DOCUMENT_REVISE':
             return (
-                <TaskActionRevise id={id} open={(open == "DOCUMENT_REVISE")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_REVISE")} record={record}/>
+                <TaskActionRevise id={id} open={(open === "DOCUMENT_REVISE")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_REVISE")} record={record}/>
             )
         case 'WAIVER_APPROVE':
             return (
-                <TaskActionWaiveApprove id={id} open={(open == "WAIVER_APPROVE")} close={() => setOpen("")} setOpen={() => setOpen("WAIVER_APPROVE")} record={record}/>
+                <TaskActionWaiveApprove id={id} open={(open === "WAIVER_APPROVE")} close={() => setOpen("")} setOpen={() => setOpen("WAIVER_APPROVE")} record={record}/>
             )
         case 'DOCUMENT_APPROVE':
             return (
-                <TaskActionApprove id={id} open={(open == "DOCUMENT_APPROVE")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_APPROVE")} record={record}/>
+                <TaskActionApprove id={id} open={(open === "DOCUMENT_APPROVE")} close={() => setOpen("")} setOpen={() => setOpen("DOCUMENT_APPROVE")} record={record}/>
             )
         default:
             return null

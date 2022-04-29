@@ -24,7 +24,7 @@ export type TaskActionWaiveApproveProps = {
  * @param {TaskActionWaiveApproveProps} props - TaskActionWaiveApproveProps
  */
 const TaskActionWaiveApprove = (props: TaskActionWaiveApproveProps) => {
-    const [update, { isLoading, error }] = useUpdate();
+    const [update] = useUpdate();
     const refresh = useRefresh();
 
     /**

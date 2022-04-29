@@ -1,7 +1,7 @@
 import { Grid } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import { useEffect } from "react";
-import { maxLength, minLength, NumberInput, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
+import { maxLength, minLength, NumberInput, ReferenceInput, required, SelectInput, TextInput, useTranslate } from "react-admin";
 import { useFormContext } from "react-hook-form";
 import IDField from "src/components/IDField";
 
@@ -52,9 +52,11 @@ const ModuleTemplateTaskFields = (props: ModuleTemplateTaskFieldsProps) => {
 
     const { getValues } = useFormContext();
 
+    const ttc = getValues(getSource?.('ttc'));
+
     useEffect(() => {
         props.calculateTTC();
-    }, [getValues(getSource?.('ttc'))])
+    }, [ttc]);
 
     return (
         <Root>

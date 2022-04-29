@@ -9,7 +9,6 @@ import { FC, createElement } from 'react';
 import { Card, Box, Typography, Divider } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { ReactNode } from 'react';
-
 import cartouche from './cartouche.png';
 import { useTranslate } from 'react-admin';
 
@@ -62,7 +61,7 @@ const CardWithIcon = (props: CardWithIconProps) => {
                         {createElement(icon, { fontSize: 'large' })}
                     </Box>
                     <Box textAlign="right">
-                        <Typography color="textSecondary">{title && translate(title) || title}</Typography>
+                        <Typography color="textSecondary">{title && (translate(title) || title)}</Typography>
                         <Typography variant="h5" component="h2">
                             {subtitle || ' '}
                         </Typography>

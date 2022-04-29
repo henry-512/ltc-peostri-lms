@@ -37,7 +37,7 @@ const StepTabber = (props: StepTabberProps) => (
         {props.tabOptions?.map((tabOption, index) => (
             <Panel key={`tab-option-${index}`} value={props.tab} index={index}>
                 {Object.keys(tabOption?.content).map((key, index) => (
-                    <StepContainer key={key} id={key} step={tabOption.content[key]} startOpen={(index == 0)} reference={props.reference} >
+                    <StepContainer key={key} id={key} step={tabOption.content[key]} startOpen={(index === 0)} reference={props.reference} >
                         {props.children}
                     </StepContainer>
                 ))}

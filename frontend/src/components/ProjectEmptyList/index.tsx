@@ -3,7 +3,6 @@ import { styled } from '@mui/material/styles';
 import Inbox from '@mui/icons-material/Inbox';
 import {
     useTranslate,
-    useListContext,
     useResourceContext,
     useGetResourceLabel,
     CreateButton,

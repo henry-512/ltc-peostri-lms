@@ -110,9 +110,9 @@ export type StepBuilderProps = {
 }
 
 const StepBuilder = (props: StepBuilderProps) => {
-    const { title, help, save, children, changeOnAction, updateForm, createLabel, createAction, defaultValue, renderData = {
+    const { title, help, save, children, changeOnAction, updateForm, createLabel, createAction, renderData = {
         "key-0": []
-    }, changeStep, changeIndex, updateComponent, emptyText, actions } = props;
+    }, changeStep, updateComponent, emptyText, actions } = props;
 
     const { setValue } = useFormContext();
 
@@ -206,7 +206,7 @@ const StepBuilder = (props: StepBuilderProps) => {
     }
 
     const onDragEnd: OnDragEndResponder = async result => {
-        const { destination, source, draggableId } = result;
+        const { destination, source } = result;
 
         if (!destination) {
             return;

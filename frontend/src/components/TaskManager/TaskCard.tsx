@@ -1,6 +1,5 @@
 import { Card, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
-import get from "lodash.get";
 import React from "react";
 import { useState } from "react";
 import { useTranslate } from "react-admin";
@@ -83,7 +82,7 @@ const TaskCard = ({ info, index, stepKey, baseSource, changeStep, changeIndex, u
         tasks.splice(index, 1);
         setValue(`${baseSource}[${stepKey}]`, tasks);
 
-        if (parseInt(stepKey?.split('-')[1] || "0") == (taskStepCount - 1)) {
+        if (parseInt(stepKey?.split('-')[1] || "0") === (taskStepCount - 1)) {
             changeIndex(tasks.length);
         }
 

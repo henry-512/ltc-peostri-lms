@@ -36,7 +36,7 @@ const transformer = (projectData: IProject) => {
 
                 //Check if this is the right step, if not refactor.
                 let tKeyInt = parseInt(tKey.split('-')[1]);
-                if (tStepCounter != tKeyInt) {
+                if (tStepCounter !== tKeyInt) {
                     data.modules[mKey][i].tasks["key-" + tStepCounter] = data.modules[mKey][i].tasks[tKey];
                     delete data.modules[mKey][i].tasks[tKey]; //Remove old.
                 }
@@ -47,7 +47,7 @@ const transformer = (projectData: IProject) => {
 
         //Check if this is the right step, if not refactor.
         let mKeyInt = parseInt(mKey.split('-')[1]);
-        if (mStepCounter != mKeyInt) {
+        if (mStepCounter !== mKeyInt) {
             data.modules["key-" + mStepCounter] = data.modules[mKey];
             delete data.modules[mKey]; //Remove old. 
         }
