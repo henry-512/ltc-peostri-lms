@@ -16,7 +16,8 @@ const UserEdit = (props: any) => (
                 />
             }
             defaultValues={{
-                useEmail: (props.defaultValues && props.defaultValues.email === props.defaultValues.username) ? true : false
+                useEmail: (props.defaultValues && props.defaultValues.email === props.defaultValues.username) ? true : false,
+                teams: []
             }}
             mode="onBlur"
             warnWhenUnsavedChanges

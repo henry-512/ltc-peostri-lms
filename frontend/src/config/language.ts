@@ -275,6 +275,9 @@ const domainMessages = {
             "admin/teams": {
                 "name": "Teams"
             },
+            "admin/files": {
+                "name": "Files"
+            },
             "admin/template/modules": {
                 "name": "Module Templates"
             },
