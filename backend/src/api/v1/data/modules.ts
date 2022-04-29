@@ -10,6 +10,7 @@ import { getUrl } from '../../../lms/util'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { FilemetaManager } from './filemeta'
+import { FiledataManager } from './files'
 import { ProjectManager } from './projects'
 import { NotificationType, TaskManager } from './tasks'
 
@@ -24,6 +25,7 @@ class Module extends DBManager<IModule> {
                     type: 'step',
                     instance: 'fkey',
                     managerName: 'tasks',
+                    default: {},
                     freeable: true,
                     acceptNewDoc: true,
                 },
@@ -84,7 +86,7 @@ class Module extends DBManager<IModule> {
                 percent_complete: {
                     type: 'number',
                     optional: true,
-                }
+                },
             },
             {
                 defaultFilter: 'title',
@@ -101,17 +103,36 @@ class Module extends DBManager<IModule> {
         let mod = await super.getFromDB(user, id, noDeref, userRoute)
 
         if (!userRoute) {
-            if (mod.waive_module) {
-                // Warp waive files on admin GET
-                mod.files = {
-                    title: (<IFileMetadata>(<IFileRevisions>mod?.files).latest).title,
-                    src: getUrl(`files/static/${(<IFileRevisions>mod.files).id}`),
-                    old: true,
-                } as any
-            } else {
-                // Delete files on admin GET
-                delete mod.files
+            if (mod.waive_module && mod.files) {
+                if (typeof mod.files === 'string') {
+                    let filesId = FilemetaManager.db.asId(mod.files)
+                    if (!(await FilemetaManager.db.exists(filesId))) {
+                        console.warn(
+                            `${filesId} does not exist module ${JSON.stringify(
+                                mod
+                            )}`
+                        )
+                    } else {
+                        // Warp waive files on admin GET
+                        let latestId =
+                            await FilemetaManager.db.getOneField<string>(
+                                filesId,
+                                'latest'
+                            )
+                        let latestFile = await FiledataManager.db.get(latestId)
+
+                        mod.files = {
+                            title: latestFile.title,
+                            src: FiledataManager.getStaticUrl(latestFile),
+                            old: true,
+                        } as any
+
+                        return mod
+                    }
+                }
             }
+            // Delete files on admin GET
+            delete mod.files
         }
 
         return mod
@@ -249,7 +270,11 @@ class Module extends DBManager<IModule> {
 
         if (nextStep) {
             // If there is a next step set those to IN_PROGRESS
-            await TaskManager.db.updateManyFaster(nextStep, 'status', 'IN_PROGRESS')
+            await TaskManager.db.updateManyFaster(
+                nextStep,
+                'status',
+                'IN_PROGRESS'
+            )
             // Send task notifications
             await TaskManager.sendManyNotifications(
                 mod.title,
@@ -327,7 +352,11 @@ class Module extends DBManager<IModule> {
             }
         } else {
             // Mark all tasks as COMPLETED
-            await TaskManager.db.updateManyFaster(allTasks, 'status', 'COMPLETED')
+            await TaskManager.db.updateManyFaster(
+                allTasks,
+                'status',
+                'COMPLETED'
+            )
         }
         // Calculate %-complete
         await this.calculatePercentComplete(mod)
@@ -485,7 +514,11 @@ class Module extends DBManager<IModule> {
         }
 
         // Change tasks in next step to in-progress
-        await TaskManager.db.updateManyFaster(nextStepAr, 'status', 'IN_PROGRESS')
+        await TaskManager.db.updateManyFaster(
+            nextStepAr,
+            'status',
+            'IN_PROGRESS'
+        )
         await TaskManager.sendManyNotifications(
             mod.title,
             mod.id ?? 'null-pointer',

@@ -59,7 +59,7 @@ class Filedata extends DBManager<IFileMetadata> {
         let f = await super.getFromDB(user, id, noDeref, userRoute)
 
         // Generate src path
-        f.src = getUrl(`files/static/${f.id}/${f.title}`)
+        f.src = this.getStaticUrl(f)
 
         return f
     }
@@ -71,9 +71,13 @@ class Filedata extends DBManager<IFileMetadata> {
         let f = await super.convertIDtoKEY(user, doc)
 
         // Generate src path
-        f.src = getUrl(`files/static/${f.id}/${f.title}`)
+        f.src = this.getStaticUrl(f)
 
         return f
+    }
+
+    public getStaticUrl(file: { id?: string; title: string }) {
+        return getUrl(`files/static/${file.id}/${file.title}`)
     }
 
     // Write a new file from the file data

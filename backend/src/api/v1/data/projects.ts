@@ -35,6 +35,7 @@ class Project extends DBManager<IProject> {
                     type: 'step',
                     instance: 'fkey',
                     managerName: 'modules',
+                    default: {},
                     freeable: true,
                     acceptNewDoc: true,
                 },
@@ -306,11 +307,10 @@ class Project extends DBManager<IProject> {
      */
     private async calculatePercentComplete(pro: IProject) {
         let mods = compressStepper<string>(pro.modules)
-        let comp = await ModuleManager.db.getAllNotEqual(
-            mods,
-            'status',
-            ['COMPLETED', 'WAIVED']
-        )
+        let comp = await ModuleManager.db.getAllNotEqual(mods, 'status', [
+            'COMPLETED',
+            'WAIVED',
+        ])
         let compAll = await comp.all()
         pro.percent_complete =
             (100 * (mods.length - compAll.length)) / mods.length
@@ -519,7 +519,11 @@ class Project extends DBManager<IProject> {
                 'status',
                 'COMPLETED'
             )
-            await TaskManager.db.updateManyFaster(allTasks, 'status', 'COMPLETED')
+            await TaskManager.db.updateManyFaster(
+                allTasks,
+                'status',
+                'COMPLETED'
+            )
         }
 
         // Set %-complete
