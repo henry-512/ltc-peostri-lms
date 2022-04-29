@@ -49,7 +49,7 @@ npm run start
 
 In the `frontend` directory:
 
-- Create `.env` file with the following contents:
+Create `.env` file with the following contents:
 
 ```
 REACT_APP_API_URL="http://url.com/api"  # API URL or IP of backend server. Note that 

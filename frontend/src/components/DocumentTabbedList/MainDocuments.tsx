@@ -1,4 +1,9 @@
-
+/**
+* @file Displays the main documents of a module.
+* @module MainDocuments
+* @category DocumentTabbedList
+* @author Braden Cariaga
+*/
 import { Typography, Box } from "@mui/material";
 import Container from "src/components/DocumentTabber/Container";
 import AvatarField from "src/components/AvatarField";
@@ -8,10 +13,17 @@ import FilePresentIcon from '@mui/icons-material/FilePresent';
 import { useState } from "react";
 import { Datagrid, TextField, RaRecord, useShowContext, DateField, ReferenceField, FileField, DatagridHeader, FunctionField } from "react-admin";
 
+/**
+ * A React component that displays the main documents of a module.
+ */
 const MainDocuments = ({ record }: { record: RaRecord }) => {
     const [documentView, setDocumentView] = useState("");
     const [documentSrc, setDocumentSource] = useState("");
 
+    /**
+     * When the user clicks on the button, the document viewer will open and display the latest
+     * document.
+     */
     const openMainDocument = () => {
         setDocumentView(record?.files?.latest?.title);
         setDocumentSource(record?.files?.latest?.src);

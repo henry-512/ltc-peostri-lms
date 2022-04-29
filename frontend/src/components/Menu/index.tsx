@@ -1,3 +1,10 @@
+/**
+* @file Left sidebar navigation component.
+* @module Menu
+* @category Menu
+* @author Braden Cariaga
+*/
+
 import { useState } from 'react';
 import { styled } from '@mui/material/styles';
 import classnames from 'classnames';
@@ -49,6 +56,10 @@ const Root = styled('div')(({ theme }) => ({
 
 export type MenuName = 'menuAdmin' | 'menuTemplate';
 
+/**
+ * A menu component that is used in the application. 
+ * @param {MenuProps} props - MenuProps
+ */
 const Menu = ({ dense = false }: MenuProps) => {
     const [state, setState] = useState({
         menuAdmin: true,

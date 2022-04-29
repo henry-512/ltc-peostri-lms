@@ -1,4 +1,9 @@
-
+/**
+* @file Displays the revision documents of a module.
+* @module RevisionDocuments
+* @category DocumentTabbedList
+* @author Braden Cariaga
+*/
 import { Typography, Box } from "@mui/material";
 import Container from "src/components/DocumentTabber/Container";
 import AvatarField from "src/components/AvatarField";
@@ -8,14 +13,26 @@ import FilePresentIcon from '@mui/icons-material/FilePresent';
 import { useState } from "react";
 import { Datagrid, TextField, RaRecord, useShowContext, DateField, ReferenceField, FileField, DatagridHeader, FunctionField } from "react-admin";
 
+/**
+ * A React component that displays the revision documents of a module and allows the user to view them. 
+ */
 const RevisionDocuments = ({ record }: { record: RaRecord }) => {
     const [documentView, setDocumentView] = useState("");
     const [documentSrc, setDocumentSource] = useState("");
 
+    /**
+     * "openDocument" is a function that takes a fileRecord as an argument and sets the state of the
+     * documentView and documentSource to the title and src of the fileRecord.
+     * @param {any} fileRecord - any - this is the file record that is passed to the function.
+     */
     const openDocument = (fileRecord: any) => {
         setDocumentView(fileRecord.title);
         setDocumentSource(fileRecord.src);
     }
+    /**
+     * When the user clicks the close button, the document viewer is closed and the document source is
+     * set to an empty string.
+     */
     const closeDocumentViewer = () => {
         setDocumentView("");
         setDocumentSource("");

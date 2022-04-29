@@ -8,7 +8,6 @@
 import { Box, Button, Typography } from "@mui/material";
 import { ReferenceField, FunctionField, useUpdate, useRefresh } from "react-admin";
 import { dateFormatToString } from "src/util/dateFormatter";
-import { getProgressStatusColor } from "src/util/getProgressStatus";
 import { ITask } from "src/util/types";
 import AvatarField from "../AvatarField";
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
@@ -28,7 +27,7 @@ export type AssignedTaskItemProps = {
 const AssignedTaskItem = ({ record, id }: AssignedTaskItemProps) => {
     const [viewed, setViewed] = useState(false);
     const [documentOpen, setDocumentOpen] = useState(false);
-    const [update, { isLoading, error }] = useUpdate();
+    const [update] = useUpdate();
     const refresh = useRefresh();
 
     const openDocument = () => {

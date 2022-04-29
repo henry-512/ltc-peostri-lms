@@ -1,3 +1,10 @@
+/**
+* @file Left sidebar navigation SubMenu Component - allows for the dropdown.
+* @module SubMenu
+* @category Menu
+* @author Braden Cariaga
+*/
+
 import { ReactElement, ReactNode } from 'react';
 import { styled } from '@mui/material/styles';
 import {
@@ -46,12 +53,18 @@ export type SubMenuProps = {
     children: ReactNode;
 }
 
+/**
+ * Left sidebar navigation SubMenu Component - allows for the dropdown.
+ * @param {SubMenuProps} props - SubMenuProps
+ * @returns 
+ */
 const SubMenu = (props: SubMenuProps) => {
     const { handleToggle, isOpen, name, icon, children, dense } = props;
     const translate = useTranslate();
 
     const [sidebarIsOpen] = useSidebarState();
 
+    /* Creating a menu item that is clickable and will toggle the submenu open or closed. */
     const header = (
         <MenuItem dense={dense} onClick={handleToggle}>
             <ListItemIcon className={classes.icon}>
