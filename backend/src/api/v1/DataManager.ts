@@ -5,25 +5,37 @@ import {
     IFieldData,
     IForeignFieldData,
 } from '../../lms/FieldData'
-import { fixStepper } from '../../lms/Stepper'
+import { fixStepper, IStepper } from '../../lms/Stepper'
 import { ICreateUpdate } from '../../lms/types'
 import {
     concatOrSetMapArray,
     convertToKey,
-    isDBKey,
     PTR,
     splitId,
     str,
 } from '../../lms/util'
 import { AuthUser } from '../auth'
 
+/**
+ * General wrapper for a data type that can be managed by the system. Handles
+ * input parsing and output conversion. Each instance manages a single data
+ * type.
+ *
+ * @typeParam Type The type of data managed by this.
+ */
 export class DataManager<Type> extends IErrorable {
+    /** True if this type has a createdAt field that should be managed */
     protected hasCreate: boolean
+    /** True if this type has an updatedAt field that should be managed */
     protected hasUpdate: boolean
 
+    /** Pair array of the field entries */
     protected fieldEntries: [string, IFieldData][]
+    /** Pair array of foreign entries */
     protected foreignEntries: [string, IForeignFieldData][]
+    /** Pair array of data entries */
     private dataEntries: [string, IDataFieldData][]
+    /** Parent field data */
     protected parentField: null | {
         local: string
         foreign: string
@@ -49,46 +61,26 @@ export class DataManager<Type> extends IErrorable {
     ) => Promise<Type>
 
     /**
-     * Runs the passed function on each foreign key in the document
+     * Runs the passed function on each foreign key in the document.
+     *
+     * @param doc The document to iterate through
+     * @param fn The function to call on each key
+     * @param skippable A function that returns `true` if a key should be
+     * skipped.
      */
-    public async mapForeignKeys(
+    public async updateForeignKeys(
         doc: Type,
         fn: (value: any, data: IForeignFieldData) => Promise<any>,
         skippable?: (data: IForeignFieldData) => boolean
     ): Promise<Type> {
-        return this.mapKeys<IForeignFieldData>(
+        return this.forEachForeignKey(
             doc,
-            this.foreignEntries,
-            fn,
-            skippable
-        )
-    }
-
-    protected async mapDataKeys(
-        doc: Type,
-        fn: (value: any, data: IDataFieldData) => Promise<any>,
-        skippable?: (data: IDataFieldData) => boolean
-    ): Promise<Type> {
-        return this.mapKeys<IDataFieldData>(
-            doc,
-            this.dataEntries,
-            fn,
-            skippable
-        )
-    }
-
-    protected async mapKeys<T extends IFieldData>(
-        doc: Type,
-        entries: [string, T][],
-        fn: (value: string, data: T) => Promise<any>,
-        skippable?: (data: T) => boolean
-    ): Promise<Type> {
-        return this.forEachField<T>(
-            doc,
-            entries,
-            async (p, o, d) => (p.obj[p.key] = <any>await fn(o, d)),
+            // Foreign key
+            async (p, o, d) => (p.obj[p.key] = await fn(o, d)),
+            // Foreign key array
             async (p, a, d) =>
-                (p.obj[p.key] = <any>await Promise.all(a.map((o) => fn(o, d)))),
+                (p.obj[p.key] = await Promise.all(a.map((o) => fn(o, d)))),
+            // Foreign key stepper
             async (p, s, d) => {
                 let temp: any = {}
                 for (let stepId in s) {
@@ -102,8 +94,8 @@ export class DataManager<Type> extends IErrorable {
                             `${stepArray} is not an array`
                         )
                     }
-                    temp[stepId] = <any>(
-                        await Promise.all(stepArray.map((o) => fn(o, d)))
+                    temp[stepId] = await Promise.all(
+                        stepArray.map((o) => fn(o, d))
                     )
                 }
                 p.obj[p.key] = temp
@@ -113,31 +105,34 @@ export class DataManager<Type> extends IErrorable {
     }
 
     /**
-     * @param allFn
-     * @param foreignFn
-     * @param dataFn
-     * @param otherFn
-     * @param parentFn
+     * Maps each field in the object through a callback function and sets its
+     * value to the return type. Modifies all values in-place.
+     *
+     * @param allFn Runs for all keys. Returns true if this key should be
+     * skipped
+     * @param foreignFn Runs for each foreign key
+     * @param dataFn Runs for each data key
+     * @param otherFn Runs for each other key
+     * @param parentFn Runs for parent keys
      */
-    protected async mapEachField(
+    protected async updateEachField(
         doc: any,
-        // Runs for all keys. Returns true if this key should be skipped
         allFn?: (pointer: PTR<any>, data: IFieldData) => Promise<boolean>,
-        // Runs for each foreign key
         foreignFn?: (value: any, data: IForeignFieldData) => Promise<any>,
-        // Runs for each data key
         dataFn?: (value: any, data: IDataFieldData) => Promise<any>,
-        // Runs for each other key
         otherFn?: (value: any, data: IFieldData) => Promise<any>,
-        // Runs for parent keys
         parentFn?: (value: any, data: IFieldData) => Promise<any>
     ): Promise<any> {
+        // Loop over every field
         for (let [key, data] of this.fieldEntries) {
+            // Dummy values aren't real
             if (data.dummy) continue
+            //  Run allFn callback
             if (allFn && (await allFn({ obj: doc, key }, data))) {
                 continue
             }
 
+            // Cache value
             let value = doc[key]
 
             switch (data.type) {
@@ -169,6 +164,7 @@ export class DataManager<Type> extends IErrorable {
                         break
                     }
 
+                    // Run manager maps
                     if (data.foreignManager) {
                         if (foreignFn) {
                             let d = data as IForeignFieldData
@@ -195,6 +191,7 @@ export class DataManager<Type> extends IErrorable {
                     let dF = data as IForeignFieldData
                     let dD = data as IDataFieldData
 
+                    // Deconstruct stepper
                     let stepper: any = {}
                     for (let stepId in value) {
                         let stepArray = value[stepId]
@@ -233,25 +230,39 @@ export class DataManager<Type> extends IErrorable {
             }
         }
 
+        // Return the modified document
         return doc
     }
 
-    protected async forEachField<T extends IFieldData>(
+    /**
+     * Runs the callbacks on each foreign key in the document.
+     *
+     * @param doc The document to loop through
+     * @param keyCall Runs for each foreign key
+     * @param arrCall Runs for each foreign array
+     * @param stpCall Runs for each foreign step object
+     * @param skippable Returns `true` if this key can be skipped
+     */
+    protected async forEachForeignKey(
         doc: Type,
-        entries: [string, T][],
-        // Runs for each foreign key
-        keyCall: (pointer: PTR<any>, obj: any, data: T) => Promise<any>,
-        // Runs for each foreign array
-        arrCall: (pointer: PTR<any>, arr: Array<any>, data: T) => Promise<any>,
-        // Runs for each foreign step object
+        keyCall: (
+            pointer: PTR<any>,
+            obj: any,
+            data: IForeignFieldData
+        ) => Promise<any>,
+        arrCall: (
+            pointer: PTR<any>,
+            arr: Array<any>,
+            data: IForeignFieldData
+        ) => Promise<any>,
         stpCall: (
             pointer: PTR<any>,
-            stp: { [index: string]: Array<any> },
-            data: T
+            stp: IStepper<any>,
+            data: IForeignFieldData
         ) => Promise<any>,
-        skippable?: (data: T) => boolean
+        skippable?: (data: IForeignFieldData) => boolean
     ): Promise<Type> {
-        for (let [fkey, data] of entries) {
+        for (let [fkey, data] of this.foreignEntries) {
             if (data.dummy) continue
             if (skippable && skippable(data)) continue
 
@@ -277,7 +288,7 @@ export class DataManager<Type> extends IErrorable {
                 // Single foreign key
                 case 'data':
                 case 'fkey':
-                    await keyCall({ obj: doc, key: local }, <any>foreign, data)
+                    await keyCall({ obj: doc, key: local }, foreign, data)
                     continue
                 // Object array
                 case 'array':
@@ -309,6 +320,11 @@ export class DataManager<Type> extends IErrorable {
         return doc
     }
 
+    /**
+     * Constructs a DataManager instance with the passed fields and options.
+     * 
+     * @param fieldData The fields and their metadata
+     */
     constructor(
         className: string,
         protected fieldData: { [key: string]: IFieldData },
@@ -416,7 +432,7 @@ export class DataManager<Type> extends IErrorable {
         // Id. Either a valid ID if this is a foreign document or undefined
         let id = (<any>doc).id
 
-        doc = await this.mapEachField(
+        doc = await this.updateEachField(
             doc,
             // all
             async (pointer, data) => {
@@ -699,7 +715,7 @@ export class DataManager<Type> extends IErrorable {
 
     // Called by GET-ALL and GET-ID
     public async convertIDtoKEY(user: AuthUser, doc: Type): Promise<Type> {
-        return this.mapEachField(
+        return this.updateEachField(
             doc,
             // all
             async (p, data) => {

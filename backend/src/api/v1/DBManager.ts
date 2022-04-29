@@ -349,7 +349,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         let doc = await this.db.get(id)
 
         // Map all of the document fields
-        return this.mapEachField(
+        return this.updateEachField(
             doc,
             // all
             async (p, data) => {
@@ -409,7 +409,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             async (v, data) => {
                 if (!noDeref || (data.overrideUserDeref && userRoute)) {
                     // Dereference documents in the database
-                    await data.dataManager.mapForeignKeys(
+                    await data.dataManager.updateForeignKeys(
                         v,
                         (v, d) => {
                             return d.foreignManager.getFromDB(
@@ -557,7 +557,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         let doc = await this.db.get(id)
 
         // Delete children
-        doc = await this.mapForeignKeys(
+        doc = await this.updateForeignKeys(
             doc,
             async (v, data) => {
                 if (typeof v !== 'string') {
@@ -611,9 +611,8 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             doc.id = doc._key
 
             // Delete disowned children
-            doc = await this.forEachField<IForeignFieldData>(
+            doc = await this.forEachForeignKey(
                 doc,
-                this.foreignEntries,
                 async (p, k, d) => {
                     let c = d.foreignManager
                     if (!(await c.db.tryExists(k))) {
