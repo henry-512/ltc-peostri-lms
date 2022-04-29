@@ -47,7 +47,7 @@ export interface Config {
     /** HMAC secret to encrypt and decrypt JWTs with. Defaults to a hard-coded
      * base-64 UUID. */
     secret: string
-    /** JWT and Cookie expiration time in days */
+    /** JWT and Cookie expiration time in seconds */
     authDuration: number
 
     /** Base path of execution. Set during startup. */

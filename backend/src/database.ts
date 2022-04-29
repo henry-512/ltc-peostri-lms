@@ -858,8 +858,36 @@ export class ArangoCollectionWrapper<
     }
 
     /**
-     * Runs the passed AQL query. This should be used sparingly.
+     * Performs UNION_DISTINCT operation on all `doc.{key}` fields for the
+     * passed array of `ID`s.
+     *
+     * @param ids The `ID`s to update
+     * @param key The array key of Type to union against
+     * @param array The array to union with
+     */
+    public async unionManyField(ids: string[], key: string, array: any[]) {
+        return ArangoCollectionWrapper.DatabaseInstance.query(
+            aql`FOR i IN ${ids} LET d=DOCUMENT(i) UPDATE d WITH {${key}:UNION(d.${key},${array})} IN ${this.collection}`
+        )
+    }
+
+    /**
+     * Removes the passed value from any arrays in the documents referenced by
+     * `ids`.
      * 
+     * @param ids The `ID`s to update
+     * @param key The key of Type that is an array to remove elements from
+     * @param value The value to remove from the arrays
+     */
+    public async removeFromFieldArray(ids: string[], key: string, value: any) {
+        return ArangoCollectionWrapper.DatabaseInstance.query(
+            aql`FOR i IN ${ids} LET d=DOCUMENT(i) UPDATE d WITH {${key}:REMOVE_VALUE(d.${key},${value})} IN ${this.collection}`
+        )
+    }
+
+    /**
+     * Runs the passed AQL query. This should be used sparingly.
+     *
      * @param aql An AQL query to run
      */
     public async rawQuery(aql: GeneratedAqlQuery) {
