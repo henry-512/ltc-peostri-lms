@@ -6,7 +6,7 @@
 
 ## Tutorials `/tutorials`
 - `lms-user-guide.pdf` - Text tutorial on how to use the software.
-- `videos.zip` - Help tutorial videos.
+- `Help Guide ${Action Number}` - Help tutorial videos with the action number denoting the user guide step.
 
 ## Workflows
 - `workflow-old` - Previous process workflow diagrams.
