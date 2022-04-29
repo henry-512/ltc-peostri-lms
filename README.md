@@ -71,3 +71,10 @@ npm install
 npm run build
 npm run start
 ```
+
+## Folder Structure
+- `/backend` - All backend files and documentation.
+- `/backend-testing` - All backend automated blackbox testing files and documentation.
+- `/database` - Database dump files consisting of pre-built ranks, module templates, projects templates, and one user.
+- `/docs` - General project documentation and user tutorials.
+- `/frontend` - All frontend UI files and documentation.
