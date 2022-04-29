@@ -1,3 +1,10 @@
+/**
+* @file User fields used for admin users create and edit.
+* @module UserFields
+* @category UserFields
+* @author Braden Cariaga
+*/
+
 import { Box } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import { AutocompleteArrayInput, BooleanInput, email, PasswordInput, ReferenceArrayInput, ReferenceInput, required, SelectInput, TextInput } from "react-admin";
@@ -24,7 +31,12 @@ const Root = styled('div')({
     }
 });
 
-export default function UserFields(props: any) {
+
+/**
+ * User fields used for admin users create and edit.
+ */
+
+export default function UserFields() {
     
     return (
         <Root>

@@ -1,6 +1,16 @@
+/**
+* @file User Input used on the admin teams edit and create.
+* @module UserInput
+* @category UserInput
+* @author Braden Cariaga
+*/
+
 import { AutocompleteArrayInput, ReferenceArrayInput } from "react-admin";
 import { useWatch } from "react-hook-form";
 
+/**
+ * User Input used on the admin teams edit and create.
+ */
 const UserInput = () => {
     const team = useWatch({ name: "team", defaultValue: "", exact: true })
 

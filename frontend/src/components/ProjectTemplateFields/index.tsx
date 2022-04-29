@@ -1,3 +1,10 @@
+/**
+* @file Fields used by the project template forms.
+* @module ProjectTemplateFields
+* @category ProjectTemplateFields
+* @author Braden Cariaga
+*/
+
 import { Box, Grid } from "@mui/material";
 import { maxLength, minLength, required, SelectInput, TextInput } from "react-admin";
 import { IModuleTemplate } from "src/util/types";
@@ -6,30 +13,34 @@ import ModuleManager from "../ModuleManager";
 import ModuleTemplateFields from "../ModuleTemplateFields";
 import { useFormContext } from "react-hook-form";
 
-export type ProjectTemplateFieldsProps = {
-
-}
-
-const ProjectTemplateFields = (props: ProjectTemplateFieldsProps) => {
+/**
+ * Fields used by the project template forms.
+ */
+const ProjectTemplateFields = () => {
     const validateTitle = [required(), minLength(2), maxLength(150)];
 
     const { getValues, setValue } = useFormContext();
 
+    /**
+     * If the TTC of the project is not equal to the sum of the TTC of each step, then set the TTC of
+     * the project to the sum of the TTC of each step.
+     * @returns The return value is the value of the last expression in the function.
+     */
     const recalculateTTC = () => {
         const modules = getValues('modules');
         if (!modules) return;
 
         let project_ttc = 0;
-        for (let [stepKey, step] of Object.entries<IModuleTemplate[]>(modules)) {
+        for (let [, step] of Object.entries<IModuleTemplate[]>(modules)) {
             let stepTTC: number = 0;
-            for (let [moduleKey, module] of Object.entries<IModuleTemplate>(step)) {
+            for (let [, module] of Object.entries<IModuleTemplate>(step)) {
                 if (parseInt(`${module.ttc}`) < stepTTC) continue;
                 stepTTC = parseInt(`${module.ttc}`);
             }
             project_ttc += stepTTC;
         }
 
-        if (project_ttc == getValues('ttc')) return;
+        if (project_ttc === getValues('ttc')) return;
 
         setValue('ttc', project_ttc);
     }

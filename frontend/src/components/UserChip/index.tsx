@@ -1,3 +1,10 @@
+/**
+* @file Chip used on the datagrids to display an array list of users with their first and last name.
+* @module UserChip
+* @category UserChip
+* @author Braden Cariaga
+*/
+
 import { Chip } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import { IUser } from "src/util/types";
@@ -19,6 +26,10 @@ export type UserChipProps = {
     resource?: string
 }
 
+/**
+ * Chip used on the datagrids to display an array list of users with their first and last name.
+ * @param {UserChipProps} props - UserChipProps
+ */
 const UserChip = (props: UserChipProps) => {
 
     

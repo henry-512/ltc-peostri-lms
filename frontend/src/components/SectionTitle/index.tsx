@@ -1,3 +1,10 @@
+/**
+* @file Section title for form fields
+* @module SectionTitle
+* @category SectionTitle
+* @author Braden Cariaga
+*/
+
 import { Typography } from "@mui/material";
 import { useTranslate } from "react-admin";
 

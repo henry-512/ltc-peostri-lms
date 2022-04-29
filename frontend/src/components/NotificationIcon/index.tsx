@@ -1,3 +1,11 @@
+/**
+* @file Icon field for notifications.
+* @module NotificationIcon
+* @category NotificationIcon
+* @author Braden Cariaga
+*/
+
+
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import AssignmentIcon from '@mui/icons-material/Assignment';
@@ -9,6 +17,10 @@ export type NotificationIconProps = {
     size?: "small" | "inherit" | "medium" | "large"
 }
 
+/**
+ * Icon field for notifications which will pick out the icon based on the notification type.
+ * @param {NotificationIconProps} props - NotificationIconProps
+ */
 const NotificationIcon = (props: NotificationIconProps) => {
     switch(props.type) {
         case 'PROJECT':

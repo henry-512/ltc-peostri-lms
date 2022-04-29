@@ -1,3 +1,10 @@
+/**
+* @file Toolbar used on the Admin Teams Edit and Create
+* @module TeamToolbar
+* @category TeamToolbar
+* @author Braden Cariaga
+*/
+
 import { Box } from "@mui/material"
 import { DeleteWithConfirmButton, SaveButton, Toolbar, ToolbarProps } from "react-admin"
 import { useFormState } from "react-hook-form";
@@ -6,6 +13,10 @@ export interface TeamToolbarProps extends ToolbarProps {
     create: boolean;
 }
 
+/**
+ * Toolbar used on the Admin Teams Edit and Create
+ * @param {TeamToolbarProps} props - TeamToolbarProps
+ */
 export default function TeamToolbar(props: TeamToolbarProps) {
     const { isValid, isDirty } = useFormState();
 
