@@ -76,7 +76,7 @@ class Project extends DBManager<IProject> {
     }
 
     // Update TTC and set users
-    public override async verifyAddedDocument(
+    public override async prepareDocumentForUpload(
         user: AuthUser,
         files: any,
         doc: IProject,
@@ -84,7 +84,7 @@ class Project extends DBManager<IProject> {
         map: Map<DataManager<any>, any[]>,
         lastDBId: string
     ): Promise<IProject> {
-        let p = await super.verifyAddedDocument(
+        let p = await super.prepareDocumentForUpload(
             user,
             files,
             doc,
@@ -92,6 +92,8 @@ class Project extends DBManager<IProject> {
             map,
             lastDBId
         )
+
+        let pid = this.db.asId(p.id as string)
 
         // Master list of all users for the project
         let allUsers = p.users as string[]
@@ -208,7 +210,7 @@ class Project extends DBManager<IProject> {
                                         moduleIncrementedTTC +
                                         ttc
                                 ).toJSON()
-                                // Attatch project
+                                // Attach project
                                 task.project = this.db.asId(doc.id ?? '')
                                 // Auto-Assign users
                                 if (doc.auto_assign === true && task.rank) {
@@ -263,6 +265,44 @@ class Project extends DBManager<IProject> {
 
         // Set project %-complete
         p.percent_complete = (100 * completeModules) / totalModules
+
+        // Delete removed modules and tasks
+        if (exists) {
+            let currentModules = compressStepper<string>(
+                await this.db.getOneField<IStepper<string>>(pid, 'modules')
+            )
+            let newModuleSet = new Set(compressStepper<string>(moduleIdStepper))
+
+            /** Modules that need to be deleted */
+            let oldModules = currentModules.filter((m) => !newModuleSet.has(m))
+            // Delete removed modules
+            for (const mId of oldModules) {
+                await ModuleManager.delete(user, mId)
+            }
+
+            // Delete removed tasks
+            /** Modules that already exist in the database */
+            let existingModules = currentModules.filter(
+                (t) => newModuleSet.has(t) && ModuleManager.db.exists(t)
+            )
+
+            /** Tasks that are already in the database */
+            let currentTasks = await (
+                await ModuleManager.db.getManyField<IStepper<string>>(
+                    existingModules,
+                    'tasks'
+                )
+            ).flatMap((s) => compressStepper<string>(s))
+            // Set of all task IDs
+            let allTaskIds = new Set(
+                mappedTasks.map((t) => TaskManager.db.asId(t.id as string))
+            )
+
+            let oldTasks = currentTasks.filter((t) => !allTaskIds.has(t))
+            for (const tId of oldTasks) {
+                await TaskManager.delete(user, tId)
+            }
+        }
 
         return p
     }

@@ -25,7 +25,7 @@ class Team extends DBManager<ITeam> {
         )
     }
 
-    protected override async verifyAddedDocument(
+    protected override async prepareDocumentForUpload(
         user: AuthUser,
         files: any,
         doc: ITeam,
@@ -33,7 +33,7 @@ class Team extends DBManager<ITeam> {
         map: Map<DataManager<any>, any[]>,
         lastDBId: string
     ): Promise<ITeam> {
-        let t = await super.verifyAddedDocument(
+        let t = await super.prepareDocumentForUpload(
             user,
             files,
             doc,

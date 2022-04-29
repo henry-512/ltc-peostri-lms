@@ -135,6 +135,7 @@ export class DataManager<Type> extends IErrorable {
             // Cache value
             let value = doc[key]
 
+            // Switch on data type
             switch (data.type) {
                 case 'number':
                     if (typeof doc[key] === 'string')
@@ -292,6 +293,7 @@ export class DataManager<Type> extends IErrorable {
                     continue
                 // Object array
                 case 'array':
+                    // Single elements are wrapped into an array
                     let o: any[] = Array.isArray(foreign) ? foreign : [foreign]
                     await arrCall({ obj: doc, key: local }, o, data)
                     continue
@@ -354,6 +356,7 @@ export class DataManager<Type> extends IErrorable {
         this.dataEntries = []
         this.parentField = null
 
+        // Fill field entries and cached values
         for (let [key, data] of this.fieldEntries) {
             // Set data names
             data.name = key
@@ -367,6 +370,7 @@ export class DataManager<Type> extends IErrorable {
                     foreign: data.parentReferenceKey,
                 }
             }
+            // Hidden and dummy fields don't actually exist
             if (data.hidden || data.dummy) {
                 data.hideGetAll = true
                 data.hideGetId = true
@@ -376,10 +380,26 @@ export class DataManager<Type> extends IErrorable {
     }
 
     /**
-     * Adds the passed document, with its id, to the map
-     * @param map The map to add to
+     * Converts a document of mixed objects and foreign keys into a
+     * database-safe object, ready for uploading. The final document (and any
+     * necessary sub documents) are added to `map`, so all documents can be
+     * added to the database at the same time. This avoids issues where an error
+     * during parsing would leave documents half-uploaded.
+     *
+     * This process is *very* expensive, especially for Projects, mostly due to
+     * the inefficiencies of the process due to keeping it generic. Thankfully,
+     * this is only used on administrative routes, where mixed data is allowed.
+     *
+     * @param user The user that started the upload
+     * @param files Any files with the upload
+     * @param doc The document to prepare
+     * @param exists True if this document exists in the database
+     * @param map The map to add all documents to
+     * @param lastDBId The last valid database `ID`. Used for setting parent
+     * fields of sub-ojects.
+     * @return doc, but with all foreign keys as `ID`s
      */
-    protected async verifyAddedDocument(
+    protected async prepareDocumentForUpload(
         user: AuthUser,
         files: any,
         doc: Type,
@@ -392,6 +412,7 @@ export class DataManager<Type> extends IErrorable {
             doc = await this.modifyDoc(user, files, doc)
         }
 
+        // Set create/update
         if (this.hasCreate && !exists) {
             ;(<ICreateUpdate>doc).createdAt = new Date().toJSON()
         }
@@ -427,7 +448,7 @@ export class DataManager<Type> extends IErrorable {
             )
         }
 
-        // The doucment currently in the DB with this ID
+        // The document currently in the DB with this ID
         let fetched: any
         // Id. Either a valid ID if this is a foreign document or undefined
         let id = (<any>doc).id
@@ -521,7 +542,7 @@ export class DataManager<Type> extends IErrorable {
             },
             // foreign
             async (v, d) =>
-                d.foreignManager.parseGet(
+                d.foreignManager.referenceFieldInDoc(
                     user,
                     files,
                     v,
@@ -531,7 +552,7 @@ export class DataManager<Type> extends IErrorable {
                 ),
             // data
             async (v, d) =>
-                d.dataManager.parseGet(user, files, v, d, map, id ?? lastDBId),
+                d.dataManager.referenceFieldInDoc(user, files, v, d, map, id ?? lastDBId),
             // other
             async (value, data) => {
                 if (typeof value === data.type) {
@@ -566,7 +587,7 @@ export class DataManager<Type> extends IErrorable {
         return doc
     }
 
-    protected async parseGet(
+    protected async referenceFieldInDoc(
         user: AuthUser,
         files: any,
         doc: any,
@@ -614,7 +635,7 @@ export class DataManager<Type> extends IErrorable {
                     )
                 }
             }
-            built = await this.verifyAddedDocument(
+            built = await this.prepareDocumentForUpload(
                 user,
                 files,
                 built,
@@ -638,7 +659,7 @@ export class DataManager<Type> extends IErrorable {
 
             // Non-foreign documents are verified directly
             if (!data.foreignManager) {
-                return this.verifyAddedDocument(
+                return this.prepareDocumentForUpload(
                     user,
                     files,
                     doc,
@@ -692,7 +713,7 @@ export class DataManager<Type> extends IErrorable {
 
             // Set new/modified id
             doc.id = id
-            await this.verifyAddedDocument(user, files, doc, exists, map, id)
+            await this.prepareDocumentForUpload(user, files, doc, exists, map, id)
             return id
         }
         throw this.error(

@@ -456,7 +456,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
 
         // Turns a fully-dereferenced document into a reference document
         let map = new Map<DataManager<any>, any[]>()
-        await this.verifyAddedDocument(user, files, d, false, map, id)
+        await this.prepareDocumentForUpload(user, files, d, false, map, id)
 
         // Saves each document in the map to its respective collection
         try {
@@ -517,7 +517,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         doc.id = id
 
         let map = new Map<DataManager<any>, any[]>()
-        await this.verifyAddedDocument(user, files, doc, true, map, id)
+        await this.prepareDocumentForUpload(user, files, doc, true, map, id)
 
         // Updates each document in the map to its respective collection
         for (let [api, docs] of map) {
@@ -527,7 +527,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             for (let d of docs) {
                 if (!d.id || !api.db.isDBId(d.id)) {
                     throw this.internal(
-                        'create',
+                        'update',
                         `ID ${d.id} invalid in document ${JSON.stringify(d)}`
                     )
                 }

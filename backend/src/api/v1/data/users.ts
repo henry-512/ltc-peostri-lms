@@ -74,7 +74,7 @@ class User extends DBManager<IUser> {
         this.db = new UserArangoWrapper(this.fieldEntries)
     }
 
-    protected override async verifyAddedDocument(
+    protected override async prepareDocumentForUpload(
         user: AuthUser,
         files: any,
         doc: IUser,
@@ -82,7 +82,7 @@ class User extends DBManager<IUser> {
         map: Map<DataManager<any>, any[]>,
         lastDBId: string
     ): Promise<IUser> {
-        let u = await super.verifyAddedDocument(
+        let u = await super.prepareDocumentForUpload(
             user,
             files,
             doc,
