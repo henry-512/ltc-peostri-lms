@@ -1,3 +1,10 @@
+/**
+* @file Module card located on the step of the module manager.
+* @module ModuleCard
+* @category ModuleManager
+* @author Braden Cariaga
+*/
+
 import { Card, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import React from "react";
@@ -48,6 +55,11 @@ export type ModuleCardProps = {
     updateComponent: Function
 }
 
+/**
+ * Module card located on the step of the module manager.
+ * @param {ModuleCardProps} props - ModuleCardProps 
+ * @returns 
+ */
 const ModuleCard = ({ info, index, stepKey, changeStep, changeIndex, fields, updateComponent, calculateTTC }: ModuleCardProps) => {
     const translate = useTranslate();
 
@@ -56,25 +68,46 @@ const ModuleCard = ({ info, index, stepKey, changeStep, changeIndex, fields, upd
 
     const { getValues, setValue } = useFormContext();
 
+    /**
+     * When the user clicks on the button, the modal will open.
+     */
     const handleClickOpen = () => {
         setOpen(true);
     }
 
+    /**
+     * If the user clicks the cancel button, then update the component and return.
+     * @returns The function cancelCreator is returning the function updateComponent.
+     */
     const cancelCreator = () => {
         updateComponent();
         return;
     }
 
+    /**
+     * When the submit button is clicked, the updateComponent function is called, and then the function
+     * returns.
+     * @returns Nothing.
+     */
     const submitCreator = () => {
         updateComponent();
         return;
     }
 
+    /**
+     * If the key is defined, return the source concatenated with the key, otherwise return the source.
+     * @param {string} [key] - The key of the object you want to get the value of.
+     * @returns A function that takes a key and returns a string.
+     */
     const getSource = (key?: string) => {
         if (key) return `${source}.${key}`.toString();
         return source.toString();
     }
 
+    /**
+     * If the stepKey is the last step, then change the index to the length of the modules array.
+     * @returns Nothing.
+     */
     const deleteCreator = () => {
         const moduleSteps = getValues('modules');
         const moduleStepCount = Object.keys(moduleSteps).length;

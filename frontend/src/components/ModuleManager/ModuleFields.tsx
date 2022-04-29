@@ -1,3 +1,10 @@
+/**
+* @file Module fields used on the Creator.
+* @module ModuleFields
+* @category ModuleManager
+* @author Braden Cariaga
+*/
+
 import { Grid, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import IDField from "src/components/IDField";
@@ -52,6 +59,11 @@ export type ModuleFieldsProps = {
     calculateTTC?: Function
 }
 
+/**
+ * Module fields used on the creators.
+ * @param {ModuleCardProps} props - ModuleCardProps 
+ * @returns 
+ */
 const ModuleFields = (props: ModuleFieldsProps) => {
     const { getSource, defaultValues } = props
 
@@ -61,6 +73,13 @@ const ModuleFields = (props: ModuleFieldsProps) => {
 
     const { setValue, getValues } = useFormContext();
 
+    /**
+     * "If the value of the ttc property of the tasks object is not equal to the value of the ttc
+     * property of the module object, then set the value of the ttc property of the module object to
+     * the value of the ttc property of the tasks object."
+     * 
+     * @returns the value of the function.
+     */
     const recalculateTTC = () => {
         const tasks = getValues(getSource?.('tasks'));
         if (!tasks) return;

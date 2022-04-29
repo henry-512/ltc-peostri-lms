@@ -1,3 +1,10 @@
+/**
+* @file List of documents on the project view page.
+* @module ProjectDocumentList
+* @category ProjectDocumentList
+* @author Braden Cariaga
+*/
+
 import { useShowContext, ReferenceManyField, Datagrid, FileField, TextField, FunctionField, DateField } from "react-admin";
 import AvatarField from "src/components/AvatarField";
 import { dateOptions } from "src/util/dateFormatter";

@@ -1,3 +1,10 @@
+/**
+* @file Task template fields used on the module template CRUD pages.
+* @module ModuleTemplateTaskFields
+* @category ModuleTemplateTaskFields
+* @author Braden Cariaga
+*/
+
 import { Grid } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import { useEffect } from "react";

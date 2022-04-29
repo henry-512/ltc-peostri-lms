@@ -1,3 +1,10 @@
+/**
+* @file Auto assign array input used by the task fields for auto assigning users based on rank.
+* @module AutoAssignArrayInput
+* @category TaskManager
+* @author Braden Cariaga
+*/
+
 import { AutocompleteArrayInput, useChoicesContext } from "react-admin";
 import { useFormContext, useWatch } from "react-hook-form";
 
@@ -16,6 +23,10 @@ const AutoAssignArrayInput = (props: AutoAssignArrayInputProps) => {
     
     const rank = useWatch({ name: props.getSource?.('rank'), exact: true });
 
+    /**
+     * If the user is in the list of users, and the user is not already in the list of users, then add
+     * the user to the list of users.
+     */
     const autoAssign = () => {
         const [users, autoAssign] = getValues(["users", "auto_assign"]);
         if (!autoAssign || !users) return;
@@ -34,12 +45,6 @@ const AutoAssignArrayInput = (props: AutoAssignArrayInputProps) => {
     }
 
     autoAssign();
-
-    // TODO FIX RE-RENDERS
-
-    //useCallback(() => autoAssign(), [rank])
-
-    //useEffect(() => autoAssign(), [])
 
     return (
         <>

@@ -1,3 +1,10 @@
+/**
+* @file Notification List item. 
+* @module NotificationsItem
+* @category NotificationsWidget
+* @author Braden Cariaga
+*/
+
 import { INotification } from "src/util/types";
 import { styled } from '@mui/material/styles';
 import { Box, Divider, Typography } from "@mui/material";

@@ -1,3 +1,10 @@
+/**
+* @file Move step down used on the step mover.
+* @module StepDownButton
+* @category StepBuilder
+* @author Braden Cariaga
+*/
+
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { Button } from 'react-admin';
 

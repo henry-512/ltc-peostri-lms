@@ -1,3 +1,10 @@
+/**
+* @file List of tasks used inside a tabbed component to show the tasks in a list.
+* @module TabbedModuleList
+* @category TabbedModuleList
+* @author Braden Cariaga
+*/
+
 import { Datagrid, DateField, ReferenceArrayField, ReferenceField, TextField, useShowContext } from "react-admin";
 import { useEffect, useState } from "react";
 import { ITaskStep } from "src/util/types";

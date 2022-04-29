@@ -1,3 +1,10 @@
+/**
+* @file Main module manager file. This component is used on the project and module editing as the main module setup.
+* @module ModuleManager
+* @category ModuleManager
+* @author Braden Cariaga
+*/
+
 import { useMemo, useState } from "react";
 import { IModule, IModuleStep } from "src/util/types";
 import ModuleCard from "./ModuleCard";
@@ -17,7 +24,6 @@ export type ModuleManagerProps = {
 }
 /**
  * @name ModuleManager
- * @description ModuleManager Component1
  * @param props 
  */
 const ModuleManager = (props: ModuleManagerProps) => {

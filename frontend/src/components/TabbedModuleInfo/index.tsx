@@ -1,3 +1,10 @@
+/**
+* @file Main tab component for the horizontal tabber on the modules show page.
+* @module TabbedModuleInfo
+* @category TabbedModuleInfo
+* @author Braden Cariaga
+*/
+
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Box, Tab } from "@mui/material";
 import { useState } from "react";

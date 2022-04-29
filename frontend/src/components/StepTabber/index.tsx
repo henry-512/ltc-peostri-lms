@@ -1,3 +1,10 @@
+/**
+* @file Step tabber used to display the steps of the modules and tasks in a vertical tabber.
+* @module StepTabber
+* @category StepTabber
+* @author Braden Cariaga
+*/
+
 import { Tabs, Box, Tab } from "@mui/material";
 import StepContainer from './StepContainer'
 import Panel from "./Panel";

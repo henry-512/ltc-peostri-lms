@@ -1,3 +1,10 @@
+/**
+* @file Module template fields used on the module template CRUD pages.
+* @module ModuleTemplateFields
+* @category ModuleTemplateFields
+* @author Braden Cariaga
+*/
+
 import { Box, Grid } from "@mui/material"
 import { maxLength, minLength, required, SelectInput, TextInput } from "react-admin";
 import TaskManager from "src/components/TaskManager";

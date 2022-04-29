@@ -1,3 +1,10 @@
+/**
+* @file Task fields used on the Creator.
+* @module TaskFields
+* @category TaskManager
+* @author Braden Cariaga
+*/
+
 import { Grid } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import { useEffect } from "react";

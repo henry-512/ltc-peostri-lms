@@ -1,3 +1,10 @@
+/**
+* @file List of modules used inside a tabbed component to show the modules in a list.
+* @module TabbedModuleList
+* @category TabbedModuleList
+* @author Braden Cariaga
+*/
+
 import { Datagrid, DateField, TextField, useShowContext } from "react-admin";
 import { useState } from "react";
 import { IModuleStep } from "src/util/types";

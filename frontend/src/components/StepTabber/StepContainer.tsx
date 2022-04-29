@@ -1,3 +1,10 @@
+/**
+* @file Accordion step holder used for displaying the specific step item.
+* @module StepContainer
+* @category StepTabber
+* @author Braden Cariaga
+*/
+
 import { Accordion, AccordionSummary, Typography, AccordionDetails } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { ReferenceArrayField } from "react-admin";

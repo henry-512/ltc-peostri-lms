@@ -1,3 +1,10 @@
+/**
+* @file Move step up used on the step mover.
+* @module StepUpButton
+* @category StepBuilder
+* @author Braden Cariaga
+*/
+
 import { Button } from "react-admin";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 

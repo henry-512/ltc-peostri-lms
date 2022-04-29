@@ -1,3 +1,10 @@
+/**
+* @file Step mover component used by step builder.
+* @module StepMover
+* @category StepBuilder
+* @author Braden Cariaga
+*/
+
 import { styled } from '@mui/material/styles';
 import StepDownButton from "./StepDownButton";
 import StepUpButton from "./StepUpButton";

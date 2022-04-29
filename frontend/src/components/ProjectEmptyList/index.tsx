@@ -1,3 +1,10 @@
+/**
+* @file Empty component to use when there are not projects to display.
+* @module ProjectEmptyList
+* @category ProjectEmptyList
+* @author Braden Cariaga
+*/
+
 import { Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Inbox from '@mui/icons-material/Inbox';

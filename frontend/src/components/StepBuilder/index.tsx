@@ -1,3 +1,10 @@
+/**
+* @file Main step builder component used by the Task Manger and Module Manager.
+* @module StepBuilder
+* @category StepBuilder
+* @author Braden Cariaga
+*/
+
 import { Box, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import React, { MouseEventHandler, useEffect } from "react";
@@ -118,6 +125,8 @@ const StepBuilder = (props: StepBuilderProps) => {
 
     const [canAddSteps, setCanAddSteps] = useState(false);
 
+    /* Checking if the renderData object has a length greater than or equal to 1. If it does, it sets
+    the canAddSteps state to true. If it doesn't, it sets the canAddSteps state to false. */
     useEffect(() => {
         if (Object.keys(renderData).length >= 1) {
             if (!canAddSteps) setCanAddSteps(true);
@@ -126,6 +135,11 @@ const StepBuilder = (props: StepBuilderProps) => {
         }
     });
 
+    /**
+     * If the changeOnAction variable is false, then update the form with the newValue, otherwise set
+     * the value to the save variable or the renderData variable.
+     * @param {any} [newValue] - The new value to be set.
+     */
     const changeForm = (newValue?: any) => {
         if (!changeOnAction) {
             if (!updateForm) return;
@@ -138,6 +152,11 @@ const StepBuilder = (props: StepBuilderProps) => {
         updateComponent?.();
     }
 
+    /**
+     * When the addStep function is called, the renderData object is updated with a new key and an
+     * empty array as the value, and the step variable is updated with the length of the renderData
+     * object.
+     */
     const addStep = () => {
         changeForm({
             ...renderData,
@@ -146,6 +165,12 @@ const StepBuilder = (props: StepBuilderProps) => {
         changeStep(Object.keys(renderData).length);
     }
 
+    /**
+     * "If the key is greater than 0, then push the key's value into the previous key's value,
+     * otherwise push the key's value into the next key's value."
+     * 
+     * @param {string} key - string - the key of the step to be removed
+     */
     const removeStep = (key: string) => {
         let cacheSteps = renderData;
 
@@ -170,6 +195,13 @@ const StepBuilder = (props: StepBuilderProps) => {
         });
     }
 
+    /**
+     * If the new index is greater than the length of the object, or the old index is less than 0,
+     * return. Otherwise, set the old value to the old index, and the new value to the new index, and
+     * change the form.
+     * @param {number | string} oldIndex - The index of the step that is being moved.
+     * @param {number | string} newIndex - The new index of the step
+     */
     const alterStepLocation = (oldIndex: number | string, newIndex: number | string) => {
         if (newIndex >= Object.keys(renderData).length || oldIndex < 0) return;
         let oldValue = renderData["key-" + oldIndex];
@@ -182,6 +214,14 @@ const StepBuilder = (props: StepBuilderProps) => {
         });
     }
 
+    /**
+     * "switchCardList" is a function that takes in 4 arguments, and then it does some stuff with those
+     * arguments.
+     * @param {string} sourceID - The ID of the source list.
+     * @param {number} sourceIndex - The index of the card in the source list.
+     * @param {string} destinationID - the ID of the column you're dropping the card into
+     * @param {number} destinationIndex - number - The index of the card in the destination list.
+     */
     const switchCardList = (sourceID: string, sourceIndex: number, destinationID: string, destinationIndex: number) => {
         let cachedSteps = renderData;
         cachedSteps[destinationID].splice(destinationIndex, 0, cachedSteps[sourceID][sourceIndex]);
@@ -192,6 +232,18 @@ const StepBuilder = (props: StepBuilderProps) => {
         });
     }
 
+    /**
+     * "I'm trying to swap the values of two objects in an array, but I'm getting an error that says I
+     * can't assign to the index of an array."
+     * 
+     * Here's the error:
+     * TypeError: Cannot assign to read only property '0' of object '[object Object]'
+     * 
+     * Here's the code that calls the function:
+     * @param {string} sourceID - The ID of the column that the card is being dragged from.
+     * @param {number} sourceIndex - The index of the card that is being moved.
+     * @param {number} destinationIndex - The index of the card that was dragged to.
+     */
     const alterCardLocation = (sourceID: string, sourceIndex: number, destinationIndex: number) => {
         let cachedSteps = renderData;
         let oldValue = cachedSteps[sourceID][sourceIndex];
@@ -205,6 +257,11 @@ const StepBuilder = (props: StepBuilderProps) => {
         });
     }
 
+    /**
+     * If the destination is the same as the source, alter the card location, if not, switch the card
+     * list.
+     * @returns the result of the drag and drop.
+     */
     const onDragEnd: OnDragEndResponder = async result => {
         const { destination, source } = result;
 

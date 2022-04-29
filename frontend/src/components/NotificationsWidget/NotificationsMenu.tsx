@@ -1,3 +1,10 @@
+/**
+* @file Notification menu popout.
+* @module NotificationsMenu
+* @category NotificationsWidget
+* @author Braden Cariaga
+*/
+
 import { Box, Divider, Link, Button, Popover, PopoverOrigin, Typography } from "@mui/material";
 import React from "react"
 import { Loading, useTranslate } from "react-admin"

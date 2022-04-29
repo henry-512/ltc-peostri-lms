@@ -1,3 +1,10 @@
+/**
+* @file Notifications widget button.
+* @module NotificationsButton
+* @category NotificationsWidget
+* @author Braden Cariaga
+*/
+
 import { Badge, IconButton, Tooltip } from "@mui/material";
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';

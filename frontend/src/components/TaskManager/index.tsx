@@ -1,3 +1,10 @@
+/**
+* @file Main task manager file. This component is used on the module editing as the main task setup.
+* @module TaskManager
+* @category TaskManager
+* @author Braden Cariaga
+*/
+
 import { useTranslate } from 'react-admin';
 import { ITask, ITaskStep } from 'src/util/types';
 import StepBuilder from '../StepBuilder';

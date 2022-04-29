@@ -1,3 +1,10 @@
+/**
+* @file Main tab component for the horizontal tabber on the projects show page.
+* @module TabbedProjectInfo
+* @category TabbedProjectInfo
+* @author Braden Cariaga
+*/
+
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Box, Tab } from "@mui/material";
 import { useState } from "react";

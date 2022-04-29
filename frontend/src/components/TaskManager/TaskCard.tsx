@@ -1,3 +1,10 @@
+/**
+* @file Task card located on the step of the task manager.
+* @module TaskCard
+* @category TaskManager
+* @author Braden Cariaga
+*/
+
 import { Card, Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import React from "react";

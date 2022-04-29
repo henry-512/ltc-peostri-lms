@@ -1,3 +1,10 @@
+/**
+* @file Project list actions component. This adds the create from template button.
+* @module ProjectListActions
+* @category ProjectListActions
+* @author Braden Cariaga
+*/
+
 import { cloneElement, useMemo, FC, ReactElement } from 'react';
 import PropTypes from 'prop-types';
 import {

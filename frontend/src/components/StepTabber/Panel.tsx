@@ -1,3 +1,10 @@
+/**
+* @file Main panel wrapper for the step tabber.
+* @module Panel
+* @category StepTabber
+* @author Braden Cariaga
+*/
+
 import { Box } from "@mui/material";
 
 export interface PanelProps {

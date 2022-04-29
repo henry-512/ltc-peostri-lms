@@ -1,3 +1,10 @@
+/**
+* @file Add new step button used on the step builder.
+* @module AddStepButton
+* @category StepBuilder
+* @author Braden Cariaga
+*/
+
 import { MouseEventHandler } from "react";
 import { Button } from "react-admin";
 import PlaylistAddRoundedIcon from '@mui/icons-material/PlaylistAddRounded';
