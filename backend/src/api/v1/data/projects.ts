@@ -76,7 +76,7 @@ class Project extends DBManager<IProject> {
     }
 
     // Update TTC and set users
-    public override async verifyAddedDocument(
+    public override async prepareDocumentForUpload(
         user: AuthUser,
         files: any,
         doc: IProject,
@@ -84,7 +84,7 @@ class Project extends DBManager<IProject> {
         map: Map<DataManager<any>, any[]>,
         lastDBId: string
     ): Promise<IProject> {
-        let p = await super.verifyAddedDocument(
+        let p = await super.prepareDocumentForUpload(
             user,
             files,
             doc,
@@ -92,6 +92,8 @@ class Project extends DBManager<IProject> {
             map,
             lastDBId
         )
+
+        let pid = this.db.asId(p.id as string)
 
         // Master list of all users for the project
         let allUsers = p.users as string[]
@@ -263,6 +265,24 @@ class Project extends DBManager<IProject> {
 
         // Set project %-complete
         p.percent_complete = (100 * completeModules) / totalModules
+
+        //
+        // Delete removed modules
+        //
+
+        if (exists) {
+            let currentModules = compressStepper<string>(
+                await this.db.getOneField<IStepper<string>>(pid, 'modules')
+            )
+            let newModuleSet = new Set(compressStepper<string>(moduleIdStepper))
+
+            /** Modules that need to be deleted */
+            let oldModules = currentModules.filter((t) => !newModuleSet.has(t))
+            // Delete removed modules
+            for (const mId of oldModules) {
+                await ModuleManager.delete(user, mId)
+            }
+        }
 
         return p
     }
