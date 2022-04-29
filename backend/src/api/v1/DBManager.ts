@@ -20,13 +20,26 @@ import { DataManager } from './DataManager'
 export function getApiInstanceFromId(id: string): DBManager<IArangoIndexes> {
     return Managers[splitId(id).col]
 }
+/** Map of all DB Managers */
 export const Managers: { [dbname: string]: DBManager<IArangoIndexes> } = {}
 
+/**
+ * Database Manager. Handles conversion from raw database data to user-friendly
+ * data. DBManager instances are associated with a single collection and its
+ * Type.
+ *
+ * @typeParam Type The type of data managed by this instance
+ */
 export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
+    /** Raw collection wrapper */
     public db: ArangoCollectionWrapper<Type>
+    /** Default filter for `q` query string */
     private defaultFilter: string
 
-    // Dependency resolver
+    /**
+     * Dependency resolver. Resolves `data.managerName` into a reference to the
+     * manager.
+     */
     public resolveDependencies() {
         for (let [key, data] of this.fieldEntries) {
             let foreign = data.type === 'fkey' || data.instance === 'fkey'
@@ -68,6 +81,14 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         }
     }
 
+    /**
+     * Builds a DB Manager.
+     *
+     * @param dbName The collection name
+     * @param className This class name for error handling
+     * @param fields The fields of Type and their metadata
+     * @param opts Optional options
+     */
     constructor(
         dbName: string,
         className: string,
@@ -78,7 +99,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             defaultFilter?: string
         }
     ) {
-        // set id field
+        // Set a .id field
         fields['id'] = {
             type: 'string',
             optional: true,
@@ -86,7 +107,8 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
 
         super(className, fields, opts)
 
-        this.defaultFilter = '_key'
+        // Assigns default filter value
+        this.defaultFilter = 'id'
         let filter = opts?.defaultFilter
         if (filter) {
             if (filter in this.fieldData) {
@@ -98,13 +120,22 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             }
         }
 
+        // Creates arango wrapper
         this.db = new ArangoCollectionWrapper<Type>(dbName, this.fieldEntries)
 
         // Add this to the lookup table
         Managers[dbName] = this
     }
 
+    /**
+     * Converts a URL query into a more useful format. Also validates filtering
+     * and sorting fields.
+     *
+     * @param q The query string to parse
+     * @return The query options
+     */
     public parseQuery(q: any): IQueryOpts {
+        // Initial settings
         let opts: IQueryOpts = {
             range: {
                 offset: 0,
@@ -114,12 +145,15 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         }
 
         // Filtering
+        // `{"key":"value", "key2":["1","2"]}`
         if (q.filter) {
             let filter = tryParseJSON(q.filter)
             if (filter) {
+                // Build filters from each filter
                 for (let [key, value] of Object.entries(filter)) {
                     let f: IFilterOpts = { key }
 
+                    // Make sure f.key is valid
                     if (f.key === 'q') {
                         f.key = this.defaultFilter
                     } else if (
@@ -131,29 +165,43 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                         continue
                     }
 
-                    let data = this.fieldData[f.key]
+                    /** Field data for the filter */
+                    const data = this.fieldData[f.key]
 
+                    // Arrays
                     if (data.type === 'array') {
+                        // Contains
                         if (typeof value === 'string') {
                             if (data.foreignManager) {
-                                f.inArray =
+                                f.contains =
                                     data.foreignManager.db.keyToId(value)
                             } else {
-                                f.inArray = value
+                                f.contains = value
+                            }
+                            // Intersect
+                        } else if (Array.isArray(value)) {
+                            if (data.foreignManager) {
+                                let kToi = data.foreignManager.db.keyToId
+                                f.intersect = value.map((k) => kToi(k))
+                            } else {
+                                f.intersect = value
                             }
                         } else {
                             console.warn(`Invalid filtering value [${value}]`)
                             continue
                         }
+                        // If the passed data is an array, use anyOf
                     } else if (Array.isArray(value)) {
                         if (data.type === 'parent' && data.parentManager) {
                             let dbWrapper = data.parentManager.db
-                            f.in = value.map((k) => dbWrapper.keyToId(k))
+                            f.anyOf = value.map((k) => dbWrapper.keyToId(k))
                         } else if (data.foreignManager) {
                             let dbWrapper = data.foreignManager.db
-                            f.in = value.map((k) => dbWrapper.keyToId(k))
+                            f.anyOf = value.map((k) => dbWrapper.keyToId(k))
+                        } else {
+                            f.anyOf = value
                         }
-                        f.in = value
+                        // Otherwise, use substring checking
                     } else {
                         let type = typeof value
                         if (
@@ -161,16 +209,14 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                             type === 'boolean' ||
                             type === 'number'
                         ) {
-                            f.q = value as string
+                            f.substring = String(value)
                         } else {
                             console.warn(`Invalid filtering value [${value}]`)
-                            console.warn(f)
-                            console.warn(value)
                             continue
                         }
                     }
 
-                    // ids are _keys
+                    // Queries on `id` should be queries on `_key`
                     if (f.key === 'id') {
                         f.key = '_key'
                     }
@@ -183,6 +229,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         }
 
         // Sorting
+        // `["id", "ASC"]`
         if (q.sort) {
             let sort = tryParseJSON(q.sort)
             if (sort && sort.length >= 2) {
@@ -193,7 +240,8 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                     key = key.slice(0, -3)
                 }
 
-                if (key in this.fieldData && !this.fieldData[key].hideGetAll) {
+                // Only allow sorting on visible fields
+                if (!this.fieldData?.[key].hideGetAll) {
                     let desc = sort[1] === 'DESC'
                     opts.sort = { key, desc }
                 } else {
@@ -203,6 +251,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         }
 
         // Range
+        // `[0, 5]` or `["0", "5"]`
         if (q.range) {
             let range = tryParseJSON(q.range)
             if (range && range.length >= 2) {
@@ -218,16 +267,20 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
 
     /**
      * Retrieves a query from the server, following the passed parameters.
-     * @return A cursor representing all db objects that fit the query
+     * @param user The user that ran the query
+     * @param opts The query options
+     * @return The query's return values and metadata
      */
     public async runQuery(
         user: AuthUser,
         opts: IQueryOpts
     ): Promise<IQueryRange> {
+        // Run the query
         let query = await this.db.runGetAllQuery(opts)
         let all = await query.cursor.all()
 
-        // Convert all document foreign ids to keys
+        // Convert all document foreign ids to keys and perform additional
+        // dereferencing, if required
         await Promise.all(
             all.map(async (doc) => this.convertIDtoKEY(user, doc))
         )
@@ -240,6 +293,14 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         }
     }
 
+    /**
+     * Runs a query with additional filters not in the query string.
+     *
+     * @param user The user that performed the query
+     * @param q The query object
+     * @param filters Additional filters to use
+     * @return The query's return values and metadata
+     */
     public async runQueryWithFilter(
         user: AuthUser,
         q: any,
@@ -252,6 +313,14 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         return this.runQuery(user, opts)
     }
 
+    /**
+     * Retrieves the number of documents returned by the passed query, with
+     * additional filters.
+     *
+     * @param q The query object
+     * @param filters Additional filters to use
+     * @return The number of documents in the query
+     */
     public async queryLengthWithFilter(q: any, ...filters: IFilterOpts[]) {
         let opts = this.parseQuery(q)
         if (filters.length !== 0) {
@@ -261,9 +330,15 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
     }
 
     /**
-     * Gets the document with the passed key from the database
+     * Gets the document with the passed key from the database. Performs
+     * dereferencing on its fields.
+     *
+     * @param user The user that requested the document
      * @param id A (valid) db id for the document
-     * @return A Type representing a document with key, with .id set and ._* removed
+     * @param noDeref True if this should not dereference foreign keys
+     * @param userRoute True if this is a user-facing route
+     * @return A Type representing a document with key, with .id set and ._*
+     * removed
      */
     public async getFromDB(
         user: AuthUser,
@@ -273,24 +348,29 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
     ): Promise<Type> {
         let doc = await this.db.get(id)
 
+        // Map all of the document fields
         return this.mapEachField(
             doc,
             // all
             async (p, data) => {
+                // Purge hidden fields
                 if (data.hideGetId) {
                     delete p.obj[p.key]
                     return true
+                    // Check for null-like
                 } else if (
                     !(p.key in p.obj) ||
                     p.obj[p.key] === undefined ||
                     p.obj[p.key] === null
                 ) {
+                    // User default
                     if (data.userDefault && userRoute) {
                         console.warn(
                             `Using default ${data.default} for ${String(p.key)}`
                         )
                         p.obj[p.key] = data.userDefault
                         return true
+                        // Standard default
                     } else if (data.default !== undefined) {
                         // Put default value in
                         p.obj[p.key] = data.default
@@ -303,9 +383,12 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
             },
             // foreign
             async (v, data) => {
+                // Foreign keys are always foreign `ID`s
                 if (typeof v === 'string') {
+                    // If the deref should be overwritten
                     let overrideDeref = userRoute && data.overrideUserDeref
                     if (!overrideDeref && (data.getIdKeepAsRef || noDeref)) {
+                        // Convert the key to an ID
                         return convertToKey(v)
                     } else if (data.foreignManager.db.isDBId(v)) {
                         // Dereference the id into an object
@@ -323,9 +406,9 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                 )
             },
             // data
-            // Warp return values and convert foreign keys
             async (v, data) => {
                 if (!noDeref || (data.overrideUserDeref && userRoute)) {
+                    // Dereference documents in the database
                     await data.dataManager.mapForeignKeys(
                         v,
                         (v, d) => {
@@ -339,11 +422,13 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                         (d) => d.type === 'parent'
                     )
                 }
+                // Convert ids to keys
                 await data.dataManager.convertIDtoKEY(user, v)
                 return v
             },
             // other
             async (v, data) => {
+                // Verify types
                 if (typeof v !== data.type) {
                     console.warn(`${v} is of incorrect type ${str(data)}`)
                 }
@@ -354,19 +439,22 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         )
     }
 
+    /**
+     * Create a new document and return its `ID`. Performs input validation and
+     * accepts a mix of existing documents (as `KEY` or `ID`) or new documents
+     * (if allowed by the field data).
+     *
+     * @param user The user that created the document
+     * @param files Any files with the request
+     * @param d The document to create
+     * @return The new document's `ID`
+     */
     public async create(user: AuthUser, files: any, d: Type) {
         // Generate a new ID for this document
         let id = this.db.generateDBID()
         d.id = id
 
-        // The passed document has a parent key, so we need to
-        // update the parent to include this document
-        // if (this.parentKey && this.parentKey.local in doc) {
-        //     // TODO
-        // }
-
-        // Turns a fully-dereferenced document into a reference
-        // document
+        // Turns a fully-dereferenced document into a reference document
         let map = new Map<DataManager<any>, any[]>()
         await this.verifyAddedDocument(user, files, d, false, map, id)
 
@@ -416,14 +504,22 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         return id
     }
 
+    /**
+     * Updates an existing document with new fields as specified.
+     *
+     * @param user The user that updated the document
+     * @param files Any files associated with the request
+     * @param id The `ID` of the document to update
+     * @param doc The update document
+     */
     public async update(user: AuthUser, files: any, id: string, doc: Type) {
+        // Set id
         doc.id = id
 
         let map = new Map<DataManager<any>, any[]>()
         await this.verifyAddedDocument(user, files, doc, true, map, id)
 
         // Updates each document in the map to its respective collection
-        // TODO Delete/revert malformed docs
         for (let [api, docs] of map) {
             if (!(api instanceof DBManager)) {
                 continue
@@ -453,8 +549,9 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
     /**
      * Deletes a document and all its associated documents. This does not
      * update parent documents.
-     * @param base True if this is the base call (ie the call that should
-     *  update parent fields)
+     *
+     * @param user The user that deletes this document
+     * @param id An `ID` to delete
      */
     public async delete(user: AuthUser, id: string) {
         let doc = await this.db.get(id)
@@ -471,6 +568,7 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
                 }
                 return data.foreignManager.delete(user, v)
             },
+            // Only freeable fields can be deleted
             (data) => !data.freeable
         )
 
@@ -479,12 +577,11 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
     }
 
     /**
-     * Removes all orphaned documents from this collection.
-     * A document is an orphan if:
+     * Removes all orphaned documents from this collection. A document is an
+     * orphan if:
      * - It has a parent field that points to a document that does not exist.
      * - It should have a parent field, but doesn't
      * - It has an invalid parent field
-     * NOTE: VERY EXPENSIVE, don't run that often
      */
     private async deleteOrphans() {
         if (!this.parentField) {
@@ -497,8 +594,9 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
     }
 
     /**
-     * Removes all foreign key references for documents in this collection that no longer point to valid documents.
-     * NOTE: EXCEPTIONALLY EXPENSIVE, only run when necessary
+     * Removes all foreign key references for documents in this collection that
+     * no longer point to valid documents. NOTE: VERY EXPENSIVE, only run when
+     * necessary
      */
     private async disown() {
         if (this.foreignEntries.length === 0) {
@@ -556,6 +654,11 @@ export class DBManager<Type extends IArangoIndexes> extends DataManager<Type> {
         }
     }
 
+    /**
+     * Attach debugging routes. Defaults to /orphan and /disown.
+     *
+     * @param r A Router to utilize
+     */
     public debugRoutes(r: Router) {
         // Orphan delete
         if (this.parentField) {

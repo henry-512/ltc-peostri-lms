@@ -250,33 +250,33 @@ export class ArangoCollectionWrapper<
         // Starting query
         let query = aql`FOR z IN ${this.collection}`
 
-        // Loop over the fulters
+        // Loop over the filters
         for (const filter of filters) {
             // Support for custom keys
             let k = filter.custom ?? this.getAllBuildFilterKey(filter)
             // Filter checkings
-            if (filter.inArray) {
-                query = aql`${query} FILTER ${filter.inArray} IN ${k}`
+            if (filter.contains) {
+                query = aql`${query} FILTER ${filter.contains} IN ${k}`
             }
             // Direct equals
             if (filter.eq !== undefined) {
                 query = aql`${query} FILTER ${k} == ${filter.eq}`
             }
             // Checks if the key is in an array
-            if (filter.in !== undefined) {
-                query = aql`${query} FILTER ${k} IN ${filter.in}`
+            if (filter.anyOf !== undefined) {
+                query = aql`${query} FILTER ${k} IN ${filter.anyOf}`
             }
             // Substring or regex check
-            if (filter.q !== undefined) {
+            if (filter.substring !== undefined) {
                 if (
-                    typeof filter.q === 'string' &&
-                    filter.q.charAt(0) === '/'
+                    typeof filter.substring === 'string' &&
+                    filter.substring.charAt(0) === '/'
                 ) {
-                    query = aql`${query} FILTER REGEX_TEST(${k},${filter.q.substring(
+                    query = aql`${query} FILTER REGEX_TEST(${k},${filter.substring.substring(
                         1
                     )},true)`
                 } else {
-                    query = aql`${query} FILTER CONTAINS(LOWER(${k}),LOWER(${filter.q}))`
+                    query = aql`${query} FILTER CONTAINS(LOWER(${k}),LOWER(${filter.substring}))`
                 }
             }
             // Checks if any of the elements from the key's array are in the filter's array
@@ -907,14 +907,14 @@ export interface IFilterOpts {
      * {key:rank, ref:name, q:Admin} uses `DOCUMENT(doc.key).ref` for filtering
      */
     ref?: string
-    /** Complete checking */
-    in?: string[]
+    /** Checks if `filter.key` is in the passed array */
+    anyOf?: string[]
     /** Substring check */
-    q?: string
+    substring?: string
     /** Complete checking against single element */
     eq?: string
     /** Checks if the passed string is in the array target */
-    inArray?: string
+    contains?: string
     /** Checks if the passed array intersects with the array target */
     intersect?: string[]
     /** Runs the passed AQL subquery */

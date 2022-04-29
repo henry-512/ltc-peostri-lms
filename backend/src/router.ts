@@ -7,9 +7,8 @@ import path from 'path'
  * API versions requires the following:
  *
  * 1. A single directory in `src/api` with the version name.
- * 2. An `index.ts` file that exports a function named `routerBuilder` which
- *    accept the API version string and returns a koa/router object's
- *    `.routes()`.
+ * 2. An `index.ts` file that exports a default function that accepts the API
+ *    version string and returns a Router.
  *
  * This function is called once in `src/index.ts` as part of the preparation
  * stage.
@@ -35,10 +34,10 @@ export default async function BuildApiRouters() {
         }
 
         // Import the router builder
-        var { routerBuilder } = await require(path.resolve(full))
+        let index = await require(path.resolve(full))
 
         // Create router with api version
-        var router = routerBuilder(file)
+        let router = index.default(file)
 
         // Apply to router
         apiRouter.use(router.routes())

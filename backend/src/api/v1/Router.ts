@@ -3,12 +3,12 @@ import { GeneratedAqlQuery } from 'arangojs/aql'
 import fs from 'fs'
 import { ParameterizedContext, Request } from 'koa'
 import { config } from '../../config'
-import { IFilterOpts, IQueryRange, IQueryOpts } from '../../database'
+import { IFilterOpts, IQueryRange } from '../../database'
 import { HTTPStatus } from '../../lms/errors'
 import {
-    PermissionType,
     FetchType,
     IArangoIndexes,
+    PermissionType,
     PermissionValue,
 } from '../../lms/types'
 import { AuthUser } from '../auth'
@@ -92,7 +92,7 @@ export class AdminRouter<Type extends IArangoIndexes> extends Router {
         })
 
         this.delete('/list/:id', async (ctx) => {
-            let id = await this.manager.db.assertKeyExists(ctx.params.id)
+            let id = await paramId(ctx, this.manager)
             await this.manager.delete(ctx.state.user, id)
 
             ctx.status = HTTPStatus.OK
@@ -195,15 +195,16 @@ export class UserRouter<Type extends IArangoIndexes> extends Router {
             fetchType = await permission<FetchType>(ctx, this.fetchPermission)
         }
 
+        let user: AuthUser = ctx.state.user
+
         switch (fetchType) {
             case 'ASSIGNED':
                 return await queryFilterCount(ctx, this.manager, {
                     key: 'users', // unused
                     custom: this.filterUsers,
-                    inArray: (<AuthUser>ctx.state.user).id,
+                    contains: user.id,
                 })
             case 'TEAM':
-                let user: AuthUser = ctx.state.user
                 return await queryFilterCount(ctx, this.manager, {
                     key: 'undefined', // This is unused
                     custom: this.filterTeam,
@@ -233,13 +234,13 @@ export class UserRouter<Type extends IArangoIndexes> extends Router {
                 return await parseAndSendQueryFilter(ctx, user, this.manager, {
                     key: 'users', // unused
                     custom: this.filterUsers,
-                    inArray: user.id,
+                    contains: user.id,
                 })
             case 'TEAM':
                 return await parseAndSendQueryFilter(ctx, user, this.manager, {
                     key: 'undefined',
                     custom: this.filterTeam,
-                    in: await user.getTeams(),
+                    anyOf: await user.getTeams(),
                 })
             default:
                 return await parseAndSendQuery(ctx, user, this.manager)
@@ -374,6 +375,21 @@ export async function permission<T extends PermissionValue>(
     perm: PermissionType
 ): Promise<T> {
     return (<AuthUser>ctx.state.user).getPermission(perm) as any
+}
+
+/**
+ * Rips `ctx.params.id` and converts it from a `KEY` to an `ID`, and asserts
+ * that it exists.
+ *
+ * @param ctx The context to use
+ * @param manager The database manager to use for key assertion
+ * @return A valid and existent `ID`
+ */
+export async function paramId(
+    ctx: ParameterizedContext,
+    manager: DBManager<any>
+): Promise<string> {
+    return manager.db.assertKeyExists(ctx.params.id)
 }
 
 /** An interface for ctx bodies that are a multipart reference string. */

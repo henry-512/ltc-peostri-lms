@@ -21,12 +21,18 @@ import {
     AdminRouter,
     getOne,
     IFileBody,
+    paramId,
     parseBody,
     sendRange,
     UserRouter,
 } from './Router'
 
-export function routerBuilder(version: string) {
+/**
+ * Builds a router with the passed version string.
+ *
+ * @param version The version string to use as the router prefix
+ */
+export default function routerBuilder(version: string) {
     // Resolve dependency issue
     for (const [name, manager] of Object.entries(Managers)) {
         manager.resolveDependencies()
@@ -35,7 +41,7 @@ export function routerBuilder(version: string) {
     return (
         new Router({ prefix: `${version}/` })
             //
-            // Administration
+            // ADMINISTRATION
             //
             .use(new AdminRouter('ranks', RankManager).routes())
             .use(new AdminRouter('tasks', TaskManager).routes())
@@ -45,14 +51,13 @@ export function routerBuilder(version: string) {
             .use(new AdminRouter('users', UserManager).routes())
             .use(new AdminRouter('teams', TeamManager).routes())
             .use(new AdminRouter('log/users', UserLogManager).routes())
+            .use(new AdminRouter('filemeta', FilemetaManager).routes())
+            .use(new AdminRouter('files', FiledataManager).routes())
             .use(
                 new AdminRouter('notifications', NotificationManager)
+                    // Reads a single notification
                     .put('/read/:id', async (ctx) => {
-                        // TODO: validate recipient?
-
-                        let id = await NotificationManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
+                        let id = await paramId(ctx, NotificationManager)
 
                         await NotificationManager.read(id)
 
@@ -63,10 +68,9 @@ export function routerBuilder(version: string) {
             // Templates
             .use(
                 new AdminRouter('template/modules', ModuleTempManager)
+                    // Creates a `module` from a template
                     .get('/instance/:id', async (ctx) => {
-                        let id = await ModuleTempManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
+                        let id = await paramId(ctx, ModuleTempManager)
 
                         ctx.body = await ModuleTempManager.buildModuleFromId(id)
                         ctx.status = HTTPStatus.OK
@@ -77,9 +81,7 @@ export function routerBuilder(version: string) {
                 new AdminRouter('template/projects', ProjectTempManager)
                     // Builds a project matching the passed project template ID
                     .get('/instance/:id', async (ctx) => {
-                        let id = await ProjectTempManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
+                        let id = await paramId(ctx, ProjectTempManager)
 
                         ctx.body = await ProjectTempManager.buildProjectFromId(
                             id
@@ -88,9 +90,6 @@ export function routerBuilder(version: string) {
                     })
                     .routes()
             )
-            // Files
-            .use(new AdminRouter('filemeta', FilemetaManager).routes())
-            .use(new AdminRouter('files', FiledataManager).routes())
 
             //
             // User-facing routes
@@ -107,9 +106,7 @@ export function routerBuilder(version: string) {
                     )
                     // Send latest for the passed metadata handler
                     .get('latest/:id', async (ctx) => {
-                        let id = await FilemetaManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
+                        let id = await paramId(ctx, FilemetaManager)
                         let meta = await FilemetaManager.getFromDB(
                             ctx.state.user,
                             id,
@@ -120,22 +117,21 @@ export function routerBuilder(version: string) {
                             ctx.state.user,
                             meta
                         )
-                        // ctx.ok(buffer)
+                        // Send the static file
                         await send(ctx, pathTo, { root: FULL_FILE_PATH })
                     })
                     .get('static/:id/:filename', async (ctx) => {
-                        let id = await FiledataManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
+                        let id = await paramId(ctx, FiledataManager)
                         let pathTo = await FiledataManager.read(
                             ctx.state.user,
                             id
                         )
+                        // Send the static file
                         await send(ctx, pathTo, { root: FULL_FILE_PATH })
                     })
                     .routes()
             )
-            // Special user routers
+            // Primary list user routes
             .use(
                 new UserRouter(
                     'tasks',
@@ -163,9 +159,9 @@ export function routerBuilder(version: string) {
                     aql`DOCUMENT(z.project).users`
                 ).build()
             )
+            // NOTIFICATIONS
             .use(
                 new Router({ prefix: 'notifications/' })
-                    // NOTIFICATIONS
                     .get('list', async (ctx) => {
                         let user: AuthUser = ctx.state.user
 
@@ -181,6 +177,7 @@ export function routerBuilder(version: string) {
 
                         sendRange(ctx, results)
                     })
+                    // Reads all of the notifications for a user
                     .put('readall', async (ctx) => {
                         let user: AuthUser = ctx.state.user
                         let id = user.id
@@ -189,12 +186,9 @@ export function routerBuilder(version: string) {
 
                         ctx.status = HTTPStatus.NO_CONTENT
                     })
+                    // Reads one notification
                     .put('read/:id', async (ctx) => {
-                        // TODO: validate recipient?
-
-                        let id = await NotificationManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
+                        let id = await paramId(ctx, NotificationManager)
 
                         await NotificationManager.read(id)
 
@@ -202,31 +196,24 @@ export function routerBuilder(version: string) {
                     })
                     .routes()
             )
+            //
             // PROCEEDING
+            //
             // Projects
             .use(
                 new Router({ prefix: 'proceeding/projects/' })
                     .put('complete/:id', async (ctx) => {
-                        let id = await ProjectManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
-
+                        let id = await paramId(ctx, ProjectManager)
                         await ProjectManager.complete(ctx.state.user, id, true)
                         ctx.status = HTTPStatus.OK
                     })
                     .put('start/:id', async (ctx) => {
-                        let id = await ProjectManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
-
+                        let id = await paramId(ctx, ProjectManager)
                         await ProjectManager.start(ctx.state.user, id)
                         ctx.status = HTTPStatus.OK
                     })
                     .put('restart/:id', async (ctx) => {
-                        let id = await ProjectManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
-
+                        let id = await paramId(ctx, ProjectManager)
                         await ProjectManager.restart(ctx.state.user, id)
                         ctx.status = HTTPStatus.OK
                     })
@@ -236,34 +223,22 @@ export function routerBuilder(version: string) {
             .use(
                 new Router({ prefix: 'proceeding/modules/' })
                     .put('complete/:id', async (ctx) => {
-                        let id = await ModuleManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
-
+                        let id = await paramId(ctx, ModuleManager)
                         await ModuleManager.complete(ctx.state.user, id, true)
                         ctx.status = HTTPStatus.OK
                     })
                     .put('start/:id', async (ctx) => {
-                        let id = await ModuleManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
-
+                        let id = await paramId(ctx, ModuleManager)
                         await ModuleManager.start(ctx.state.user, id)
                         ctx.status = HTTPStatus.OK
                     })
                     .put('restart/:id', async (ctx) => {
-                        let id = await ModuleManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
-
+                        let id = await paramId(ctx, ModuleManager)
                         await ModuleManager.restart(ctx.state.user, id)
                         ctx.status = HTTPStatus.OK
                     })
                     .put('advance/:id', async (ctx) => {
-                        let id = await ModuleManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
-
+                        let id = await paramId(ctx, ModuleManager)
                         await ModuleManager.advance(ctx.state.user, id, true)
                         ctx.status = HTTPStatus.OK
                     })
@@ -273,18 +248,12 @@ export function routerBuilder(version: string) {
             .use(
                 new Router({ prefix: 'proceeding/tasks/' })
                     .put('complete/:id', async (ctx) => {
-                        let id = await TaskManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
-
+                        let id = await paramId(ctx, TaskManager)
                         await TaskManager.complete(ctx.state.user, id)
                         ctx.status = HTTPStatus.OK
                     })
                     .put('upload/:id', async (ctx) => {
-                        let id = await TaskManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
-
+                        let id = await paramId(ctx, TaskManager)
                         let body = await parseBody<IFileBody>(ctx.request)
                         await TaskManager.upload(
                             ctx.state.user,
@@ -292,60 +261,42 @@ export function routerBuilder(version: string) {
                             ctx.request.files,
                             body.file
                         )
-
                         ctx.status = HTTPStatus.OK
                     })
                     .put('review/:id', async (ctx) => {
-                        let id = await TaskManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
+                        let id = await paramId(ctx, TaskManager)
                         let body = await parseBody<IFileBody>(ctx.request)
-
                         await TaskManager.review(
                             ctx.state.user,
                             id,
                             ctx.request.files,
                             body.file
                         )
-
                         ctx.status = HTTPStatus.OK
                     })
                     .put('revise/:id', async (ctx) => {
-                        let id = await TaskManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
-
+                        let id = await paramId(ctx, TaskManager)
                         await TaskManager.revise(
                             ctx.state.user,
                             id,
                             ctx.request.body.review
                         )
-
                         ctx.status = HTTPStatus.OK
                     })
                     .put('approve/:id', async (ctx) => {
-                        let id = await TaskManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
-
+                        let id = await paramId(ctx, TaskManager)
                         await TaskManager.approve(ctx.state.user, id)
-
                         ctx.status = HTTPStatus.OK
                     })
                     .put('deny/:id', async (ctx) => {
-                        let id = await TaskManager.db.assertKeyExists(
-                            ctx.params.id
-                        )
-
+                        let id = await paramId(ctx, TaskManager)
                         let body = await parseBody<IFileBody>(ctx.request)
-
                         await TaskManager.deny(
                             ctx.state.user,
                             id,
                             ctx.request.files,
                             body.file
                         )
-
                         ctx.status = HTTPStatus.OK
                     })
                     .routes()
