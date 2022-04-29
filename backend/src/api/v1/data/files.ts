@@ -87,10 +87,11 @@ export class Filedata extends DBManager<IFileMetadata> {
     }
 
     /**
-     * Write a new file from the file data
-     * 
+     * Write a new file from the file data. Also writes it to the disk.
+     *
      * @param user The user for the request
      * @param file The file data to update
+     * @return The file metadata object
      */
     public async writeFile(
         user: AuthUser,
@@ -116,7 +117,12 @@ export class Filedata extends DBManager<IFileMetadata> {
         }
     }
 
-    // Delete a file from the filesystem
+    /**
+     * Delete a file from the filesystem.
+     *
+     * @param user The user for the request
+     * @param pathTo The path string on disk. Read from the file metadata.
+     */
     public async deleteFile(user: AuthUser, pathTo: string) {
         let fullPath = path.join(FULL_FILE_PATH, pathTo)
 
@@ -138,15 +144,36 @@ export class Filedata extends DBManager<IFileMetadata> {
         }
     }
 
+    /**
+     * Reads the latest file path.
+     *
+     * @param user The user for the request
+     * @param doc The revisions file
+     * @return A path to return the string with
+     */
     public async readLatest(user: AuthUser, doc: IFileRevisions) {
         return this.readSource(user, (<IFileMetadata>doc.latest).pathTo)
     }
 
+    /**
+     * Reads a file from its `ID`.
+     *
+     * @param user The user for the request
+     * @param id A file database `ID`
+     * @return A path to return the string with
+     */
     public async read(user: AuthUser, id: string) {
         let pathTo = await this.db.getOneField<string>(id, 'pathTo')
         return this.readSource(user, pathTo)
     }
 
+    /**
+     * Converts a `pathTo` variable into a full path.
+     *
+     * @param user The user for the request
+     * @param pathTo The base path
+     * @return A full path variable
+     */
     public async readSource(user: AuthUser, pathTo: string) {
         let fullPath = path.join(FULL_FILE_PATH, pathTo ?? '')
 
@@ -167,12 +194,17 @@ export class Filedata extends DBManager<IFileMetadata> {
         }
     }
 
+    /**
+     * Deletes all files that no longer have any file revisions associated with
+     * them.
+     */
     public async deleteLostFiles() {
         return this.db.rawQuery(
             aql`let v=(for f in files for m in filemeta filter f._id == m.latest or CONTAINS(m.old, f._id) or CONTAINS(m.reviews, f._id) or CONTAINS(m.oldReviews, f._id) return f._id) for f in files filter not CONTAINS(v, f._id) remove f in files`
         )
     }
 
+    // Adds deleteLostFiles as `/lost`
     public override debugRoutes(r: Router): void {
         super.debugRoutes(r)
         r.delete('/lost', async (ctx) => {
