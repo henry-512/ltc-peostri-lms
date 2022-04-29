@@ -421,10 +421,14 @@ class Project extends DBManager<IProject> {
         // TODO: Start the project based on its start date
         if (pro.status === 'AWAITING') {
             await this.db.updateFaster(id, 'status', 'IN_PROGRESS')
+            await this.start(user, id)
+            return
         } else if (pro.status !== 'IN_PROGRESS') {
             // Projects that are not IN_PROGRESS should not be updated
             return
         }
+
+        // Update in-progress projects with new data
 
         let currentStep = getStep<string>(pro.modules, pro.currentStep ?? 0)
 
