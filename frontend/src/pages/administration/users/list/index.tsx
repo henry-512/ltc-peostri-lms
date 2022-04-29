@@ -1,3 +1,10 @@
+/**
+* @file Administration User list file.
+* @module AdministrationUserList
+* @category AdministrationUserPage
+* @author Braden Cariaga
+*/
+
 import { styled } from '@mui/material/styles';
 import React from 'react';
 import { BulkDeleteButton, ChipField, Datagrid, DateField, FieldProps, List, ListProps, ReferenceArrayField, ReferenceField, ReferenceInput, SearchInput, SelectInput, SingleFieldList, TextField, TextInput } from 'react-admin';

@@ -1,3 +1,10 @@
+/**
+* @file Administration User Create file.
+* @module AdministrationUserCreate
+* @category AdministrationUserPage
+* @author Braden Cariaga
+*/
+
 import { Create, SimpleForm, useTranslate } from "react-admin";
 import UserFields from "src/components/UserFields";
 import UserToolbar from "src/components/UserToolbar";

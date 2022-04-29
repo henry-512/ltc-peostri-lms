@@ -1,3 +1,10 @@
+/**
+* @file Administration Project create file.
+* @module AdministrationProjectCreate
+* @category AdministrationProjectPage
+* @author Braden Cariaga
+*/
+
 import { styled } from '@mui/material/styles';
 import { Create, useTranslate } from "react-admin";
 import FormStepper from "src/components/FormStepper";

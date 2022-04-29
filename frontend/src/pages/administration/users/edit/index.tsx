@@ -1,3 +1,10 @@
+/**
+* @file Administration User Edit file.
+* @module AdministrationUserEdit
+* @category AdministrationUserPage
+* @author Braden Cariaga
+*/
+
 import { Edit, SimpleForm } from "react-admin";
 import UserEditTitle from "src/components/UserEditTitle";
 import UserEditToolbar from "src/components/UserEditToolbar";

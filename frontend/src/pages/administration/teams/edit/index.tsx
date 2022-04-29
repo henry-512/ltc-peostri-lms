@@ -1,3 +1,11 @@
+/**
+* @file Administration Team Edit file.
+* @module AdministrationTeamEdit
+* @category AdministrationTeamPage
+* @author Braden Cariaga
+*/
+
+
 import { Box } from "@mui/material";
 import { AutocompleteArrayInput, Edit, ReferenceArrayInput, SimpleForm, TextInput } from "react-admin";
 import SectionTitle from "src/components/SectionTitle";

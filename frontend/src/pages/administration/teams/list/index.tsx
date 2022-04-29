@@ -1,3 +1,11 @@
+
+/**
+* @file Administration Team List file.
+* @module AdministrationTeamList
+* @category AdministrationTeamPage
+* @author Braden Cariaga
+*/
+
 import { Datagrid, FieldProps, List, ListProps, ReferenceArrayField, SingleFieldList, TextField } from 'react-admin';
 import UserChip from 'src/components/UserChip';
 import { ITeam } from 'src/util/types';
