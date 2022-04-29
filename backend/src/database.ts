@@ -867,21 +867,21 @@ export class ArangoCollectionWrapper<
      */
     public async unionManyField(ids: string[], key: string, array: any[]) {
         return ArangoCollectionWrapper.DatabaseInstance.query(
-            aql`FOR i IN ${ids} LET d=DOCUMENT(i) UPDATE d WITH {${key}:UNION(d.${key},${array})} IN ${this.collection}`
+            aql`FOR i IN ${ids} LET d=DOCUMENT(i)FILTER d!=null UPDATE d WITH {${key}:UNION(d.${key},${array})} IN ${this.collection}`
         )
     }
 
     /**
      * Removes the passed value from any arrays in the documents referenced by
      * `ids`.
-     * 
+     *
      * @param ids The `ID`s to update
      * @param key The key of Type that is an array to remove elements from
      * @param value The value to remove from the arrays
      */
     public async removeFromFieldArray(ids: string[], key: string, value: any) {
         return ArangoCollectionWrapper.DatabaseInstance.query(
-            aql`FOR i IN ${ids} LET d=DOCUMENT(i) UPDATE d WITH {${key}:REMOVE_VALUE(d.${key},${value})} IN ${this.collection}`
+            aql`FOR i IN ${ids} LET d=DOCUMENT(i)FILTER d!=null UPDATE d WITH {${key}:REMOVE_VALUE(d.${key},${value})} IN ${this.collection}`
         )
     }
 
