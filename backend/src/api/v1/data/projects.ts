@@ -363,7 +363,6 @@ class Project extends DBManager<IProject> {
         if (nextStep) {
             // If there is a next step set those to IN_PROGRESS
             for (const modId of nextStep) {
-                console.log(modId)
                 await ModuleManager.start(user, modId)
             }
         } else {
@@ -420,7 +419,6 @@ class Project extends DBManager<IProject> {
 
         // TODO: Start the project based on its start date
         if (pro.status === 'AWAITING') {
-            await this.db.updateFaster(id, 'status', 'IN_PROGRESS')
             await this.start(user, id)
             return
         } else if (pro.status !== 'IN_PROGRESS') {
