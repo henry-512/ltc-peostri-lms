@@ -7,10 +7,8 @@
 
 import {
     DateField,
-    useTranslate,
     FunctionField,
     TextField,
-    useLocaleState,
     useRecordContext,
     ReferenceField,
     ReferenceArrayField,

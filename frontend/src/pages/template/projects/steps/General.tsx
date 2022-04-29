@@ -6,7 +6,7 @@
 */
 
 import { Box, Grid } from "@mui/material"
-import { FormGroupContextProvider, maxLength, minLength, NumberInput, required, SelectInput, TextInput } from "react-admin"
+import { FormGroupContextProvider, maxLength, minLength, required, SelectInput, TextInput } from "react-admin"
 import SectionTitle from "src/components/SectionTitle";
 import { Step } from "src/components/FormStepper/Step";
 

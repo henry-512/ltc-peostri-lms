@@ -75,7 +75,7 @@ const ModuleFields = (props: ModuleFieldsProps) => {
             module_ttc += stepTTC;
         }
 
-        if (module_ttc == getValues(getSource?.('ttc'))) return;
+        if (module_ttc === getValues(getSource?.('ttc'))) return;
 
         setValue(getSource?.('ttc'), module_ttc);
 
