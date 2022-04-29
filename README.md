@@ -78,3 +78,6 @@ npm run start
 - `/database` - Database dump files consisting of pre-built ranks, module templates, projects templates, and one user.
 - `/docs` - General project documentation and user tutorials.
 - `/frontend` - All frontend UI files and documentation.
+
+## Demo Video
+https://github.com/Capstone-US-Army-PEOSTRI/peostri-lms/blob/master/docs/demo/demo_video.mp4
