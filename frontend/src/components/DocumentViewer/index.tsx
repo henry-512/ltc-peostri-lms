@@ -55,8 +55,6 @@ export type DocumentViewerProps = {
 const DocumentViewer = (props: DocumentViewerProps) => {
     const translate = useTranslate();
 
-    console.log(props.src)
-
     return (
         <>
             <StyledDialog open={props.open} onClose={props.handleClose} aria-labelledby={props.ariaLabel} fullWidth={true} maxWidth={(props.maxWidth ? props.maxWidth : 'sm')}>
