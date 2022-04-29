@@ -2,7 +2,8 @@ import { IComment } from '../../../lms/types'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 
-class Comment extends DBManager<IComment> {
+/** Comments directly attached to database objects. */
+export class Comment extends DBManager<IComment> {
     constructor() {
         super(
             'comments',
@@ -33,8 +34,8 @@ class Comment extends DBManager<IComment> {
         return doc
     }
 
-    // NOTE: If this is supposed to be a comment reference
-    // but does not exist, this generates a comment.
+    // NOTE: If this is supposed to be a comment reference but does not exist,
+    // this generates a comment.
     protected override buildFromString = async (
         user: AuthUser,
         files: any,

@@ -4,7 +4,7 @@ import { generateBase64UUID, isDBId } from '../../../../lms/util'
 import { DBManager } from '../../DBManager'
 import { ModuleTempManager } from './moduleTemplates'
 
-class ProjectTemplate extends DBManager<IProjectTemplate> {
+export class ProjectTemplate extends DBManager<IProjectTemplate> {
     constructor() {
         super(
             'projectTemplates',
@@ -31,14 +31,13 @@ class ProjectTemplate extends DBManager<IProjectTemplate> {
         )
     }
 
-    public async buildProjectFromId(id: string) {
-        let template = await this.db.get(id)
-        return this.buildProjectFromTemplate(template)
-    }
-
-    private async buildProjectFromTemplate(
-        temp: IProjectTemplate
-    ): Promise<IProject> {
+    /**
+     * Constructs a project from a project template `ID`.
+     *
+     * @param id The project template to create a project instance from
+     */
+    public async buildProjectFromId(id: string): Promise<IProject> {
+        let temp = await this.db.get(id)
         let mods: IStepper<IModule> = {}
 
         for (let [stepName, tempArray] of Object.entries(temp.modules)) {
