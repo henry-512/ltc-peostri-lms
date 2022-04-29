@@ -395,15 +395,20 @@ class Module extends DBManager<IModule> {
 
     // Restart a module. Clean it's file, mark all tasks as 'AWAITING',
     // then call `start` on it
-    public async restart(user: AuthUser, id: string, full: boolean) {
+    public async restart(user: AuthUser, id: string) {
         let mod = await this.db.get(id)
         mod.status = 'AWAITING'
         mod.percent_complete = 0
         mod.currentStep = 0
 
-        if (full) {
-            // Reset files (Arangodb is fun :) )
-            mod.files = null as any
+        // Concat old files
+        if (mod.files) {
+            let filemeta = await FilemetaManager.db.get(mod.files as string)
+            filemeta.old = (<any[]>filemeta.old).concat(filemeta.latest)
+            filemeta.oldReviews = (<any[]>filemeta.oldReviews).concat(
+                filemeta.reviews
+            )
+            await FilemetaManager.db.update(filemeta)
         }
 
         // Remove the REVISE tasks

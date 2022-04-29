@@ -16,6 +16,7 @@ class Filemeta extends DBManager<IFileRevisions> {
                     managerName: 'files',
                     acceptNewDoc: true,
                     overrideUserDeref: true,
+                    freeable: true,
                 },
                 old: {
                     type: 'array',
@@ -23,6 +24,7 @@ class Filemeta extends DBManager<IFileRevisions> {
                     managerName: 'files',
                     acceptNewDoc: true,
                     overrideUserDeref: true,
+                    freeable: true,
                 },
                 reviews: {
                     type: 'array',
@@ -30,6 +32,7 @@ class Filemeta extends DBManager<IFileRevisions> {
                     managerName: 'files',
                     acceptNewDoc: true,
                     overrideUserDeref: true,
+                    freeable: true,
                 },
                 oldReviews: {
                     type: 'array',
@@ -37,6 +40,7 @@ class Filemeta extends DBManager<IFileRevisions> {
                     managerName: 'files',
                     acceptNewDoc: true,
                     overrideUserDeref: true,
+                    freeable: true,
                 },
                 module: {
                     type: 'parent',
