@@ -1,5 +1,5 @@
 import { PopoverOrigin } from "@mui/material";
-import { useEffect, useState } from "react";
+import { MouseEventHandler, useEffect, useState } from "react";
 import NotificationsMenu from "./NotificationsMenu";
 import NotificationsButton from "./NotificationsButton";
 import { useDataProvider } from 'react-admin';
@@ -61,7 +61,9 @@ const NotificationsWidget = (props: NotificationsButtonProps) => {
         return () => clearInterval(interval);
     }, [])
 
-    const markAllRead = () => {
+    const markAllRead = (e: Event) => {
+        e.preventDefault();
+
         dataProvider.update<INotification>('notifications/readall', { id: "", data: {}, previousData: { id: "" } })
         .then(() => {
             // @ts-ignore

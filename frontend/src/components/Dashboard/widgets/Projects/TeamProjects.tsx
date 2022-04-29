@@ -9,7 +9,7 @@ import ProjectList from "./ProjectList";
 
 const TeamProjects = () => {
     return (
-        <ProjectList resource="projects/team" title="dashboard.widget.projects.team_title" />
+        <ProjectList resource="projects/team" filter={{ status: "IN_PROGRESS" }} title="dashboard.widget.projects.team_title" />
     )
 }
 

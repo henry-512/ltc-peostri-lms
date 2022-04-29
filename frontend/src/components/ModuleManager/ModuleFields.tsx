@@ -37,7 +37,7 @@ const Root = styled('div')(({ theme }) => ({
 
     [`& .${classes.waiverWrapperOpen}`]: {
         transition: 'height 0.2s ease',
-        height: '190px',
+        height: '200px',
         marginBottom: '-30px',
         maxHeight: 'unset'
     },
@@ -154,6 +154,9 @@ const ModuleFields = (props: ModuleFieldsProps) => {
                         height: 'calc(100% - 1rem)',
                         '& .MuiFilledInput-root': {
                             height: '100%'
+                        },
+                        '& .MuiInputBase-input': {
+                            height: '100% !important'
                         }
                     }} />
                 </Grid>

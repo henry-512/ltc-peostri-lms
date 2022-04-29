@@ -15,7 +15,7 @@ const getProgressStatus = (suspense: string | Date) => {
     const recordTime = recordDate.getTime();
     const timeDiff = Math.abs(nowTime - recordTime);
     const DAY = 1000 * 60 * 60 * 24;
-    const AMBER_TIME = 5 * DAY;
+    const AMBER_TIME = parseInt(process.env.REACT_APP_AMBER_DAYS || "5") * DAY;
 
     if (nowTime < recordTime && timeDiff > AMBER_TIME)
         return "GREEN"
