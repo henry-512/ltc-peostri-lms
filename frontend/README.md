@@ -40,7 +40,7 @@ npm run start
 - `/src`    - Source code of the application.
   - `/components`     - All custom components used on the frontend.
   - `/config`         - Configuration files.
-    - `language`      - Chagne the wording across the site.
+    - `language`      - Change the wording across the site.
     - `theme`         - Color pallette customizations and more.
   - `/pages`          - Page components organized by the menu structure.
   - `/util`           - Miscellaneous methods used across the frontend.
