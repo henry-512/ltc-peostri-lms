@@ -264,7 +264,7 @@ export function routerBuilder(version: string) {
                             ctx.params.id
                         )
 
-                        await ModuleManager.restart(ctx.state.user, id, true)
+                        await ModuleManager.restart(ctx.state.user, id)
                         ctx.status = HTTPStatus.OK
                     })
                     .put('advance/:id', async (ctx) => {

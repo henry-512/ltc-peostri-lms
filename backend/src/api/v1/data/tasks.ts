@@ -480,7 +480,7 @@ class Task extends DBManager<ITask> {
         }
 
         // RESTART
-        await ModuleManager.restart(user, modId, false)
+        await ModuleManager.restart(user, modId)
     }
 }
 
