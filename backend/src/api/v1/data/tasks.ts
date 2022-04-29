@@ -10,13 +10,22 @@ import { ModuleManager } from './modules'
 import { NotificationManager } from './notifications'
 import { ProjectManager } from './projects'
 
+/** Task Notification types */
 export enum NotificationType {
     UPLOAD_AWAITING_REVIEW,
     AWAITING_REVIEW,
     TASK_AWAITING_ACTION,
 }
 
-function notificationContent(
+/**
+ * Builds a task notification content string from its notification type.
+ *
+ * @param t The type of notification
+ * @param taskTitle The task's title
+ * @param moduleTitle The module's title
+ * @return A notification content string
+ */
+export function notificationContent(
     t: NotificationType,
     taskTitle: string,
     moduleTitle: string
@@ -40,7 +49,10 @@ function notificationContent(
 
 const REVISE_TASK_TTC = 10
 
-class Task extends DBManager<ITask> {
+/**
+ * Tasks. The smallest unit of work. Handles proceeding actions.
+ */
+export class Task extends DBManager<ITask> {
     constructor() {
         super(
             'tasks',
@@ -91,6 +103,15 @@ class Task extends DBManager<ITask> {
         )
     }
 
+    /**
+     * Sends a single notification to all users on the task.
+     *
+     * @param moduleTitle This task's module's title
+     * @param moduleId This task's module id
+     * @param taskId The task itself
+     * @param content Either a pre-build string or a notification type to build
+     * from
+     */
     public async sendNotification(
         moduleTitle: string,
         moduleId: string,
@@ -115,6 +136,16 @@ class Task extends DBManager<ITask> {
         })
     }
 
+    /**
+     * Sends a notification for each task passed and each user assigned to that
+     * task. Note that all tasks must have the same parent module.
+     *
+     * @param moduleTitle This task's module's title
+     * @param moduleId This task's module id
+     * @param taskIds An array of tasks to send notifications for.
+     * @param content Either a pre-build string or a notification type to build
+     * from
+     */
     public async sendManyNotifications(
         moduleTitle: string,
         moduleId: string,
@@ -146,6 +177,14 @@ class Task extends DBManager<ITask> {
         }
     }
 
+    /**
+     * Runs pre-processing checks on the file and module data.
+     *
+     * @param taskId The task
+     * @param files An files associated with this request
+     * @param fileKey A key into `files` to retrieve a file for
+     * @returns Parsed fields for later processing requests
+     */
     private async checkFileTaskModule(
         taskId: string,
         files: any,
@@ -153,10 +192,16 @@ class Task extends DBManager<ITask> {
     ) {
         // Verify file exists
         let fileData = getFile(files, fileKey)
-
         return { fileData, ...(await this.checkTaskAndModule(taskId)) }
     }
 
+    /**
+     * Runs pre-processing checks on module data. Returns the raw module and its
+     * `ID`.
+     *
+     * @param taskId The task
+     * @returns The module's raw data and `ID`
+     */
     private async checkTaskAndModule(taskId: string) {
         // Retrieve task
         let task = await this.db.get(taskId)
@@ -174,6 +219,13 @@ class Task extends DBManager<ITask> {
         return { modId: task.module, mod }
     }
 
+    /**
+     * Saves a file to disk and database.
+     *
+     * @param user The user for the request
+     * @param fileData The file data to write
+     * @return A `Filedata` `ID` representing the file that was saved
+     */
     private async saveFile(user: AuthUser, fileData: IFileData) {
         // Save file
         let review = await FiledataManager.writeFile(user, fileData)
@@ -188,7 +240,10 @@ class Task extends DBManager<ITask> {
     }
 
     /**
-     * COMPLETE
+     * Forces this task as complete.
+     *
+     * @param user The user for the request
+     * @param taskId The task to update
      */
     public async complete(user: AuthUser, taskId: string) {
         await this.db.updateFaster(taskId, 'status', 'COMPLETED')
@@ -197,7 +252,12 @@ class Task extends DBManager<ITask> {
     }
 
     /**
-     * UPLOAD
+     * Uploads task. Saves a file to disk and pushes `latest` into `old`.
+     *
+     * @param user The user for the request
+     * @param taskId The task to update
+     * @param files Any files associated with this request
+     * @param fileKey A key into `files` with the file for this request
      */
     public async upload(
         user: AuthUser,
@@ -270,7 +330,13 @@ class Task extends DBManager<ITask> {
     }
 
     /**
-     * REVIEW
+     * Adds a file to the review "queue". Also generates the automatic REVISE
+     * task (or restarts it) and attaches it to the module.
+     *
+     * @param user The user for the request
+     * @param taskId The task to update
+     * @param files Any files associated with this request
+     * @param fileKey A key into `files` with the file for this request
      */
     public async review(
         user: AuthUser,
@@ -379,7 +445,11 @@ class Task extends DBManager<ITask> {
     }
 
     /**
-     * REVISE
+     * Marks a review file as read and moves it from `reviews` to `oldReviews`.
+     * 
+     * @param user The user for the request
+     * @param taskId The task to update
+     * @param reviseFileKey The review file to remove from the array
      */
     public async revise(user: AuthUser, taskId: string, reviseFileKey: string) {
         let { mod, modId } = await this.checkTaskAndModule(taskId)
@@ -428,7 +498,10 @@ class Task extends DBManager<ITask> {
     }
 
     /**
-     * APPROVE
+     * Successfully completes an approve task and advances status.
+     * 
+     * @param user The user for the request
+     * @param taskId The task to update
      */
     public async approve(user: AuthUser, taskId: string) {
         await this.db.updateFaster(taskId, 'status', 'COMPLETED')
@@ -438,7 +511,13 @@ class Task extends DBManager<ITask> {
     }
 
     /**
-     * DENY
+     * Unsuccessfully completes (denies) an approve task. This soft-restarts the
+     * module. Requires a file, which added to the review queue.
+     *
+     * @param user The user for the request
+     * @param taskId The task to update
+     * @param files Any files associated with this request
+     * @param fileKey A key into `files` with the file for this request
      */
     public async deny(
         user: AuthUser,

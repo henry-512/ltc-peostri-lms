@@ -204,7 +204,7 @@ export default function routerBuilder(version: string) {
                 new Router({ prefix: 'proceeding/projects/' })
                     .put('complete/:id', async (ctx) => {
                         let id = await paramId(ctx, ProjectManager)
-                        await ProjectManager.complete(ctx.state.user, id, true)
+                        await ProjectManager.complete(ctx.state.user, id)
                         ctx.status = HTTPStatus.OK
                     })
                     .put('start/:id', async (ctx) => {
@@ -224,7 +224,7 @@ export default function routerBuilder(version: string) {
                 new Router({ prefix: 'proceeding/modules/' })
                     .put('complete/:id', async (ctx) => {
                         let id = await paramId(ctx, ModuleManager)
-                        await ModuleManager.complete(ctx.state.user, id, true)
+                        await ModuleManager.complete(ctx.state.user, id)
                         ctx.status = HTTPStatus.OK
                     })
                     .put('start/:id', async (ctx) => {

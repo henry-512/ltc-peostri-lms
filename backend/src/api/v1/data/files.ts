@@ -14,7 +14,10 @@ const FILE_PATH = path.join('fs')
 export const FULL_FILE_PATH = path.resolve(config.basePath, FILE_PATH)
 const FILE_404 = path.join('404.pdf')
 
-class Filedata extends DBManager<IFileMetadata> {
+/**
+ * Filedata. Stores where a file is located and its static path URL.
+ */
+export class Filedata extends DBManager<IFileMetadata> {
     constructor() {
         super(
             'files',
@@ -37,6 +40,7 @@ class Filedata extends DBManager<IFileMetadata> {
         )
     }
 
+    // Overrides deletion to delete the file from disk
     public override async delete(user: AuthUser, id: string): Promise<void> {
         let path = await this.db.getOneField<string>(id, 'pathTo')
         await super.delete(user, id)
@@ -44,6 +48,7 @@ class Filedata extends DBManager<IFileMetadata> {
         await this.deleteFile(user, path)
     }
 
+    // Generates the SRC url path
     public override async getFromDB(
         user: AuthUser,
         id: string,
@@ -58,6 +63,7 @@ class Filedata extends DBManager<IFileMetadata> {
         return f
     }
 
+    // Generates the SRC url path
     public override async convertIDtoKEY(
         user: AuthUser,
         doc: IFileMetadata
@@ -70,11 +76,22 @@ class Filedata extends DBManager<IFileMetadata> {
         return f
     }
 
+    /**
+     * Gets a static url to the given file.
+     *
+     * @param file A FileData-like string
+     * @return A URL string
+     */
     public getStaticUrl(file: { id?: string; title: string }) {
         return getUrl(`files/static/${file.id}/${file.title}`)
     }
 
-    // Write a new file from the file data
+    /**
+     * Write a new file from the file data
+     * 
+     * @param user The user for the request
+     * @param file The file data to update
+     */
     public async writeFile(
         user: AuthUser,
         file: IFileData

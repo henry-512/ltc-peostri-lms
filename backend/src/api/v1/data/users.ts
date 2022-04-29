@@ -6,16 +6,23 @@ import { DBManager } from '../DBManager'
 import { TeamManager } from './teams'
 import { UserArangoWrapper } from './UserArangoWrapper'
 
-export const DB_NAME = 'users'
+/** User database name */
+export const USER_DB_NAME = 'users'
 
-class User extends DBManager<IUser> {
+/**
+ * A User in the system. Stores their display profile, authentication
+ * information, rank, team, and tracking information.
+ */
+export class User extends DBManager<IUser> {
     constructor() {
         super(
-            DB_NAME,
+            USER_DB_NAME,
             'User',
             {
                 firstName: { type: 'string' },
                 lastName: { type: 'string' },
+                // This needs a default so the frontend has something to run a
+                // query with
                 avatar: { type: 'string', default: 'google.com' },
                 rank: {
                     type: 'fkey',
@@ -71,9 +78,11 @@ class User extends DBManager<IUser> {
             }
         )
 
+        /** Custom database manager for users */
         this.db = new UserArangoWrapper(this.fieldEntries)
     }
 
+    // Updates the user's team
     protected override async prepareDocumentForUpload(
         user: AuthUser,
         files: any,
@@ -99,6 +108,7 @@ class User extends DBManager<IUser> {
         let userId = this.db.asId(u.id as string)
 
         if (exists) {
+            // Compare against the current team
             let currentTeam = await this.db.getOneField<string[]>(
                 userId,
                 'teams'
@@ -135,6 +145,7 @@ class User extends DBManager<IUser> {
         return u
     }
 
+    // Also removes this user from its teams
     public override async delete(user: AuthUser, id: string): Promise<void> {
         // Retrieve list of teams
         let teams = await this.db.getOneField<string[]>(id, 'teams')
@@ -148,6 +159,7 @@ class User extends DBManager<IUser> {
         return super.delete(user, id)
     }
 
+    // Hashes the password if it is set
     protected override modifyDoc = async (
         user: AuthUser,
         files: any,
@@ -160,11 +172,22 @@ class User extends DBManager<IUser> {
         return doc
     }
 
+    /**
+     * Retrieves a user from their username. Runs during the authentication
+     * process.
+     *
+     * @param username The username to retrieve
+     * @return A user with the passed username
+     */
     public async getFromUsername(username: string) {
         return (<UserArangoWrapper>this.db).getFromUsername(username)
     }
 
-    // Update the first/lastVisited fields
+    /**
+     * Updates the first/lastVisited fields for the passed user `KEY`.
+     *
+     * @param key A user `KEY` to update
+     */
     public async updateForNewLogin(key: string) {
         let id = this.db.keyToId(key)
         let user = await this.db.get(id)

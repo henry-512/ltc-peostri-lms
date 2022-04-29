@@ -11,11 +11,13 @@ import { AuthUser } from '../../auth'
 import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
 import { ModuleManager } from './modules'
-import { NotificationManager } from './notifications'
 import { TaskManager } from './tasks'
 import { UserManager } from './users'
 
-class Project extends DBManager<IProject> {
+/**
+ * Projects. Denote an entire process workflow, from start to finish.
+ */
+export class Project extends DBManager<IProject> {
     constructor() {
         super(
             'projects',
@@ -119,6 +121,13 @@ class Project extends DBManager<IProject> {
         // All modules we need to process
         let mappedMods: IModule[] = map.get(ModuleManager) ?? []
         let mappedTasks: ITask[] = map.get(TaskManager) ?? []
+
+        //
+        // This next section loops over every task and every module to calculate
+        // the percent complete and calculate all of the TTC values. Notably,
+        // this runs after already performing this operation as part of the
+        // upload preparation stage.
+        //
 
         // Step over the modules
         await stepperForEachInOrder<string>(
@@ -266,7 +275,9 @@ class Project extends DBManager<IProject> {
         // Set project %-complete
         p.percent_complete = (100 * completeModules) / totalModules
 
+        //
         // Delete removed modules and tasks
+        //
         if (exists) {
             let currentModules = compressStepper<string>(
                 await this.db.getOneField<IStepper<string>>(pid, 'modules')
@@ -307,6 +318,7 @@ class Project extends DBManager<IProject> {
         return p
     }
 
+    // Updates project status
     public override async create(
         user: AuthUser,
         files: any,
@@ -320,6 +332,7 @@ class Project extends DBManager<IProject> {
         return id
     }
 
+    // Updates project status
     public override async update(
         user: AuthUser,
         files: any,
@@ -337,7 +350,10 @@ class Project extends DBManager<IProject> {
     //
 
     /**
-     * Calculates percent_complete based on the module status
+     * Calculates percent_complete based on the module status. Mutably modifies
+     * `pro`. Can only read module keys.
+     *
+     * @param pro The project to calculate %-complete for.
      */
     private async calculatePercentComplete(pro: IProject) {
         let mods = compressStepper<string>(pro.modules)
@@ -350,22 +366,27 @@ class Project extends DBManager<IProject> {
             (100 * (mods.length - compAll.length)) / mods.length
     }
 
-    public async automaticAdvance(user: AuthUser, pro: string) {
-        return this.postAutomaticAdvance(user, await this.db.get(pro))
-    }
+    /**
+     * Automatically advances this project, if allowed. Called after a module advances.
+     *
+     * @param user The user for the request
+     * @param id The project id to update
+     */
+    public async automaticAdvance(user: AuthUser, id: string) {
+        let pro = await this.db.get(id)
 
-    public async postAutomaticAdvance(user: AuthUser, pro: IProject) {
         // Awaiting projects should be pushed to IN_PROGRESS
         if (pro.status === 'AWAITING') {
             pro.status = 'IN_PROGRESS'
         } else if (pro.status !== 'IN_PROGRESS') {
             // Only in-progress modules can be automatically advanced
             console.log(
-                `Project ${pro.id} attempted to advance, not IN_PROGRESS ${pro.status}`
+                `Project ${id} attempted to advance, not IN_PROGRESS ${pro.status}`
             )
             return
         }
 
+        // Current modules
         let currentStep = getStep<string>(pro.modules, pro.currentStep)
 
         if (!currentStep) {
@@ -384,16 +405,17 @@ class Project extends DBManager<IProject> {
             ['COMPLETED', 'WAIVED']
         )
 
-        // If there are moudles remaining
+        // If there are modules remaining
         if (invalids.hasNext) {
             console.log(
-                `project ${pro.id} failed auto-advance from step #${
+                `project ${id} failed auto-advance from step #${
                     pro.currentStep
                 }; modules ${await invalids.all()}`
             )
             return
         }
 
+        // Increment step
         pro.currentStep++
 
         let nextStep = getStep<string>(pro.modules, pro.currentStep)
@@ -420,6 +442,13 @@ class Project extends DBManager<IProject> {
     // ROUTINES
     //
 
+    /**
+     * Restarts a project to base settings. Resets every module, purging all
+     * files.
+     *
+     * @param user The user for the request
+     * @param id The project to modify
+     */
     public async restart(user: AuthUser, id: string) {
         let pro = await this.db.get(id)
         pro.status = 'AWAITING'
@@ -432,9 +461,15 @@ class Project extends DBManager<IProject> {
         }
 
         // Start project
-        return this.postStartNextStep(user, pro)
+        await this.postStartNextStep(user, pro)
     }
 
+    /**
+     * Starts a project. Only operates on AWAITING projects.
+     *
+     * @param user The user for the request.
+     * @param id The project to modify
+     */
     public async start(user: AuthUser, id: string) {
         let pro = await this.db.get(id)
         if (pro.status !== 'AWAITING') {
@@ -450,7 +485,12 @@ class Project extends DBManager<IProject> {
     }
 
     /**
-     * Updates the project's currently active statuses
+     * Updates the project's currently active statuses. This includes starting
+     * previously unstarted modules. Intended to be run after a project
+     * create/update operation.
+     *
+     * @param user The user for the request
+     * @param id The project to modify
      */
     public async updateStatus(user: AuthUser, id: string) {
         let pro = await this.db.get(id)
@@ -481,6 +521,13 @@ class Project extends DBManager<IProject> {
         }
     }
 
+    /**
+     * Starts the next step in the project. Notifies all modules they should
+     * start.
+     *
+     * @param user The user for the request
+     * @param pro The project to update
+     */
     private async postStartNextStep(user: AuthUser, pro: IProject) {
         // Calculate the next step. If not set, defaults to 0
         let nextStep = (pro.currentStep ?? -1) + 1
@@ -496,7 +543,8 @@ class Project extends DBManager<IProject> {
 
         // Next key not found, therefore this project is complete
         if (!nextStepAr) {
-            return this.postComplete(user, pro, false)
+            await this.postComplete(user, pro, false)
+            return
         }
 
         // Start the first step's modules
@@ -511,15 +559,28 @@ class Project extends DBManager<IProject> {
 
         // Update in the db
         await this.db.update(pro)
-        return pro
     }
 
-    public async complete(user: AuthUser, id: string, force: boolean) {
+    /**
+     * Forces a project as complete. Also forces all modules/tasks to complete.
+     *
+     * @param user The user for the request
+     * @param id The project to modify
+     */
+    public async complete(user: AuthUser, id: string) {
         let pro = await this.db.get(id)
-        return this.postComplete(user, pro, force)
+        await this.postComplete(user, pro, true)
     }
 
-    public async postComplete(user: AuthUser, pro: IProject, force: boolean) {
+    /**
+     * Marks a project as complete, and optionally validates that all processes
+     * have been completed.
+     *
+     * @param user The user for the request
+     * @param pro The project to modify
+     * @param force If false, verify that all modules and tasks are complete
+     */
+    private async postComplete(user: AuthUser, pro: IProject, force: boolean) {
         pro.status = 'COMPLETED'
         // Retrieve all modules
         let allModules = compressStepper<string>(pro.modules)
@@ -596,7 +657,6 @@ class Project extends DBManager<IProject> {
 
         // Update project
         await this.db.update(pro)
-        return pro
     }
 }
 
