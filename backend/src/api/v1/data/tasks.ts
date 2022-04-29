@@ -235,10 +235,11 @@ class Task extends DBManager<ITask> {
                 module: modId,
             }
 
+            // Update module
             mod.files = filemeta.id
+            await ModuleManager.db.updateFaster(modId, 'files', filemeta.id)
             // Update filemeta
             await FilemetaManager.db.save(filemeta)
-            await ModuleManager.db.update(mod)
         }
 
         // Check if this is the DOCUMENT_REVISE task

@@ -227,13 +227,16 @@ class Module extends DBManager<IModule> {
         return this.postAutomaticAdvance(user, await this.db.get(id))
     }
 
-    public async postAutomaticAdvance(user: AuthUser, mod: IModule) {
+    public async postAutomaticAdvance(
+        user: AuthUser,
+        mod: IModule
+    ): Promise<boolean> {
         // Awaiting modules should be pushed to IN_PROGRESS
         if (mod.status === 'AWAITING') {
             mod.status = 'IN_PROGRESS'
         } else if (mod.status !== 'IN_PROGRESS') {
             // Only in-progress modules can be automatically advanced
-            return
+            return false
         }
 
         let currentStep = getStep<string>(mod.tasks, mod.currentStep)
@@ -261,7 +264,7 @@ class Module extends DBManager<IModule> {
                     mod.id
                 } failed auto-advance from ${currentStep}; tasks ${await invalids.all()}`
             )
-            return
+            return false
         }
 
         mod.currentStep++
@@ -314,6 +317,8 @@ class Module extends DBManager<IModule> {
             await ProjectManager.db.assertIdExists(mod.project)
             await ProjectManager.automaticAdvance(user, mod.project)
         }
+
+        return true
     }
 
     // Marks a module as 'COMPLETED'
