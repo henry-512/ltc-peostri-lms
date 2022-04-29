@@ -139,8 +139,10 @@ class User extends DBManager<IUser> {
         // Retrieve list of teams
         let teams = await this.db.getOneField<string[]>(id, 'teams')
 
-        // Remove this user from the teams
-        await TeamManager.db.removeFromFieldArray(teams, 'users', id)
+        if (teams && teams.length !== 0) {
+            // Remove this user from the teams
+            await TeamManager.db.removeFromFieldArray(teams, 'users', id)
+        }
 
         // Pass to super
         return super.delete(user, id)
