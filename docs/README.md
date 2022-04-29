@@ -1,8 +1,8 @@
 # Related Documents and Demos
 
 ## Demo `/demo`
-- demo_video.mp4 - Showcase demo video.
-- documents - Template documents for demo purposes.
+- `demo_video.mp4` - Showcase demo video.
+- `/documents` - Template documents for demo purposes.
 
 ## Tutorials `/tutorials`
 - `lms-user-guide.pdf` - Text tutorial on how to use the software.
