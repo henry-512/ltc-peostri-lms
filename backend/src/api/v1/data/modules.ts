@@ -5,8 +5,7 @@ import {
     IStepper,
     stepperForEachInOrder,
 } from '../../../lms/Stepper'
-import { IFileMetadata, IFileRevisions, IModule } from '../../../lms/types'
-import { getUrl } from '../../../lms/util'
+import { IModule } from '../../../lms/types'
 import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { FilemetaManager } from './filemeta'
@@ -14,7 +13,10 @@ import { FiledataManager } from './files'
 import { ProjectManager } from './projects'
 import { NotificationType, TaskManager } from './tasks'
 
-class Module extends DBManager<IModule> {
+/**
+ * File tracking process. Tracks a single file's review and approval process.
+ */
+export class Module extends DBManager<IModule> {
     constructor() {
         super(
             'modules',
@@ -94,6 +96,7 @@ class Module extends DBManager<IModule> {
         )
     }
 
+    // Converts `mod.files` into a different form for administrative routes.
     public override async getFromDB(
         user: AuthUser,
         id: string,
@@ -145,6 +148,7 @@ class Module extends DBManager<IModule> {
     ): Promise<IModule> {
         let mod = await super.convertIDtoKEY(user, doc)
 
+        // Retrieve files from the database
         if (mod.files && typeof mod.files === 'string') {
             let id = FilemetaManager.db.asId(mod.files)
             mod.files = await FilemetaManager.getFromDB(user, id, false, false)
@@ -153,6 +157,7 @@ class Module extends DBManager<IModule> {
         return mod
     }
 
+    // Sets waive_module and renames `file` to `files`
     protected override modifyDoc = (
         user: AuthUser,
         files: any,
@@ -176,8 +181,9 @@ class Module extends DBManager<IModule> {
     //
 
     /**
-     * Removes all of the `DOCUMENT_REVISE` tasks. Called by restart
-     * and reset
+     * Removes all of the `DOCUMENT_REVISE` tasks. Called by restart and reset.
+     *
+     * @param mod The module to update
      * @return true if the module was modified, false otherwise
      */
     private async removeReviseTasks(mod: IModule) {
@@ -208,7 +214,9 @@ class Module extends DBManager<IModule> {
     }
 
     /**
-     * Calculates percent_complete based on the task status
+     * Calculates percent_complete based on the task status.
+     *
+     * @param mod The module to update
      */
     private async calculatePercentComplete(mod: IModule) {
         let tasks = compressStepper<string>(mod.tasks)
@@ -222,11 +230,22 @@ class Module extends DBManager<IModule> {
             (100 * (tasks.length - compAll.length)) / tasks.length
     }
 
-    // Checks for automatic step/module advancing
+    /**
+     * Checks for automatic step/module advancing.
+     *
+     * @param user The user for the request
+     * @param id The project to modify
+     */
     public async automaticAdvance(user: AuthUser, id: string) {
         return this.postAutomaticAdvance(user, await this.db.get(id))
     }
 
+    /**
+     * Checks for automatic step/module advancing using a raw module.
+     *
+     * @param user The user for the request
+     * @param mod The project to modify
+     */
     public async postAutomaticAdvance(
         user: AuthUser,
         mod: IModule
@@ -321,12 +340,25 @@ class Module extends DBManager<IModule> {
         return true
     }
 
-    // Marks a module as 'COMPLETED'
-    public async complete(user: AuthUser, id: string, force: boolean) {
+    /**
+     * Marks a module as 'COMPLETED'. Also forces all tasks to `COMPLETE`.
+     *
+     * @param user The user for the request
+     * @param id The module to modify
+     */
+    public async complete(user: AuthUser, id: string) {
         let mod = await this.db.get(id)
-        return this.postComplete(user, mod, force)
+        return this.postComplete(user, mod, true)
     }
 
+    /**
+     * Marks a module as 'COMPLETED' or 'WAIVED'. If force is false, first
+     * ensure all tasks have been completed.
+     *
+     * @param user The user for the request
+     * @param mod The module to modify
+     * @param force True if all tasks should be forced complete
+     */
     private async postComplete(user: AuthUser, mod: IModule, force: boolean) {
         // Files with waives are marked 'WAIVED' instead of completed
         mod.status = mod.waive_module ? 'WAIVED' : 'COMPLETED'
@@ -378,8 +410,13 @@ class Module extends DBManager<IModule> {
         return mod
     }
 
-    // Start a module. Mark it from 'AWAITING' to 'IN_PROGRESS' and update
-    // the first step's tasks
+    /**
+     * Start a module. Mark it from 'AWAITING' to 'IN_PROGRESS' and update the
+     * first step's tasks.
+     * 
+     * @param user The user for the request
+     * @param id The module to modify
+     */
     public async start(user: AuthUser, id: string) {
         let mod = await this.db.get(id)
         if (mod.status !== 'AWAITING') {
@@ -393,8 +430,13 @@ class Module extends DBManager<IModule> {
         return this.postStartNextStep(user, mod)
     }
 
-    // Restart a module. Clean it's file, mark all tasks as 'AWAITING',
-    // then call `start` on it
+    /**
+     * Restart a module. Clean it's file, mark all tasks as 'AWAITING', then
+     * call `start` on it.
+     *
+     * @param user The user for the request
+     * @param id The module to modify
+     */
     public async restart(user: AuthUser, id: string) {
         let mod = await this.db.get(id)
         mod.status = 'AWAITING'
@@ -422,7 +464,10 @@ class Module extends DBManager<IModule> {
     }
 
     /**
-     * Resets the module to factory conditions
+     * Resets the module to factory conditions. Deletes all files.
+     *
+     * @param user The user for the request
+     * @param id The module to modify
      */
     public async reset(user: AuthUser, id: string) {
         console.log(`Reset called on module ${id}`)
@@ -450,15 +495,19 @@ class Module extends DBManager<IModule> {
         await this.db.update(mod)
     }
 
-    // Advances a module to the next step, or marks it as complete if
-    // there are no steps left. If the module is 'AWAITING' move it to
-    // 'IN_PROGRESS'
+    /**
+     * Advances a module to the next step, or marks it as complete if there are
+     * no steps left. If the module is 'AWAITING' move it to 'IN_PROGRESS'.
+     *
+     * @param user The user for the request
+     * @param id The module to modify
+     */
     public async advance(user: AuthUser, id: string, force: boolean) {
         let mod = await this.db.get(id)
         // If module is new, we don't need to validate steps
         if (mod.status !== 'AWAITING') {
             if (!force) {
-                // Verifiy all tasks are completed in the current step
+                // Verify all tasks are completed in the current step
                 // Pull current step array
                 let currentStep = getStep<string>(mod.tasks, mod.currentStep)
 
@@ -505,6 +554,13 @@ class Module extends DBManager<IModule> {
         return this.postStartNextStep(user, mod)
     }
 
+    /**
+     * Starts the next step of the module or starts the first module, if it is
+     * awaiting.
+     *
+     * @param user The user for the request
+     * @param mod The module to modify
+     */
     private async postStartNextStep(user: AuthUser, mod: IModule) {
         // Calculate the next step. If not set, defaults to 0
         let nextStep = (mod.currentStep ?? -1) + 1

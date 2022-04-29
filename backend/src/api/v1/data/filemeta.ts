@@ -5,7 +5,8 @@ import { AuthUser } from '../../auth'
 import { DBManager } from '../DBManager'
 import { FiledataManager } from './files'
 
-class Filemeta extends DBManager<IFileRevisions> {
+/** File metadata */
+export class Filemeta extends DBManager<IFileRevisions> {
     constructor() {
         super(
             'filemeta',

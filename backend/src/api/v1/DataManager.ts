@@ -324,7 +324,7 @@ export class DataManager<Type> extends IErrorable {
 
     /**
      * Constructs a DataManager instance with the passed fields and options.
-     * 
+     *
      * @param fieldData The fields and their metadata
      */
     constructor(
@@ -486,6 +486,7 @@ export class DataManager<Type> extends IErrorable {
                         delete o[k]
                     } else {
                         if (data.type === 'step') {
+                            // Fix stepper objects. Very expensive.
                             o[k] = fixStepper(o[k])
                         } else if (
                             data.type === 'string' &&
@@ -497,6 +498,7 @@ export class DataManager<Type> extends IErrorable {
                         return false
                     }
                 }
+                // Fill in default field
                 if (data.default !== undefined) {
                     console.warn(
                         `Using default ${data.default} for ${String(k)}`
@@ -552,7 +554,14 @@ export class DataManager<Type> extends IErrorable {
                 ),
             // data
             async (v, d) =>
-                d.dataManager.referenceFieldInDoc(user, files, v, d, map, id ?? lastDBId),
+                d.dataManager.referenceFieldInDoc(
+                    user,
+                    files,
+                    v,
+                    d,
+                    map,
+                    id ?? lastDBId
+                ),
             // other
             async (value, data) => {
                 if (typeof value === data.type) {
@@ -587,6 +596,20 @@ export class DataManager<Type> extends IErrorable {
         return doc
     }
 
+    /**
+     * Converts a passed object or string into an `ID` for the manager
+     * referenced by data or into a parsed object if it isn't a database object.
+     *
+     * Sets parent fields and converts strings into new documents.
+     *
+     * @param user The user of the request
+     * @param files Any files with the request
+     * @param doc The document to convert
+     * @param data The field data associated with where this sub-document came
+     * from
+     * @param map The create/update map
+     * @param par The parent of this document's `ID`
+     */
     protected async referenceFieldInDoc(
         user: AuthUser,
         files: any,
@@ -713,7 +736,14 @@ export class DataManager<Type> extends IErrorable {
 
             // Set new/modified id
             doc.id = id
-            await this.prepareDocumentForUpload(user, files, doc, exists, map, id)
+            await this.prepareDocumentForUpload(
+                user,
+                files,
+                doc,
+                exists,
+                map,
+                id
+            )
             return id
         }
         throw this.error(
@@ -726,15 +756,14 @@ export class DataManager<Type> extends IErrorable {
         )
     }
 
-    protected async addReference(id: string, field: string, real: boolean) {
-        throw this.error('addReference', HTTPStatus.NOT_IMPLEMENTED)
-    }
-
-    protected async removeReference(id: string, field: string, real: boolean) {
-        throw this.error('removeReference', HTTPStatus.NOT_IMPLEMENTED)
-    }
-
-    // Called by GET-ALL and GET-ID
+    /**
+     * Called by GET-ALL and GET-ID requests. Converts all `ID`s in the document
+     * into `KEY`s for presentation on the frontend.
+     *
+     * @param user The user for this request
+     * @param doc The document to convert keys for
+     * @return The updated document
+     */
     public async convertIDtoKEY(user: AuthUser, doc: Type): Promise<Type> {
         return this.updateEachField(
             doc,

@@ -4,7 +4,10 @@ import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
 import { UserManager } from './users'
 
-class Team extends DBManager<ITeam> {
+/**
+ * A group of users that are working on a project together.
+ */
+export class Team extends DBManager<ITeam> {
     constructor() {
         super(
             'teams',
@@ -25,6 +28,7 @@ class Team extends DBManager<ITeam> {
         )
     }
 
+    // Updates user assignments
     protected override async prepareDocumentForUpload(
         user: AuthUser,
         files: any,
@@ -42,6 +46,7 @@ class Team extends DBManager<ITeam> {
             lastDBId
         )
 
+        // If there are no users, shortcut
         if (!t.users || t.users.length === 0) {
             return t
         }
@@ -85,6 +90,7 @@ class Team extends DBManager<ITeam> {
         return t
     }
 
+    // Unassign users from the team
     public override async delete(user: AuthUser, id: string): Promise<void> {
         // Retrieve list of users
         let users = await this.db.getOneField<string[]>(id, 'users')

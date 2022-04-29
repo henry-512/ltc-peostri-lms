@@ -168,6 +168,15 @@ export class AuthUser {
                     const { password, ...dbUserWOPass } =
                         await UserManager.getFromUsername(reqUN)
 
+                    if (!dbUserWOPass.id) {
+                        throw AuthUser.error(
+                            'authRouter.post',
+                            HTTPStatus.INTERNAL_SERVER_ERROR,
+                            'Invalid system state',
+                            `User [${dbUserWOPass}] lacks an id field`
+                        )
+                    }
+
                     // Validate password against database password
                     if (
                         !reqPass ||

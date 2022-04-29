@@ -7,7 +7,8 @@ import { DataManager } from '../DataManager'
 import { DBManager } from '../DBManager'
 import { UserManager } from './users'
 
-class Sender extends DataManager<ISender> {
+/** URL resource handler */
+export class Sender extends DataManager<ISender> {
     constructor() {
         super('Sender', {
             display: {
@@ -25,7 +26,8 @@ class Sender extends DataManager<ISender> {
 
 export const SenderManager = new Sender()
 
-class Notification extends DBManager<INotification> {
+/** In-system notifications */
+export class Notification extends DBManager<INotification> {
     constructor() {
         super(
             'notifications',
@@ -56,41 +58,44 @@ class Notification extends DBManager<INotification> {
         )
     }
 
-    public async sendNotification(
-        recipient: string,
-        content: string,
-        sender: ISender
-    ) {
-        // Validate user key
-        await UserManager.db.assertIdExists(recipient)
-
-        let notification: INotification = {
-            id: this.db.generateDBID(),
-            recipient,
-            sender,
-            content,
-            createdAt: new Date().toJSON(),
-            read: false,
-            type: ResourceTypeConverter[sender.resource],
-        }
-
-        return this.db.save(notification)
-    }
-
+    /**
+     * Send a notification to all passed users.
+     *
+     * @param recipients Array of user `ID`s to send the notification to
+     * @param content The content of the notification
+     * @param sender The resource that produced the notification
+     */
     public async sendToMultipleUsers(
         recipients: string[],
         content: string,
         sender: ISender
     ) {
-        for (const r of recipients) {
-            await this.sendNotification(r, content, sender)
+        for (const recipient of recipients) {
+            // Validate user key
+            await UserManager.db.assertIdExists(recipient)
+
+            // Build
+            let notification: INotification = {
+                id: this.db.generateDBID(),
+                recipient,
+                sender,
+                content,
+                createdAt: new Date().toJSON(),
+                read: false,
+                type: ResourceTypeConverter[sender.resource],
+            }
+
+            // Save
+            return this.db.save(notification)
         }
     }
 
+    /** Reads all notifications for the user */
     public async readAllForUser(userId: string) {
         return this.db.updateFilterFaster('recipient', userId, 'read', true)
     }
 
+    /** Reads a single notification from its `ID` */
     public async read(id: string) {
         return this.db.updateFaster(id, 'read', true)
     }
