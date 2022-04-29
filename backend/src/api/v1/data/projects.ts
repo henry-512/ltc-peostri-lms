@@ -275,10 +275,8 @@ class Project extends DBManager<IProject> {
     ): Promise<string> {
         let id = await super.create(user, files, d, real)
 
-        if (d.status === 'AWAITING') {
-            console.log('DEBUG STARTING')
-            await this.start(user, id)
-        }
+        // Update module statuses
+        await this.updateStatus(user, id)
 
         return id
     }
@@ -292,10 +290,8 @@ class Project extends DBManager<IProject> {
     ): Promise<void> {
         await super.update(user, files, id, doc, real)
 
-        if (doc.status === 'AWAITING') {
-            console.log('DEBUG STARTING')
-            await this.start(user, id)
-        }
+        // Update module statuses
+        await this.updateStatus(user, id)
     }
 
     //
@@ -414,6 +410,35 @@ class Project extends DBManager<IProject> {
         }
         pro.percent_complete = 0
         return this.postStartNextStep(user, pro)
+    }
+
+    /**
+     * Updates the project's currently active statuses
+     */
+    public async updateStatus(user: AuthUser, id: string) {
+        let pro = await this.db.get(id)
+
+        // TODO: Start the project based on its start date
+        if (pro.status === 'AWAITING') {
+            await this.db.updateFaster(id, 'status', 'IN_PROGRESS')
+        } else if (pro.status !== 'IN_PROGRESS') {
+            // Projects that are not IN_PROGRESS should not be updated
+            return
+        }
+
+        let currentStep = getStep<string>(pro.modules, pro.currentStep ?? 0)
+
+        let awaiting = await ModuleManager.db.filterField(
+            currentStep,
+            'status',
+            'AWAITING'
+        )
+
+        // Start all awaiting modules on this step
+        while (awaiting.hasNext) {
+            let mid = (await awaiting.next()) as string
+            await ModuleManager.start(user, mid)
+        }
     }
 
     private async postStartNextStep(user: AuthUser, pro: IProject) {
