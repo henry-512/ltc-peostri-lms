@@ -29,12 +29,20 @@ In the `backend` directory:
 - Create `.env` file with the following contents:
 
 ```
-API_PORT = "1234"             # Port number to run the backend server on
-DB_URL = "http://url.com"     # URL or IP of the database server
-DB_NAME = "dbname"            # Name of the ArangoJS database on the database server
-DB_USER = "username"          # Name of the user to use to connect to the database server
-DB_PASS = "password"          # Password of the user to connect to the database server
+API_PORT="1234"                 # Port number to run the backend server on
+API_HOST="localhost:1234"       # Full hostname, including port. Used for static
+                                # file URLs
+
+DB_URL="http://url.com"         # URL or IP of the database server
+DB_NAME="dbname"                # Name of the ArangoJS database on the database 
+                                # server
+DB_USER="username"              # Username for DB authentication
+DB_PASS="password"              # Password for DB authentication
+
+SECRET="JWTSecReT"              # Secret for JWT authentication
 ```
+
+Additional `.env` settings are specified in `backend/api/config.ts`
 
 Run:
 
@@ -74,7 +82,7 @@ npm run start
 
 ## Folder Structure
 - `/backend` - All backend files and documentation.
-- `/backend-testing` - All backend automated blackbox testing files and documentation.
+- `/backend-testing` - All backend automated blackbox testing files and documentation. ***currently broken***
 - `/database` - Database dump files consisting of pre-built ranks, module templates, projects templates, and one user.
 - `/docs` - General project documentation and user tutorials.
 - `/frontend` - All frontend UI files and documentation.
