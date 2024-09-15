@@ -89,3 +89,7 @@ npm run start
 
 ## Demo Video
 https://github.com/Capstone-US-Army-PEOSTRI/peostri-lms/blob/master/docs/demo/demo_video.mp4
+
+# LTC Containerization
+
+LTC expects a `.db_pass` file containing the database password. The password should only contain alphanumeric characters. Afterwards, running the `lms` build script in `ltc-server-bash` will start the containers.

@@ -11,6 +11,7 @@
 /backend/build
 /frontend/build
 /backend/fs
+.db_pass
 
 # misc
 .DS_Store
